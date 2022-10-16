@@ -2,3 +2,5 @@ bin
 dst
 .vs
 *.user
+build
+build_flags.txt
