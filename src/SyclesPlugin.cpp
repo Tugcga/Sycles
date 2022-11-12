@@ -1,31 +1,63 @@
+#include "version.h"
+
 #include <xsi_application.h>
 #include <xsi_context.h>
 #include <xsi_pluginregistrar.h>
 #include <xsi_status.h>
 
-#include "device/device.h"
-
-using namespace XSI; 
-
-SICALLBACK XSILoadPlugin(PluginRegistrar& in_reg)
+SICALLBACK XSILoadPlugin(XSI::PluginRegistrar& in_reg)
 {
-	in_reg.PutAuthor("Shekn");
-	in_reg.PutName("SyclesPlugin");
-	in_reg.PutVersion(1, 0);
-	//RegistrationInsertionPoint - do not remove this line
+	//add plugin directory to the PATH, because some apps require it for loading libraries
+#ifdef _WINDOWS
+	// get plugin_path and remove trailing slash
+	XSI::CString plugin_path = in_reg.GetOriginPath();
+	plugin_path.TrimRight("\\");
 
-	ccl::vector<ccl::DeviceInfo> cpu_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_CPU);
-	for (int i = 0; i < cpu_devices.size(); i++) {
-		Application().LogMessage("cpu: " + CString(cpu_devices[i].description.c_str()));
+	// get PATH env
+	char* pValue;
+	size_t envBufSize;
+	int err = _dupenv_s(&pValue, &envBufSize, "PATH");
+	if (err)
+	{
+		XSI::Application().LogMessage("Failed to retrieve PATH environment.", XSI::siErrorMsg);
 	}
+	else
+	{
+		const XSI::CString currentPath = pValue;
+		free(pValue);
 
-	return CStatus::OK;
+		// check so that plugin_path isn't already in PATH
+		if (currentPath.FindString(plugin_path) == UINT_MAX)
+		{
+			// add plugin_path to beginning of PATH
+			XSI::CString envPath = plugin_path + ";" + currentPath;
+
+			// set the new path
+			err = _putenv_s("PATH", envPath.GetAsciiString());
+			if (err)
+			{
+				XSI::Application().LogMessage("Failed to add Cycles Render path to PATH environment.", XSI::siErrorMsg);
+			}
+		}
+	}
+#endif
+	in_reg.PutAuthor("Shekn");
+	in_reg.PutName("Cycles Render");
+	in_reg.PutVersion(get_major_version(), get_minor_version());
+	//RegistrationInsertionPoint - do not remove this line
+	in_reg.RegisterRenderer("Cycles Render");           // The renderer
+	in_reg.RegisterProperty("Cycles Render Options");   // Render options
+
+	in_reg.RegisterEvent("Cyc_OnObjectAdded", XSI::siOnObjectAdded);
+	in_reg.RegisterEvent("Cyc_OnObjectRemoved", XSI::siOnObjectRemoved);
+
+	return XSI::CStatus::OK;
 }
 
-SICALLBACK XSIUnloadPlugin(const PluginRegistrar& in_reg)
+SICALLBACK XSIUnloadPlugin(const XSI::PluginRegistrar& in_reg)
 {
-	CString strPluginName;
+	XSI::CString strPluginName;
 	strPluginName = in_reg.GetName();
-	Application().LogMessage(strPluginName + " has been unloaded.", siVerboseMsg);
-	return CStatus::OK;
+	XSI::Application().LogMessage(strPluginName + " has been unloaded.", XSI::siVerboseMsg);
+	return XSI::CStatus::OK;
 }

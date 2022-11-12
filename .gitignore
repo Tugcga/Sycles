@@ -3,4 +3,4 @@ dst
 .vs
 *.user
 build
-build_flags.txt
+internal_nonpublic

@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include=".\SyclesPlugin.cpp" />
+    <ClCompile Include="render_base\render_engine_base.cpp">
+      <Filter>render_base</Filter>
+    </ClCompile>
+    <ClCompile Include="version.cpp" />
+    <ClCompile Include="si_callbacks\si_callbacks.cpp">
+      <Filter>si_callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities\logs.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cycles_ui.cpp">
+      <Filter>render_cycles</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\render_engine_cyc.cpp">
+      <Filter>render_cycles</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities\arrays.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities\write_image.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="render_base">
+      <UniqueIdentifier>{29e060f8-4171-4a64-8656-396011fea624}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_cycles">
+      <UniqueIdentifier>{edf09978-00ed-4c9f-a0c1-4365a7367a04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="si_callbacks">
+      <UniqueIdentifier>{918cd697-ddc3-4a18-9ab6-a14004c6de52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utilities">
+      <UniqueIdentifier>{78749c2e-afee-4512-bffb-b1a7cf47f915}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="render_base\render_engine_base.h">
+      <Filter>render_base</Filter>
+    </ClInclude>
+    <ClInclude Include="render_base\render_tile.h">
+      <Filter>render_base</Filter>
+    </ClInclude>
+    <ClInclude Include="render_base\render_visual_buffer.h">
+      <Filter>render_base</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h" />
+    <ClInclude Include="si_callbacks\si_callbacks.h">
+      <Filter>si_callbacks</Filter>
+    </ClInclude>
+    <ClInclude Include="si_callbacks\si_locker.h">
+      <Filter>si_callbacks</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\logs.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\render_engine_cyc.h">
+      <Filter>render_cycles</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\arrays.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\write_image.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
