@@ -22,11 +22,139 @@ SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
 	XSI::CString options_name = "Cycles Render Options";
 	renderer.AddProperty(XSI::siRenderPropertyOptions, "Cycles Render." + options_name);
 
-	//setup output formats
-	renderer.AddOutputImageFormat("Portable Network Graphics (PNG)", "png");
+	// setup output formats
+	// ldr formats
+	renderer.AddOutputImageFormat("PNG - Portable Network Graphics", "png");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger8);
+
+	renderer.AddOutputImageFormat("BMP - Bitmap Picture", "bmp");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger4);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger2);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger1);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger4);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger2);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger1);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger4);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger2);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger1);
+
+	renderer.AddOutputImageFormat("Truevision TGA", "tga");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger8);
+
+	renderer.AddOutputImageFormat("SGI - Silicon Graphics Image", "sgi");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger8);
+
+	renderer.AddOutputImageFormat("IFF - Interchange File Format", "iff");
 	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger8);
 	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger8);
+
+	renderer.AddOutputImageFormat("JPEG - Joint Photographic Experts Group", "jpg");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger8);
 	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthInteger8);
+
+	renderer.AddOutputImageFormat("JPEG 2000", "jp2");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger8);
+
+	renderer.AddOutputImageFormat("PPM - Portable PixMap", "ppm");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger8);
+
+	// hdr formats
+	renderer.AddOutputImageFormat("TIFF - Tagged Image File Format", "tiff");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthInteger32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelNormalVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+
+	renderer.AddOutputImageFormat("EXR - OpenEXR", "exr");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelNormalVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelDepthType, "D", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelGrayscaleType, "A", XSI::siImageBitDepthFloat32);
+
+	renderer.AddOutputImageFormat("DPX - Digital Picture Exchange", "dpx");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelNormalVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+
+	renderer.AddOutputImageFormat("FITS - Flexible Image Transport System", "fits");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger16);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthInteger8);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelNormalVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+
+	renderer.AddOutputImageFormat("HDR - High Dynamic Range", "hdr");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelNormalVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+
+	renderer.AddOutputImageFormat("RLA - Run-Length Encoded Version A", "rla");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGBA", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelNormalVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+
+	renderer.AddOutputImageFormat("PFM - Portable Float Map Image", "pfm");
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelColorType, "RGB", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelNormalVectorType, "XYZ", XSI::siImageBitDepthFloat32);
+
+	// render channels
+	renderer.AddDefaultChannel("Cycles Combined", XSI::siRenderChannelColorType);  // 3 for lightgroups, 4 for others
+	renderer.AddDefaultChannel("Cycles Depth", XSI::siRenderChannelDepthType);  // 1
+	renderer.AddDefaultChannel("Cycles Position", XSI::siRenderChannelVectorType);  // 3
+	renderer.AddDefaultChannel("Cycles Normal", XSI::siRenderChannelNormalVectorType);  // 3
+	renderer.AddDefaultChannel("Cycles UV", XSI::siRenderChannelVectorType);  // 3
+	renderer.AddDefaultChannel("Cycles Object ID", XSI::siRenderChannelGrayscaleType);  // 1
+	renderer.AddDefaultChannel("Cycles Material ID", XSI::siRenderChannelColorType);  // 1
+	renderer.AddDefaultChannel("Cycles Diffuse Color", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Glossy Color", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Transmission Color", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Diffuse Indirect", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Glossy Indirect", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Transmission Indirect", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Diffuse Direct", XSI::siRenderChannelColorType);  // 
+	renderer.AddDefaultChannel("Cycles Glossy Direct", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Transmission Direct", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Emission", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Background", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles AO", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Shadow Catcher", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Shadow", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Motion", XSI::siRenderChannelColorType);  // 4
+	renderer.AddDefaultChannel("Cycles Motion Weight", XSI::siRenderChannelGrayscaleType);  // 1
+	renderer.AddDefaultChannel("Cycles Mist", XSI::siRenderChannelGrayscaleType);  // 1
+	renderer.AddDefaultChannel("Cycles Volume Direct", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Volume Indirect", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Sample Count", XSI::siRenderChannelGrayscaleType);  // 1
+	renderer.AddDefaultChannel("Cycles AOV Color", XSI::siRenderChannelColorType);  // 4
+	renderer.AddDefaultChannel("Cycles AOV Value", XSI::siRenderChannelGrayscaleType);  // 1
 
 	render = &g_render;
 	render->set_render_options_name(options_name);
