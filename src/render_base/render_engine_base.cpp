@@ -9,7 +9,7 @@
 #include "render_engine_base.h"
 #include "../utilities/logs.h"
 #include "../si_callbacks/si_callbacks.h"
-#include "../utilities/write_image.h"
+#include "../output/write_image.h"
 #include "../utilities/arrays.h"
 
 RenderEngineBase::RenderEngineBase()
