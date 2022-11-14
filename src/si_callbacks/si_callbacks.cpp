@@ -15,7 +15,6 @@ SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
 
 	XSI::CLongArray	process;
 	process.Add(XSI::siRenderProcessRender);
-	process.Add(XSI::siRenderProcessExportArchive);
 	process.Add(XSI::siRenderProcessGenerateRenderMap);
 	renderer.PutProcessTypes(process);
 
