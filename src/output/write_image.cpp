@@ -1,7 +1,9 @@
 #include <vector>
 #include <fstream>
+
 #include <xsi_string.h>
-#include "logs.h"
+
+#include "../utilities/logs.h"
 
 float clamp_float(float value, float min, float max)
 {

@@ -1,3 +1,4 @@
+#include "../input/input.h"
 #include "si_locker.h"
 #include "../utilities/logs.h"
 #include "../render_base/render_engine_base.h"
@@ -161,6 +162,12 @@ SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
 	g_bAborted = false;
 	::InitializeCriticalSection(&g_barrierAbort);
 	g_hAbort = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	// at the start we should also find all available devices and store it in the global variable
+	find_devices();
+
+	// also read input config from ini file and store it in global variable
+	read_config_ini();
 
 	return XSI::CStatus::OK;
 }

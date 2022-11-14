@@ -1,5 +1,4 @@
 #pragma once
-
 #include "../render_base/render_engine_base.h"
 
 class RenderEngineCyc : public RenderEngineBase 

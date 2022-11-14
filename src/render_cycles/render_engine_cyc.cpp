@@ -1,5 +1,5 @@
-#include "render_engine_cyc.h"
-#include "../utilities/logs.h"
+#include <chrono>
+#include <thread>
 
 #include "xsi_primitive.h"
 #include "xsi_application.h"
@@ -9,8 +9,9 @@
 #include "xsi_framebuffer.h"
 #include "xsi_projectitem.h"
 
-#include <chrono>
-#include <thread>
+#include "render_engine_cyc.h"
+#include "../utilities/logs.h"
+
 using namespace std::chrono_literals;
 
 RenderEngineCyc::RenderEngineCyc()

@@ -21,8 +21,11 @@
     <ClCompile Include="utilities\arrays.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
-    <ClCompile Include="utilities\write_image.cpp">
-      <Filter>utilities</Filter>
+    <ClCompile Include="output\write_image.cpp">
+      <Filter>output</Filter>
+    </ClCompile>
+    <ClCompile Include="input\input.cpp">
+      <Filter>input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -37,6 +40,12 @@
     </Filter>
     <Filter Include="utilities">
       <UniqueIdentifier>{78749c2e-afee-4512-bffb-b1a7cf47f915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="output">
+      <UniqueIdentifier>{8e50549b-b2d4-4e51-9b11-8f0f957d604e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{4887b038-4ec6-4e11-8599-598eaec6d70f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -65,7 +74,19 @@
     <ClInclude Include="utilities\arrays.h">
       <Filter>utilities</Filter>
     </ClInclude>
-    <ClInclude Include="utilities\write_image.h">
+    <ClInclude Include="output\write_image.h">
+      <Filter>output</Filter>
+    </ClInclude>
+    <ClInclude Include="input\input.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\input_devices.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\config_ini.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\SimpleIni.h">
       <Filter>utilities</Filter>
     </ClInclude>
   </ItemGroup>

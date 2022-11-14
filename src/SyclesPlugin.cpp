@@ -1,9 +1,10 @@
-#include "version.h"
-
 #include <xsi_application.h>
 #include <xsi_context.h>
 #include <xsi_pluginregistrar.h>
 #include <xsi_status.h>
+
+#include "version.h"
+#include "input/input.h"
 
 SICALLBACK XSILoadPlugin(XSI::PluginRegistrar& in_reg)
 {
@@ -12,6 +13,9 @@ SICALLBACK XSILoadPlugin(XSI::PluginRegistrar& in_reg)
 	// get plugin_path and remove trailing slash
 	XSI::CString plugin_path = in_reg.GetOriginPath();
 	plugin_path.TrimRight("\\");
+
+	// save plugin path into global variable to use it later
+	set_plugin_path(plugin_path);
 
 	// get PATH env
 	char* pValue;

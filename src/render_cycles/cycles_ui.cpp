@@ -1,5 +1,3 @@
-#include "render_engine_cyc.h"
-
 #include <xsi_parameter.h>
 #include <xsi_customproperty.h>
 #include <xsi_ppglayout.h>
@@ -8,6 +6,9 @@
 #include <xsi_ppgeventcontext.h>
 
 #include "scene/integrator.h"
+
+#include "render_engine_cyc.h"
+#include "../input/input.h"
 
 const XSI::siCapabilities block_mode = XSI::siReadOnly;  // siReadOnly or siNotInspectable
 
@@ -239,7 +240,14 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("options_displacement_method", XSI::CValue::siInt4, caps, "", "", 2, param);
 
 	// devices
-	for (int i = 0; i < 16; i++)  // hardcode maximum device count
+	ULONG device_count = 16;
+	InputConfig input_config = get_input_config();
+	if (input_config.is_init)
+	{
+		device_count = input_config.render.devices;
+	}
+
+	for (ULONG i = 0; i < device_count; i++)
 	{
 		property.AddParameter("device_" + XSI::CString(i), XSI::CValue::siBool, caps, "", "", i == 0, param);
 	}

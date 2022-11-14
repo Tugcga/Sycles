@@ -65,16 +65,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include=".\SyclesPlugin.cpp" />
+    <ClCompile Include="input\input.cpp" />
+    <ClCompile Include="output\write_image.cpp" />
     <ClCompile Include="render_base\render_engine_base.cpp" />
     <ClCompile Include="render_cycles\cycles_ui.cpp" />
     <ClCompile Include="render_cycles\render_engine_cyc.cpp" />
     <ClCompile Include="si_callbacks\si_callbacks.cpp" />
     <ClCompile Include="utilities\arrays.cpp" />
     <ClCompile Include="utilities\logs.cpp" />
-    <ClCompile Include="utilities\write_image.cpp" />
     <ClCompile Include="version.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="input\config_ini.h" />
+    <ClInclude Include="input\input.h" />
+    <ClInclude Include="input\input_devices.h" />
+    <ClInclude Include="output\write_image.h" />
     <ClInclude Include="render_base\render_engine_base.h" />
     <ClInclude Include="render_base\render_tile.h" />
     <ClInclude Include="render_base\render_visual_buffer.h" />
@@ -83,7 +88,7 @@
     <ClInclude Include="si_callbacks\si_locker.h" />
     <ClInclude Include="utilities\arrays.h" />
     <ClInclude Include="utilities\logs.h" />
-    <ClInclude Include="utilities\write_image.h" />
+    <ClInclude Include="utilities\SimpleIni.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
