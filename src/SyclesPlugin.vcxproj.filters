@@ -89,5 +89,8 @@
     <ClInclude Include="utilities\SimpleIni.h">
       <Filter>utilities</Filter>
     </ClInclude>
+    <ClInclude Include="input\config_ocio.h">
+      <Filter>input</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

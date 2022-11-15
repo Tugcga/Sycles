@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input\config_ini.h" />
+    <ClInclude Include="input\config_ocio.h" />
     <ClInclude Include="input\input.h" />
     <ClInclude Include="input\input_devices.h" />
     <ClInclude Include="output\write_image.h" />

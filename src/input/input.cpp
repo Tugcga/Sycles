@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include <xsi_application.h>
 #include <xsi_utils.h>
 
@@ -5,7 +7,9 @@
 #include "util/foreach.h"
 
 #include "config_ini.h"
+#include "config_ocio.h"
 #include "../utilities/SimpleIni.h"
+#include "../utilities/logs.h"
 
 XSI::CString plugin_path;
 void set_plugin_path(const XSI::CString &input_plugin_path)
@@ -173,4 +177,76 @@ void read_config_ini()
 InputConfig get_input_config()
 {
 	return input_config;
+}
+
+OCIOConfig ocio_config;
+void read_ocio_config()
+{
+	// reset config data
+	ocio_config.is_init = false;
+	ocio_config.is_file_exist = false;
+	ocio_config.displays.clear();
+	ocio_config.looks.clear();
+
+	XSI::CString profile_path = XSI::CUtils::BuildPath(plugin_path, "..", "..", "..", "..", "Data", "ColorManagement", "config.ocio");
+	// try to read the file
+	std::ifstream istream(profile_path.GetAsciiString());
+	if (istream.fail())
+	{
+		// fails to read the file, may be it does not exists
+		// nothing to do
+	}
+	else
+	{
+		ocio_config.is_file_exist = true;
+		ocio_config.config_file_path = profile_path;
+		try
+		{
+			// try to read the configuration file
+			ocio_config.config = OCIO::Config::CreateFromFile(profile_path.GetAsciiString());
+		}
+		catch (...)
+		{
+			// fails, this is equivalent the the files is not exists
+			ocio_config.is_file_exist = false;
+		}
+		if (ocio_config.is_file_exist)
+		{
+			ocio_config.displays_count = ocio_config.config->getNumDisplays();
+			ocio_config.displays.resize(ocio_config.displays_count);
+			for (size_t display_index = 0; display_index < ocio_config.displays_count; display_index++)
+			{
+				OCIODisplay new_display;
+				new_display.name = ocio_config.config->getDisplay(display_index);
+				new_display.views_count = ocio_config.config->getNumViews(new_display.name.GetAsciiString());
+				new_display.views.resize(new_display.views_count);
+				for (size_t view_index = 0; view_index < new_display.views_count; view_index++)
+				{
+					new_display.views[view_index] = ocio_config.config->getView(new_display.name.GetAsciiString(), view_index);
+				}
+				ocio_config.displays[display_index] = new_display;
+			}
+
+			// next find all looks
+			ocio_config.looks_count = ocio_config.config->getNumLooks();
+			ocio_config.looks.resize(ocio_config.looks_count);
+			for (size_t look_index = 0; look_index < ocio_config.looks_count; look_index++)
+			{
+				ocio_config.looks[look_index] = ocio_config.config->getLookNameByIndex(look_index);
+			}
+
+			ocio_config.is_init = true;
+		}
+
+		// setup default device
+		ocio_config.is_init = true;
+		ocio_config.default_display = 1;  // <--- default device index, if delete None device, then this value should be 1 instead 2
+		ocio_config.default_view = 1;
+		ocio_config.default_look = 0;
+	}
+}
+
+OCIOConfig get_ocio_config()
+{
+	return ocio_config;
 }

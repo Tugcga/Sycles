@@ -163,11 +163,16 @@ SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
 	::InitializeCriticalSection(&g_barrierAbort);
 	g_hAbort = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
-	// at the start we should also find all available devices and store it in the global variable
+	// all static global variables stored in input/input.cpp file
+	// use input.h as interface to get/set these static values
+	// at the start we should also find all available devices and store it in the global static variable
 	find_devices();
 
-	// also read input config from ini file and store it in global variable
+	// read input config from ini file and store it in the global static variable
 	read_config_ini();
+
+	// and also read ocio config from external file
+	read_ocio_config();
 
 	return XSI::CStatus::OK;
 }
