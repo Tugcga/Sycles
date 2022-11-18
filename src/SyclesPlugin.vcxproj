@@ -38,7 +38,7 @@
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>..\dst\cycles\include;..\dst\extern\atomic;..\dst\extern\pthreads\include;..\dst\extern\sdl;..\dst\extern\boost\include;..\dst\extern\openimageio\include;..\dst\extern\openexr\include;..\dst\extern\imath\include;..\dst\extern\pugixml\include;..\dst\extern\osl\include;..\dst\extern\embree\include;..\dst\extern\openimagedenoise\include;..\dst\extern\glog\include;..\dst\extern\gflags\src;..\dst\extern\alembic\include;..\dst\extern\tbb\include;..\dst\extern\openvdb\include;..\dst\extern\opensubdiv\include;..\dst\extern\opencolorio\include;..\dst\extern\openpgl\include;..\dst\extern\epoxy\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);_WIN32_WINNT=0x603;CCL_NAMESPACE_BEGIN=namespace ccl {;CCL_NAMESPACE_END=};WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;_CONSOLE;_LIB;_ALLOW_KEYWORD_MACROS;OIIO_STATIC_DEFINE;OIIO_NO_SSE=1;WITH_TBB_MALLOC;__SSE__;__MMX__;__SSE2__;__LITTLE_ENDIAN__;BOOST_ALL_NO_LIB;USE_TBB=0;OSL_STATIC_BUILD;OSL_STATIC_LIBRARY;NOMINMAX;_USE_MATH_DEFINES;TBB_SUPPRESS_DEPRECATED_MESSAGES=1;PATH_GUIDING_LEVEL=5;WITH_OSL;WITH_CYCLES_LOGGING</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);GLOG_NO_ABBREVIATED_SEVERITIES;_WIN32_WINNT=0x603;CCL_NAMESPACE_BEGIN=namespace ccl {;CCL_NAMESPACE_END=};WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;_CONSOLE;_LIB;_ALLOW_KEYWORD_MACROS;OIIO_STATIC_DEFINE;OIIO_NO_SSE=1;WITH_TBB_MALLOC;__SSE__;__MMX__;__SSE2__;__LITTLE_ENDIAN__;BOOST_ALL_NO_LIB;USE_TBB=0;OSL_STATIC_BUILD;OSL_STATIC_LIBRARY;NOMINMAX;_USE_MATH_DEFINES;TBB_SUPPRESS_DEPRECATED_MESSAGES=1;PATH_GUIDING_LEVEL=5;WITH_OSL;WITH_CYCLES_LOGGING</PreprocessorDefinitions>
       <OpenMPSupport>true</OpenMPSupport>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <CompileAs>Default</CompileAs>
@@ -69,6 +69,9 @@
     <ClCompile Include="output\write_image.cpp" />
     <ClCompile Include="render_base\render_engine_base.cpp" />
     <ClCompile Include="render_cycles\cycles_ui.cpp" />
+    <ClCompile Include="render_cycles\cyc_output\output_drivers.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_scene.cpp" />
+    <ClCompile Include="render_cycles\cyc_session\cyc_session.cpp" />
     <ClCompile Include="render_cycles\render_engine_cyc.cpp" />
     <ClCompile Include="si_callbacks\si_callbacks.cpp" />
     <ClCompile Include="utilities\arrays.cpp" />
@@ -84,6 +87,9 @@
     <ClInclude Include="render_base\render_engine_base.h" />
     <ClInclude Include="render_base\render_tile.h" />
     <ClInclude Include="render_base\render_visual_buffer.h" />
+    <ClInclude Include="render_cycles\cyc_output\output_drivers.h" />
+    <ClInclude Include="render_cycles\cyc_scene\cyc_scene.h" />
+    <ClInclude Include="render_cycles\cyc_session\cyc_session.h" />
     <ClInclude Include="render_cycles\render_engine_cyc.h" />
     <ClInclude Include="si_callbacks\si_callbacks.h" />
     <ClInclude Include="si_callbacks\si_locker.h" />

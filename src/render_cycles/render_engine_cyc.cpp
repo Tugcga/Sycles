@@ -10,72 +10,153 @@
 #include "xsi_projectitem.h"
 
 #include "render_engine_cyc.h"
+#include "cyc_session/cyc_session.h"
+#include "cyc_output/output_drivers.h"
 #include "../utilities/logs.h"
 
 using namespace std::chrono_literals;
 
 RenderEngineCyc::RenderEngineCyc()
 {
-	
+	is_session = false;
+	call_abort_render = false;
 }
 
-//when we delete the engine, then at first this method is called, and then the method from base class
+// when we delete the engine, then at first this method is called, and then the method from base class
 RenderEngineCyc::~RenderEngineCyc()
 {
-
+	clear_session();
 }
 
-//nothing to do here
+void RenderEngineCyc::clear_session()
+{
+	if (is_session)
+	{
+		session->cancel(true);
+		delete session;
+		session = NULL;
+		is_session = false;
+	}
+}
+
+// nothing to do here
 XSI::CStatus RenderEngineCyc::pre_render_engine()
 {
 	return XSI::CStatus::OK;
 }
 
-//called every time before scene update
-//here we should setup parameters, which should be done for both situations: create scene from scratch or update the scene
+// called every time before scene updates
+// here we should setup parameters, which should be done for both situations: create scene from scratch or update the scene
 XSI::CStatus RenderEngineCyc::pre_scene_process()
 {
 	return XSI::CStatus::OK;
 }
 
-//return OK, if object successfully updates, Abort in other case
+// return OK, if object successfully updates, Abort in other cases
 XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const UpdateType update_type)
 {
 	return XSI::CStatus::Abort;
 
 }
 
+// update non-geometry object (pass, for example)
 XSI::CStatus RenderEngineCyc::update_scene(XSI::SIObject& si_object, const UpdateType update_type)
 {
 	return XSI::CStatus::Abort;
 }
 
+// update material
 XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool material_assigning)
 {
 	return XSI::CStatus::Abort;
 	
 }
 
+// update render parameters
 XSI::CStatus RenderEngineCyc::update_scene_render()
 {
 	return XSI::CStatus::OK;
 }
 
-//here we create the scene for rendering from scratch
+// this method calls from output driver when nex tile is come
+// we should read pixels for all passes and save it into output array
+void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
+{
+	// read tile size and offset
+	unsigned int tile_width = tile.size.x;
+	unsigned int tile_height = tile.size.y;
+	unsigned int offset_x = tile.offset.x;  // this parameter defines offset inside the render buffer, not on the whole screen
+	unsigned int offset_y = tile.offset.y;  // so, we should add it to image_corner to obtain actual in-screen offset
+
+	// create pixel buffer
+	std::vector<float> pixels((size_t)tile_width * tile_height * 4);
+
+	bool is_get = tile.get_pass_pixels("combined", 4, &pixels[0]);
+	if (is_get)
+	{
+		// draw tile into the screen
+		m_render_context.NewFragment(RenderTile(offset_x + image_corner_x, offset_y + image_corner_y, tile_width, tile_height, pixels, false, 4));
+	}
+	else
+	{
+		log_message("Fails to get pixels for input render tile", XSI::siErrorMsg);
+	}
+}
+
+// in this callback we can show the actual progress of the render process
+void RenderEngineCyc::progress_update_callback()
+{
+	double progress = session->progress.get_progress();
+	m_render_context.ProgressUpdate("Rendering...", "Rendering...", int(progress * 100));
+}
+
+// int his callback we can stop the render, if we need this
+void RenderEngineCyc::progress_cancel_callback()
+{
+	if (call_abort_render)
+	{
+		session->progress.set_cancel("Abort render");
+		call_abort_render = false;
+	}
+}
+
+// here we create the scene for rendering from scratch
 XSI::CStatus RenderEngineCyc::create_scene()
 {
+	clear_session();
+	session = create_session();
+	is_session = true;
+
+	sync_session(session, m_render_context);  // here we also sync the scene
+
+	// setup callbacks
+	// output driver calls every in the same time as display driver
+	// so, we can try to use only output driver, because it allows to extract pixels for different passes
+	session->set_output_driver(std::make_unique<XSIOutputDriver>(this));
+	session->progress.set_update_callback(function_bind(&RenderEngineCyc::progress_update_callback, this));
+	session->progress.set_cancel_callback(function_bind(&RenderEngineCyc::progress_cancel_callback, this));
+
 	return XSI::CStatus::OK;
 }
 
-//call this method after scene created or updated but before unlock
+// call this method after scene created or updated but before unlock
 XSI::CStatus RenderEngineCyc::post_scene()
 {
+	call_abort_render = false;
+
 	return XSI::CStatus::OK;
 }
 
 void RenderEngineCyc::render()
 {
-	
+	ccl::BufferParams buffer_params = get_buffer_params(image_full_size_width, image_full_size_height, image_corner_x, image_corner_y, image_size_width, image_size_height);
+	session->reset(session->params, buffer_params);
+
+	session->progress.reset();
+	session->stats.mem_peak = session->stats.mem_used;
+
+	session->start();
+	session->wait();
 }
 
 XSI::CStatus RenderEngineCyc::post_render_engine()
@@ -92,10 +173,14 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 
 void RenderEngineCyc::abort()
 {
-
+	if (is_session)
+	{
+		session->progress.set_cancel("Abort render");
+		call_abort_render = true;
+	}
 }
 
 void RenderEngineCyc::clear_engine()
 {
-
+	clear_session();
 }

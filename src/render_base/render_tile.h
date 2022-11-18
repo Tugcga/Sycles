@@ -34,7 +34,7 @@ inline unsigned char linearClamp(float v)
 class RenderTile : public XSI::RendererImageFragment
 {
 public:
-	RenderTile(int in_offX, int in_offY, int in_width, int in_height, std::vector<float> &_pixels, bool _apply_srgb, int _components)
+	RenderTile(unsigned int in_offX, unsigned int in_offY, unsigned int in_width, unsigned int in_height, std::vector<float> &_pixels, bool _apply_srgb, int _components)
 	{
 		offX = in_offX;
 		offY = in_offY;

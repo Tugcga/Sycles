@@ -27,6 +27,15 @@
     <ClCompile Include="input\input.cpp">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_session\cyc_session.cpp">
+      <Filter>render_cycles\cyc_session</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_output\output_drivers.cpp">
+      <Filter>render_cycles\cyc_output</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_scene.cpp">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -46,6 +55,15 @@
     </Filter>
     <Filter Include="input">
       <UniqueIdentifier>{4887b038-4ec6-4e11-8599-598eaec6d70f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_cycles\cyc_session">
+      <UniqueIdentifier>{abecd6b5-0eb3-439b-ab35-4b5ce79361a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_cycles\cyc_scene">
+      <UniqueIdentifier>{922a694e-628c-49d1-8e0a-622e8a566b31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_cycles\cyc_output">
+      <UniqueIdentifier>{ba44cfc5-9d47-4335-8463-74a2aa0a7e44}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +109,15 @@
     </ClInclude>
     <ClInclude Include="input\config_ocio.h">
       <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_session\cyc_session.h">
+      <Filter>render_cycles\cyc_session</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_output\output_drivers.h">
+      <Filter>render_cycles\cyc_output</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_scene\cyc_scene.h">
+      <Filter>render_cycles\cyc_scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
