@@ -11,7 +11,7 @@ struct RGBA
 	unsigned char a;
 };
 
-inline unsigned char linearToSRGB(float v)
+inline unsigned char linear_to_srgb(float v)
 {
 	if (v <= 0.0f)
 		return 0;
@@ -22,7 +22,7 @@ inline unsigned char linearToSRGB(float v)
 	return (unsigned char)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 255.0f + 0.5f);
 }
 
-inline unsigned char linearClamp(float v)
+inline unsigned char linear_clamp(float v)
 {
 	if (v <= 0.0f)
 		return 0;
@@ -34,19 +34,19 @@ inline unsigned char linearClamp(float v)
 class RenderTile : public XSI::RendererImageFragment
 {
 public:
-	RenderTile(unsigned int in_offX, unsigned int in_offY, unsigned int in_width, unsigned int in_height, std::vector<float> &_pixels, bool _apply_srgb, int _components)
+	RenderTile(unsigned int in_offset_x, unsigned int in_offset_y, unsigned int in_width, unsigned int in_height, std::vector<float> &_pixels, bool _apply_srgb, int _components)
 	{
-		offX = in_offX;
-		offY = in_offY;
+		offset_x = in_offset_x;
+		offset_y = in_offset_y;
 		width = in_width;
 		height = in_height;
-		fPixels = _pixels;
-		isSRGB = _apply_srgb;
+		pixels = _pixels;
+		is_srgb = _apply_srgb;
 		components = _components;
 	}
 
-	unsigned int GetOffsetX() const { return(offX); }
-	unsigned int GetOffsetY() const { return(offY); }
+	unsigned int GetOffsetX() const { return(offset_x); }
+	unsigned int GetOffsetY() const { return(offset_y); }
 	unsigned int GetWidth() const { return(width); }
 	unsigned int GetHeight() const { return(height); }
 
@@ -56,18 +56,18 @@ public:
 		for (unsigned int i = 0; i < width; i++)
 		{
 			size_t indexShift = static_cast<size_t>(in_uiRow) * width;
-			pScanline[i].a = components == 4 ? static_cast<unsigned char>(fPixels[4 * (indexShift + i) + 3] * 255.0) : static_cast<unsigned char>(255.0);
-			if (isSRGB)
+			pScanline[i].a = components == 4 ? static_cast<unsigned char>(pixels[4 * (indexShift + i) + 3] * 255.0) : static_cast<unsigned char>(255.0);
+			if (is_srgb)
 			{
 				if (components == 4)
 				{
-					pScanline[i].r = linearToSRGB(fPixels[4 * (indexShift + i)]);
-					pScanline[i].g = linearToSRGB(fPixels[4 * (indexShift + i) + 1]);
-					pScanline[i].b = linearToSRGB(fPixels[4 * (indexShift + i) + 2]);
+					pScanline[i].r = linear_to_srgb(pixels[4 * (indexShift + i)]);
+					pScanline[i].g = linear_to_srgb(pixels[4 * (indexShift + i) + 1]);
+					pScanline[i].b = linear_to_srgb(pixels[4 * (indexShift + i) + 2]);
 				}
 				else
 				{
-					float v = linearToSRGB(fPixels[indexShift + i]);
+					float v = linear_to_srgb(pixels[indexShift + i]);
 					pScanline[i].r = static_cast<unsigned char>(v);
 					pScanline[i].g = static_cast<unsigned char>(v);
 					pScanline[i].b = static_cast<unsigned char>(v);
@@ -77,13 +77,13 @@ public:
 			{
 				if (components == 4)
 				{
-					pScanline[i].r = linearClamp(fPixels[4 * (indexShift + i)]);
-					pScanline[i].g = linearClamp(fPixels[4 * (indexShift + i) + 1]);
-					pScanline[i].b = linearClamp(fPixels[4 * (indexShift + i) + 2]);
+					pScanline[i].r = linear_clamp(pixels[4 * (indexShift + i)]);
+					pScanline[i].g = linear_clamp(pixels[4 * (indexShift + i) + 1]);
+					pScanline[i].b = linear_clamp(pixels[4 * (indexShift + i) + 2]);
 				}
 				else
 				{
-					float v = linearClamp(fPixels[indexShift + i]);
+					float v = linear_clamp(pixels[indexShift + i]);
 					pScanline[i].r = static_cast<unsigned char>(v);
 					pScanline[i].g = static_cast<unsigned char>(v);
 					pScanline[i].b = static_cast<unsigned char>(v);
@@ -95,8 +95,8 @@ public:
 	}
 
 private:
-	unsigned int offX, offY, width, height;
-	std::vector<float> fPixels;
-	bool isSRGB;
+	unsigned int offset_x, offset_y, width, height;
+	std::vector<float> pixels;
+	bool is_srgb;
 	int components;
 };
