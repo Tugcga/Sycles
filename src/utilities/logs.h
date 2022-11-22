@@ -10,10 +10,10 @@
 #include <string>
 #include <set>
 
-//output the message to the console
+// output the message to the console
 void log_message(const XSI::CString &message, XSI::siSeverityType level = XSI::siSeverityType::siInfoMsg);
 
-//convert data to string
+// convert data to string
 XSI::CString to_string(const XSI::CFloatArray& array);
 XSI::CString to_string(const XSI::CLongArray& array);
 XSI::CString to_string(const XSI::CDoubleArray& array);
@@ -28,9 +28,3 @@ XSI::CString to_string(const XSI::CColor &color);
 XSI::CString to_string(const XSI::MATH::CColor4f &color);
 XSI::CString to_string(const XSI::MATH::CVector3 &vector);
 XSI::CString to_string(const XSI::CStringArray &array);
-
-//remove digits from the given string
-XSI::CString remove_digits(const XSI::CString& orignal_str);
-
-//replace each splitter symbol to replacer in he input string
-XSI::CString replace_symbols(const XSI::CString& input_string, const XSI::CString& splitter, const XSI::CString& replacer);

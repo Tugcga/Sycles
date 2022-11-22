@@ -63,5 +63,6 @@ SICALLBACK XSIUnloadPlugin(const XSI::PluginRegistrar& in_reg)
 	XSI::CString strPluginName;
 	strPluginName = in_reg.GetName();
 	XSI::Application().LogMessage(strPluginName + " has been unloaded.", XSI::siVerboseMsg);
+
 	return XSI::CStatus::OK;
 }

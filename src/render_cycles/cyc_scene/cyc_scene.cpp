@@ -29,7 +29,7 @@ static inline ccl::Transform get_transform(std::vector<float>& array)
 
 void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 {
-	// for test purpose only we create simle scene with one plane and one cube with sky light
+	// for test purpose only we create simple scene with one plane and one cube with sky light
 	// from actual xsi scene we get only camera position
 	// for meshes use default surface shader (it has index 0)
 
@@ -43,6 +43,7 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 	ccl::Object* plane_object = new ccl::Object();
 	plane_object->set_geometry(plane_mesh);
 	plane_object->name = "plane";
+	plane_object->set_is_shadow_catcher(true);
 
 	ccl::Transform plane_tfm = ccl::transform_identity();
 	plane_object->set_tfm(plane_tfm);

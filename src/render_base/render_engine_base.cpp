@@ -8,6 +8,7 @@
 
 #include "render_engine_base.h"
 #include "../utilities/logs.h"
+#include "../utilities/strings.h"
 #include "../si_callbacks/si_callbacks.h"
 #include "../output/write_image.h"
 #include "../utilities/arrays.h"
@@ -19,6 +20,7 @@ RenderEngineBase::RenderEngineBase()
 	note_abort = true;
 	prev_isolated_objects.Clear();
 	prev_render_type = RenderType_Unknown;
+	visual_buffer = new RenderVisualBuffer();
 }
 
 RenderEngineBase::~RenderEngineBase()
@@ -26,7 +28,8 @@ RenderEngineBase::~RenderEngineBase()
 	ready_to_render = false;
 	force_recreate_scene = true;
 	prev_isolated_objects.Clear();
-	visual_buffer.clear();
+	delete visual_buffer;
+	visual_buffer = NULL;
 }
 
 void RenderEngineBase::set_render_options_name(const XSI::CString &options_name)
@@ -130,18 +133,18 @@ void RenderEngineBase::render()
 	//we fill the frame by randomly selected grey color
 	//create random color
 	float r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-	std::vector<float> frame_pixels(static_cast<size_t>(visual_buffer.width) * visual_buffer.height * 4);
-	for (ULONG y = 0; y < visual_buffer.height; y++)
+	std::vector<float> frame_pixels(static_cast<size_t>(visual_buffer->width) * visual_buffer->height * 4);
+	for (ULONG y = 0; y < visual_buffer->height; y++)
 	{
-		for (ULONG x = 0; x < visual_buffer.width; x++)
+		for (ULONG x = 0; x < visual_buffer->width; x++)
 		{
-			frame_pixels[4 * (static_cast<size_t>(visual_buffer.width) * y + x)] = r;
-			frame_pixels[4 * (static_cast<size_t>(visual_buffer.width) * y + x) + 1] = r;
-			frame_pixels[4 * (static_cast<size_t>(visual_buffer.width) * y + x) + 2] = r;
-			frame_pixels[4 * (static_cast<size_t>(visual_buffer.width) * y + x) + 3] = 1.0;
+			frame_pixels[4 * (static_cast<size_t>(visual_buffer->width) * y + x)] = r;
+			frame_pixels[4 * (static_cast<size_t>(visual_buffer->width) * y + x) + 1] = r;
+			frame_pixels[4 * (static_cast<size_t>(visual_buffer->width) * y + x) + 2] = r;
+			frame_pixels[4 * (static_cast<size_t>(visual_buffer->width) * y + x) + 3] = 1.0;
 		}
 	}
-	m_render_context.NewFragment(RenderTile(visual_buffer.corner_x, visual_buffer.corner_y, visual_buffer.width, visual_buffer.height, frame_pixels, false, 4));
+	m_render_context.NewFragment(RenderTile(visual_buffer->corner_x, visual_buffer->corner_y, visual_buffer->width, visual_buffer->height, frame_pixels, false, 4));
 	frame_pixels.clear();
 	frame_pixels.shrink_to_fit();
 }
@@ -365,20 +368,13 @@ XSI::CStatus RenderEngineBase::scene_process()
 	}
 
 	//setup visual buffer
-	visual_buffer = RenderVisualBuffer(
+	/*visual_buffer = RenderVisualBuffer(
 		(ULONG)image_full_size_width,
 		(ULONG)image_full_size_height,
 		(ULONG)image_corner_x,
 		(ULONG)image_corner_y,
 		(ULONG)image_size_width,
-		(ULONG)image_size_height,
-		4);
-
-	if (output_paths.GetCount() > 0)
-	{//prepare output pixel buffers
-		ULONG size = (LONG)image_size_width * image_size_height * 4 * output_paths.GetCount();
-		output_pixels = std::vector<float>(size, 0.0f);
-	}
+		(ULONG)image_size_height);*/
 
 	//memorize isolation list
 	m_isolation_list = m_render_context.GetArrayAttribute("ObjectList");
@@ -675,7 +671,7 @@ XSI::CStatus RenderEngineBase::start_render()
 		return XSI::CStatus::Fail;
 	}
 
-	m_render_context.NewFrame(visual_buffer.full_width, visual_buffer.full_height);
+	m_render_context.NewFrame(visual_buffer->full_width, visual_buffer->full_height);
 
 	start_prepare_render_time = clock();
 
@@ -693,23 +689,6 @@ XSI::CStatus RenderEngineBase::start_render()
 
 XSI::CStatus RenderEngineBase::post_render()
 {
-	//save output images
-	for (ULONG i = 0; i < output_paths.GetCount(); i++)
-	{
-		//construct subvector
-		ULONG shift_a = i * static_cast<ULONG>(image_size_width) * static_cast<ULONG>(image_size_height) * 4;
-		ULONG shift_b = (i + 1) * static_cast<ULONG>(image_size_width) * static_cast<ULONG>(image_size_height) * 4;
-		std::vector<float>::const_iterator first = output_pixels.begin() + shift_a;
-		std::vector<float>::const_iterator last = output_pixels.begin() + shift_b;
-		std::vector<float> pixels(first, last);
-
-		//save these pixels
-		write_float(output_paths[i], output_formats[i], output_data_types[i], image_size_width, image_size_height, 4, pixels);
-
-		pixels.clear();
-		pixels.shrink_to_fit();
-	}
-
 	XSI::CStatus status = post_render_engine();
 
 	//clear output arrays if we need this
@@ -719,9 +698,6 @@ XSI::CStatus RenderEngineBase::post_render()
 	output_channels.Clear();
 	output_bits.clear();
 	output_bits.shrink_to_fit();
-	//clear output_pixels
-	output_pixels.clear();
-	output_pixels.shrink_to_fit();
 
 	return status;
 }
@@ -748,15 +724,13 @@ void RenderEngineBase::clear()
 {
 	output_paths.Clear();
 	prev_isolated_objects.Clear();
-	visual_buffer.clear();
+	visual_buffer->clear();
 
 	output_formats.Clear();
 	output_data_types.Clear();
 	output_channels.Clear();
 	output_bits.clear();
 	output_bits.shrink_to_fit();
-	output_pixels.clear();
-	output_pixels.shrink_to_fit();
 
 	clear_engine();
 }

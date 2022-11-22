@@ -4,6 +4,7 @@
 #include "session/output_driver.h"
 
 #include "../render_base/render_engine_base.h"
+#include "cyc_output/output_context.h"
 
 class RenderEngineCyc : public RenderEngineBase 
 {
@@ -40,6 +41,7 @@ private:
 	ccl::Session* session;
 	bool is_session;
 	bool call_abort_render;  // activate when we obtain command from XSI to abort the render, use it in the cancel callback
+	OutputContext* output_context;
 
 	// internal methods
 	void clear_session();

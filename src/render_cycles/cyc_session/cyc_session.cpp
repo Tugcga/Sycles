@@ -5,6 +5,7 @@
 
 #include "../../input/input_devices.h"
 #include "../cyc_scene/cyc_scene.h"
+#include "cyc_session.h"
 
 ccl::SessionParams get_session_params()
 {
@@ -44,17 +45,6 @@ ccl::BufferParams get_buffer_params(int full_width, int full_height, int offset_
 	return buffer_params;
 }
 
-ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, XSI::CString name, ccl::PassMode mode = ccl::PassMode::DENOISED)
-{
-	ccl::Pass* pass = scene->create_node<ccl::Pass>();
-
-	pass->set_type(type);
-	pass->set_name(OIIO::ustring(name.GetAsciiString()));
-	pass->set_mode(mode);
-
-	return pass;
-}
-
 ccl::Session* create_session()
 {
 	ccl::SessionParams session_params = get_session_params();
@@ -64,10 +54,10 @@ ccl::Session* create_session()
 	return session;
 }
 
-void sync_session(ccl::Session* session, XSI::RendererContext& xsi_render_context)
+void sync_session(ccl::Session* session, XSI::RendererContext& xsi_render_context, OutputContext *output_context)
 {
 	sync_scene(session->scene, xsi_render_context);
 
-	// sync passes
-	pass_add(session->scene, ccl::PASS_COMBINED, "combined");
+	output_context->set_output_passes(XSI::CStringArray(), XSI::CStringArray(), XSI::CStringArray());
+	sync_passes(session->scene, output_context);
 }

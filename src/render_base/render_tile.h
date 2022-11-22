@@ -65,6 +65,12 @@ public:
 					pScanline[i].g = linear_to_srgb(pixels[4 * (indexShift + i) + 1]);
 					pScanline[i].b = linear_to_srgb(pixels[4 * (indexShift + i) + 2]);
 				}
+				else if (components == 3)
+				{
+					pScanline[i].r = linear_to_srgb(pixels[3 * (indexShift + i)]);
+					pScanline[i].g = linear_to_srgb(pixels[3 * (indexShift + i) + 1]);
+					pScanline[i].b = linear_to_srgb(pixels[3 * (indexShift + i) + 2]);
+				}
 				else
 				{
 					float v = linear_to_srgb(pixels[indexShift + i]);
@@ -80,6 +86,12 @@ public:
 					pScanline[i].r = linear_clamp(pixels[4 * (indexShift + i)]);
 					pScanline[i].g = linear_clamp(pixels[4 * (indexShift + i) + 1]);
 					pScanline[i].b = linear_clamp(pixels[4 * (indexShift + i) + 2]);
+				}
+				else if (components == 3)
+				{
+					pScanline[i].r = linear_clamp(pixels[3 * (indexShift + i)]);
+					pScanline[i].g = linear_clamp(pixels[3 * (indexShift + i) + 1]);
+					pScanline[i].b = linear_clamp(pixels[3 * (indexShift + i) + 2]);
 				}
 				else
 				{

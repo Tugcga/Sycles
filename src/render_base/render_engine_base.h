@@ -48,14 +48,13 @@ public:
 	XSI::Property m_render_property;
 	XSI::CParameterRefArray m_render_parameters;
 	XSI::CTime eval_time;
-	RenderVisualBuffer visual_buffer;
+	RenderVisualBuffer* visual_buffer;
 	//output data arrays
 	XSI::CStringArray output_paths;  // full path to output image
 	XSI::CStringArray output_formats;  // jpg, exr and so on (without points, in fact as was defined in init callback)
 	XSI::CStringArray output_data_types;  // RGB, RBGA, XYZ and so on
 	XSI::CStringArray output_channels;  // the names of the selected render channels
 	std::vector<int> output_bits;  // Integer1 = 0, Integer2 = 1, Integer4 = 2, Integer8 = 3, Integer16 = 4, Integer32 = 5, Float16 = 20, Float32 = 21
-	std::vector<float> output_pixels;  // the size is (width * height * 4) * outputs_count
 
 	int image_size_width;
 	int image_size_height;

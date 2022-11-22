@@ -13,6 +13,7 @@
 #include "cyc_session/cyc_session.h"
 #include "cyc_output/output_drivers.h"
 #include "../utilities/logs.h"
+#include "../output/write_image.h"
 
 using namespace std::chrono_literals;
 
@@ -20,12 +21,14 @@ RenderEngineCyc::RenderEngineCyc()
 {
 	is_session = false;
 	call_abort_render = false;
+	output_context = new OutputContext();
 }
 
 // when we delete the engine, then at first this method is called, and then the method from base class
 RenderEngineCyc::~RenderEngineCyc()
 {
 	clear_session();
+	delete output_context;
 }
 
 void RenderEngineCyc::clear_session()
@@ -49,6 +52,25 @@ XSI::CStatus RenderEngineCyc::pre_render_engine()
 // here we should setup parameters, which should be done for both situations: create scene from scratch or update the scene
 XSI::CStatus RenderEngineCyc::pre_scene_process()
 {
+	//get visual pass
+	XSI::Framebuffer frame_buffer = m_render_context.GetDisplayFramebuffer();
+	XSI::RenderChannel render_channel = frame_buffer.GetRenderChannel();
+	
+	// we should setup output passes after parsing scene, because it may contains aovs and lightgroups
+	// so, setup visual here, but output passes in sync_session
+	output_context->set_visual_pass(render_channel.GetName());
+	output_context->set_output_size((ULONG)image_full_size_width, (ULONG)image_full_size_height);
+	output_context->set_output_formats(output_paths, output_formats, output_data_types, output_channels, output_bits);
+
+	// RenderVisualBuffer store pixels in OIIO::ImageBuf
+	visual_buffer->create((ULONG)image_full_size_width,
+		(ULONG)image_full_size_height,
+		(ULONG)image_corner_x,
+		(ULONG)image_corner_y,
+		(ULONG)image_size_width,
+		(ULONG)image_size_height,
+		output_context->get_visual_pass_components());
+
 	return XSI::CStatus::OK;
 }
 
@@ -87,19 +109,44 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	unsigned int tile_height = tile.size.y;
 	unsigned int offset_x = tile.offset.x;  // this parameter defines offset inside the render buffer, not on the whole screen
 	unsigned int offset_y = tile.offset.y;  // so, we should add it to image_corner to obtain actual in-screen offset
+	OIIO::ROI tile_roi = OIIO::ROI(offset_x, offset_x + tile_width, offset_y, offset_y + tile_height);
 
 	// create pixel buffer
-	std::vector<float> pixels((size_t)tile_width * tile_height * 4);
+	// we will use it for all passes
+	std::vector<float> pixels((size_t)tile_width * tile_height * 4, 0.0f);
 
-	bool is_get = tile.get_pass_pixels("combined", 4, &pixels[0]);
+	// we should get from tile pixels for each pass and save pixels into buffers (visual or output)
+	// get at first pixels for visual
+	int visual_components = output_context->get_visual_pass_components();
+	bool is_get = tile.get_pass_pixels(output_context->get_visual_pass_name(), visual_components, &pixels[0]);
 	if (is_get)
 	{
-		// draw tile into the screen
-		m_render_context.NewFragment(RenderTile(offset_x + image_corner_x, offset_y + image_corner_y, tile_width, tile_height, pixels, false, 4));
+		visual_buffer->add_pixels(tile_roi, pixels);
+
+		// next we should create new fragment to visualize it at the screen
+		m_render_context.NewFragment(RenderTile(offset_x + image_corner_x, offset_y + image_corner_y, tile_width, tile_height, pixels, false, visual_components));
+
 	}
 	else
 	{
 		log_message("Fails to get pixels for input render tile", XSI::siErrorMsg);
+	}
+
+	// and next for each output pass
+	for (size_t i = 0; i < output_context->get_output_passes_count(); i++)
+	{
+		ccl::PassType pass_type = output_context->get_output_pass_type(i);
+		ccl::ustring pass_name = output_context->get_output_pass_name(i);
+		int pass_components = get_pass_components(pass_type);
+		is_get = tile.get_pass_pixels(pass_name, pass_components, &pixels[0]);
+		if (is_get)
+		{
+			bool is_set = output_context->add_output_pixels(tile_roi, i, pixels);
+		}
+		else
+		{
+			log_message("Fails to get pixels of the pass " + XSI::CString(pass_name.c_str()) + " for input render tile", XSI::siErrorMsg);
+		}
 	}
 }
 
@@ -127,7 +174,7 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	session = create_session();
 	is_session = true;
 
-	sync_session(session, m_render_context);  // here we also sync the scene
+	sync_session(session, m_render_context, output_context);  // here we also sync the scene
 
 	// setup callbacks
 	// output driver calls every in the same time as display driver
@@ -161,12 +208,18 @@ void RenderEngineCyc::render()
 
 XSI::CStatus RenderEngineCyc::post_render_engine()
 {
+	// save outputs
+	write_outputs(output_context);
+
 	//log render time
 	double time = (finish_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
 	if (render_type != RenderType_Shaderball)
 	{
 		log_message("Render statistics: " + XSI::CString(time) + " seconds");
 	}
+
+	// clear output context object
+	output_context->reset();
 
 	return XSI::CStatus::OK;
 }
