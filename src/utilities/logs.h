@@ -28,3 +28,4 @@ XSI::CString to_string(const XSI::CColor &color);
 XSI::CString to_string(const XSI::MATH::CColor4f &color);
 XSI::CString to_string(const XSI::MATH::CVector3 &vector);
 XSI::CString to_string(const XSI::CStringArray &array);
+XSI::CString to_string(const std::vector<size_t>& array);

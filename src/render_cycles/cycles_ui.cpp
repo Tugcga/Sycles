@@ -238,7 +238,6 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddTab("Output");
 	layout.AddGroup("Passes");
 	layout.AddItem("output_pass_alpha_threshold", "Alpha Threshold");
-	layout.AddItem("output_pass_fill_alpha", "Fill Pass Alpha");
 	layout.AddItem("output_pass_assign_unique_pass_id", "Assign Unique Object Pass Id");
 	layout.EndGroup();
 
@@ -866,7 +865,6 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	// output tab
 	// passes
 	property.AddParameter("output_pass_alpha_threshold", XSI::CValue::siFloat, caps, "", "", 0.5, 0.0, 1.0, 0.0, 1.0, param);
-	property.AddParameter("output_pass_fill_alpha", XSI::CValue::siBool, caps, "", "", true, param);  // this parameter used in the case when 3-channels pass should be saved into 4-channels image
 	property.AddParameter("output_pass_assign_unique_pass_id", XSI::CValue::siBool, caps, "", "", false, param);
 
 	// multilayer exr

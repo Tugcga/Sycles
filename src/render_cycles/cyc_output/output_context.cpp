@@ -3,6 +3,7 @@
 #include "../cyc_session/cyc_session.h"
 #include "../../utilities/logs.h"
 #include "../../utilities/strings.h"
+#include "../../utilities/math.h"
 
 OutputContext::OutputContext()
 {
@@ -66,6 +67,14 @@ void OutputContext::reset()
 	output_buffer_pixels_start.shrink_to_fit();
 
 	output_passes_count = 0;
+	render_type = RenderType::RenderType_Unknown;
+	common_path = "";
+	render_frame = 0;
+}
+
+RenderType OutputContext::get_render_type()
+{
+	return render_type;
 }
 
 ccl::ustring OutputContext::get_visual_pass_name()
@@ -96,6 +105,16 @@ ULONG OutputContext::get_width()
 ULONG OutputContext::get_height()
 {
 	return image_height;
+}
+
+XSI::CString OutputContext::get_common_path()
+{
+	return common_path;
+}
+
+int OutputContext::get_render_frame()
+{
+	return render_frame;
 }
 
 ccl::ustring OutputContext::get_output_pass_name(int index)
@@ -144,6 +163,27 @@ float* OutputContext::get_output_pass_pixels(int index)
 	return &output_pixels[output_buffer_pixels_start[index]];
 }
 
+void OutputContext::extract_output_channel(int index, int channel, float* output, bool flip_verticaly)
+{
+	float* pixels = get_output_pass_pixels(index);
+	int components = get_output_pass_components(index);
+
+	size_t pixel_index = 0;
+	size_t row_index = 1;
+	for (size_t i = 0; i < (size_t)image_width * image_height; i++)
+	{
+		size_t p = flip_verticaly ? (image_width * (image_height - row_index) + pixel_index) : i;
+		output[p] = pixels[components * i + channel];
+
+		pixel_index++;
+		if (pixel_index == image_width)
+		{
+			pixel_index = 0;
+			row_index++;
+		}
+	}
+}
+
 OIIO::ImageBuf OutputContext::get_output_buffer(int index)
 {
 	return output_buffers[index];
@@ -154,13 +194,21 @@ bool OutputContext::add_output_pixels(ccl::ROI roi, int index, std::vector<float
 	return output_buffers[index].set_pixels(roi, ccl::TypeDesc::FLOAT, &pixels[0]);
 }
 
-void OutputContext::set_output_formats(XSI::CStringArray paths, XSI::CStringArray formats, XSI::CStringArray data_types, XSI::CStringArray channels, std::vector<int> bits)
+void OutputContext::set_render_type(RenderType type)
+{
+	render_type = type;
+}
+
+void OutputContext::set_output_formats(const XSI::CStringArray &paths, const XSI::CStringArray &formats, const XSI::CStringArray &data_types, const XSI::CStringArray &channels, const std::vector<int> &bits, const XSI::CTime& eval_time)
 {
 	output_paths = paths;
 	output_formats = formats;
 	output_data_types = data_types;
 	output_channels = channels;
 	output_bits = bits;
+
+	common_path = get_common_substring(paths);
+	render_frame = get_frame(eval_time);
 }
 
 void OutputContext::set_visual_pass(const XSI::CString& channel_name)

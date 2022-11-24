@@ -78,7 +78,7 @@ XSI::CString pass_to_name(ccl::PassType pass_type)
     case ccl::PASS_POSITION:
         return "Position";
     case ccl::PASS_NORMAL:
-        return "Notmal";
+        return "Normal";
     case ccl::PASS_ROUGHNESS:
         return "Roughness";
     case ccl::PASS_UV:

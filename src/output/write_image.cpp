@@ -3,6 +3,10 @@
 
 #include <xsi_string.h>
 
+#include "OpenEXR\ImfRgbaFile.h"
+#include <OpenEXR\ImfChannelList.h>
+#include <OpenEXR\ImfOutputFile.h>
+
 #include "../utilities/logs.h"
 #include "../render_cycles/cyc_output/output_context.h"
 #include "write_image.h"
@@ -113,8 +117,8 @@ bool write_output_hdr(size_t width, size_t height, size_t components, const std:
 
 bool write_output_ldr_stb(size_t width, size_t height, size_t components, float* pixels, const std::string &file_path, const std::string &file_ext)
 {
-	size_t otput_pixels_size = static_cast<size_t>(width) * height * components;
-	unsigned char* u_pixels = new unsigned char[otput_pixels_size];
+	size_t output_pixels_size = static_cast<size_t>(width) * height * components;
+	unsigned char* u_pixels = new unsigned char[output_pixels_size];
 	for (size_t y = 0; y < height; y++)
 	{
 		for (size_t x = 0; x < width; x++)
@@ -165,10 +169,8 @@ void write_output_oiio(size_t width, size_t height, ccl::ustring output_path, st
 	out->close();
 }
 
-void write_outputs(OutputContext* output_context)
+void write_outputs_separate_passes(OutputContext* output_context, size_t width, size_t height)
 {
-	size_t width = output_context->get_width();
-	size_t height = output_context->get_height();
 	for (size_t i = 0; i < output_context->get_output_passes_count(); i++)
 	{
 		int buffer_components = output_context->get_output_pass_components(i);
@@ -220,5 +222,141 @@ void write_outputs(OutputContext* output_context)
 		// clear output pixels
 		output_pixels.clear();
 		output_pixels.shrink_to_fit();
+	}
+}
+
+void write_multilayer_exr(size_t width, size_t height, OutputContext* output_context)
+{
+	int passes_count = output_context->get_output_passes_count();
+	size_t pixels_count = width * height;
+	if (passes_count > 0)
+	{
+		// create path to save output exr file
+		std::string first_path = std::string(output_context->get_output_pass_path(0).c_str());
+		size_t last_slash = first_path.find_last_of("/\\");
+		std::string to_save_path = first_path.substr(0, last_slash + 1) + output_context->get_common_path().GetAsciiString() + +"Combined." + std::to_string(output_context->get_render_frame()) + ".exr";
+		
+		// prepare channel buffers for all passes
+		// we should calculate how many r, g, b and a channels we have in all passes
+		// and then create vectors for each channel of the corresponding size
+		// also we should find channel shifts for each pass
+		std::vector<size_t> r_starts(passes_count, 0);
+		std::vector<size_t> g_starts(passes_count, 0);
+		std::vector<size_t> b_starts(passes_count, 0);
+		std::vector<size_t> a_starts(passes_count, 0);
+		size_t r_channels = 0;
+		size_t g_channels = 0;
+		size_t b_channels = 0;
+		size_t a_channels = 0;
+		for (int i = 0; i < passes_count; i++)
+		{
+			int components_count = output_context->get_output_pass_components(i);
+			r_starts[i] = r_channels;
+			g_starts[i] = g_channels;
+			b_starts[i] = b_channels;
+			a_starts[i] = a_channels;
+			if (components_count >= 1) { r_channels++; }
+			if (components_count >= 2) { g_channels++; }
+			if (components_count >= 3) { b_channels++; }
+			if (components_count >= 4) { a_channels++; }
+		}
+
+		// create pixels for all channels
+		std::vector<float> r_pixels(r_channels * pixels_count, 0.0f);
+		std::vector<float> g_pixels(g_channels * pixels_count, 0.0f);
+		std::vector<float> b_pixels(b_channels * pixels_count, 0.0f);
+		std::vector<float> a_pixels(a_channels * pixels_count, 0.0f);
+
+		Imf::Header header(width, height);
+		Imf::FrameBuffer frameBuffer;
+		for (int i = 0; i < passes_count; i++)
+		{
+			int components_count = output_context->get_output_pass_components(i);
+			std::string pass_name = output_context->get_output_pass_name(i).c_str();
+
+			if (components_count >= 1)
+			{
+				std::string channel_name = pass_name + (components_count == 1 ? ".A" : ".R");
+				header.channels().insert(channel_name, Imf::Channel(Imf::FLOAT));
+
+				// we should extract pixel channels to the proper place in the global array
+				size_t r_place = pixels_count * r_starts[i];
+				output_context->extract_output_channel(i, 0, &r_pixels[r_place], true);
+
+				// for one component image we save the channel as A instead of R
+				frameBuffer.insert(channel_name, Imf::Slice(Imf::FLOAT, (char*)&r_pixels[r_place], sizeof(float), sizeof(float) * width));
+			}
+
+			if (components_count >= 3)
+			{
+				
+				header.channels().insert(pass_name + ".G", Imf::Channel(Imf::FLOAT));
+				header.channels().insert(pass_name + ".B", Imf::Channel(Imf::FLOAT));	
+
+				size_t g_place = pixels_count * g_starts[i];
+				size_t b_place = pixels_count * b_starts[i];
+				
+				output_context->extract_output_channel(i, 1, &g_pixels[g_place], true);
+				output_context->extract_output_channel(i, 2, &b_pixels[b_place], true);
+				
+				frameBuffer.insert(pass_name + ".G", Imf::Slice(Imf::FLOAT, (char*)&g_pixels[g_place], sizeof(float), sizeof(float) * width));
+				frameBuffer.insert(pass_name + ".B", Imf::Slice(Imf::FLOAT, (char*)&b_pixels[b_place], sizeof(float), sizeof(float) * width));
+			}
+			if (components_count >= 4)
+			{
+				header.channels().insert(pass_name + ".A", Imf::Channel(Imf::FLOAT));
+
+				size_t a_place = pixels_count * a_starts[i];
+				output_context->extract_output_channel(i, 3, &a_pixels[a_place], true);
+				frameBuffer.insert(pass_name + ".A", Imf::Slice(Imf::FLOAT, (char*)&a_pixels[a_place], sizeof(float), sizeof(float) * width));
+			}
+		}
+
+		// write output file
+		Imf::OutputFile file(to_save_path.c_str(), header);
+
+		file.setFrameBuffer(frameBuffer);
+		file.writePixels(height);
+
+		// clear global pixels
+		r_pixels.clear();
+		r_pixels.shrink_to_fit();
+		g_pixels.clear();
+		g_pixels.shrink_to_fit();
+		b_pixels.clear();
+		b_pixels.shrink_to_fit();
+		a_pixels.clear();
+		a_pixels.shrink_to_fit();
+
+		r_starts.clear();
+		r_starts.shrink_to_fit();
+		g_starts.clear();
+		g_starts.shrink_to_fit();
+		b_starts.clear();
+		b_starts.shrink_to_fit();
+		a_starts.clear();
+		a_starts.shrink_to_fit();
+	}
+}
+
+void write_outputs(OutputContext* output_context, const XSI::CParameterRefArray& render_parameters)
+{
+	RenderType render_type = output_context->get_render_type();
+	if (render_type == RenderType::RenderType_Pass || render_type == RenderType::RenderType_Rendermap)
+	{
+		size_t width = output_context->get_width();
+		size_t height = output_context->get_height();
+		// we should save separate passes if output combine is false or it true and save separate is also true
+		bool output_exr_combine_passes = render_parameters.GetValue("output_exr_combine_passes");
+		bool output_exr_render_separate_passes = render_parameters.GetValue("output_exr_render_separate_passes");
+		if ((output_exr_combine_passes && output_exr_render_separate_passes) || (!output_exr_combine_passes))
+		{
+			write_outputs_separate_passes(output_context, width, height);
+		}
+
+		if (output_exr_combine_passes)
+		{// we should save all output passes into one multilayer exr file
+			write_multilayer_exr(width, height, output_context);
+		}
 	}
 }

@@ -5,6 +5,8 @@
 
 #include <xsi_application.h>
 
+#include "../../render_base/render_engine_base.h"
+
 class OutputContext
 {
 public:
@@ -13,14 +15,18 @@ public:
 
 	void reset();
 
+	void set_render_type(RenderType type);
 	void set_visual_pass(const XSI::CString &channel_name);
 	void set_output_passes(const XSI::CStringArray &aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names);
+	RenderType get_render_type();
 	ccl::ustring get_visual_pass_name();
 	ccl::PassType get_visal_pass_type();
 	int get_visual_pass_components();
 	int get_output_passes_count();
 	ULONG get_width();
 	ULONG get_height();
+	XSI::CString get_common_path();
+	int get_render_frame();
 	ccl::ustring get_output_pass_name(int index);
 	ccl::PassType get_output_pass_type(int index);
 	ccl::ustring get_output_pass_path(int index);
@@ -29,22 +35,26 @@ public:
 	int get_output_pass_components(int index);
 	int get_output_pass_bits(int index);
 	float* get_output_pass_pixels(int index);
+	void extract_output_channel(int index, int channel, float* output, bool flip_verticaly = false);
 	OIIO::ImageBuf get_output_buffer(int index);
 
 	bool add_output_pixels(ccl::ROI roi, int index, std::vector<float> &pixels);
 
 	void set_output_size(ULONG width, ULONG height);
-	void set_output_formats(XSI::CStringArray paths, XSI::CStringArray formats, XSI::CStringArray data_types, XSI::CStringArray channels, std::vector<int> bits);
+	void set_output_formats(const XSI::CStringArray& paths, const XSI::CStringArray& formats, const XSI::CStringArray& data_types, const XSI::CStringArray& channels, const std::vector<int>& bits, const XSI::CTime& eval_time);
 
 private:
 	ULONG image_width;  // these sizes contains full size (without crop)
 	ULONG image_height;  // for preview rendering these values does not used, but for pass rendeering it contains full image
 	// these values copied from the base renderer
+	RenderType render_type;
 	XSI::CStringArray output_paths;
 	XSI::CStringArray output_formats;
 	XSI::CStringArray output_data_types;
 	XSI::CStringArray output_channels;
 	std::vector<int> output_bits;
+	XSI::CString common_path;
+	int render_frame;
 
 	// visual pixels we will store at the RenderVisualBuffer, hosted on the main engine class
 	// here we only store some basic information

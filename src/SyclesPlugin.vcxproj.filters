@@ -51,6 +51,9 @@
     <ClCompile Include="utilities\miniz.c">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="utilities\math.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -147,6 +150,9 @@
       <Filter>utilities</Filter>
     </ClInclude>
     <ClInclude Include="utilities\miniz.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\math.h">
       <Filter>utilities</Filter>
     </ClInclude>
   </ItemGroup>

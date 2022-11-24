@@ -58,9 +58,10 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	
 	// we should setup output passes after parsing scene, because it may contains aovs and lightgroups
 	// so, setup visual here, but output passes in sync_session
+	output_context->set_render_type(render_type);
 	output_context->set_visual_pass(render_channel.GetName());
-	output_context->set_output_size((ULONG)image_full_size_width, (ULONG)image_full_size_height);
-	output_context->set_output_formats(output_paths, output_formats, output_data_types, output_channels, output_bits);
+	output_context->set_output_size((ULONG)image_size_width, (ULONG)image_size_height);
+	output_context->set_output_formats(output_paths, output_formats, output_data_types, output_channels, output_bits, eval_time);
 
 	// RenderVisualBuffer store pixels in OIIO::ImageBuf
 	visual_buffer->create((ULONG)image_full_size_width,
@@ -209,7 +210,7 @@ void RenderEngineCyc::render()
 XSI::CStatus RenderEngineCyc::post_render_engine()
 {
 	// save outputs
-	write_outputs(output_context);
+	write_outputs(output_context, m_render_parameters);
 
 	//log render time
 	double time = (finish_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
