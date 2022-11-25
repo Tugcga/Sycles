@@ -133,18 +133,18 @@ void RenderEngineBase::render()
 	//we fill the frame by randomly selected grey color
 	//create random color
 	float r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-	std::vector<float> frame_pixels(static_cast<size_t>(visual_buffer->width) * visual_buffer->height * 4);
-	for (ULONG y = 0; y < visual_buffer->height; y++)
+	std::vector<float> frame_pixels(static_cast<size_t>(visual_buffer->get_width()) * visual_buffer->get_height() * 4);
+	for (ULONG y = 0; y < visual_buffer->get_height(); y++)
 	{
-		for (ULONG x = 0; x < visual_buffer->width; x++)
+		for (ULONG x = 0; x < visual_buffer->get_width(); x++)
 		{
-			frame_pixels[4 * (static_cast<size_t>(visual_buffer->width) * y + x)] = r;
-			frame_pixels[4 * (static_cast<size_t>(visual_buffer->width) * y + x) + 1] = r;
-			frame_pixels[4 * (static_cast<size_t>(visual_buffer->width) * y + x) + 2] = r;
-			frame_pixels[4 * (static_cast<size_t>(visual_buffer->width) * y + x) + 3] = 1.0;
+			frame_pixels[4 * (static_cast<size_t>(visual_buffer->get_width()) * y + x)] = r;
+			frame_pixels[4 * (static_cast<size_t>(visual_buffer->get_width()) * y + x) + 1] = r;
+			frame_pixels[4 * (static_cast<size_t>(visual_buffer->get_width()) * y + x) + 2] = r;
+			frame_pixels[4 * (static_cast<size_t>(visual_buffer->get_width()) * y + x) + 3] = 1.0;
 		}
 	}
-	m_render_context.NewFragment(RenderTile(visual_buffer->corner_x, visual_buffer->corner_y, visual_buffer->width, visual_buffer->height, frame_pixels, false, 4));
+	m_render_context.NewFragment(RenderTile(visual_buffer->get_corner_x(), visual_buffer->get_corner_y(), visual_buffer->get_width(), visual_buffer->get_height(), frame_pixels, false, 4));
 	frame_pixels.clear();
 	frame_pixels.shrink_to_fit();
 }
@@ -176,6 +176,11 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	//current time
 	eval_time = render_context.GetTime();
 	start_render_time = clock();
+
+	//camera
+	XSI::Primitive camera_prim(m_render_context.GetAttribute("Camera"));
+	XSI::X3DObject camera_obj = camera_prim.GetOwners()[0];
+	camera = camera_obj;
 
 	//get pathes to save images
 	output_paths.Clear();
@@ -671,7 +676,7 @@ XSI::CStatus RenderEngineBase::start_render()
 		return XSI::CStatus::Fail;
 	}
 
-	m_render_context.NewFrame(visual_buffer->full_width, visual_buffer->full_height);
+	m_render_context.NewFrame(visual_buffer->get_full_width(), visual_buffer->get_full_height());
 
 	start_prepare_render_time = clock();
 

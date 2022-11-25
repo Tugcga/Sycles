@@ -66,6 +66,7 @@
   <ItemGroup>
     <ClCompile Include=".\SyclesPlugin.cpp" />
     <ClCompile Include="input\input.cpp" />
+    <ClCompile Include="output\labels_buffer.cpp" />
     <ClCompile Include="output\pixel_process.cpp" />
     <ClCompile Include="output\write_image.cpp" />
     <ClCompile Include="render_base\render_engine_base.cpp" />
@@ -89,12 +90,14 @@
     <ClInclude Include="input\config_ocio.h" />
     <ClInclude Include="input\input.h" />
     <ClInclude Include="input\input_devices.h" />
+    <ClInclude Include="output\labels_symbols.h" />
     <ClInclude Include="output\write_image.h" />
     <ClInclude Include="render_base\render_engine_base.h" />
     <ClInclude Include="render_base\render_tile.h" />
     <ClInclude Include="render_base\render_visual_buffer.h" />
     <ClInclude Include="render_cycles\cyc_output\output_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_drivers.h" />
+    <ClInclude Include="render_cycles\cyc_scene\cyc_labels.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_scene.h" />
     <ClInclude Include="render_cycles\cyc_session\cyc_session.h" />
     <ClInclude Include="render_cycles\render_engine_cyc.h" />

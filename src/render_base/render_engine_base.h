@@ -6,6 +6,7 @@
 #include <xsi_x3dobject.h>
 #include <xsi_material.h>
 #include <xsi_ppgeventcontext.h>
+#include <xsi_camera.h>
 
 #include <vector>
 #include <string>
@@ -42,6 +43,7 @@ class RenderEngineBase
 public:
 	//these public variables can be used from render engine
 	RenderType render_type;
+	XSI::Camera camera;
 	XSI::RendererContext m_render_context;  // save it in the pre_render method
 	XSI::CRefArray m_isolation_list;
 	XSI::CString archive_folder;  // full path to the folder for archive export. Non-empty only if the user call export scene

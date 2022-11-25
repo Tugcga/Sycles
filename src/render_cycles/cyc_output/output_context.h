@@ -6,6 +6,7 @@
 #include <xsi_application.h>
 
 #include "../../render_base/render_engine_base.h"
+#include "../cyc_scene/cyc_labels.h"
 
 class OutputContext
 {
@@ -35,13 +36,18 @@ public:
 	int get_output_pass_components(int index);
 	int get_output_pass_bits(int index);
 	float* get_output_pass_pixels(int index);
+	float* get_labels_pixels();
 	void extract_output_channel(int index, int channel, float* output, bool flip_verticaly = false);
+	void extract_lables_channel(int channel, float* output, bool flip_verticaly = false);
 	OIIO::ImageBuf get_output_buffer(int index);
+	bool get_is_labels();
 
 	bool add_output_pixels(ccl::ROI roi, int index, std::vector<float> &pixels);
 
 	void set_output_size(ULONG width, ULONG height);
 	void set_output_formats(const XSI::CStringArray& paths, const XSI::CStringArray& formats, const XSI::CStringArray& data_types, const XSI::CStringArray& channels, const std::vector<int>& bits, const XSI::CTime& eval_time);
+	void set_labels_buffer(LabelsContext* labels_context);
+	void overlay_labels();  // this method bake labels into each combined output pass, it should be called after all saves before output separate images
 
 private:
 	ULONG image_width;  // these sizes contains full size (without crop)
@@ -61,6 +67,11 @@ private:
 	ccl::PassType visual_pass;  // what pass should be visualised into the screen
 	ccl::ustring visual_pass_name;
 	int visual_pass_components;
+
+	// labels
+	bool is_labels;
+	std::vector<float> labels_buffer_pixels;
+	ccl::ImageBuf labels_buffer;
 
 	// for each output channel we should create several oputput Cycles passes
 	// for most of them this pass is unique, but for aovs and lightgroups several output Cycles passes may corresponds one output channel

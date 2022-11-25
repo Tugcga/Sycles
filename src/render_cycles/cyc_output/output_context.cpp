@@ -1,12 +1,19 @@
+#include "OpenImageIO/imagebufalgo.h"
+
 #include "output_context.h"
 
 #include "../cyc_session/cyc_session.h"
 #include "../../utilities/logs.h"
 #include "../../utilities/strings.h"
 #include "../../utilities/math.h"
+#include "../../output/write_image.h"
 
 OutputContext::OutputContext()
 {
+	is_labels = false;
+	labels_buffer_pixels.resize(0);
+	labels_buffer.reset();
+
 	output_paths.Clear();
 	output_formats.Clear();
 	output_data_types.Clear();
@@ -26,6 +33,11 @@ OutputContext::OutputContext()
 	output_pixels.resize(0);
 
 	output_buffer_pixels_start.resize(0);
+
+	output_passes_count = 0;
+	render_type = RenderType::RenderType_Unknown;
+	common_path = "";
+	render_frame = 0;
 }
 
 OutputContext::~OutputContext()
@@ -35,6 +47,11 @@ OutputContext::~OutputContext()
 
 void OutputContext::reset()
 {
+	labels_buffer_pixels.clear();
+	labels_buffer_pixels.shrink_to_fit();
+	is_labels = false;
+	labels_buffer.reset();
+
 	output_paths.Clear();
 	output_formats.Clear();
 	output_data_types.Clear();
@@ -168,25 +185,27 @@ void OutputContext::extract_output_channel(int index, int channel, float* output
 	float* pixels = get_output_pass_pixels(index);
 	int components = get_output_pass_components(index);
 
-	size_t pixel_index = 0;
-	size_t row_index = 1;
-	for (size_t i = 0; i < (size_t)image_width * image_height; i++)
-	{
-		size_t p = flip_verticaly ? (image_width * (image_height - row_index) + pixel_index) : i;
-		output[p] = pixels[components * i + channel];
+	extract_channel(image_width, image_height, channel, components, flip_verticaly, pixels, output);
+}
 
-		pixel_index++;
-		if (pixel_index == image_width)
-		{
-			pixel_index = 0;
-			row_index++;
-		}
-	}
+void OutputContext::extract_lables_channel(int channel, float* output, bool flip_verticaly)
+{
+	extract_channel(image_width, image_height, channel, 4, flip_verticaly, &labels_buffer_pixels[0], output);
 }
 
 OIIO::ImageBuf OutputContext::get_output_buffer(int index)
 {
 	return output_buffers[index];
+}
+
+bool OutputContext::get_is_labels()
+{
+	return is_labels;
+}
+
+float* OutputContext::get_labels_pixels()
+{
+	return &labels_buffer_pixels[0];
 }
 
 bool OutputContext::add_output_pixels(ccl::ROI roi, int index, std::vector<float>& pixels)
@@ -221,6 +240,43 @@ void OutputContext::set_visual_pass(const XSI::CString& channel_name)
 	}
 	visual_pass_name = ccl::ustring(pass_to_name(visual_pass).GetAsciiString());
 	visual_pass_components = get_pass_components(visual_pass);  // don't forget: when visual pass is lightgroup, then pass type is Combined, but it has only 3 components
+}
+
+void OutputContext::set_labels_buffer(LabelsContext* labels_context)
+{
+	if (labels_context->is_labels())
+	{
+		is_labels = true;
+		labels_buffer_pixels.resize((size_t)image_width * image_height * 4);
+		labels_buffer = OIIO::ImageBuf(ccl::ImageSpec(image_width, image_height, 4, ccl::TypeDesc::FLOAT), &labels_buffer_pixels[0]);
+		
+		build_labels_buffer(labels_buffer, labels_context->get_string(), image_width, image_height,
+			0,  // horisontal shift
+			20,  // height
+			0.2, 0.2, 0.2, 0.6,  // back color
+			0);  // bottom row
+	}
+	else
+	{
+		is_labels = false;
+		labels_buffer_pixels.clear();
+		labels_buffer.reset();
+	}
+}
+
+void OutputContext::overlay_labels()
+{
+	if (is_labels)
+	{
+		for (size_t i = 0; i < output_passes_count; i++)
+		{
+			ccl::PassType pass_type = get_output_pass_type(i);
+			if (pass_type == ccl::PASS_COMBINED)
+			{
+				overlay_pixels(image_width, image_height, get_labels_pixels(), get_output_pass_pixels(i));
+			}
+		}
+	}
 }
 
 void OutputContext::set_output_passes(const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)

@@ -248,6 +248,16 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 		size_t g_channels = 0;
 		size_t b_channels = 0;
 		size_t a_channels = 0;
+		// start from labels (if it exists)
+		if (output_context->get_is_labels())
+		{
+			//lables buffer always contains 4 components
+			r_channels++;
+			g_channels++;
+			b_channels++;
+			a_channels++;
+		}
+
 		for (int i = 0; i < passes_count; i++)
 		{
 			int components_count = output_context->get_output_pass_components(i);
@@ -269,6 +279,25 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 
 		Imf::Header header(width, height);
 		Imf::FrameBuffer frameBuffer;
+		// add labels
+		if (output_context->get_is_labels())
+		{
+			header.channels().insert("Labels.R", Imf::Channel(Imf::FLOAT));
+			header.channels().insert("Labels.G", Imf::Channel(Imf::FLOAT));
+			header.channels().insert("Labels.B", Imf::Channel(Imf::FLOAT));
+			header.channels().insert("Labels.A", Imf::Channel(Imf::FLOAT));
+
+			output_context->extract_lables_channel(0, &r_pixels[0], true);
+			output_context->extract_lables_channel(0, &g_pixels[0], true);
+			output_context->extract_lables_channel(0, &b_pixels[0], true);
+			output_context->extract_lables_channel(0, &a_pixels[0], true);
+
+			frameBuffer.insert("Labels.R", Imf::Slice(Imf::FLOAT, (char*)&r_pixels[0], sizeof(float), sizeof(float) * width));
+			frameBuffer.insert("Labels.G", Imf::Slice(Imf::FLOAT, (char*)&g_pixels[0], sizeof(float), sizeof(float) * width));
+			frameBuffer.insert("Labels.B", Imf::Slice(Imf::FLOAT, (char*)&b_pixels[0], sizeof(float), sizeof(float) * width));
+			frameBuffer.insert("Labels.A", Imf::Slice(Imf::FLOAT, (char*)&a_pixels[0], sizeof(float), sizeof(float) * width));
+		}
+
 		for (int i = 0; i < passes_count; i++)
 		{
 			int components_count = output_context->get_output_pass_components(i);
@@ -291,7 +320,7 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 			{
 				
 				header.channels().insert(pass_name + ".G", Imf::Channel(Imf::FLOAT));
-				header.channels().insert(pass_name + ".B", Imf::Channel(Imf::FLOAT));	
+				header.channels().insert(pass_name + ".B", Imf::Channel(Imf::FLOAT));
 
 				size_t g_place = pixels_count * g_starts[i];
 				size_t b_place = pixels_count * b_starts[i];
@@ -346,17 +375,23 @@ void write_outputs(OutputContext* output_context, const XSI::CParameterRefArray&
 	{
 		size_t width = output_context->get_width();
 		size_t height = output_context->get_height();
+
 		// we should save separate passes if output combine is false or it true and save separate is also true
 		bool output_exr_combine_passes = render_parameters.GetValue("output_exr_combine_passes");
 		bool output_exr_render_separate_passes = render_parameters.GetValue("output_exr_render_separate_passes");
-		if ((output_exr_combine_passes && output_exr_render_separate_passes) || (!output_exr_combine_passes))
-		{
-			write_outputs_separate_passes(output_context, width, height);
-		}
 
+		// at first save multilayer image
 		if (output_exr_combine_passes)
 		{// we should save all output passes into one multilayer exr file
 			write_multilayer_exr(width, height, output_context);
+		}
+
+		// next save separate images
+		// but before this process, combine labels (if it exists) with each combined output pass
+		output_context->overlay_labels();
+		if ((output_exr_combine_passes && output_exr_render_separate_passes) || (!output_exr_combine_passes))
+		{
+			write_outputs_separate_passes(output_context, width, height);
 		}
 	}
 }

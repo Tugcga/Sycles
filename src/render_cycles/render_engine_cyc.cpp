@@ -22,6 +22,7 @@ RenderEngineCyc::RenderEngineCyc()
 	is_session = false;
 	call_abort_render = false;
 	output_context = new OutputContext();
+	labels_context = new LabelsContext();
 }
 
 // when we delete the engine, then at first this method is called, and then the method from base class
@@ -29,6 +30,7 @@ RenderEngineCyc::~RenderEngineCyc()
 {
 	clear_session();
 	delete output_context;
+	delete labels_context;
 }
 
 void RenderEngineCyc::clear_session()
@@ -151,6 +153,33 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	}
 }
 
+void RenderEngineCyc::combine_labels_over_visual()
+{
+	if (output_context->get_is_labels() && output_context->get_visal_pass_type() == ccl::PASS_COMBINED)
+	{
+		ULONG visual_width = visual_buffer->get_width();
+		ULONG visual_height = visual_buffer->get_height();
+		if (visual_width == output_context->get_width() && visual_height == output_context->get_height())
+		{
+			// here we shold use the copy of the visual buffer pixels, because original pixels may be used later in the update
+			std::vector<float> visual_pixels = visual_buffer->get_buffer_pixels();
+			overlay_pixels(visual_width, visual_height, output_context->get_labels_pixels(), &visual_pixels[0]);
+
+			// set render fragment
+			m_render_context.NewFragment(RenderTile(image_corner_x, image_corner_y, visual_width, visual_height, visual_pixels, false, 4));  // combined always have 4 components
+
+			// clear vector
+			visual_pixels.clear();
+			visual_pixels.shrink_to_fit();
+		}
+		else
+		{
+			log_message("The size of visual buffer and labels buffer are different, this is not ok", XSI::siWarningMsg);
+		}
+	}
+
+}
+
 // in this callback we can show the actual progress of the render process
 void RenderEngineCyc::progress_update_callback()
 {
@@ -192,6 +221,9 @@ XSI::CStatus RenderEngineCyc::post_scene()
 {
 	call_abort_render = false;
 
+	// setup labels
+	labels_context->setup(session->scene, m_render_parameters, camera, eval_time);
+
 	return XSI::CStatus::OK;
 }
 
@@ -209,14 +241,23 @@ void RenderEngineCyc::render()
 
 XSI::CStatus RenderEngineCyc::post_render_engine()
 {
+	// get render time
+	double render_time = (finish_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
+	labels_context->set_render_time(render_time);
+
+	// the render is done, add labels to the output (if we need it)
+	output_context->set_labels_buffer(labels_context);
+
+	// add labels over visual buffer and output to the screen
+	combine_labels_over_visual();
+
 	// save outputs
 	write_outputs(output_context, m_render_parameters);
 
 	//log render time
-	double time = (finish_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
 	if (render_type != RenderType_Shaderball)
 	{
-		log_message("Render statistics: " + XSI::CString(time) + " seconds");
+		log_message("Render statistics: " + XSI::CString(render_time) + " seconds");
 	}
 
 	// clear output context object

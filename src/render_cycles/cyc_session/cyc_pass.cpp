@@ -16,8 +16,6 @@ ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name, cc
 	pass->set_name(name);
 	pass->set_mode(mode);
 
-    log_message("add pass " + XSI::CString(name.c_str()));
-
 	return pass;
 }
 

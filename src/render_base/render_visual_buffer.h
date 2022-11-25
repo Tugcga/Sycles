@@ -82,8 +82,43 @@ public:
 		return to_return;
 	}
 
-public:
-	unsigned int full_width, full_height;  // full frame size
+	std::vector<float> get_buffer_pixels()
+	{
+		return get_buffer_pixels(OIIO::ROI(0, width, 0, height));
+	}
+
+	ULONG get_width()
+	{
+		return width;
+	}
+
+	ULONG get_height()
+	{
+		return height;
+	}
+
+	ULONG get_full_width()
+	{
+		return full_width;
+	}
+
+	ULONG get_full_height()
+	{
+		return full_height;
+	}
+
+	unsigned int get_corner_x()
+	{
+		return corner_x;
+	}
+
+	unsigned int get_corner_y()
+	{
+		return corner_y;
+	}
+
+private:
+	unsigned int full_width, full_height;  // full frame size, used when we create a frame before render starts
 	unsigned int corner_x, corner_y;  // coordinates of the left bottom corner
 	unsigned int width, height;  // actual render size
 	unsigned int components;

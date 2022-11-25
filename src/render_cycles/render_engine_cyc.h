@@ -5,6 +5,7 @@
 
 #include "../render_base/render_engine_base.h"
 #include "cyc_output/output_context.h"
+#include "cyc_scene/cyc_labels.h"
 
 class RenderEngineCyc : public RenderEngineBase 
 {
@@ -42,9 +43,11 @@ private:
 	bool is_session;
 	bool call_abort_render;  // activate when we obtain command from XSI to abort the render, use it in the cancel callback
 	OutputContext* output_context;
+	LabelsContext* labels_context;
 
 	// internal methods
 	void clear_session();
 	void progress_update_callback();
 	void progress_cancel_callback();  // called from Cycles to check is it should stop render or not
+	void combine_labels_over_visual();
 };

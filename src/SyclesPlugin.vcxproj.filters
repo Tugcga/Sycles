@@ -54,6 +54,9 @@
     <ClCompile Include="utilities\math.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="output\labels_buffer.cpp">
+      <Filter>output</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -154,6 +157,12 @@
     </ClInclude>
     <ClInclude Include="utilities\math.h">
       <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_scene\cyc_labels.h">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClInclude>
+    <ClInclude Include="output\labels_symbols.h">
+      <Filter>output</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

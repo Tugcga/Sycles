@@ -1,5 +1,9 @@
 #include <vector>
 
+#include "OpenImageIO/imagebuf.h"
+
+#include "../utilities/logs.h"
+
 void convert_with_components(size_t width, size_t height, int input_components, int output_components, float* input_pixels, float* output_pixels)
 {
 	if (input_components == output_components)
@@ -69,5 +73,35 @@ void convert_with_components(size_t width, size_t height, int input_components, 
 				}
 			}
 		}
+	}
+}
+
+void extract_channel(size_t image_width, size_t image_height, size_t channel, size_t components, bool flip_verticaly, float* pixels, float* output)
+{
+	size_t pixel_index = 0;
+	size_t row_index = 1;
+	for (size_t i = 0; i < (size_t)image_width * image_height; i++)
+	{
+		size_t p = flip_verticaly ? (image_width * (image_height - row_index) + pixel_index) : i;
+		output[p] = pixels[components * i + channel];
+
+		pixel_index++;
+		if (pixel_index == image_width)
+		{
+			pixel_index = 0;
+			row_index++;
+		}
+	}
+}
+
+void overlay_pixels(size_t width, size_t height, float* over_pixels, float* back_pixels)
+{
+	for (size_t p = 0; p < width * height; p++)
+	{
+		float alpha = over_pixels[4 * p + 3];
+		back_pixels[4*p] = over_pixels[4 * p] * alpha + (1.0f - alpha) * back_pixels[4 * p];
+		back_pixels[4*p + 1] = over_pixels[4 * p + 1] * alpha + (1.0f - alpha) * back_pixels[4 * p + 1];
+		back_pixels[4*p + 2] = over_pixels[4 * p + 2] * alpha + (1.0f - alpha) * back_pixels[4 * p + 2];
+		back_pixels[4*p + 3] = 1.0f - (1.0f - alpha) * (1.0f - back_pixels[4 * p + 3]);
 	}
 }
