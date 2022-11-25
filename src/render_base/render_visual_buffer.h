@@ -84,7 +84,7 @@ public:
 
 	std::vector<float> get_buffer_pixels()
 	{
-		return get_buffer_pixels(OIIO::ROI(0, width, 0, height));
+		return buffer_pixels;
 	}
 
 	ULONG get_width()
