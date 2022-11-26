@@ -7,19 +7,20 @@
 #include "OpenImageIO/imagebuf.h"
 
 #include "../render_cycles/cyc_output/output_context.h"
+#include "../render_cycles/cyc_output/color_transform_context.h"
 
 // write_image
 //clamp value betwen given min and max values
 float clamp_float(float value, float min, float max);
 
 // write all outputs to image files
-void write_outputs(OutputContext* output_context, const XSI::CParameterRefArray &render_parameters);
+void write_outputs(OutputContext* output_context, ColorTransformContext* color_transform_context, const XSI::CParameterRefArray &render_parameters);
 
 // pixel_process
 // convert pixels with one number of components to the other
 // used, when we should save buffer with one number of components nto image with another ones
-// also this method flips the image
-void convert_with_components(size_t width, size_t height, int input_components, int output_components, float* input_pixels, float* output_pixels);
+// also this method allows to flip the image in vertical direction (because some output formats requires this flip)
+void convert_with_components(size_t width, size_t height, int input_components, int output_components, bool flip_verticaly, float* input_pixels, float* output_pixels);
 
 // extract channel from the input pixels array and output it
 // also allows to flip pixels of the image in vertical direction

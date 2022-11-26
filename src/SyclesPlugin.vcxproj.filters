@@ -57,6 +57,9 @@
     <ClCompile Include="output\labels_buffer.cpp">
       <Filter>output</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_output\color_transform_context.cpp">
+      <Filter>render_cycles\cyc_output</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -163,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="output\labels_symbols.h">
       <Filter>output</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_output\color_transform_context.h">
+      <Filter>render_cycles\cyc_output</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -242,7 +242,6 @@ void read_ocio_config()
 		ocio_config.is_init = true;
 		ocio_config.default_display = 1;  // <--- default device index, if delete None device, then this value should be 1 instead 2
 		ocio_config.default_view = 1;
-		ocio_config.default_look = 0;
 	}
 }
 

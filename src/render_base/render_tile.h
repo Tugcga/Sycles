@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "../utilities/math.h"
+
 struct RGBA
 {
 	unsigned char r;
@@ -10,26 +12,6 @@ struct RGBA
 	unsigned char b;
 	unsigned char a;
 };
-
-inline unsigned char linear_to_srgb(float v)
-{
-	if (v <= 0.0f)
-		return 0;
-	if (v >= 1.0f)
-		return 255;
-	if (v <= 0.0031308f)
-		return  (unsigned char)((12.92f * v * 255.0f) + 0.5f);
-	return (unsigned char)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 255.0f + 0.5f);
-}
-
-inline unsigned char linear_clamp(float v)
-{
-	if (v <= 0.0f)
-		return 0;
-	if (v >= 1.0f)
-		return 255;
-	return (unsigned char)(v * 255.0);
-}
 
 class RenderTile : public XSI::RendererImageFragment
 {

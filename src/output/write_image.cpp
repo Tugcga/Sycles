@@ -27,11 +27,18 @@ OIIO::TypeDesc xsi_key_to_data_type(int key)
 	else { return OIIO::TypeDesc::UINT8; }
 }
 
-float clamp_float(float value, float min, float max)
+// return true if extension corresponds to the ldr image format,
+// flase if it hdr
+bool is_ext_ldr(std::string ext)
 {
-	if (value < min) return min;
-	if (value > max) return max;
-	return value;
+	if (ext == "png" || ext == "bmp" || ext == "tga" || ext == "jpg" || ext == "ppm")
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void write_output_ppm(size_t width, size_t height, size_t components, const std::string &file_path, float* output_pixels)
@@ -169,7 +176,7 @@ void write_output_oiio(size_t width, size_t height, ccl::ustring output_path, st
 	out->close();
 }
 
-void write_outputs_separate_passes(OutputContext* output_context, size_t width, size_t height)
+void write_outputs_separate_passes(OutputContext* output_context, ColorTransformContext* color_transform_context, size_t width, size_t height)
 {
 	for (size_t i = 0; i < output_context->get_output_passes_count(); i++)
 	{
@@ -179,14 +186,22 @@ void write_outputs_separate_passes(OutputContext* output_context, size_t width, 
 			continue;
 		}
 		int write_components = output_context->get_output_pass_write_components(i);
+		std::string output_ext = output_context->get_output_pass_format(i).c_str();
 
 		// create separate array with pixels for output
 		std::vector<float> output_pixels(width * height * write_components);
 		float* pixels = output_context->get_output_pass_pixels(i);
-		convert_with_components(width, height, buffer_components, write_components, pixels, &output_pixels[0]);
+		bool need_flip = !(output_ext == "pfm" || output_ext == "ppm");  // pfm and ppm does not require the flip
+		convert_with_components(width, height, buffer_components, write_components, need_flip, pixels, &output_pixels[0]);
+
+		// apply color correction to ldr combined pass, if we need this
+		if (output_context->get_output_pass_type(i) == ccl::PASS_COMBINED && is_ext_ldr(output_ext))
+		{
+			// if color correction is disabled in parameters, then transform context skip the process (it know when it should apply process)
+			color_transform_context->apply(width, height, write_components, &output_pixels[0]);
+		}
 
 		// now we are ready to write output pixels into file
-		std::string output_ext = output_context->get_output_pass_format(i).c_str();
 		std::string output_path = output_context->get_output_pass_path(i).c_str();
 		ccl::TypeDesc out_type = xsi_key_to_data_type(output_context->get_output_pass_bits(i));
 		if (output_ext == "pfm")
@@ -368,7 +383,7 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 	}
 }
 
-void write_outputs(OutputContext* output_context, const XSI::CParameterRefArray& render_parameters)
+void write_outputs(OutputContext* output_context, ColorTransformContext* color_transform_context, const XSI::CParameterRefArray& render_parameters)
 {
 	RenderType render_type = output_context->get_render_type();
 	if (render_type == RenderType::RenderType_Pass || render_type == RenderType::RenderType_Rendermap)
@@ -391,7 +406,7 @@ void write_outputs(OutputContext* output_context, const XSI::CParameterRefArray&
 		output_context->overlay_labels();
 		if ((output_exr_combine_passes && output_exr_render_separate_passes) || (!output_exr_combine_passes))
 		{
-			write_outputs_separate_passes(output_context, width, height);
+			write_outputs_separate_passes(output_context, color_transform_context, width, height);
 		}
 	}
 }

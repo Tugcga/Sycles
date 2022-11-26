@@ -208,17 +208,17 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 		// looks
 		XSI::CValueArray cm_looks_combo(2 + ocio_config.looks_count * 2);
-		cm_looks_combo[0] = "None"; cm_looks_combo[1] = LONG(0);
+		cm_looks_combo[0] = "None"; cm_looks_combo[1] = LONG(0);  // set None at start, actual look index will be-1 with this value
 		for (size_t look_index = 0; look_index < ocio_config.looks_count; look_index++)
 		{
 			cm_looks_combo[2 + 2 * look_index] = ocio_config.looks[look_index];
-			cm_looks_combo[2 + 2 * look_index + 1] = LONG(look_index) + 1;
+			cm_looks_combo[2 + 2 * look_index + 1] = LONG(look_index + 1);
 		}
 		XSI::Parameter cm_look_index_parameter = parameters.GetItem("cm_look_index");
 		int cm_look_index = cm_look_index_parameter.GetValue();
-		if (cm_look_index < 0 || cm_look_index >= ocio_config.looks_count)
+		if (cm_look_index < 0 || cm_look_index > ocio_config.looks_count)
 		{
-			cm_look_index = ocio_config.default_look;
+			cm_look_index = 0;
 			cm_look_index_parameter.PutValue(cm_look_index);
 		}
 		layout.AddEnumControl("cm_look_index", cm_looks_combo, "Look", XSI::siControlCombo);
@@ -609,21 +609,25 @@ void set_colormanagement(XSI::CustomProperty& prop)
 
 	XSI::Parameter cm_mode = prop_array.GetItem("cm_mode");
 	int mode = cm_mode.GetValue();
+	XSI::Parameter cm_apply_to_ldr = prop_array.GetItem("cm_apply_to_ldr");
+	bool cm_apply = cm_apply_to_ldr.GetValue();
+
+	cm_mode.PutCapabilityFlag(block_mode, !cm_apply);
 
 	XSI::Parameter cm_display_index = prop_array.GetItem("cm_display_index");
-	cm_display_index.PutCapabilityFlag(block_mode, mode == 0);
+	cm_display_index.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
 
 	XSI::Parameter cm_view_index = prop_array.GetItem("cm_view_index");
-	cm_view_index.PutCapabilityFlag(block_mode, mode == 0);
+	cm_view_index.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
 
 	XSI::Parameter cm_look_index = prop_array.GetItem("cm_look_index");
-	cm_look_index.PutCapabilityFlag(block_mode, mode == 0);
+	cm_look_index.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
 
 	XSI::Parameter cm_exposure = prop_array.GetItem("cm_exposure");
-	cm_exposure.PutCapabilityFlag(block_mode, mode == 0);
+	cm_exposure.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
 
 	XSI::Parameter cm_gamma = prop_array.GetItem("cm_gamma");
-	cm_gamma.PutCapabilityFlag(block_mode, mode == 0);
+	cm_gamma.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
 }
 
 XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_context) 
@@ -722,7 +726,7 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		{
 			set_denoising(prop);
 		}
-		else if (param_name == "cm_mode" || param_name == "cm_display_index")
+		else if (param_name == "cm_mode" || param_name == "cm_display_index" || param_name == "cm_apply_to_ldr")
 		{
 			XSI::PPGLayout ppg_layout = prop.GetPPGLayout();
 			build_layout(ppg_layout, prop.GetParameters());

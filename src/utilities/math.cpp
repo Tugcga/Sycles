@@ -3,6 +3,8 @@
 #include <xsi_application.h>
 #include <xsi_time.h>
 
+const float epsilon = 0.0001f;
+
 int get_frame(const XSI::CTime& eval_time)
 {
 	return (int)(eval_time.GetTime() + 0.5);
@@ -33,3 +35,65 @@ XSI::CString seconds_to_date(double total_seconds)
 
 	return to_return;
 }
+
+float clamp_float(float value, float min, float max)
+{
+	if (value < min) return min;
+	if (value > max) return max;
+	return value;
+}
+
+float linear_to_srgb_float(float v)
+{
+	if (v <= 0.0f)
+	{
+		return 0.0;
+	}
+	if (v >= 1.0f)
+	{
+		return v;
+	}
+	if (v <= 0.0031308f)
+	{
+		return  12.92f * v;
+	}
+
+	return (1.055f * pow(v, 1.0f / 2.4f)) - 0.055f;
+}
+
+unsigned char linear_to_srgb(float v)
+{
+	if (v <= 0.0f)
+	{
+		return 0;
+	}
+	if (v >= 1.0f)
+	{
+		return 255;
+	}
+	if (v <= 0.0031308f)
+	{
+		return  (unsigned char)((12.92f * v * 255.0f) + 0.5f);
+	}
+	return (unsigned char)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 255.0f + 0.5f);
+}
+
+unsigned char linear_clamp(float v)
+{
+	if (v <= 0.0f)
+	{
+		return 0;
+	}
+	if (v >= 1.0f)
+	{
+		return 255;
+	}
+	return (unsigned char)(v * 255.0);
+}
+
+bool equal_floats(float a, float b)
+{
+	float abs_value = std::abs(a - b);
+	return abs_value < epsilon;
+}
+

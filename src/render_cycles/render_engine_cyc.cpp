@@ -23,6 +23,7 @@ RenderEngineCyc::RenderEngineCyc()
 	call_abort_render = false;
 	output_context = new OutputContext();
 	labels_context = new LabelsContext();
+	color_transform_context = new ColorTransformContext();
 }
 
 // when we delete the engine, then at first this method is called, and then the method from base class
@@ -31,6 +32,7 @@ RenderEngineCyc::~RenderEngineCyc()
 	clear_session();
 	delete output_context;
 	delete labels_context;
+	delete color_transform_context;
 }
 
 void RenderEngineCyc::clear_session()
@@ -73,6 +75,8 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		(ULONG)image_size_width,
 		(ULONG)image_size_height,
 		output_context->get_visual_pass_components());
+
+	color_transform_context->update(m_render_parameters, eval_time);
 
 	return XSI::CStatus::OK;
 }
@@ -127,6 +131,13 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		visual_buffer->add_pixels(tile_roi, pixels);
 
 		// next we should create new fragment to visualize it at the screen
+		// we does not need piszels anymore, so, we can apply color correction to this array
+		// apply color correction only to combined pass
+		if (output_context->get_visal_pass_type() == ccl::PASS_COMBINED)
+		{
+			color_transform_context->apply(tile_width, tile_height, visual_components, &pixels[0]);
+		}
+		
 		m_render_context.NewFragment(RenderTile(offset_x + image_corner_x, offset_y + image_corner_y, tile_width, tile_height, pixels, false, visual_components));
 
 	}
@@ -153,9 +164,10 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	}
 }
 
-void RenderEngineCyc::combine_labels_over_visual()
+void RenderEngineCyc::postrender_visual_output()
 {
-	if (output_context->get_is_labels() && output_context->get_visal_pass_type() == ccl::PASS_COMBINED)
+	// overlay labels and apply color correction only for combined pass
+	if (output_context->get_visal_pass_type() == ccl::PASS_COMBINED)
 	{
 		ULONG visual_width = visual_buffer->get_width();
 		ULONG visual_height = visual_buffer->get_height();
@@ -163,7 +175,18 @@ void RenderEngineCyc::combine_labels_over_visual()
 		{
 			// here we shold use the copy of the visual buffer pixels, because original pixels may be used later in the update
 			std::vector<float> visual_pixels = visual_buffer->get_buffer_pixels();
-			overlay_pixels(visual_width, visual_height, output_context->get_labels_pixels(), &visual_pixels[0]);
+
+			// make color correction
+			if (color_transform_context->get_use_correction())
+			{
+				color_transform_context->apply(visual_width, visual_height, 4, &visual_pixels[0]);
+			}
+
+			// add labels
+			if (output_context->get_is_labels())
+			{
+				overlay_pixels(visual_width, visual_height, output_context->get_labels_pixels(), &visual_pixels[0]);
+			}
 
 			// set render fragment
 			m_render_context.NewFragment(RenderTile(image_corner_x, image_corner_y, visual_width, visual_height, visual_pixels, false, 4));  // combined always have 4 components
@@ -248,11 +271,14 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	// the render is done, add labels to the output (if we need it)
 	output_context->set_labels_buffer(labels_context);
 
-	// add labels over visual buffer and output to the screen
-	combine_labels_over_visual();
+	// make final color correction, add labels over visual buffer and output to the screen
+	postrender_visual_output();
 
-	// save outputs
-	write_outputs(output_context, m_render_parameters);
+	// save outputs only for pass and baking rendering
+	if (render_type == RenderType_Pass || render_type == RenderType_Rendermap)
+	{
+		write_outputs(output_context, color_transform_context, m_render_parameters);
+	}
 
 	//log render time
 	if (render_type != RenderType_Shaderball)
