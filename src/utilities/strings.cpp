@@ -72,3 +72,26 @@ XSI::CString get_common_substring(const XSI::CStringArray& strings_array)
 
 	return common_substring;
 }
+
+XSI::CString add_aov_name_to_path(const XSI::CString& file_path, const XSI::CString& aov_name)
+{
+	// find last slash (after the folder with the image)
+	ULONG slash_pos = file_path.ReverseFindString("\\");
+
+	// find the second dot
+	ULONG first_dot_pos = file_path.ReverseFindString(".");
+	if (first_dot_pos == UINT_MAX)
+	{// no dots in the path, this is not ok
+		return file_path + "." + aov_name;
+	}
+
+	XSI::CString path_substring = file_path.GetSubString(0, first_dot_pos);
+	// find dot in this substring
+	ULONG second_dot_pos = path_substring.ReverseFindString(".");
+	if (second_dot_pos == UINT_MAX || second_dot_pos < slash_pos)
+	{// the path contains only one dot - before image extension (or other dots inside directory path)
+		return path_substring + "." + aov_name + file_path.GetSubString(first_dot_pos);
+	}
+
+	return file_path.GetSubString(0, second_dot_pos) + "." + aov_name + file_path.GetSubString(second_dot_pos);
+}

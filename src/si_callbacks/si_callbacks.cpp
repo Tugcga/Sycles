@@ -1,7 +1,6 @@
 #include "../input/input.h"
 #include "si_locker.h"
 #include "../utilities/logs.h"
-#include "../render_base/render_engine_base.h"
 #include "../render_cycles/render_engine_cyc.h"
 
 RenderEngineCyc g_render;

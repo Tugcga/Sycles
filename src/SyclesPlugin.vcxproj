@@ -96,11 +96,14 @@
     <ClInclude Include="render_base\render_engine_base.h" />
     <ClInclude Include="render_base\render_tile.h" />
     <ClInclude Include="render_base\render_visual_buffer.h" />
+    <ClInclude Include="render_base\type_enums.h" />
     <ClInclude Include="render_cycles\cyc_output\color_transform_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_drivers.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_labels.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_scene.h" />
+    <ClInclude Include="render_cycles\cyc_scene\primitives_geometry.h" />
+    <ClInclude Include="render_cycles\cyc_session\cyc_pass_utils.h" />
     <ClInclude Include="render_cycles\cyc_session\cyc_session.h" />
     <ClInclude Include="render_cycles\render_engine_cyc.h" />
     <ClInclude Include="si_callbacks\si_callbacks.h" />

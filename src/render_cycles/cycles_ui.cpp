@@ -239,6 +239,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddGroup("Passes");
 	layout.AddItem("output_pass_alpha_threshold", "Alpha Threshold");
 	layout.AddItem("output_pass_assign_unique_pass_id", "Assign Unique Object Pass Id");
+	layout.AddItem("output_pass_preview_name", "Preview AOV Pass Name");
 	layout.EndGroup();
 
 	layout.AddGroup("Multilayer EXR");
@@ -870,6 +871,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	// passes
 	property.AddParameter("output_pass_alpha_threshold", XSI::CValue::siFloat, caps, "", "", 0.5, 0.0, 1.0, 0.0, 1.0, param);
 	property.AddParameter("output_pass_assign_unique_pass_id", XSI::CValue::siBool, caps, "", "", false, param);
+	property.AddParameter("output_pass_preview_name", XSI::CValue::siString, caps, "", "", "", param);  // used for preview aov passes
 
 	// multilayer exr
 	property.AddParameter("output_exr_combine_passes", XSI::CValue::siBool, caps, "", "", false, param);

@@ -4,8 +4,10 @@
 #include "OpenImageIO/imagebuf.h"
 
 #include <xsi_application.h>
+#include <xsi_time.h>
+#include <xsi_string.h>
 
-#include "../../render_base/render_engine_base.h"
+#include "../../render_base/type_enums.h"
 #include "../cyc_scene/cyc_labels.h"
 
 class OutputContext
@@ -17,12 +19,8 @@ public:
 	void reset();
 
 	void set_render_type(RenderType type);
-	void set_visual_pass(const XSI::CString &channel_name);
 	void set_output_passes(const XSI::CStringArray &aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names);
 	RenderType get_render_type();
-	ccl::ustring get_visual_pass_name();
-	ccl::PassType get_visal_pass_type();
-	int get_visual_pass_components();
 	int get_output_passes_count();
 	ULONG get_width();
 	ULONG get_height();
@@ -50,6 +48,8 @@ public:
 	void overlay_labels();  // this method bake labels into each combined output pass, it should be called after all saves before output separate images
 
 private:
+	void add_one_pass_data(ccl::PassType pass_type, const XSI::CString& pass_name, int pass_components, int i, const XSI::CString& output_path);
+
 	ULONG image_width;  // these sizes contains full size (without crop)
 	ULONG image_height;  // for preview rendering these values does not used, but for pass rendeering it contains full image
 	// these values copied from the base renderer
@@ -61,12 +61,6 @@ private:
 	std::vector<int> output_bits;
 	XSI::CString common_path;
 	int render_frame;
-
-	// visual pixels we will store at the RenderVisualBuffer, hosted on the main engine class
-	// here we only store some basic information
-	ccl::PassType visual_pass;  // what pass should be visualised into the screen
-	ccl::ustring visual_pass_name;
-	int visual_pass_components;
 
 	// labels
 	bool is_labels;

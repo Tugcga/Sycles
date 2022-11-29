@@ -11,32 +11,7 @@
 #include <vector>
 #include <string>
 
-enum RenderType
-{
-	RenderType_Pass,
-	RenderType_Shaderball,
-	RenderType_Region,
-	RenderType_Rendermap,
-	RenderType_Export,
-	RenderType_Unknown
-};
-
-enum UpdateType
-{
-	UpdateType_Undefined,
-	UpdateType_Camera,
-	UpdateType_Transform,
-	UpdateType_Material,
-	UpdateType_Mesh,
-	UpdateType_Pointcloud,
-	UpdateType_Hair,
-	UpdateType_XsiLight,
-	UpdateType_Visibility,
-	UpdateType_Subdivision,
-	UpdateType_Render,
-	UpdateType_GlobalAmbient,
-	UpdateType_Pass
-};
+#include "type_enums.h"
 
 class RenderEngineBase
 {
@@ -47,6 +22,7 @@ public:
 	XSI::RendererContext m_render_context;  // save it in the pre_render method
 	XSI::CRefArray m_isolation_list;
 	XSI::CString archive_folder;  // full path to the folder for archive export. Non-empty only if the user call export scene
+	XSI::CString m_display_channel_name;  // name of the channel for output to the screen (selected channel for the preview render)
 	XSI::Property m_render_property;
 	XSI::CParameterRefArray m_render_parameters;
 	XSI::CTime eval_time;

@@ -63,3 +63,18 @@ int get_index_in_array(const std::vector<std::string>& array, const std::string&
 	}
 	return -1;
 }
+
+float get_maximum(const std::vector<float>& array)
+{
+	float to_return = array[0];
+	for (size_t i = 0; i < array.size(); i++)
+	{
+		float v = array[i];
+		if (to_return < v)
+		{
+			to_return = v;
+		}
+	}
+
+	return to_return;
+}

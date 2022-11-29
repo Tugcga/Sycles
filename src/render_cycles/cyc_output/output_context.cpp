@@ -2,7 +2,7 @@
 
 #include "output_context.h"
 
-#include "../cyc_session/cyc_session.h"
+#include "../cyc_session/cyc_pass.h"
 #include "../../utilities/logs.h"
 #include "../../utilities/strings.h"
 #include "../../utilities/math.h"
@@ -92,21 +92,6 @@ void OutputContext::reset()
 RenderType OutputContext::get_render_type()
 {
 	return render_type;
-}
-
-ccl::ustring OutputContext::get_visual_pass_name()
-{
-	return visual_pass_name;
-}
-
-ccl::PassType OutputContext::get_visal_pass_type()
-{
-	return visual_pass;
-}
-
-int OutputContext::get_visual_pass_components()
-{
-	return visual_pass_components;
 }
 
 int OutputContext::get_output_passes_count()
@@ -230,18 +215,6 @@ void OutputContext::set_output_formats(const XSI::CStringArray &paths, const XSI
 	render_frame = get_frame(eval_time);
 }
 
-void OutputContext::set_visual_pass(const XSI::CString& channel_name)
-{
-	visual_pass = channel_to_pass_type(channel_name);
-	if(visual_pass == ccl::PASS_NONE)
-	{
-		log_message("Select unknown output channel, switch to Combined", XSI::siWarningMsg);
-		visual_pass = ccl::PASS_COMBINED;
-	}
-	visual_pass_name = ccl::ustring(pass_to_name(visual_pass).GetAsciiString());
-	visual_pass_components = get_pass_components(visual_pass);  // don't forget: when visual pass is lightgroup, then pass type is Combined, but it has only 3 components
-}
-
 void OutputContext::set_labels_buffer(LabelsContext* labels_context)
 {
 	if (labels_context->is_labels())
@@ -279,6 +252,19 @@ void OutputContext::overlay_labels()
 	}
 }
 
+void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CString &pass_name, int pass_components, int index, const XSI::CString &output_path)
+{
+	// add data to arrays
+	output_pass_types.push_back(pass_type);
+	output_pass_names.push_back(ccl::ustring(pass_name.GetAsciiString()));
+	output_pass_components.push_back(pass_components);
+	output_pass_paths.push_back(ccl::ustring(output_path.GetAsciiString()));
+	output_pass_formats.push_back(ccl::ustring(output_formats[index].GetAsciiString()));
+	output_pass_write_components.push_back(output_data_types[index].Length());
+	output_pass_bits.push_back(output_bits[index]);
+	output_passes_count++;
+}
+
 void OutputContext::set_output_passes(const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
 {
 	output_passes_count = 0;
@@ -293,7 +279,7 @@ void OutputContext::set_output_passes(const XSI::CStringArray& aov_color_names, 
 	output_buffers.clear();
 	output_buffer_pixels_start.clear();
 
-	// at the first enumerate we count total number of components for all output passesand save all data except buffers
+	// at the first enumerate we count total number of components for all output passes and save all data except buffers
 	// in most cases one output channel corresponds to one output pass
 	// but it's possible to select one channel several times and save it with different names
 	// also aovs correspond to several different passes
@@ -304,33 +290,48 @@ void OutputContext::set_output_passes(const XSI::CStringArray& aov_color_names, 
 		// but name from FrameBuffer name of the render context contains names with _ instead of spaces
 		// so, we should replace _ to spaces for all names
 		ccl::PassType pass_type = channel_to_pass_type(replace_symbols(output_channels[i], "_", " "));  // convert from XSI channel name to Cycles pass type
-		if (pass_type != ccl::PASS_NONE)
+		if (pass_type != ccl::PASS_NONE && output_paths[i].Length() > 0)
 		{
-			ccl::ustring pass_name = ccl::ustring(pass_to_name(pass_type).GetAsciiString());  // cover from Cycles pass type to the standart name
-
-			// create buffers for the pass
-			// we will use float buffer but the number of components is the same as Cycles can generate (4 for Combined but 1 for Depth and so on)
+			XSI::CString pass_name = pass_to_name(pass_type);  // cover from Cycles pass type to the standart name
 			int pass_components = get_pass_components(pass_type);
 			total_components += pass_components;
 
-			// TODO: for aov and lightgroup passes modify names to use different passes for different names
+			if (pass_type == ccl::PASS_AOV_COLOR || pass_type == ccl::PASS_AOV_VALUE)
+			{// we should add several output passes, for each name in the input array
+				XSI::CStringArray aov_names = pass_type == ccl::PASS_AOV_COLOR ? aov_color_names : aov_value_names;
+				for (size_t aov_index = 0; aov_index < aov_names.GetCount(); aov_index++)
+				{
+					// we should convert aov name by adding some specific prefix
+					// this will guarantee that all pass names are unique
+					XSI::CString aov_name = add_prefix_to_aov_name(aov_names[aov_index], pass_type == ccl::PASS_AOV_COLOR);
+					// we assume that input arrays contains aov names without repetitions
 
-			// add data ot arrays
-			output_pass_types.push_back(pass_type);
-			output_pass_names.push_back(pass_name);
-			output_pass_components.push_back(pass_components);
-			output_pass_paths.push_back(ccl::ustring(output_paths[i].GetAsciiString()));
-			output_pass_formats.push_back(ccl::ustring(output_formats[i].GetAsciiString()));
-			output_pass_write_components.push_back(output_data_types[i].Length());
-			output_pass_bits.push_back(output_bits[i]);
-			output_passes_count++;
+					int pass_components = get_pass_components(pass_type);
+					total_components += pass_components;
+
+					// we should modify output pass, add at the end the name of the pass (original name, not modified)
+					add_one_pass_data(pass_type, aov_name, pass_components, i, add_aov_name_to_path(output_paths[i], aov_names[aov_index]));
+				}
+			}
+			else
+			{
+				add_one_pass_data(pass_type, pass_name, pass_components, i, output_paths[i]);
+			}
 		}
 		else
 		{
-			// fails to convert channel name to the pass
-			log_message("Fails to convert channel " + output_channels[i] + " to the render pass, skip it", XSI::siWarningMsg);
+			if (pass_type == ccl::PASS_NONE)
+			{
+				// fails to convert channel name to the pass
+				log_message("Fails to convert channel " + output_channels[i] + " to the render pass, skip it", XSI::siWarningMsg);
+			}
+			if (output_paths[i].Length() == 0)
+			{
+				log_message("There is empty output path, skip it", XSI::siWarningMsg);
+			}
 		}
 	}
+
 	// resize output pixels
 	output_pixels.resize((size_t)image_width * image_height * total_components, 0.0f);
 

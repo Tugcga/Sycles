@@ -54,10 +54,7 @@ ccl::Session* create_session()
 	return session;
 }
 
-void sync_session(ccl::Session* session, XSI::RendererContext& xsi_render_context, OutputContext *output_context)
+void sync_session(ccl::Session* session, XSI::RendererContext& xsi_render_context, OutputContext *output_context, RenderVisualBuffer *visual_buffer)
 {
 	sync_scene(session->scene, xsi_render_context);
-
-	output_context->set_output_passes(XSI::CStringArray(), XSI::CStringArray(), XSI::CStringArray());
-	sync_passes(session->scene, output_context);
 }

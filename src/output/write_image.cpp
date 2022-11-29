@@ -9,6 +9,7 @@
 
 #include "../utilities/logs.h"
 #include "../render_cycles/cyc_output/output_context.h"
+#include "../render_cycles/cyc_session/cyc_pass.h"
 #include "write_image.h"
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -204,6 +205,7 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 		// now we are ready to write output pixels into file
 		std::string output_path = output_context->get_output_pass_path(i).c_str();
 		ccl::TypeDesc out_type = xsi_key_to_data_type(output_context->get_output_pass_bits(i));
+
 		if (output_ext == "pfm")
 		{
 			write_output_pfm(width, height, write_components, output_path, &output_pixels[0]);
@@ -232,7 +234,7 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 		// the memory is not clear after write process
 		// there is an error when Softimage is closed
 		// so, use manual outputs instead one universal with OpenImageIO
-		//write_output_oiio(width, height, output_path, output_pixels, write_components, out_type);
+		// write_output_oiio(width, height, output_path, output_pixels, write_components, out_type);
 
 		// clear output pixels
 		output_pixels.clear();
@@ -317,6 +319,12 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 		{
 			int components_count = output_context->get_output_pass_components(i);
 			std::string pass_name = output_context->get_output_pass_name(i).c_str();
+			// if our pass has aov type, then we should convert the name from changed (with prefix) to the original one
+			ccl::PassType pass_type = output_context->get_output_pass_type(i);
+			if (pass_type == ccl::PASS_AOV_COLOR || pass_type == ccl::PASS_AOV_VALUE)
+			{
+				pass_name = remove_prefix_from_aov_name(pass_name.c_str()).GetAsciiString();
+			}
 
 			if (components_count >= 1)
 			{

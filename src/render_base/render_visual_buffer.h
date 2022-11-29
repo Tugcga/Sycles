@@ -1,5 +1,6 @@
 #pragma once
 #include <xsi_dataarray.h>
+#include <xsi_arrayparameter.h>
 
 #include "scene/pass.h"
 
@@ -9,6 +10,7 @@
 #include "OpenImageIO/imagebuf.h"
 
 #include "../utilities/logs.h"
+#include "../render_cycles/cyc_session/cyc_pass_utils.h"
 
 class RenderVisualBuffer
 {
@@ -20,18 +22,32 @@ public:
 		is_create = false;
 	};
 
-	void create(ULONG image_width, ULONG image_height, ULONG crop_left, ULONG crop_bottom, ULONG crop_width, ULONG crop_height, ULONG buffer_components)
+	void setup(ULONG image_width, ULONG image_height, ULONG crop_left, ULONG crop_bottom, ULONG crop_width, ULONG crop_height, const XSI::CString &channel_name, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
 	{
+		pass_type = channel_to_pass_type(channel_name);
+		if (pass_type == ccl::PASS_NONE)
+		{
+			log_message("Select unknown output channel, switch to Combined", XSI::siWarningMsg);
+			pass_type = ccl::PASS_COMBINED;
+		}
+		pass_name = ccl::ustring(pass_to_name(pass_type).GetAsciiString());
+		if (pass_type == ccl::PASS_AOV_COLOR || pass_type == ccl::PASS_AOV_VALUE)
+		{// change the name of the pass into name from render parameters
+			// at present time we does not know is this name correct or not
+			// so, does not change it to correct name, but later show warning message, if the name is incorrect
+			pass_name = add_prefix_to_aov_name(render_parameters.GetValue("output_pass_preview_name", eval_time), pass_type == ccl::PASS_AOV_COLOR).GetAsciiString();
+		}
+		components = get_pass_components(pass_type);  // don't forget: when visual pass is lightgroup, then pass type is Combined, but it has only 3 components
+
 		full_width = image_width;
 		full_height = image_height;
 		corner_x = crop_left;
 		corner_y = crop_bottom;
 		width = crop_width;
 		height = crop_height;
-		components = buffer_components;
 
-		ccl::ImageSpec buffer_spec = ccl::ImageSpec(crop_width, crop_height, buffer_components, ccl::TypeDesc::FLOAT);
-		buffer_pixels.resize((size_t)crop_width * crop_height * buffer_components);
+		ccl::ImageSpec buffer_spec = ccl::ImageSpec(crop_width, crop_height, components, ccl::TypeDesc::FLOAT);
+		buffer_pixels.resize((size_t)crop_width * crop_height * components);
 		buffer = new ccl::ImageBuf(buffer_spec, &buffer_pixels[0]);
 
 		is_create = true;
@@ -117,12 +133,35 @@ public:
 		return corner_y;
 	}
 
+	ccl::ustring get_pass_name()
+	{
+		return pass_name;
+	}
+
+	void set_pass_name(const XSI::CString &name)
+	{
+		pass_name = ccl::ustring(name.GetAsciiString());
+	}
+
+	ccl::PassType get_pass_type()
+	{
+		return pass_type;
+	}
+
+	size_t get_components()
+	{
+		return components;
+	}
+
 private:
 	unsigned int full_width, full_height;  // full frame size, used when we create a frame before render starts
 	unsigned int corner_x, corner_y;  // coordinates of the left bottom corner
 	unsigned int width, height;  // actual render size
-	unsigned int components;
+	size_t components;
 	ccl::ImageBuf* buffer;
 	std::vector<float> buffer_pixels;
 	bool is_create;
+
+	ccl::PassType pass_type;  // what pass should be visualised into the screen
+	ccl::ustring pass_name;
 };

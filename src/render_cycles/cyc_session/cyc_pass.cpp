@@ -7,6 +7,31 @@
 
 #include "../../utilities/logs.h"
 #include "../cyc_output/output_context.h"
+#include "../../render_base/render_visual_buffer.h"
+
+XSI::CString add_prefix_to_aov_name(const XSI::CString &name, bool is_color)
+{
+    if (is_color)
+    {
+        return "aovcolor_" + name;
+    }
+    else
+    {
+        return "aovvalue_" + name;
+    }
+}
+
+XSI::CString remove_prefix_from_aov_name(const XSI::CString &name)
+{
+    if (name.Length() >= 9)
+    {
+        return name.GetSubString(9);
+    }
+    else
+    {
+        return name;
+    }
+}
 
 ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name, ccl::PassMode mode = ccl::PassMode::DENOISED)
 {
@@ -174,8 +199,69 @@ XSI::CString pass_to_name(ccl::PassType pass_type)
     return "Unknown";
 }
 
-void sync_passes(ccl::Scene* scene, OutputContext* output_context)
+bool is_aov_name_correct(const XSI::CString& pass_name, const XSI::CStringArray& aovs)
 {
+    for (size_t i = 0; i < aovs.GetCount(); i++)
+    {
+        XSI::CString name_with_prefix = aovs[i];
+        if (name_with_prefix == pass_name)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void check_visual_aov_name(RenderVisualBuffer* visual_buffer, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
+{
+    ccl::PassType visual_pass = visual_buffer->get_pass_type();
+    if (visual_pass == ccl::PASS_AOV_COLOR || visual_pass == ccl::PASS_AOV_VALUE)
+    {
+        bool is_color = visual_pass == ccl::PASS_AOV_COLOR;
+        XSI::CString pass_name = remove_prefix_from_aov_name(visual_buffer->get_pass_name().c_str());  // this is original name
+        if (!is_aov_name_correct(pass_name, is_color ? aov_color_names : aov_value_names))
+        {// name is incorrect
+            bool is_switch = is_color ? aov_color_names.GetCount() > 0 : aov_value_names.GetCount() > 0;
+            XSI::CString switch_name = "";
+            if (is_switch)
+            {
+                switch_name = is_color ? aov_color_names[0] : aov_value_names[0];
+            }
+
+            // display warning message
+            log_message("Display channel is set to AOV " + XSI::CString(is_color ? "Color" : "Value") +
+                " with " +
+                XSI::CString(pass_name.Length() == 0 ? "empty name." : "name " + pass_name + ". There is no pass with this name.") +
+                XSI::CString(is_switch ? " Switch to " + switch_name  + "." : ""), XSI::siWarningMsg);
+
+            if (is_switch)
+            {
+                visual_buffer->set_pass_name(add_prefix_to_aov_name(switch_name, is_color));
+            }
+        }
+    }
+}
+
+void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer)
+{
+    // for test only we add to the scene three aovs:
+    // 1. color sphere_color_aov
+    // 2. value sphere_value_aov
+    // 3. value plane_value_aov
+
+    // TODO: make shure that all names are unique, does not use two equal names (even it existst in different nodes)
+    XSI::CStringArray aov_color_names;
+    aov_color_names.Add("sphere_color_aov");
+    XSI::CStringArray aov_value_names;
+    aov_value_names.Add("sphere_value_aov");
+    aov_value_names.Add("plane_value_aov");
+
+    // if visual pass is aov, then check that the name of the pass is correct
+    check_visual_aov_name(visual_buffer, aov_color_names, aov_value_names);
+
+    output_context->set_output_passes(aov_color_names, aov_value_names, XSI::CStringArray());
+
     // sync passes
     // all default passes should be added at once
     // but some of them (for example, AOV) can be added several times with different names
@@ -187,12 +273,12 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context)
     pass_add(scene, ccl::PASS_COMBINED, combined_name);
 
     // next visual
-    ccl::ustring visual_name = output_context->get_visual_pass_name();
+    ccl::ustring visual_name = visual_buffer->get_pass_name();
     if (!exported_names.contains(visual_name))
     {
         // add visual pass
         exported_names.insert(visual_name);
-        pass_add(scene, output_context->get_visal_pass_type(), visual_name);
+        pass_add(scene, visual_buffer->get_pass_type(), visual_name);
     }
 
     // next for all render output

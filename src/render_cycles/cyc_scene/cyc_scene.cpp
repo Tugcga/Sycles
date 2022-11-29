@@ -12,6 +12,8 @@
 #include <xsi_kinematics.h>
 
 #include "../../utilities/logs.h"
+#include "../cyc_session/cyc_session.h"
+#include "primitives_geometry.h"
 
 #define DEG2RADF(_deg) ((_deg) * (float)(M_PI / 180.0))
 #define RAD2DEGF(_rad) ((_rad) * (float)(180.0 / M_PI))
@@ -27,30 +29,134 @@ static inline ccl::Transform get_transform(std::vector<float>& array)
 	return projection_to_transform(projection);
 }
 
+ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes)
+{
+	ccl::Mesh* mesh = scene->create_node<ccl::Mesh>();
+
+	ccl::array<ccl::float3> vertex_coordinates;
+	for (size_t i = 0; i < vertex_count * 3; i += 3)
+	{
+		vertex_coordinates.push_back_slow(ccl::make_float3(vertices[i + 0], vertices[i + 1], vertices[i + 2]));
+	}
+
+	size_t num_triangles = 0;
+	for (size_t i = 0; i < faces_count; i++)
+	{
+		num_triangles += face_sizes[i] - 2;
+	}
+	mesh->reserve_mesh(vertex_coordinates.size(), num_triangles);
+	mesh->set_verts(vertex_coordinates);
+
+	// create triangles
+	int index_offset = 0;
+
+	for (size_t i = 0; i < faces_count; i++)  // iterate over polygons
+	{
+		for (int j = 0; j < face_sizes[i] - 2; j++)  // for each polygon by n-2
+		{
+			int v0 = face_indexes[index_offset];
+			int v1 = face_indexes[index_offset + j + 1];
+			int v2 = face_indexes[index_offset + j + 2];
+			mesh->add_triangle(v0, v1, v2, 0, false);
+		}
+
+		index_offset += face_sizes[i];
+	}
+
+	return mesh;
+}
+
+// cube from -1 to 1 (the edge size is 2)
+ccl::Mesh* build_cube(ccl::Scene* scene)
+{
+	return build_primitive(scene, cube_vertex_count, cube_vertices, cube_faces_count, cube_face_sizes, cube_face_indexes);
+}
+
+ccl::Mesh* build_sphere(ccl::Scene* scene)
+{
+	return build_primitive(scene, sphere_vertex_count, sphere_vertices, sphere_faces_count, sphere_face_sizes, sphere_face_indexes);
+}
+
 void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 {
 	// for test purpose only we create simple scene with one plane and one cube with sky light
 	// from actual xsi scene we get only camera position
 	// for meshes use default surface shader (it has index 0)
 
+	// create shader for shpere
+	ccl::Shader* sphere_shader = new ccl::Shader();
+	ccl::ShaderGraph* sphere_shader_graph = new ccl::ShaderGraph();
+	ccl::SubsurfaceScatteringNode* sss_node = sphere_shader_graph->create_node<ccl::SubsurfaceScatteringNode>();
+	sphere_shader_graph->add(sss_node);
+	ccl::ColorNode* color_node = sphere_shader_graph->create_node<ccl::ColorNode>();
+	sphere_shader_graph->add(color_node);
+	color_node->set_value(ccl::make_float3(1.0, 0.2, 0.2));
+	ccl::OutputAOVNode* color_aov_node = sphere_shader_graph->create_node<ccl::OutputAOVNode>();
+	sphere_shader_graph->add(color_aov_node);
+	color_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name(XSI::CString("sphere_color_aov"), true).GetAsciiString()));
+	// we use changed names for attributes, but output to the passes original name
+	// these names will be changed by the same function
+	ccl::OutputAOVNode* value_aov_node = sphere_shader_graph->create_node<ccl::OutputAOVNode>();
+	sphere_shader_graph->add(value_aov_node);
+	value_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name("sphere_value_aov", false).GetAsciiString()));
+	ccl::NoiseTextureNode* noise_node = sphere_shader_graph->create_node<ccl::NoiseTextureNode>();
+	sphere_shader_graph->add(noise_node);
+	// make connections
+	sphere_shader_graph->connect(color_node->output("Color"), sss_node->input("Color"));
+	sphere_shader_graph->connect(color_node->output("Color"), color_aov_node->input("Color"));
+	sphere_shader_graph->connect(noise_node->output("Color"), value_aov_node->input("Value"));
+	sphere_shader_graph->connect(noise_node->output("Color"), sss_node->input("Scale"));
+
+	ccl::ShaderNode* sphere_out = sphere_shader_graph->output();
+	sphere_shader_graph->connect(sss_node->output("BSSRDF"), sphere_out->input("Surface"));
+	sphere_shader->set_graph(sphere_shader_graph);
+	sphere_shader->tag_update(scene);
+	scene->shaders.push_back(sphere_shader);
+	int sphere_shader_id = scene->shaders.size() - 1;
+
+	// create shader for plane
+	ccl::Shader* plane_shader = new ccl::Shader();
+	ccl::ShaderGraph* plane_shader_graph = new ccl::ShaderGraph();
+	ccl::GlossyBsdfNode* glossy_node = plane_shader_graph->create_node<ccl::GlossyBsdfNode>();
+	plane_shader_graph->add(glossy_node);
+	glossy_node->set_roughness(0.25f);
+	ccl::OutputAOVNode* plane_value_aov_node = plane_shader_graph->create_node<ccl::OutputAOVNode>();
+	plane_shader_graph->add(plane_value_aov_node);
+	plane_value_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name("plane_value_aov", false).GetAsciiString()));
+	ccl::CheckerTextureNode* checker_node = plane_shader_graph->create_node<ccl::CheckerTextureNode>();
+	plane_shader_graph->add(checker_node);
+	checker_node->set_scale(0.3f);
+	checker_node->set_color1(ccl::make_float3(0.2, 0.2, 0.2));
+	checker_node->set_color2(ccl::make_float3(0.8, 0.8, 0.8));
+	// connections
+	plane_shader_graph->connect(checker_node->output("Color"), plane_value_aov_node->input("Value"));
+	plane_shader_graph->connect(checker_node->output("Color"), glossy_node->input("Color"));
+	ccl::ShaderNode* plane_out = plane_shader_graph->output();
+	plane_shader_graph->connect(glossy_node->output("BSDF"), plane_out->input("Surface"));
+	plane_shader->set_graph(plane_shader_graph);
+	plane_shader->tag_update(scene);
+
+	scene->shaders.push_back(plane_shader);
+	int plane_shader_id = scene->shaders.size() - 1;
+
 	// add plane
 	ccl::Mesh* plane_mesh = scene->create_node<ccl::Mesh>();
 
 	ccl::array<ccl::Node*> plane_used_shaders;
-	plane_used_shaders.push_back_slow(scene->shaders[0]);
+	plane_used_shaders.push_back_slow(scene->shaders[plane_shader_id]);
 	plane_mesh->set_used_shaders(plane_used_shaders);
 
 	ccl::Object* plane_object = new ccl::Object();
 	plane_object->set_geometry(plane_mesh);
 	plane_object->name = "plane";
-	plane_object->set_is_shadow_catcher(true);
+	//plane_object->set_is_shadow_catcher(true);
 
 	ccl::Transform plane_tfm = ccl::transform_identity();
 	plane_object->set_tfm(plane_tfm);
 	scene->objects.push_back(plane_object);
 
 	plane_mesh->reserve_mesh(4, 2);  // on plane 4 vertices, 2 triangles
-	float plane_radius = 5.0;
+	float plane_radius = 48.0;  // large plane for shadow catcher
 	ccl::array<ccl::float3> vertices(4);
 	vertices[0] = ccl::make_float3(plane_radius, 0, plane_radius);
 	vertices[1] = ccl::make_float3(-plane_radius, 0, plane_radius);
@@ -73,79 +179,42 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 	default_uv[4] = ccl::make_float2(0.0, 0.0);
 	default_uv[5] = ccl::make_float2(scale, 0.0);
 
+	// shaders
+	ccl::array<ccl::Node*> used_shaders;
+	used_shaders.push_back_slow(scene->shaders[0]);
+
+	// add sphere
+	ccl::array<ccl::Node*> sphere_used_shaders;
+	sphere_used_shaders.push_back_slow(scene->shaders[sphere_shader_id]);
+	ccl::Mesh* sphere_mesh = build_sphere(scene);
+	sphere_mesh->set_used_shaders(sphere_used_shaders);
+	ccl::Object* sphere_object = new ccl::Object();
+	sphere_object->set_geometry(sphere_mesh);
+	sphere_object->name = "sphere";
+	ccl::Transform sphere_tfm = ccl::transform_identity();
+	sphere_tfm = sphere_tfm * ccl::transform_translate(ccl::make_float3(0, 6, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
+	sphere_object->set_tfm(sphere_tfm);
+	scene->objects.push_back(sphere_object);
+
 	// add cube
-	ccl::Geometry* cube_geom = scene->create_node<ccl::Mesh>();
-
-	ccl::array<ccl::Node*> cube_used_shaders;
-	cube_used_shaders.push_back_slow(scene->shaders[0]);
-	cube_geom->set_used_shaders(cube_used_shaders);
-
+	ccl::Mesh* cube_mesh = build_cube(scene);
+	cube_mesh->set_used_shaders(used_shaders);
 	ccl::Object* cube_object = new ccl::Object();
-	cube_object->set_geometry(cube_geom);
+	cube_object->set_geometry(cube_mesh);
 	cube_object->name = "cube";
 	ccl::Transform cube_tfm = ccl::transform_identity();
-	cube_tfm = cube_tfm * ccl::transform_scale(1.0f, 1.0f, 1.0f) * ccl::transform_euler(ccl::make_float3(0, 0, 0)) * ccl::transform_translate(ccl::make_float3(0, 2, 0));
+	cube_tfm = cube_tfm * ccl::transform_translate(ccl::make_float3(0, 2, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
 	cube_object->set_tfm(cube_tfm);
 	scene->objects.push_back(cube_object);
 
-	ccl::Mesh* cube_mesh = static_cast<ccl::Mesh*>(cube_geom);
-
-	static float p_array[24] = { -1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1,
-							   -1, -1, 1,  1, -1, 1,  -1, 1, 1,  1, 1, 1 };
-	int p_array_length = 24;
-	static int nverts_array_length = 6;
-	static int nverts_array[6] = { 4, 4, 4, 4, 4, 4 };
-	static int verts_array[24]{ 0, 2, 3, 1, 0, 1, 5, 4, 0, 4, 6, 2,
-							  1, 3, 7, 5, 2, 6, 7, 3, 4, 5, 7, 6 };
-	int vertsArrayLength = 24;
-
-	ccl::array<ccl::float3> P;
-	ccl::vector<float> UV;
-	ccl::vector<int> verts, nverts;
-
-	size_t copyNum = 1;
-	float cube_size = 2.0;
-
-	for (size_t c = 0; c < copyNum; c++)
-	{
-		for (size_t i = 0; i < p_array_length; i += 3)
-		{
-			P.push_back_slow(ccl::make_float3(
-				cube_size * p_array[i + 0], cube_size * p_array[i + 1], cube_size * p_array[i + 2]));
-		}
-		for (int i = 0; i < vertsArrayLength; i++)
-		{
-			verts.push_back(verts_array[i]);
-		}
-		for (int i = 0; i < nverts_array_length; i++)
-		{
-			nverts.push_back(nverts_array[i]);
-		}
-	}
-
-	size_t num_triangles = 0;
-	for (size_t i = 0; i < nverts.size(); i++)
-	{
-		num_triangles += nverts[i] - 2;
-	}
-	cube_mesh->reserve_mesh(P.size(), num_triangles);
-	cube_mesh->set_verts(P);
-
-	// create triangles
-	int index_offset = 0;
-
-	for (size_t i = 0; i < nverts.size(); i++)  // iterate over polygons
-	{
-		for (int j = 0; j < nverts[i] - 2; j++)  // for each polygon by n-2
-		{
-			int v0 = verts[index_offset];
-			int v1 = verts[index_offset + j + 1];
-			int v2 = verts[index_offset + j + 2];
-			cube_mesh->add_triangle(v0, v1, v2, 0, false);
-		}
-
-		index_offset += nverts[i];
-	}
+	// add one more cube
+	ccl::Object* second_cube_object = new ccl::Object();
+	second_cube_object->set_geometry(cube_mesh);
+	second_cube_object->name = "second_cube";
+	ccl::Transform second_cube_tfm = ccl::transform_identity();
+	second_cube_tfm = second_cube_tfm * ccl::transform_translate(ccl::make_float3(3.5, 1, 2)) * ccl::transform_scale(1.0f, 1.0f, 1.0f);
+	second_cube_object->set_tfm(second_cube_tfm);
+	scene->objects.push_back(second_cube_object);
 
 	// background
 	ccl::Shader* bg_shader = scene->default_background;
@@ -160,6 +229,7 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 	sky_node->tex_mapping.rotation = ccl::make_float3(-0.5 * XSI::MATH::PI, 0, 0);
 	sky_node->set_sun_rotation(DEG2RADF(45.0));
 	sky_node->set_sun_elevation(DEG2RADF(36.0));
+	sky_node->set_sun_size(0.001f);
 	bg_graph->add(sky_node);
 	bg_graph->connect(sky_node->output("Color"), bg_node->input("Color"));
 	bg_shader->set_graph(bg_graph);

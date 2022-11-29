@@ -3,6 +3,7 @@
 #include <xsi_projectitem.h>
 #include <xsi_shader.h>
 #include <xsi_clusterproperty.h>
+#include <xsi_renderchannel.h>
 
 #include <ctime>
 
@@ -261,6 +262,9 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 				}
 			}
 		}
+		XSI::Framebuffer frame_buffer = m_render_context.GetDisplayFramebuffer();
+		XSI::RenderChannel display_channel = frame_buffer.GetRenderChannel();
+		m_display_channel_name = display_channel.GetName();
 
 		if (render_type == RenderType_Pass && file_output && output_paths.GetCount() == 0)
 		{//this is Pass render, but nothing to render

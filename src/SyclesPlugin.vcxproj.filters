@@ -170,5 +170,14 @@
     <ClInclude Include="render_cycles\cyc_output\color_transform_context.h">
       <Filter>render_cycles\cyc_output</Filter>
     </ClInclude>
+    <ClInclude Include="render_cycles\cyc_scene\primitives_geometry.h">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_session\cyc_pass_utils.h">
+      <Filter>render_cycles\cyc_session</Filter>
+    </ClInclude>
+    <ClInclude Include="render_base\type_enums.h">
+      <Filter>render_base</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
