@@ -3,13 +3,15 @@
 
 #include <xsi_string.h>
 
+#include <OpenEXR\ImfStringAttribute.h>
 #include "OpenEXR\ImfRgbaFile.h"
 #include <OpenEXR\ImfChannelList.h>
 #include <OpenEXR\ImfOutputFile.h>
 
 #include "../utilities/logs.h"
 #include "../render_cycles/cyc_output/output_context.h"
-#include "../render_cycles/cyc_session/cyc_pass.h"
+#include "../render_cycles/cyc_session/cyc_pass_utils.h"
+#include "../utilities/files_io.h"
 #include "write_image.h"
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -181,6 +183,13 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 {
 	for (size_t i = 0; i < output_context->get_output_passes_count(); i++)
 	{
+		ccl::PassType pass_type = output_context->get_output_pass_type(i);
+		// does not save cryptomatte passes here, we will save it separately
+		// also these passes does not contain proper extension and file path
+		if (pass_type == ccl::PASS_CRYPTOMATTE)
+		{
+			continue;
+		}
 		int buffer_components = output_context->get_output_pass_components(i);
 		if (buffer_components <= 0)
 		{
@@ -204,37 +213,51 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 
 		// now we are ready to write output pixels into file
 		std::string output_path = output_context->get_output_pass_path(i).c_str();
-		ccl::TypeDesc out_type = xsi_key_to_data_type(output_context->get_output_pass_bits(i));
+		if (output_path.length() > 0)
+		{
+			// check output directory
+			if (!create_dir(output_path))
+			{
+				log_message(XSI::CString("Fails to save the file ") + XSI::CString(output_path.c_str()), XSI::siWarningMsg);
+				continue;
+			}
 
-		if (output_ext == "pfm")
-		{
-			write_output_pfm(width, height, write_components, output_path, &output_pixels[0]);
-		}
-		else if (output_ext == "ppm")
-		{
-			write_output_ppm(width, height, write_components, output_path, &output_pixels[0]);
-		}
-		else if (output_ext == "exr")
-		{
-			write_output_exr(width, height, write_components, output_path, &output_pixels[0]);
-		}
-		else if (output_ext == "png" || output_ext == "bmp" || output_ext == "tga" || output_ext == "jpg")
-		{
-			write_output_ldr_stb(width, height, write_components, &output_pixels[0], output_path, output_ext);
-		}
-		else if (output_ext == "hdr")
-		{
-			write_output_hdr(width, height, write_components, output_path, &output_pixels[0]);
+			ccl::TypeDesc out_type = xsi_key_to_data_type(output_context->get_output_pass_bits(i));
+
+			if (output_ext == "pfm")
+			{
+				write_output_pfm(width, height, write_components, output_path, &output_pixels[0]);
+			}
+			else if (output_ext == "ppm")
+			{
+				write_output_ppm(width, height, write_components, output_path, &output_pixels[0]);
+			}
+			else if (output_ext == "exr")
+			{
+				write_output_exr(width, height, write_components, output_path, &output_pixels[0]);
+			}
+			else if (output_ext == "png" || output_ext == "bmp" || output_ext == "tga" || output_ext == "jpg")
+			{
+				write_output_ldr_stb(width, height, write_components, &output_pixels[0], output_path, output_ext);
+			}
+			else if (output_ext == "hdr")
+			{
+				write_output_hdr(width, height, write_components, output_path, &output_pixels[0]);
+			}
+			else
+			{
+				log_message("Unknown output format: " + XSI::CString(output_ext.c_str()), XSI::siWarningMsg);
+			}
+			// there are some bags in writing image by OIIO
+			// the memory is not clear after write process
+			// there is an error when Softimage is closed
+			// so, use manual outputs instead one universal with OpenImageIO
+			// write_output_oiio(width, height, output_path, output_pixels, write_components, out_type);
 		}
 		else
 		{
-			log_message("Unknown output format: " + XSI::CString(output_ext.c_str()), XSI::siWarningMsg);
+			log_message("Output path for the channel " + XSI::CString(output_context->get_output_pass_name(i).c_str()) + " is empty, this is not ok.", XSI::siWarningMsg);
 		}
-		// there are some bags in writing image by OIIO
-		// the memory is not clear after write process
-		// there is an error when Softimage is closed
-		// so, use manual outputs instead one universal with OpenImageIO
-		// write_output_oiio(width, height, output_path, output_pixels, write_components, out_type);
 
 		// clear output pixels
 		output_pixels.clear();
@@ -251,143 +274,247 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 		// create path to save output exr file
 		std::string first_path = std::string(output_context->get_output_pass_path(0).c_str());
 		size_t last_slash = first_path.find_last_of("/\\");
-		std::string to_save_path = first_path.substr(0, last_slash + 1) + output_context->get_common_path().GetAsciiString() + +"Combined." + std::to_string(output_context->get_render_frame()) + ".exr";
-		
-		// prepare channel buffers for all passes
-		// we should calculate how many r, g, b and a channels we have in all passes
-		// and then create vectors for each channel of the corresponding size
-		// also we should find channel shifts for each pass
-		std::vector<size_t> r_starts(passes_count, 0);
-		std::vector<size_t> g_starts(passes_count, 0);
-		std::vector<size_t> b_starts(passes_count, 0);
-		std::vector<size_t> a_starts(passes_count, 0);
-		size_t r_channels = 0;
-		size_t g_channels = 0;
-		size_t b_channels = 0;
-		size_t a_channels = 0;
-		// start from labels (if it exists)
-		if (output_context->get_is_labels())
+		XSI::CString common_path = output_context->get_common_path();
+		if (common_path.Length() > 0)
 		{
-			//lables buffer always contains 4 components
-			r_channels++;
-			g_channels++;
-			b_channels++;
-			a_channels++;
-		}
+			std::string to_save_path = first_path.substr(0, last_slash + 1) + common_path.GetAsciiString() + +"Combined." + std::to_string(output_context->get_render_frame()) + ".exr";
 
-		for (int i = 0; i < passes_count; i++)
+			// prepare channel buffers for all passes
+			// we should calculate how many r, g, b and a channels we have in all passes
+			// and then create vectors for each channel of the corresponding size
+			// also we should find channel shifts for each pass
+			std::vector<size_t> r_starts(passes_count, 0);
+			std::vector<size_t> g_starts(passes_count, 0);
+			std::vector<size_t> b_starts(passes_count, 0);
+			std::vector<size_t> a_starts(passes_count, 0);
+			size_t r_channels = 0;
+			size_t g_channels = 0;
+			size_t b_channels = 0;
+			size_t a_channels = 0;
+			// start from labels (if it exists)
+			if (output_context->get_is_labels())
+			{
+				//lables buffer always contains 4 components
+				r_channels++;
+				g_channels++;
+				b_channels++;
+				a_channels++;
+			}
+
+			for (int i = 0; i < passes_count; i++)
+			{
+				ccl::PassType pass_type = output_context->get_output_pass_type(i);
+				if (pass_type == ccl::PASS_CRYPTOMATTE)
+				{
+					// skip cryptomatte passes
+					// we will save these pases separately
+					continue;
+				}
+				int components_count = output_context->get_output_pass_components(i);
+				r_starts[i] = r_channels;
+				g_starts[i] = g_channels;
+				b_starts[i] = b_channels;
+				a_starts[i] = a_channels;
+				if (components_count >= 1) { r_channels++; }
+				if (components_count >= 2) { g_channels++; }
+				if (components_count >= 3) { b_channels++; }
+				if (components_count >= 4) { a_channels++; }
+			}
+
+			// create pixels for all channels
+			std::vector<float> r_pixels(r_channels * pixels_count, 0.0f);
+			std::vector<float> g_pixels(g_channels * pixels_count, 0.0f);
+			std::vector<float> b_pixels(b_channels * pixels_count, 0.0f);
+			std::vector<float> a_pixels(a_channels * pixels_count, 0.0f);
+
+			Imf::Header header(width, height);
+			Imf::FrameBuffer frame_buffer;
+			// add labels
+			if (output_context->get_is_labels())
+			{
+				header.channels().insert("Labels.R", Imf::Channel(Imf::FLOAT));
+				header.channels().insert("Labels.G", Imf::Channel(Imf::FLOAT));
+				header.channels().insert("Labels.B", Imf::Channel(Imf::FLOAT));
+				header.channels().insert("Labels.A", Imf::Channel(Imf::FLOAT));
+
+				output_context->extract_lables_channel(0, &r_pixels[0], true);
+				output_context->extract_lables_channel(0, &g_pixels[0], true);
+				output_context->extract_lables_channel(0, &b_pixels[0], true);
+				output_context->extract_lables_channel(0, &a_pixels[0], true);
+
+				frame_buffer.insert("Labels.R", Imf::Slice(Imf::FLOAT, (char*)&r_pixels[0], sizeof(float), sizeof(float) * width));
+				frame_buffer.insert("Labels.G", Imf::Slice(Imf::FLOAT, (char*)&g_pixels[0], sizeof(float), sizeof(float) * width));
+				frame_buffer.insert("Labels.B", Imf::Slice(Imf::FLOAT, (char*)&b_pixels[0], sizeof(float), sizeof(float) * width));
+				frame_buffer.insert("Labels.A", Imf::Slice(Imf::FLOAT, (char*)&a_pixels[0], sizeof(float), sizeof(float) * width));
+			}
+
+			for (int i = 0; i < passes_count; i++)
+			{
+				ccl::PassType pass_type = output_context->get_output_pass_type(i);
+				if (pass_type == ccl::PASS_CRYPTOMATTE)
+				{
+					// again, skip cryptomatte passes
+					continue;
+				}
+
+				int components_count = output_context->get_output_pass_components(i);
+				std::string pass_name = output_context->get_output_pass_name(i).c_str();
+				// if our pass has aov type, then we should convert the name from changed (with prefix) to the original one
+				if (pass_type == ccl::PASS_AOV_COLOR || pass_type == ccl::PASS_AOV_VALUE)
+				{
+					pass_name = remove_prefix_from_aov_name(pass_name.c_str()).GetAsciiString();
+				}
+
+				if (components_count >= 1)
+				{
+					std::string channel_name = pass_name + (components_count == 1 ? ".A" : ".R");
+					header.channels().insert(channel_name, Imf::Channel(Imf::FLOAT));
+
+					// we should extract pixel channels to the proper place in the global array
+					size_t r_place = pixels_count * r_starts[i];
+					output_context->extract_output_channel(i, 0, &r_pixels[r_place], true);
+
+					// for one component image we save the channel as A instead of R
+					frame_buffer.insert(channel_name, Imf::Slice(Imf::FLOAT, (char*)&r_pixels[r_place], sizeof(float), sizeof(float) * width));
+				}
+
+				if (components_count >= 3)
+				{
+
+					header.channels().insert(pass_name + ".G", Imf::Channel(Imf::FLOAT));
+					header.channels().insert(pass_name + ".B", Imf::Channel(Imf::FLOAT));
+
+					size_t g_place = pixels_count * g_starts[i];
+					size_t b_place = pixels_count * b_starts[i];
+
+					output_context->extract_output_channel(i, 1, &g_pixels[g_place], true);
+					output_context->extract_output_channel(i, 2, &b_pixels[b_place], true);
+
+					frame_buffer.insert(pass_name + ".G", Imf::Slice(Imf::FLOAT, (char*)&g_pixels[g_place], sizeof(float), sizeof(float) * width));
+					frame_buffer.insert(pass_name + ".B", Imf::Slice(Imf::FLOAT, (char*)&b_pixels[b_place], sizeof(float), sizeof(float) * width));
+				}
+				if (components_count >= 4)
+				{
+					header.channels().insert(pass_name + ".A", Imf::Channel(Imf::FLOAT));
+
+					size_t a_place = pixels_count * a_starts[i];
+					output_context->extract_output_channel(i, 3, &a_pixels[a_place], true);
+					frame_buffer.insert(pass_name + ".A", Imf::Slice(Imf::FLOAT, (char*)&a_pixels[a_place], sizeof(float), sizeof(float) * width));
+				}
+			}
+
+			// check output directory
+			if (!create_dir(to_save_path))
+			{
+				log_message(XSI::CString("Fails to save the file ") + XSI::CString(to_save_path.c_str()), XSI::siWarningMsg);
+			}
+			else
+			{
+				// write output file
+				Imf::OutputFile file(to_save_path.c_str(), header);
+
+				file.setFrameBuffer(frame_buffer);
+				file.writePixels(height);
+			}
+
+			// clear global pixels
+			r_pixels.clear();
+			r_pixels.shrink_to_fit();
+			g_pixels.clear();
+			g_pixels.shrink_to_fit();
+			b_pixels.clear();
+			b_pixels.shrink_to_fit();
+			a_pixels.clear();
+			a_pixels.shrink_to_fit();
+
+			r_starts.clear();
+			r_starts.shrink_to_fit();
+			g_starts.clear();
+			g_starts.shrink_to_fit();
+			b_starts.clear();
+			b_starts.shrink_to_fit();
+			a_starts.clear();
+			a_starts.shrink_to_fit();
+		}
+		else
 		{
-			int components_count = output_context->get_output_pass_components(i);
-			r_starts[i] = r_channels;
-			g_starts[i] = g_channels;
-			b_starts[i] = b_channels;
-			a_starts[i] = a_channels;
-			if (components_count >= 1) { r_channels++; }
-			if (components_count >= 2) { g_channels++; }
-			if (components_count >= 3) { b_channels++; }
-			if (components_count >= 4) { a_channels++; }
+			log_message("Fails to extract common path to save multilayer exr file, skip it.", XSI::siWarningMsg);
 		}
+	}
+}
 
-		// create pixels for all channels
-		std::vector<float> r_pixels(r_channels * pixels_count, 0.0f);
-		std::vector<float> g_pixels(g_channels * pixels_count, 0.0f);
-		std::vector<float> b_pixels(b_channels * pixels_count, 0.0f);
-		std::vector<float> a_pixels(a_channels * pixels_count, 0.0f);
+void write_cryptomatte_exr(size_t width, size_t height, OutputContext *output_context)
+{
+	size_t pixels_count = width * height;
+	std::string first_path = std::string(output_context->get_output_pass_path(0).c_str());
+	size_t last_slash = first_path.find_last_of("/\\");
+	XSI::CString common_path = output_context->get_common_path();
+	if (common_path.Length() > 0)
+	{
+		std::string to_save_path = first_path.substr(0, last_slash + 1) + common_path.GetAsciiString() + +"Cryptomatte." + std::to_string(output_context->get_render_frame()) + ".exr";
+
+		// get indices of crypto buffers inside output context
+		// we should read pixels from these buffers and save it as layers in exr file
+		// each buffer contains 4 components
+		std::vector<size_t> crypto_indices = output_context->get_crypto_buffer_indices();
+		size_t crypto_count = crypto_indices.size();
 
 		Imf::Header header(width, height);
-		Imf::FrameBuffer frameBuffer;
-		// add labels
-		if (output_context->get_is_labels())
+		Imf::FrameBuffer frame_buffer;
+
+		// we should read pixel components from all buffers to 4 different arrays: r, g, b and a
+		std::vector<float> pixels_r(pixels_count * crypto_count);
+		std::vector<float> pixels_g(pixels_count * crypto_count);
+		std::vector<float> pixels_b(pixels_count * crypto_count);
+		std::vector<float> pixels_a(pixels_count * crypto_count);
+		for (size_t i = 0; i < crypto_indices.size(); i++)
 		{
-			header.channels().insert("Labels.R", Imf::Channel(Imf::FLOAT));
-			header.channels().insert("Labels.G", Imf::Channel(Imf::FLOAT));
-			header.channels().insert("Labels.B", Imf::Channel(Imf::FLOAT));
-			header.channels().insert("Labels.A", Imf::Channel(Imf::FLOAT));
+			size_t buffer_index = crypto_indices[i];
+			ccl::string pass_name = std::string(output_context->get_output_pass_name(buffer_index).c_str());
 
-			output_context->extract_lables_channel(0, &r_pixels[0], true);
-			output_context->extract_lables_channel(0, &g_pixels[0], true);
-			output_context->extract_lables_channel(0, &b_pixels[0], true);
-			output_context->extract_lables_channel(0, &a_pixels[0], true);
+			header.channels().insert(pass_name + ".R", Imf::Channel(Imf::FLOAT));
+			header.channels().insert(pass_name + ".G", Imf::Channel(Imf::FLOAT));
+			header.channels().insert(pass_name + ".B", Imf::Channel(Imf::FLOAT));
+			header.channels().insert(pass_name + ".A", Imf::Channel(Imf::FLOAT));
 
-			frameBuffer.insert("Labels.R", Imf::Slice(Imf::FLOAT, (char*)&r_pixels[0], sizeof(float), sizeof(float) * width));
-			frameBuffer.insert("Labels.G", Imf::Slice(Imf::FLOAT, (char*)&g_pixels[0], sizeof(float), sizeof(float) * width));
-			frameBuffer.insert("Labels.B", Imf::Slice(Imf::FLOAT, (char*)&b_pixels[0], sizeof(float), sizeof(float) * width));
-			frameBuffer.insert("Labels.A", Imf::Slice(Imf::FLOAT, (char*)&a_pixels[0], sizeof(float), sizeof(float) * width));
+			output_context->extract_output_channel(buffer_index, 0, &pixels_r[i * pixels_count], true);
+			frame_buffer.insert(pass_name + ".R", Imf::Slice(Imf::FLOAT, (char*)&pixels_r[i * pixels_count], sizeof(float), sizeof(float) * width));
+
+			output_context->extract_output_channel(buffer_index, 1, &pixels_g[i * pixels_count], true);
+			frame_buffer.insert(pass_name + ".G", Imf::Slice(Imf::FLOAT, (char*)&pixels_g[i * pixels_count], sizeof(float), sizeof(float) * width));
+
+			output_context->extract_output_channel(buffer_index, 2, &pixels_b[i * pixels_count], true);
+			frame_buffer.insert(pass_name + ".B", Imf::Slice(Imf::FLOAT, (char*)&pixels_b[i * pixels_count], sizeof(float), sizeof(float) * width));
+
+			output_context->extract_output_channel(buffer_index, 3, &pixels_a[i * pixels_count], true);
+			frame_buffer.insert(pass_name + ".A", Imf::Slice(Imf::FLOAT, (char*)&pixels_a[i * pixels_count], sizeof(float), sizeof(float) * width));
 		}
 
-		for (int i = 0; i < passes_count; i++)
+		// add header with cryptomatte metadata
+		std::vector<std::string> crypto_keys = output_context->get_crypto_keys();
+		std::vector<std::string> crypto_values = output_context->get_crypto_values();
+		size_t data_size = std::min(crypto_values.size(), crypto_keys.size());
+		for (size_t i = 0; i < data_size; i++)
 		{
-			int components_count = output_context->get_output_pass_components(i);
-			std::string pass_name = output_context->get_output_pass_name(i).c_str();
-			// if our pass has aov type, then we should convert the name from changed (with prefix) to the original one
-			ccl::PassType pass_type = output_context->get_output_pass_type(i);
-			if (pass_type == ccl::PASS_AOV_COLOR || pass_type == ccl::PASS_AOV_VALUE)
-			{
-				pass_name = remove_prefix_from_aov_name(pass_name.c_str()).GetAsciiString();
-			}
-
-			if (components_count >= 1)
-			{
-				std::string channel_name = pass_name + (components_count == 1 ? ".A" : ".R");
-				header.channels().insert(channel_name, Imf::Channel(Imf::FLOAT));
-
-				// we should extract pixel channels to the proper place in the global array
-				size_t r_place = pixels_count * r_starts[i];
-				output_context->extract_output_channel(i, 0, &r_pixels[r_place], true);
-
-				// for one component image we save the channel as A instead of R
-				frameBuffer.insert(channel_name, Imf::Slice(Imf::FLOAT, (char*)&r_pixels[r_place], sizeof(float), sizeof(float) * width));
-			}
-
-			if (components_count >= 3)
-			{
-				
-				header.channels().insert(pass_name + ".G", Imf::Channel(Imf::FLOAT));
-				header.channels().insert(pass_name + ".B", Imf::Channel(Imf::FLOAT));
-
-				size_t g_place = pixels_count * g_starts[i];
-				size_t b_place = pixels_count * b_starts[i];
-				
-				output_context->extract_output_channel(i, 1, &g_pixels[g_place], true);
-				output_context->extract_output_channel(i, 2, &b_pixels[b_place], true);
-				
-				frameBuffer.insert(pass_name + ".G", Imf::Slice(Imf::FLOAT, (char*)&g_pixels[g_place], sizeof(float), sizeof(float) * width));
-				frameBuffer.insert(pass_name + ".B", Imf::Slice(Imf::FLOAT, (char*)&b_pixels[b_place], sizeof(float), sizeof(float) * width));
-			}
-			if (components_count >= 4)
-			{
-				header.channels().insert(pass_name + ".A", Imf::Channel(Imf::FLOAT));
-
-				size_t a_place = pixels_count * a_starts[i];
-				output_context->extract_output_channel(i, 3, &a_pixels[a_place], true);
-				frameBuffer.insert(pass_name + ".A", Imf::Slice(Imf::FLOAT, (char*)&a_pixels[a_place], sizeof(float), sizeof(float) * width));
-			}
+			header.insert(crypto_keys[i], Imf::StringAttribute(crypto_values[i]));
 		}
 
-		// write output file
 		Imf::OutputFile file(to_save_path.c_str(), header);
-
-		file.setFrameBuffer(frameBuffer);
+		file.setFrameBuffer(frame_buffer);
 		file.writePixels(height);
 
-		// clear global pixels
-		r_pixels.clear();
-		r_pixels.shrink_to_fit();
-		g_pixels.clear();
-		g_pixels.shrink_to_fit();
-		b_pixels.clear();
-		b_pixels.shrink_to_fit();
-		a_pixels.clear();
-		a_pixels.shrink_to_fit();
-
-		r_starts.clear();
-		r_starts.shrink_to_fit();
-		g_starts.clear();
-		g_starts.shrink_to_fit();
-		b_starts.clear();
-		b_starts.shrink_to_fit();
-		a_starts.clear();
-		a_starts.shrink_to_fit();
+		pixels_r.clear();
+		pixels_r.shrink_to_fit();
+		pixels_g.clear();
+		pixels_g.shrink_to_fit();
+		pixels_b.clear();
+		pixels_b.shrink_to_fit();
+		pixels_a.clear();
+		pixels_a.shrink_to_fit();
+	}
+	else
+	{
+		log_message("Fails to generate output file name for cryptomatte passes, skip it.", XSI::siWarningMsg);
 	}
 }
 
@@ -407,6 +534,12 @@ void write_outputs(OutputContext* output_context, ColorTransformContext* color_t
 		if (output_exr_combine_passes)
 		{// we should save all output passes into one multilayer exr file
 			write_multilayer_exr(width, height, output_context);
+		}
+
+		// next cryptomatte passes
+		if (output_context->get_is_cryptomatte())
+		{
+			write_cryptomatte_exr(width, height, output_context);
 		}
 
 		// next save separate images

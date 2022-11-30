@@ -61,6 +61,10 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	output_context->set_render_type(render_type);
 	output_context->set_output_size((ULONG)image_size_width, (ULONG)image_size_height);
 	output_context->set_output_formats(output_paths, output_formats, output_data_types, output_channels, output_bits, eval_time);
+	output_context->set_cryptomatte_settings((bool)m_render_parameters.GetValue("output_crypto_object", eval_time),
+		(bool)m_render_parameters.GetValue("output_crypto_material", eval_time),
+		(bool)m_render_parameters.GetValue("output_crypto_asset", eval_time),
+		(int)m_render_parameters.GetValue("output_crypto_levels", eval_time));
 	// actual passes will be setup after scene sync
 
 	color_transform_context->update(m_render_parameters, eval_time);
@@ -148,8 +152,6 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		{
 			log_message("Fails to get pixels of the pass " + XSI::CString(pass_name.c_str()) + " for input render tile", XSI::siErrorMsg);
 		}
-
-		log_message("get pixels for " + XSI::CString(pass_name.c_str()) + " type " + XSI::CString(pass_type) + " " + XSI::CString(is_get));
 	}
 }
 

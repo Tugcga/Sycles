@@ -60,6 +60,9 @@
     <ClCompile Include="render_cycles\cyc_output\color_transform_context.cpp">
       <Filter>render_cycles\cyc_output</Filter>
     </ClCompile>
+    <ClCompile Include="utilities\files_io.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -178,6 +181,9 @@
     </ClInclude>
     <ClInclude Include="render_base\type_enums.h">
       <Filter>render_base</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\files_io.h">
+      <Filter>utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

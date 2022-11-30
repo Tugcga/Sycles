@@ -85,6 +85,7 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 
 	// create shader for shpere
 	ccl::Shader* sphere_shader = new ccl::Shader();
+	sphere_shader->name = "sphere_shader";
 	ccl::ShaderGraph* sphere_shader_graph = new ccl::ShaderGraph();
 	ccl::SubsurfaceScatteringNode* sss_node = sphere_shader_graph->create_node<ccl::SubsurfaceScatteringNode>();
 	sphere_shader_graph->add(sss_node);
@@ -116,6 +117,7 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 
 	// create shader for plane
 	ccl::Shader* plane_shader = new ccl::Shader();
+	plane_shader->name = "plane_shader";
 	ccl::ShaderGraph* plane_shader_graph = new ccl::ShaderGraph();
 	ccl::GlossyBsdfNode* glossy_node = plane_shader_graph->create_node<ccl::GlossyBsdfNode>();
 	plane_shader_graph->add(glossy_node);
@@ -149,6 +151,7 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 	ccl::Object* plane_object = new ccl::Object();
 	plane_object->set_geometry(plane_mesh);
 	plane_object->name = "plane";
+	plane_object->set_asset_name(ccl::ustring("plane"));
 	//plane_object->set_is_shadow_catcher(true);
 
 	ccl::Transform plane_tfm = ccl::transform_identity();
@@ -191,6 +194,7 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 	ccl::Object* sphere_object = new ccl::Object();
 	sphere_object->set_geometry(sphere_mesh);
 	sphere_object->name = "sphere";
+	sphere_object->set_asset_name(ccl::ustring("sphere"));
 	ccl::Transform sphere_tfm = ccl::transform_identity();
 	sphere_tfm = sphere_tfm * ccl::transform_translate(ccl::make_float3(0, 6, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
 	sphere_object->set_tfm(sphere_tfm);
@@ -202,6 +206,7 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 	ccl::Object* cube_object = new ccl::Object();
 	cube_object->set_geometry(cube_mesh);
 	cube_object->name = "cube";
+	cube_object->set_asset_name(ccl::ustring("cube"));
 	ccl::Transform cube_tfm = ccl::transform_identity();
 	cube_tfm = cube_tfm * ccl::transform_translate(ccl::make_float3(0, 2, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
 	cube_object->set_tfm(cube_tfm);
@@ -211,6 +216,7 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 	ccl::Object* second_cube_object = new ccl::Object();
 	second_cube_object->set_geometry(cube_mesh);
 	second_cube_object->name = "second_cube";
+	second_cube_object->set_asset_name(ccl::ustring("second cube"));
 	ccl::Transform second_cube_tfm = ccl::transform_identity();
 	second_cube_tfm = second_cube_tfm * ccl::transform_translate(ccl::make_float3(3.5, 1, 2)) * ccl::transform_scale(1.0f, 1.0f, 1.0f);
 	second_cube_object->set_tfm(second_cube_tfm);

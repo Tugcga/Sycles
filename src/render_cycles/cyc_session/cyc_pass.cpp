@@ -260,6 +260,8 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualB
     // if visual pass is aov, then check that the name of the pass is correct
     check_visual_aov_name(visual_buffer, aov_color_names, aov_value_names);
 
+    // here we call the main method in output contex
+    // and setup all output passes, buffers, pixels and so on
     output_context->set_output_passes(aov_color_names, aov_value_names, XSI::CStringArray());
 
     // sync passes
@@ -289,6 +291,27 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualB
         {
             exported_names.insert(output_name);
             pass_add(scene, output_context->get_output_pass_type(i), output_name);
+        }
+    }
+
+    // next for cryptomatte
+    if (output_context->get_is_cryptomatte())
+    {
+        scene->film->set_cryptomatte_depth(output_context->get_ctypto_depth());
+        scene->film->set_cryptomatte_passes(output_context->get_crypto_passes());
+
+        // keys and values for metadata was clear when we setup output passes
+        if (scene->film->get_cryptomatte_passes() & ccl::CRYPT_OBJECT)
+        {
+            output_context->add_cryptomatte_metadata("CryptoObject", scene->object_manager->get_cryptomatte_objects(scene));
+        }
+        if (scene->film->get_cryptomatte_passes() & ccl::CRYPT_MATERIAL)
+        {
+            output_context->add_cryptomatte_metadata("CryptoMaterial", scene->shader_manager->get_cryptomatte_materials(scene));
+        }
+        if (scene->film->get_cryptomatte_passes() & ccl::CRYPT_ASSET)
+        {
+            output_context->add_cryptomatte_metadata("CryptoAsset", scene->object_manager->get_cryptomatte_assets(scene));
         }
     }
 }

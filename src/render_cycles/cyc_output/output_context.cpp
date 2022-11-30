@@ -1,8 +1,9 @@
 #include "OpenImageIO/imagebufalgo.h"
 
-#include "output_context.h"
+#include "util/murmurhash.h"
 
-#include "../cyc_session/cyc_pass.h"
+#include "output_context.h"
+#include "../cyc_session/cyc_pass_utils.h"
 #include "../../utilities/logs.h"
 #include "../../utilities/strings.h"
 #include "../../utilities/math.h"
@@ -38,6 +39,15 @@ OutputContext::OutputContext()
 	render_type = RenderType::RenderType_Unknown;
 	common_path = "";
 	render_frame = 0;
+
+	crypto_buffer_indices.resize(0);
+	is_cryptomatte = false;
+	is_crypto_object = false;
+	is_crypto_material = false;
+	is_crypto_asset = false;
+
+	crypto_keys.resize(0);
+	crypto_values.resize(0);
 }
 
 OutputContext::~OutputContext()
@@ -87,6 +97,18 @@ void OutputContext::reset()
 	render_type = RenderType::RenderType_Unknown;
 	common_path = "";
 	render_frame = 0;
+
+	crypto_buffer_indices.clear();
+	crypto_buffer_indices.shrink_to_fit();
+	is_cryptomatte = false;
+	is_crypto_object = false;
+	is_crypto_material = false;
+	is_crypto_asset = false;
+
+	crypto_keys.clear();
+	crypto_keys.shrink_to_fit();
+	crypto_values.clear();
+	crypto_values.shrink_to_fit();
 }
 
 RenderType OutputContext::get_render_type()
@@ -203,7 +225,12 @@ void OutputContext::set_render_type(RenderType type)
 	render_type = type;
 }
 
-void OutputContext::set_output_formats(const XSI::CStringArray &paths, const XSI::CStringArray &formats, const XSI::CStringArray &data_types, const XSI::CStringArray &channels, const std::vector<int> &bits, const XSI::CTime& eval_time)
+void OutputContext::set_output_formats(const XSI::CStringArray &paths, 
+	const XSI::CStringArray &formats, 
+	const XSI::CStringArray &data_types, 
+	const XSI::CStringArray &channels, 
+	const std::vector<int> &bits, 
+	const XSI::CTime& eval_time)
 {
 	output_paths = paths;
 	output_formats = formats;
@@ -213,6 +240,17 @@ void OutputContext::set_output_formats(const XSI::CStringArray &paths, const XSI
 
 	common_path = get_common_substring(paths);
 	render_frame = get_frame(eval_time);
+}
+
+void OutputContext::set_cryptomatte_settings(bool object, bool material, bool asset, int levels)
+{
+	is_crypto_object = object;
+	is_crypto_material = material;
+	is_crypto_asset = asset;
+	crypto_levels = levels;
+
+	// output cryptomatte passes only for Pass tendering
+	is_cryptomatte = (is_crypto_object || is_crypto_material || is_crypto_asset) && (render_type == RenderType_Pass);
 }
 
 void OutputContext::set_labels_buffer(LabelsContext* labels_context)
@@ -252,6 +290,53 @@ void OutputContext::overlay_labels()
 	}
 }
 
+bool OutputContext::get_is_cryptomatte()
+{
+	return is_cryptomatte;
+}
+
+int OutputContext::get_ctypto_depth()
+{
+	return crypto_depth;
+}
+
+ccl::CryptomatteType OutputContext::get_crypto_passes()
+{
+	return crypto_passes;
+}
+
+std::vector<size_t> OutputContext::get_crypto_buffer_indices()
+{
+	return crypto_buffer_indices;
+}
+
+std::vector<std::string> OutputContext::get_crypto_keys()
+{
+	return crypto_keys;
+}
+
+std::vector<std::string> OutputContext::get_crypto_values()
+{
+	return crypto_values;
+}
+
+void OutputContext::add_cryptomatte_metadata(std::string name, std::string manifest)
+{
+	std::string identifier = ccl::string_printf("%08x", ccl::util_murmur_hash3(name.c_str(), name.length(), 0));
+	std::string prefix = "cryptomatte/" + identifier.substr(0, 7) + "/";
+	crypto_keys.push_back(prefix + "name");
+	crypto_values.push_back(name);
+
+	crypto_keys.push_back(prefix + "hash");
+	crypto_values.push_back("MurmurHash3_32");
+
+	crypto_keys.push_back(prefix + "conversion");
+	crypto_values.push_back("uint32_to_float32");
+
+	crypto_keys.push_back(prefix + "manifest");
+	crypto_values.push_back(manifest);
+}
+
 void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CString &pass_name, int pass_components, int index, const XSI::CString &output_path)
 {
 	// add data to arrays
@@ -259,12 +344,26 @@ void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CStrin
 	output_pass_names.push_back(ccl::ustring(pass_name.GetAsciiString()));
 	output_pass_components.push_back(pass_components);
 	output_pass_paths.push_back(ccl::ustring(output_path.GetAsciiString()));
-	output_pass_formats.push_back(ccl::ustring(output_formats[index].GetAsciiString()));
-	output_pass_write_components.push_back(output_data_types[index].Length());
-	output_pass_bits.push_back(output_bits[index]);
+	if (index >= 0)
+	{
+		output_pass_formats.push_back(ccl::ustring(output_formats[index].GetAsciiString()));
+		output_pass_write_components.push_back(output_data_types[index].Length());
+		output_pass_bits.push_back(output_bits[index]);
+	}
+	else
+	{// if we set index = -1, then it means that we should setup format, write components and bits manually
+		// in fact we set it only for cryptomatte passes, because these passe does not come from output channels list
+		output_pass_formats.push_back(ccl::ustring(""));  // empty extension, because we will save it manually
+		// output path is also should be set empty
+		output_pass_write_components.push_back(4);  // always 4 components
+		output_pass_bits.push_back(21);  // always float 32
+	}
+	
 	output_passes_count++;
 }
 
+// this method calls after we sync the scene, but before we setup all render passes
+// data from the object after this method is used for setting all render passes
 void OutputContext::set_output_passes(const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
 {
 	output_passes_count = 0;
@@ -278,6 +377,10 @@ void OutputContext::set_output_passes(const XSI::CStringArray& aov_color_names, 
 
 	output_buffers.clear();
 	output_buffer_pixels_start.clear();
+	crypto_buffer_indices.clear();
+
+	crypto_keys.clear();
+	crypto_values.clear();
 
 	// at the first enumerate we count total number of components for all output passes and save all data except buffers
 	// in most cases one output channel corresponds to one output pass
@@ -332,11 +435,56 @@ void OutputContext::set_output_passes(const XSI::CStringArray& aov_color_names, 
 		}
 	}
 
+	// next add cryptomatte passes
+	crypto_passes = ccl::CRYPT_NONE;
+	const char* cryptomatte_prefix = "Crypto";
+	if (is_cryptomatte)
+	{
+		crypto_depth = ccl::divide_up(ccl::min(16, crypto_levels), 2);
+		int crypto_components = 4;
+
+		if (is_crypto_object)
+		{
+			for (int i = 0; i < crypto_depth; i++)
+			{
+				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Object%02d", i)).c_str());
+				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
+				crypto_buffer_indices.push_back(output_passes_count - 1);
+				total_components += crypto_components;
+			}
+			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_OBJECT);
+		}
+
+		if (is_crypto_material)
+		{
+			for (int i = 0; i < crypto_depth; i++)
+			{
+				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Material%02d", i)).c_str());
+				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
+				crypto_buffer_indices.push_back(output_passes_count - 1);
+				total_components += crypto_components;
+			}
+			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_MATERIAL);
+		}
+
+		if (is_crypto_asset)
+		{
+			for (int i = 0; i < crypto_depth; i++)
+			{
+				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Asset%02d", i)).c_str());
+				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
+				crypto_buffer_indices.push_back(output_passes_count - 1);
+				total_components += crypto_components;
+			}
+			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_ASSET);
+		}
+	}
+
 	// resize output pixels
 	output_pixels.resize((size_t)image_width * image_height * total_components, 0.0f);
 
 	// next wraps all buffers
-	total_components = 0;  // use this variable as componets shift for buffer pixels
+	total_components = 0;  // use this variable as components shift for buffer pixels
 	for (size_t i = 0; i < output_passes_count; i++)
 	{
 		int pass_components = output_pass_components[i];

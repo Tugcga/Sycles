@@ -18,8 +18,10 @@ public:
 
 	void reset();
 
+	void add_cryptomatte_metadata(std::string name, std::string manifest);
 	void set_render_type(RenderType type);
 	void set_output_passes(const XSI::CStringArray &aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names);
+	void set_cryptomatte_settings(bool object, bool material, bool asset, int levels);
 	RenderType get_render_type();
 	int get_output_passes_count();
 	ULONG get_width();
@@ -39,6 +41,12 @@ public:
 	void extract_lables_channel(int channel, float* output, bool flip_verticaly = false);
 	OIIO::ImageBuf get_output_buffer(int index);
 	bool get_is_labels();
+	bool get_is_cryptomatte();
+	int get_ctypto_depth();
+	ccl::CryptomatteType get_crypto_passes();
+	std::vector<size_t> get_crypto_buffer_indices();
+	std::vector<std::string> get_crypto_keys();
+	std::vector<std::string> get_crypto_values();
 
 	bool add_output_pixels(ccl::ROI roi, int index, std::vector<float> &pixels);
 
@@ -62,6 +70,15 @@ private:
 	XSI::CString common_path;
 	int render_frame;
 
+	bool is_crypto_object;
+	bool is_crypto_material;
+	bool is_crypto_asset;
+	int crypto_levels;
+	bool is_cryptomatte;
+	ccl::CryptomatteType crypto_passes;
+	int crypto_depth;
+	std::vector<size_t> crypto_buffer_indices;  // store here indices in the common buffers list
+
 	// labels
 	bool is_labels;
 	std::vector<float> labels_buffer_pixels;
@@ -81,4 +98,7 @@ private:
 	ccl::vector<ccl::ImageBuf> output_buffers;  // store here buffers with pixels for each output pass
 	std::vector<float> output_pixels;  // store pixels for all output passes in one array, buffers wraps different sections of this array
 	std::vector<size_t> output_buffer_pixels_start;  // contains the first index in the common pixels array of pixels for the current buffer
+
+	std::vector<std::string> crypto_keys;
+	std::vector<std::string> crypto_values;
 };

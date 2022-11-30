@@ -80,6 +80,7 @@
     <ClCompile Include="render_cycles\render_engine_cyc.cpp" />
     <ClCompile Include="si_callbacks\si_callbacks.cpp" />
     <ClCompile Include="utilities\arrays.cpp" />
+    <ClCompile Include="utilities\files_io.cpp" />
     <ClCompile Include="utilities\logs.cpp" />
     <ClCompile Include="utilities\math.cpp" />
     <ClCompile Include="utilities\miniz.c" />
@@ -109,6 +110,7 @@
     <ClInclude Include="si_callbacks\si_callbacks.h" />
     <ClInclude Include="si_callbacks\si_locker.h" />
     <ClInclude Include="utilities\arrays.h" />
+    <ClInclude Include="utilities\files_io.h" />
     <ClInclude Include="utilities\logs.h" />
     <ClInclude Include="utilities\math.h" />
     <ClInclude Include="utilities\miniz.h" />
