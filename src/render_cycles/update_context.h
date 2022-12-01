@@ -29,6 +29,9 @@ public:
 	// return true if only color management parameters changed in render settings
 	bool is_changed_render_parameters_only_cm(const std::unordered_set<std::string>& parameters);
 
+	bool is_changed_render_paramters_integrator(const std::unordered_set<std::string>& parameters);
+	bool is_changed_render_paramters_film(const std::unordered_set<std::string>& parameters);
+
 	void set_prev_display_pass_name(const XSI::CString &value);
 
 	XSI::CString get_prev_display_pass_name();

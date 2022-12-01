@@ -262,7 +262,6 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	update_context->set_is_update_scene(true);
 
 	return XSI::CStatus::OK;
-
 }
 
 // update non-geometry object (pass, for example)
@@ -367,8 +366,19 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			display_pass_name,
 			m_render_parameters, eval_time);
 
-		// at the end cync passes
+		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
 		sync_passes(session->scene, output_context, visual_buffer);
+
+		if (update_context->is_changed_render_paramters_film(changed_render_parameters))
+		{
+			// here we aupdate film and mist (but not transparent and motion)
+			sync_film(session, update_context, m_render_parameters);
+		}
+
+		if (update_context->is_changed_render_paramters_integrator(changed_render_parameters))
+		{
+			sync_integrator(session, update_context, m_render_parameters);
+		}
 	}
 
 	// save values of used render parameters

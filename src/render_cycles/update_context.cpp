@@ -74,6 +74,19 @@ std::unordered_set<std::string> UpdateContext::get_changed_parameters(const XSI:
 	return to_return;
 }
 
+// return true if at lest one value from the set is in array
+bool is_set_contains_from_array(const std::unordered_set<std::string>& parameters, const std::vector<std::string> &array)
+{
+	for (const auto& value : parameters)
+	{
+		if (is_contains(array, value))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool UpdateContext::is_changed_render_parameters_only_cm(const std::unordered_set<std::string> &parameters)
 {
 	// this array should be the same as color management parameters in the ui
@@ -83,10 +96,23 @@ bool UpdateContext::is_changed_render_parameters_only_cm(const std::unordered_se
 	{
 		if (!is_contains(cm_parameters, value))
 		{
+			// there is changed parameter not from the list, so, something other is changed
 			return false;
 		}
 	}
 	return true;
+}
+
+bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_set<std::string>& parameters)
+{
+	// TODO: write proper parameters list
+	return true;
+}
+
+bool UpdateContext::is_changed_render_paramters_film(const std::unordered_set<std::string>& parameters)
+{
+	std::vector<std::string> film_parameters = { "film_exposure", "film_filter_type", "film_filter_width", "mist_start", "mist_depth", "mist_falloff", "output_pass_alpha_threshold"};
+	return is_set_contains_from_array(parameters, film_parameters);
 }
 
 void UpdateContext::set_prev_display_pass_name(const XSI::CString& value)

@@ -3,6 +3,7 @@
 #include "scene/scene.h"
 
 #include <xsi_renderercontext.h>
+#include <xsi_arrayparameter.h>
 
 #include "../cyc_output/output_context.h"
 #include "../../render_base/render_visual_buffer.h"
@@ -18,3 +19,9 @@ void sync_session(ccl::Session *session, UpdateContext* update_context, OutputCo
 
 // cyc pass
 void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer* visual_buffer);
+
+// cyc film
+void sync_film(ccl::Session* session, UpdateContext* update_context, const XSI::CParameterRefArray &render_parameters);
+
+// cyc integrator
+void sync_integrator(ccl::Session* session, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);

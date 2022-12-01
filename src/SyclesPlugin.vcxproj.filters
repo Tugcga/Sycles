@@ -69,6 +69,12 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_camera.cpp">
       <Filter>render_cycles\cyc_scene</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_session\cyc_film.cpp">
+      <Filter>render_cycles\cyc_session</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_session\cyc_integrator.cpp">
+      <Filter>render_cycles\cyc_session</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">

@@ -284,6 +284,7 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualB
     output_context->set_output_passes(aov_color_names, aov_value_names, XSI::CStringArray());
 
     // sync passes
+    bool use_shadow_catcher = false;
     // all default passes should be added at once
     // but some of them (for example, AOV) can be added several times with different names
     // in the update tile process all of them should be reded by names and stored into separate segement of the pixels buffer
@@ -299,7 +300,12 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualB
     {
         // add visual pass
         exported_names.insert(visual_name);
-        pass_add(scene, visual_buffer->get_pass_type(), visual_name);
+        ccl::PassType visual_pass_type = visual_buffer->get_pass_type();
+        pass_add(scene, visual_pass_type, visual_name);
+        if (visual_pass_type == ccl::PASS_SHADOW_CATCHER)
+        {
+            use_shadow_catcher = true;
+        }
     }
 
     // next for all render output
@@ -309,7 +315,12 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualB
         if (!exported_names.contains(output_name))
         {
             exported_names.insert(output_name);
-            pass_add(scene, output_context->get_output_pass_type(i), output_name);
+            ccl::PassType new_pass_type = output_context->get_output_pass_type(i);
+            pass_add(scene, new_pass_type, output_name);
+            if (new_pass_type == ccl::PASS_SHADOW_CATCHER)
+            {
+                use_shadow_catcher = true;
+            }
         }
     }
 
@@ -333,4 +344,6 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualB
             output_context->add_cryptomatte_metadata("CryptoAsset", scene->object_manager->get_cryptomatte_assets(scene));
         }
     }
+
+    scene->film->set_use_approximate_shadow_catcher(!use_shadow_catcher);
 }
