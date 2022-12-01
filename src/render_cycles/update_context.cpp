@@ -98,3 +98,39 @@ XSI::CString UpdateContext::get_prev_display_pass_name()
 {
 	return prev_dispaly_pass_name;
 }
+
+void UpdateContext::set_image_size(size_t width, size_t height)
+{
+	full_width = width;
+	full_height = height;
+}
+
+size_t UpdateContext::get_full_width()
+{
+	return full_width;
+}
+
+size_t UpdateContext::get_full_height()
+{
+	return full_height;
+}
+
+void UpdateContext::set_camera(const XSI::Camera& camera)
+{
+	xsi_camera = camera;
+}
+
+XSI::Camera UpdateContext::get_camera()
+{
+	return xsi_camera;
+}
+
+void UpdateContext::set_time(const XSI::CTime& time)
+{
+	eval_time = time;
+}
+
+XSI::CTime UpdateContext::get_time()
+{
+	return eval_time;
+}

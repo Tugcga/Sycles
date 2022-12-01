@@ -54,7 +54,7 @@ ccl::Session* create_session()
 	return session;
 }
 
-void sync_session(ccl::Session* session, XSI::RendererContext& xsi_render_context, OutputContext *output_context, RenderVisualBuffer *visual_buffer)
+void sync_session(ccl::Session* session, UpdateContext* update_context, OutputContext *output_context, RenderVisualBuffer *visual_buffer)
 {
-	sync_scene(session->scene, xsi_render_context);
+	sync_scene(session->scene, update_context);
 }

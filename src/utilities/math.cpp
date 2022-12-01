@@ -1,7 +1,12 @@
 #include <string>
+#include <vector>
+#include <random>
 
 #include <xsi_application.h>
 #include <xsi_time.h>
+
+#include "util/transform.h"
+#include "util/projection.h"
 
 const float epsilon = 0.0001f;
 
@@ -95,5 +100,26 @@ bool equal_floats(float a, float b)
 {
 	float abs_value = std::abs(a - b);
 	return abs_value < epsilon;
+}
+
+ccl::Transform get_transform(std::vector<float>& array)
+{
+	ccl::ProjectionTransform projection;
+	projection.x = ccl::make_float4(array[0], array[1], array[2], array[3]);
+	projection.y = ccl::make_float4(array[4], array[5], array[6], array[7]);
+	projection.z = ccl::make_float4(array[8], array[9], array[10], array[11]);
+	projection.w = ccl::make_float4(array[12], array[13], array[14], array[15]);
+	projection = projection_transpose(projection);
+	return projection_to_transform(projection);
+}
+
+std::random_device device;
+std::mt19937 rng(device());
+
+double get_random_value(double min, double max)
+{
+	std::uniform_real_distribution<> dist(min, max);
+
+	return dist(rng);
 }
 

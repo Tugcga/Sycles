@@ -66,6 +66,9 @@
     <ClCompile Include="render_cycles\update_context.cpp">
       <Filter>render_cycles</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_camera.cpp">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">

@@ -12,22 +12,10 @@
 #include <xsi_kinematics.h>
 
 #include "../../utilities/logs.h"
+#include "../../utilities/math.h"
 #include "../cyc_session/cyc_session.h"
+#include "../cyc_scene/cyc_scene.h"
 #include "primitives_geometry.h"
-
-#define DEG2RADF(_deg) ((_deg) * (float)(M_PI / 180.0))
-#define RAD2DEGF(_rad) ((_rad) * (float)(180.0 / M_PI))
-
-static inline ccl::Transform get_transform(std::vector<float>& array)
-{
-	ccl::ProjectionTransform projection;
-	projection.x = ccl::make_float4(array[0], array[1], array[2], array[3]);
-	projection.y = ccl::make_float4(array[4], array[5], array[6], array[7]);
-	projection.z = ccl::make_float4(array[8], array[9], array[10], array[11]);
-	projection.w = ccl::make_float4(array[12], array[13], array[14], array[15]);
-	projection = projection_transpose(projection);
-	return projection_to_transform(projection);
-}
 
 ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes)
 {
@@ -77,7 +65,7 @@ ccl::Mesh* build_sphere(ccl::Scene* scene)
 	return build_primitive(scene, sphere_vertex_count, sphere_vertices, sphere_faces_count, sphere_face_sizes, sphere_face_indexes);
 }
 
-void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
+void sync_scene(ccl::Scene *scene, UpdateContext* update_context)
 {
 	// for test purpose only we create simple scene with one plane and one cube with sky light
 	// from actual xsi scene we get only camera position
@@ -243,53 +231,5 @@ void sync_scene(ccl::Scene *scene, XSI::RendererContext& xsi_render_context)
 
 	scene->background->set_transparent(true);
 
-	// camera
-	XSI::Primitive camera_prim(xsi_render_context.GetAttribute("Camera"));
-	XSI::X3DObject camera_obj = camera_prim.GetOwners()[0];
-	XSI::MATH::CMatrix4 camera_tfm_matrix = camera_obj.GetKinematics().GetGlobal().GetTransform().GetMatrix4();
-	std::vector<float> xsi_camera_tfm(16);
-	xsi_camera_tfm[0] = camera_tfm_matrix.GetValue(0, 0);
-	xsi_camera_tfm[1] = camera_tfm_matrix.GetValue(0, 1);
-	xsi_camera_tfm[2] = camera_tfm_matrix.GetValue(0, 2);
-	xsi_camera_tfm[3] = camera_tfm_matrix.GetValue(0, 3);
-
-	xsi_camera_tfm[4] = camera_tfm_matrix.GetValue(1, 0);
-	xsi_camera_tfm[5] = camera_tfm_matrix.GetValue(1, 1);
-	xsi_camera_tfm[6] = camera_tfm_matrix.GetValue(1, 2);
-	xsi_camera_tfm[7] = camera_tfm_matrix.GetValue(1, 3);
-
-	xsi_camera_tfm[8] = -1 * camera_tfm_matrix.GetValue(2, 0);
-	xsi_camera_tfm[9] = -1 * camera_tfm_matrix.GetValue(2, 1);
-	xsi_camera_tfm[10] = -1 * camera_tfm_matrix.GetValue(2, 2);
-	xsi_camera_tfm[11] = -1 * camera_tfm_matrix.GetValue(2, 3);
-
-	xsi_camera_tfm[12] = camera_tfm_matrix.GetValue(3, 0);
-	xsi_camera_tfm[13] = camera_tfm_matrix.GetValue(3, 1);
-	xsi_camera_tfm[14] = camera_tfm_matrix.GetValue(3, 2);
-	xsi_camera_tfm[15] = camera_tfm_matrix.GetValue(3, 3);
-
-	// get camera fov
-	XSI::Camera xsi_camera(camera_obj);
-	float camera_aspect = float(xsi_camera.GetParameterValue("aspect"));
-	bool is_horizontal = camera_obj.GetParameterValue("fovtype") == 1;
-	float fov_grad = float(camera_obj.GetParameterValue("fov"));
-	if ((is_horizontal || camera_aspect <= 1) && (!is_horizontal || camera_aspect >= 1))
-	{
-		if(camera_aspect <= 1)
-		{
-			fov_grad = RAD2DEGF(2 * atan(tan(DEG2RADF(fov_grad) / 2.0) * camera_aspect));
-		}
-		else
-		{
-			fov_grad = RAD2DEGF(2 * atan(tan(DEG2RADF(fov_grad) / 2.0) / camera_aspect));
-		}
-	}
-	float fov_rad = DEG2RADF(fov_grad);
-
-	scene->camera->set_full_width(xsi_render_context.GetAttribute("ImageWidth"));
-	scene->camera->set_full_height(xsi_render_context.GetAttribute("ImageHeight"));
-	scene->camera->compute_auto_viewplane();
-	scene->camera->set_camera_type(ccl::CAMERA_PERSPECTIVE);
-	scene->camera->set_matrix(get_transform(xsi_camera_tfm));
-	scene->camera->set_fov(fov_rad);
+	sync_camera(scene, update_context);
 }

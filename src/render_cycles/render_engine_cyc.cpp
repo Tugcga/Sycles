@@ -11,6 +11,7 @@
 
 #include "render_engine_cyc.h"
 #include "cyc_session/cyc_session.h"
+#include "cyc_scene/cyc_scene.h"
 #include "cyc_output/output_drivers.h"
 #include "../utilities/logs.h"
 #include "../output/write_image.h"
@@ -186,6 +187,10 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		is_recreate_session = true;
 	}
 
+	update_context->set_image_size(image_full_size_width, image_full_size_height);
+	update_context->set_camera(camera);
+	update_context->set_time(eval_time);
+
 	// we should setup output passes after parsing scene, because it may contains aovs and lightgroups
 	output_context->set_render_type(render_type);
 	output_context->set_output_size((ULONG)image_size_width, (ULONG)image_size_height);
@@ -244,36 +249,56 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 // return OK, if object successfully updates, Abort in other cases
 XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const UpdateType update_type)
 {
+	if (!is_session)
+	{
+		return XSI::CStatus::Abort;
+	}
+
 	if (update_type == UpdateType_Camera)
 	{
-		
+		sync_camera(session->scene, update_context);
 	}
 
 	update_context->set_is_update_scene(true);
 
-	return XSI::CStatus::Abort;
+	return XSI::CStatus::OK;
 
 }
 
 // update non-geometry object (pass, for example)
 XSI::CStatus RenderEngineCyc::update_scene(XSI::SIObject& si_object, const UpdateType update_type)
 {
+	if (!is_session)
+	{
+		return XSI::CStatus::Abort;
+	}
+
 	update_context->set_is_update_scene(true);
 
-	return XSI::CStatus::Abort;
+	return XSI::CStatus::OK;
 }
 
 // update material
 XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool material_assigning)
 {
+	if (!is_session)
+	{
+		return XSI::CStatus::Abort;
+	}
+
 	update_context->set_is_update_scene(true);
 
-	return XSI::CStatus::Abort;
+	return XSI::CStatus::OK;
 }
 
 // update render parameters
 XSI::CStatus RenderEngineCyc::update_scene_render()
 {
+	if (!is_session)
+	{
+		return XSI::CStatus::Abort;
+	}
+
 	return XSI::CStatus::OK;
 }
 
@@ -287,7 +312,7 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	// rest updater and prepare to store actual data
 	update_context->reset();
 
-	sync_session(session, m_render_context, output_context, visual_buffer);  // here we also sync the scene
+	sync_session(session, update_context, output_context, visual_buffer);  // here we also sync the scene
 
 	// setup callbacks
 	// output driver calls every in the same time as display driver

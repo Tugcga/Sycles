@@ -1,6 +1,8 @@
 #pragma once
 #include <xsi_application.h>
 #include <xsi_arrayparameter.h>
+#include <xsi_camera.h>
+#include <xsi_time.h>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -31,6 +33,16 @@ public:
 
 	XSI::CString get_prev_display_pass_name();
 
+	void set_image_size(size_t width, size_t height);
+	size_t get_full_width();
+	size_t get_full_height();
+
+	void set_camera(const XSI::Camera &camera);
+	XSI::Camera get_camera();
+
+	void set_time(const XSI::CTime &time);
+	XSI::CTime get_time();
+
 private:
 	// after each render prepare session we store here used render parameter values
 	// this map allows to check what parameter is changed from the previous rendere session
@@ -43,4 +55,13 @@ private:
 
 	// the name of the display channel from previous render call
 	XSI::CString prev_dispaly_pass_name;
+
+	// width and height of the total screen
+	// these values used for camera sync
+	size_t full_width;
+	size_t full_height;
+
+	XSI::Camera xsi_camera;
+
+	XSI::CTime eval_time;
 };
