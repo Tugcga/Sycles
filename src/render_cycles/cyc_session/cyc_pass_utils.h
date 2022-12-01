@@ -4,6 +4,7 @@
 #include "scene/pass.h"
 
 // implemented in cyc_pass
+XSI::CString channel_name_to_pass_name(const XSI::CParameterRefArray& render_parameters, const XSI::CString& channel_name, const XSI::CTime& eval_time);
 XSI::CString add_prefix_to_aov_name(const XSI::CString& name, bool is_color);
 XSI::CString remove_prefix_from_aov_name(const XSI::CString& name);
 // convert pass string (from xsi) to actual Cycles PassType

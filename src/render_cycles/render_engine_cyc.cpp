@@ -25,6 +25,11 @@ RenderEngineCyc::RenderEngineCyc()
 	output_context = new OutputContext();
 	labels_context = new LabelsContext();
 	color_transform_context = new ColorTransformContext();
+	update_context = new UpdateContext();
+
+	make_render = true;
+	is_recreate_session = true;
+	display_pass_name = "";
 }
 
 // when we delete the engine, then at first this method is called, and then the method from base class
@@ -34,6 +39,7 @@ RenderEngineCyc::~RenderEngineCyc()
 	delete output_context;
 	delete labels_context;
 	delete color_transform_context;
+	delete update_context;
 }
 
 void RenderEngineCyc::clear_session()
@@ -41,61 +47,11 @@ void RenderEngineCyc::clear_session()
 	if (is_session)
 	{
 		session->cancel(true);
+		session->device_free();
 		delete session;
 		session = NULL;
 		is_session = false;
 	}
-}
-
-// nothing to do here
-XSI::CStatus RenderEngineCyc::pre_render_engine()
-{
-	return XSI::CStatus::OK;
-}
-
-// called every time before scene updates
-// here we should setup parameters, which should be done for both situations: create scene from scratch or update the scene
-XSI::CStatus RenderEngineCyc::pre_scene_process()
-{
-	// we should setup output passes after parsing scene, because it may contains aovs and lightgroups
-	output_context->set_render_type(render_type);
-	output_context->set_output_size((ULONG)image_size_width, (ULONG)image_size_height);
-	output_context->set_output_formats(output_paths, output_formats, output_data_types, output_channels, output_bits, eval_time);
-	output_context->set_cryptomatte_settings((bool)m_render_parameters.GetValue("output_crypto_object", eval_time),
-		(bool)m_render_parameters.GetValue("output_crypto_material", eval_time),
-		(bool)m_render_parameters.GetValue("output_crypto_asset", eval_time),
-		(int)m_render_parameters.GetValue("output_crypto_levels", eval_time));
-	// actual passes will be setup after scene sync
-
-	color_transform_context->update(m_render_parameters, eval_time);
-
-	return XSI::CStatus::OK;
-}
-
-// return OK, if object successfully updates, Abort in other cases
-XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const UpdateType update_type)
-{
-	return XSI::CStatus::Abort;
-
-}
-
-// update non-geometry object (pass, for example)
-XSI::CStatus RenderEngineCyc::update_scene(XSI::SIObject& si_object, const UpdateType update_type)
-{
-	return XSI::CStatus::Abort;
-}
-
-// update material
-XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool material_assigning)
-{
-	return XSI::CStatus::Abort;
-	
-}
-
-// update render parameters
-XSI::CStatus RenderEngineCyc::update_scene_render()
-{
-	return XSI::CStatus::OK;
 }
 
 // this method calls from output driver when nex tile is come
@@ -128,7 +84,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		{
 			color_transform_context->apply(tile_width, tile_height, visual_components, &pixels[0]);
 		}
-		
+
 		m_render_context.NewFragment(RenderTile(offset_x + image_corner_x, offset_y + image_corner_y, tile_width, tile_height, pixels, false, visual_components));
 
 	}
@@ -211,12 +167,125 @@ void RenderEngineCyc::progress_cancel_callback()
 	}
 }
 
+// nothing to do here
+XSI::CStatus RenderEngineCyc::pre_render_engine()
+{
+	return XSI::CStatus::OK;
+}
+
+// called every time before scene updates
+// here we should setup parameters, which should be done for both situations: create scene from scratch or update the scene
+// if return Abort, then recreate the scene from scratch
+XSI::CStatus RenderEngineCyc::pre_scene_process()
+{
+	is_recreate_session = false;
+	if (!is_session)
+	{
+		// if there are no session object, create it
+		// if we change display channel, then session already removed
+		is_recreate_session = true;
+	}
+
+	// we should setup output passes after parsing scene, because it may contains aovs and lightgroups
+	output_context->set_render_type(render_type);
+	output_context->set_output_size((ULONG)image_size_width, (ULONG)image_size_height);
+	output_context->set_output_formats(output_paths, output_formats, output_data_types, output_channels, output_bits, eval_time);
+	output_context->set_cryptomatte_settings((bool)m_render_parameters.GetValue("output_crypto_object", eval_time),
+		(bool)m_render_parameters.GetValue("output_crypto_material", eval_time),
+		(bool)m_render_parameters.GetValue("output_crypto_asset", eval_time),
+		(int)m_render_parameters.GetValue("output_crypto_levels", eval_time));
+	// actual passes will be setup after scene sync
+
+	color_transform_context->update(m_render_parameters, eval_time);
+
+	// if current dusplay channel is AOV and the previous was also aov with another name, then we should recreate the session and scene
+	// in all other cases we can render other visual pass, but also should sync passes
+	ccl::PassType visual_pass_type = channel_to_pass_type(m_display_channel_name);
+
+	// m_display_channel_name contains general name of the cisual pass (Sycles AOV Color, for example)
+	// here we should check actual visual pass (modified if it was aov)
+	display_pass_name = channel_name_to_pass_name(m_render_parameters, m_display_channel_name, eval_time);
+	if (visual_pass_type == ccl::PASS_AOV_COLOR || visual_pass_type == ccl::PASS_AOV_VALUE)
+	{
+		if (update_context->get_prev_display_pass_name() != display_pass_name)
+		{
+			is_recreate_session = true;
+		}
+	}
+
+	// check is current session parameters coincide with the previous one
+	if (!is_recreate_session)
+	{
+		ccl::SessionParams new_session_params = get_session_params();
+		ccl::SceneParams new_scene_params = get_scene_params();
+
+		if (session->params.modified(new_session_params) || session->scene->params.modified(new_scene_params))
+		{
+			is_recreate_session = true;
+		}
+	}
+
+	// if recreate session, then automaticaly say that the scene is also new
+	// this parameter used in post_scene, for example
+	update_context->set_is_update_scene(is_recreate_session);
+
+	if (is_recreate_session)
+	{
+		// so, we will create new session and new scene
+		return XSI::CStatus::Abort;
+	}
+	else
+	{
+		// we will use old session and old scene
+		return XSI::CStatus::OK;
+	}
+}
+
+// return OK, if object successfully updates, Abort in other cases
+XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const UpdateType update_type)
+{
+	if (update_type == UpdateType_Camera)
+	{
+		
+	}
+
+	update_context->set_is_update_scene(true);
+
+	return XSI::CStatus::Abort;
+
+}
+
+// update non-geometry object (pass, for example)
+XSI::CStatus RenderEngineCyc::update_scene(XSI::SIObject& si_object, const UpdateType update_type)
+{
+	update_context->set_is_update_scene(true);
+
+	return XSI::CStatus::Abort;
+}
+
+// update material
+XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool material_assigning)
+{
+	update_context->set_is_update_scene(true);
+
+	return XSI::CStatus::Abort;
+}
+
+// update render parameters
+XSI::CStatus RenderEngineCyc::update_scene_render()
+{
+	return XSI::CStatus::OK;
+}
+
 // here we create the scene for rendering from scratch
 XSI::CStatus RenderEngineCyc::create_scene()
 {
 	clear_session();
 	session = create_session();
 	is_session = true;
+
+	// rest updater and prepare to store actual data
+	update_context->reset();
 
 	sync_session(session, m_render_context, output_context, visual_buffer);  // here we also sync the scene
 
@@ -234,51 +303,80 @@ XSI::CStatus RenderEngineCyc::create_scene()
 XSI::CStatus RenderEngineCyc::post_scene()
 {
 	call_abort_render = false;
+	make_render = true;
 
 	// setup labels
 	labels_context->setup(session->scene, m_render_parameters, camera, eval_time);
 
+	// check, should we start the render, or we can use previous render result
+	std::unordered_set<std::string> changed_render_parameters = update_context->get_changed_parameters(m_render_parameters);
+
 	// initialize visual buffer at the very end
 	// may be we should not render at all, in this case we should reuse previous visual buffer
-	// RenderVisualBuffer store pixels in OIIO::ImageBuf
-	visual_buffer->setup((ULONG)image_full_size_width,
-		(ULONG)image_full_size_height,
-		(ULONG)image_corner_x,
-		(ULONG)image_corner_y,
-		(ULONG)image_size_width,
-		(ULONG)image_size_height,
-		m_display_channel_name,
-		m_render_parameters, eval_time);
+	if (render_type == RenderType_Region && !update_context->get_is_update_scene() && update_context->is_changed_render_parameters_only_cm(changed_render_parameters))
+	{// we make preview render, scene is not changed, only color management render parameter is changed
+		// if current parameters for visual buffer is not changed, then disable the rendering
+		if (visual_buffer->is_coincide((ULONG)image_full_size_width,
+			(ULONG)image_full_size_height,
+			(ULONG)image_corner_x,
+			(ULONG)image_corner_y,
+			(ULONG)image_size_width,
+			(ULONG)image_size_height,
+			display_pass_name,
+			m_render_parameters, eval_time))
+		{
+			make_render = false;
+		}
+	}
 
-	// at the end cync passes
-	sync_passes(session->scene, output_context, visual_buffer);
+	if(make_render)
+	{
+		// RenderVisualBuffer store pixels in OIIO::ImageBuf
+		visual_buffer->setup((ULONG)image_full_size_width,
+			(ULONG)image_full_size_height,
+			(ULONG)image_corner_x,
+			(ULONG)image_corner_y,
+			(ULONG)image_size_width,
+			(ULONG)image_size_height,
+			m_display_channel_name,
+			display_pass_name,
+			m_render_parameters, eval_time);
 
-	// TODO: now there is a small update bug
-	// when nothing changed in the scene, then the engine does not create a new sessuin and use the old one
-	// in this case, if we change preview AOV name, then the session will be the same and it output empty pixels
-	// althow all passes correctly setuped
-	// may be will be better to recreate the session from scratch every render session, but scene update more accurate
+		// at the end cync passes
+		sync_passes(session->scene, output_context, visual_buffer);
+	}
+
+	// save values of used render parameters
+	update_context->setup_prev_render_parameters(m_render_parameters);
+	// and rendered visual channel
+	update_context->set_prev_display_pass_name(display_pass_name);
 
 	return XSI::CStatus::OK;
 }
 
 void RenderEngineCyc::render()
 {
-	ccl::BufferParams buffer_params = get_buffer_params(image_full_size_width, image_full_size_height, image_corner_x, image_corner_y, image_size_width, image_size_height);
-	session->reset(session->params, buffer_params);
+	if (make_render)
+	{
+		ccl::BufferParams buffer_params = get_buffer_params(image_full_size_width, image_full_size_height, image_corner_x, image_corner_y, image_size_width, image_size_height);
+		session->reset(session->params, buffer_params);
 
-	session->progress.reset();
-	session->stats.mem_peak = session->stats.mem_used;
+		session->progress.reset();
+		session->stats.mem_peak = session->stats.mem_used;
 
-	session->start();
-	session->wait();
+		session->start();
+		session->wait();
+	}
 }
 
 XSI::CStatus RenderEngineCyc::post_render_engine()
 {
 	// get render time
 	double render_time = (finish_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
-	labels_context->set_render_time(render_time);
+	if (make_render)
+	{
+		labels_context->set_render_time(render_time);
+	}
 
 	// the render is done, add labels to the output (if we need it)
 	output_context->set_labels_buffer(labels_context);
@@ -293,7 +391,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	}
 
 	//log render time
-	if (render_type != RenderType_Shaderball)
+	if (render_type != RenderType_Shaderball && make_render)
 	{
 		log_message("Render statistics: " + XSI::CString(render_time) + " seconds");
 	}

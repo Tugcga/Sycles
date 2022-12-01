@@ -1,4 +1,6 @@
 #pragma once
+#include <unordered_map>
+
 #include "scene/scene.h"
 #include "session/session.h"
 #include "session/output_driver.h"
@@ -7,6 +9,7 @@
 #include "cyc_output/output_context.h"
 #include "cyc_scene/cyc_labels.h"
 #include "cyc_output/color_transform_context.h"
+#include "update_context.h"
 
 class RenderEngineCyc : public RenderEngineBase 
 {
@@ -46,6 +49,10 @@ private:
 	OutputContext* output_context;
 	LabelsContext* labels_context;
 	ColorTransformContext* color_transform_context;
+	UpdateContext* update_context;
+	bool make_render;
+	bool is_recreate_session;  // if true, then we should create new session (and scene, even if the scene is not changed or properly updated)
+	XSI::CString display_pass_name;
 
 	// internal methods
 	void clear_session();

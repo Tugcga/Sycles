@@ -11,6 +11,8 @@ ccl::Session* create_session();
 ccl::BufferParams get_buffer_params(int full_width, int full_height, int offset_x, int offset_y, int width, int height);
 
 // cyc_session
+ccl::SessionParams get_session_params();
+ccl::SceneParams get_scene_params();
 void sync_session(ccl::Session *session, XSI::RendererContext& xsi_render_context, OutputContext* output_context, RenderVisualBuffer* visual_buffer);
 
 // cyc pass

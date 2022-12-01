@@ -376,15 +376,6 @@ XSI::CStatus RenderEngineBase::scene_process()
 		image_size_height = m_render_context.GetAttribute("CropHeight");
 	}
 
-	//setup visual buffer
-	/*visual_buffer = RenderVisualBuffer(
-		(ULONG)image_full_size_width,
-		(ULONG)image_full_size_height,
-		(ULONG)image_corner_x,
-		(ULONG)image_corner_y,
-		(ULONG)image_size_width,
-		(ULONG)image_size_height);*/
-
 	//memorize isolation list
 	m_isolation_list = m_render_context.GetArrayAttribute("ObjectList");
 

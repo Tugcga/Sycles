@@ -33,6 +33,25 @@ XSI::CString remove_prefix_from_aov_name(const XSI::CString &name)
     }
 }
 
+XSI::CString channel_name_to_pass_name(const XSI::CParameterRefArray& render_parameters, const XSI::CString& channel_name, const XSI::CTime& eval_time)
+{
+    ccl::PassType local_pass_type = channel_to_pass_type(channel_name);
+    if (local_pass_type == ccl::PASS_NONE)
+    {
+        // all unkonwn channels interpretate as combined
+        local_pass_type = ccl::PASS_COMBINED;
+    }
+    XSI::CString local_pass_name = pass_to_name(local_pass_type);
+    if (local_pass_type == ccl::PASS_AOV_COLOR || local_pass_type == ccl::PASS_AOV_VALUE)
+    {// change the name of the pass into name from render parameters
+        // at present time we does not know is this name correct or not
+        // so, does not change it to correct name, but later show warning message, if the name is incorrect
+        local_pass_name = add_prefix_to_aov_name(render_parameters.GetValue("output_pass_preview_name", eval_time), local_pass_type == ccl::PASS_AOV_COLOR);
+    }
+
+    return local_pass_name;
+}
+
 ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name, ccl::PassMode mode = ccl::PassMode::DENOISED)
 {
 	ccl::Pass* pass = scene->create_node<ccl::Pass>();

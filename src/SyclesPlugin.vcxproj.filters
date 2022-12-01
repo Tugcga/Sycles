@@ -63,6 +63,9 @@
     <ClCompile Include="utilities\files_io.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\update_context.cpp">
+      <Filter>render_cycles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -184,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="utilities\files_io.h">
       <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\update_context.h">
+      <Filter>render_cycles</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -78,6 +78,7 @@
     <ClCompile Include="render_cycles\cyc_session\cyc_pass.cpp" />
     <ClCompile Include="render_cycles\cyc_session\cyc_session.cpp" />
     <ClCompile Include="render_cycles\render_engine_cyc.cpp" />
+    <ClCompile Include="render_cycles\update_context.cpp" />
     <ClCompile Include="si_callbacks\si_callbacks.cpp" />
     <ClCompile Include="utilities\arrays.cpp" />
     <ClCompile Include="utilities\files_io.cpp" />
@@ -107,6 +108,7 @@
     <ClInclude Include="render_cycles\cyc_session\cyc_pass_utils.h" />
     <ClInclude Include="render_cycles\cyc_session\cyc_session.h" />
     <ClInclude Include="render_cycles\render_engine_cyc.h" />
+    <ClInclude Include="render_cycles\update_context.h" />
     <ClInclude Include="si_callbacks\si_callbacks.h" />
     <ClInclude Include="si_callbacks\si_locker.h" />
     <ClInclude Include="utilities\arrays.h" />
