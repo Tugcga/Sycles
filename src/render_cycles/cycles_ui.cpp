@@ -77,7 +77,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddEnumControl("paths_fastgi_method", fastgi_method_combo, "Method", XSI::siControlCombo);
 	layout.AddItem("paths_fastgi_ao_factor", "AO Factor");
 	layout.AddItem("paths_fastgi_ao_distance", "AO Distance");
-	layout.AddItem("paths_fastgi_ao_bouncess", "Bounces");
+	layout.AddItem("paths_fastgi_ao_bounces", "Bounces");
 	layout.EndGroup();
 
 	layout.AddTab("Film");
@@ -428,8 +428,8 @@ void set_fastgi(XSI::CustomProperty& prop)
 
 	int fastgi_mode = paths_fastgi_method.GetValue();
 
-	XSI::Parameter paths_fastgi_ao_bouncess = prop_array.GetItem("paths_fastgi_ao_bouncess");
-	paths_fastgi_ao_bouncess.PutCapabilityFlag(block_mode, !use_fastgi || fastgi_mode == 0);
+	XSI::Parameter paths_fastgi_ao_bounces = prop_array.GetItem("paths_fastgi_ao_bounces");
+	paths_fastgi_ao_bounces.PutCapabilityFlag(block_mode, !use_fastgi || fastgi_mode == 1);
 }
 
 void set_curves(XSI::CustomProperty& prop)
@@ -809,7 +809,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("paths_fastgi_ao_factor", XSI::CValue::siFloat, caps, "", "", 1.0, 0.0, FLT_MAX, 0.0, 1.0, param);
 	property.AddParameter("paths_fastgi_ao_distance", XSI::CValue::siFloat, caps, "", "", 10.0, 0.0, INT_MAX, 0.0, 16.0, param);
 	property.AddParameter("paths_fastgi_method", XSI::CValue::siInt4, caps, "", "", 0, 0, 1, 0, 1, param);
-	property.AddParameter("paths_fastgi_ao_bouncess", XSI::CValue::siInt4, caps, "", "", 1, 0, 1024, 0, 16, param);
+	property.AddParameter("paths_fastgi_ao_bounces", XSI::CValue::siInt4, caps, "", "", 1, 0, 1024, 0, 16, param);
 
 	// film tab
 	property.AddParameter("film_exposure", XSI::CValue::siFloat, caps, "", "", 1.0, 0.0, 10.0, 0.0, 2.0, param);

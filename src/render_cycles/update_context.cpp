@@ -105,8 +105,25 @@ bool UpdateContext::is_changed_render_parameters_only_cm(const std::unordered_se
 
 bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_set<std::string>& parameters)
 {
-	// TODO: write proper parameters list
-	return true;
+	// TODO: if we switch motion or change motion blur params, then we should recreate the session, because all objects from the scene should be updated
+	std::vector<std::string> integrator_parameters{
+		"sampling_render_samples",
+		"film_motion_use", 
+		"paths_max_bounces", "paths_max_diffuse_bounces", "paths_max_glossy_bounces", "paths_max_transmission_bounces", "paths_max_volume_bounces", "paths_max_transparent_bounces",
+		"sampling_advanced_min_light_bounces", "sampling_advanced_min_transparent_bounces",
+		"performance_volume_step_rate", "performance_volume_max_steps",
+		"paths_caustics_filter_glossy", "paths_caustics_reflective", "paths_caustics_refractive",
+		"sampling_advanced_seed", "sampling_advanced_animate_seed",
+		"paths_clamp_direct", "paths_clamp_indirect",
+		"sampling_advanced_light_threshold",
+		"sampling_render_use_adaptive", "sampling_render_adaptive_threshold", "sampling_render_adaptive_min_samples",
+		"sampling_advanced_pattern",
+		"sampling_advanced_scrambling_distance", "sampling_advanced_scrambling_multiplier"
+		"paths_fastgi_use", "paths_fastgi_ao_factor", "paths_fastgi_ao_distance", "paths_fastgi_method", "paths_fastgi_ao_bounces",
+		"sampling_path_guiding_use", "sampling_path_guiding_surface", "sampling_path_guiding_volume", "sampling_path_guiding_training_samples"
+	};
+
+	return is_set_contains_from_array(parameters, integrator_parameters);
 }
 
 bool UpdateContext::is_changed_render_paramters_film(const std::unordered_set<std::string>& parameters)
