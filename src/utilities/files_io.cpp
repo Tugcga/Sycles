@@ -1,5 +1,9 @@
 #include <string>
 #include <windows.h>
+#include <filesystem>
+
+#include <xsi_application.h>
+#include <xsi_project.h>
 
 bool create_dir(const std::string& file_path)
 {
@@ -33,4 +37,31 @@ bool create_dir(const std::string& file_path)
 		}
 	}
 	return true;
+}
+
+XSI::CString create_temp_path()
+{
+	UUID uuid;
+	UuidCreate(&uuid);
+	char* uuid_str;
+	UuidToStringA(&uuid, (RPC_CSTR*)&uuid_str);
+	XSI::CString temp_path = XSI::Application().GetActiveProject().GetPath() + "\\sycles_temp_" + XSI::CString(uuid_str);
+	RpcStringFreeA((RPC_CSTR*)&uuid_str);
+
+	std::string temp_path_str = temp_path.GetAsciiString();
+
+	if (!std::filesystem::is_directory(temp_path_str) || !std::filesystem::exists(temp_path_str))
+	{
+		std::filesystem::create_directory(temp_path_str);
+	}
+
+	return temp_path;
+}
+
+void remove_temp_path(const XSI::CString &temp_path)
+{
+	if (temp_path.Length() > 0)
+	{
+		std::filesystem::remove_all(temp_path.GetAsciiString());
+	}
 }

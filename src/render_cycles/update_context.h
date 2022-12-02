@@ -46,6 +46,10 @@ public:
 	void set_time(const XSI::CTime &time);
 	XSI::CTime get_time();
 
+	void set_logging(bool is_rendertime, bool is_details);
+	bool get_is_log_rendertime();
+	bool get_is_log_details();
+
 private:
 	// after each render prepare session we store here used render parameter values
 	// this map allows to check what parameter is changed from the previous rendere session
@@ -67,4 +71,8 @@ private:
 	XSI::Camera xsi_camera;
 
 	XSI::CTime eval_time;
+
+	// set these values every time after scene is created (or updated)
+	bool log_rendertime;
+	bool log_details;
 };

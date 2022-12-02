@@ -9,12 +9,13 @@
 #include "../../render_base/render_visual_buffer.h"
 #include "../../render_cycles/update_context.h"
 
-ccl::Session* create_session();
+ccl::Session* create_session(ccl::SessionParams session_params, ccl::SceneParams scene_params);
 ccl::BufferParams get_buffer_params(int full_width, int full_height, int offset_x, int offset_y, int width, int height);
 
 // cyc_session
-ccl::SessionParams get_session_params();
-ccl::SceneParams get_scene_params();
+void set_session_samples(ccl::SessionParams& session_params, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
+ccl::SessionParams get_session_params(const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
+ccl::SceneParams get_scene_params(RenderType render_type, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
 void sync_session(ccl::Session *session, UpdateContext* update_context, OutputContext* output_context, RenderVisualBuffer* visual_buffer);
 
 // cyc pass

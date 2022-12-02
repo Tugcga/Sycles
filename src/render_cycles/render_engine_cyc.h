@@ -53,6 +53,9 @@ private:
 	bool make_render;
 	bool is_recreate_session;  // if true, then we should create new session (and scene, even if the scene is not changed or properly updated)
 	XSI::CString display_pass_name;
+	ccl::SessionParams session_params;  // we create these parameters every render call at the start and check, should we recreate session or not. If yes, use these parameters
+	ccl::SceneParams scene_params;
+	XSI::CString temp_path;  // create it at render start and delete after the render is finish (this folder used by session to store internal render tiles)
 
 	// internal methods
 	void clear_session();

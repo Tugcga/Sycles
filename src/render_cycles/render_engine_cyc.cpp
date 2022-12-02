@@ -16,6 +16,7 @@
 #include "../utilities/logs.h"
 #include "../output/write_image.h"
 #include "../utilities/arrays.h"
+#include "../utilities/files_io.h"
 
 using namespace std::chrono_literals;
 
@@ -219,16 +220,32 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	}
 
 	// check is current session parameters coincide with the previous one
-	if (!is_recreate_session)
-	{
-		ccl::SessionParams new_session_params = get_session_params();
-		ccl::SceneParams new_scene_params = get_scene_params();
+	session_params = get_session_params(m_render_parameters, eval_time);
+	scene_params = get_scene_params(render_type, m_render_parameters, eval_time);
 
-		if (session->params.modified(new_session_params) || session->scene->params.modified(new_scene_params))
+	if (is_session && !is_recreate_session)
+	{
+		// build it method does not catch samples, samples_offset parameters, time_limit change
+		// temp_dir is also does not catch
+		if (session->params.modified(session_params) || session->scene->params.modified(scene_params))
 		{
 			is_recreate_session = true;
 		}
+
+		if (!is_recreate_session)
+		{
+			// update samples values if we should use old session parameters
+			// in other case we will use these actual parameters, where these values alredy correct
+			set_session_samples(session->params, m_render_parameters, eval_time);
+		}
 	}
+
+	// create temp folder
+	// we will setup it to the session params later after scene is created
+	// because this will be the common moment as for scene updates and creating from scratch
+	// TODO: there is a bug somewhere, even if we setup the temp directory into session parameters, it crashes when render small tiles
+	// so, try to fix it later, for now simply disable tiling
+	// temp_path = create_temp_path();
 
 	// if recreate session, then automaticaly say that the scene is also new
 	// this parameter used in post_scene, for example
@@ -305,7 +322,7 @@ XSI::CStatus RenderEngineCyc::update_scene_render()
 XSI::CStatus RenderEngineCyc::create_scene()
 {
 	clear_session();
-	session = create_session();
+	session = create_session(session_params, scene_params);
 	is_session = true;
 
 	// rest updater and prepare to store actual data
@@ -379,6 +396,12 @@ XSI::CStatus RenderEngineCyc::post_scene()
 		{
 			sync_integrator(session, update_context, m_render_parameters);
 		}
+
+		// TODO: try to fix this bug
+		// set temp directory for session parameters
+		// session->params.temp_dir = temp_path.GetAsciiString();
+
+		update_context->set_logging(m_render_parameters.GetValue("options_logging_log_rendertime", eval_time), m_render_parameters.GetValue("options_logging_log_details", eval_time));
 	}
 
 	// save values of used render parameters
@@ -395,6 +418,7 @@ void RenderEngineCyc::render()
 	{
 		ccl::BufferParams buffer_params = get_buffer_params(image_full_size_width, image_full_size_height, image_corner_x, image_corner_y, image_size_width, image_size_height);
 		session->reset(session->params, buffer_params);
+		session->scene->enable_update_stats();
 
 		session->progress.reset();
 		session->stats.mem_peak = session->stats.mem_used;
@@ -428,8 +452,20 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	//log render time
 	if (render_type != RenderType_Shaderball && make_render)
 	{
-		log_message("Render statistics: " + XSI::CString(render_time) + " seconds");
+		if (update_context->get_is_log_rendertime())
+		{
+			log_message("Render statistics: " + XSI::CString(render_time) + " seconds");
+		}
+		if (update_context->get_is_log_details())
+		{
+			ccl::RenderStats stats;
+			session->collect_statistics(&stats);
+			log_message(stats.full_report().c_str());
+		}
 	}
+
+	// TODO: fix crash when using tiling rendering
+	// remove_temp_path(temp_path);
 
 	// clear output context object
 	output_context->reset();

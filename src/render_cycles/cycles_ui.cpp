@@ -124,10 +124,11 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("performance_threads_count", "Threads");
 	layout.EndGroup();
 
-	layout.AddGroup("Memory");
-	layout.AddItem("performance_memory_use_auto_tile", "Use Tiling");
-	layout.AddItem("performance_memory_tile_size", "Tile Size");
-	layout.EndGroup();
+	// TODO: try to fix the bug with crash when we render small tiles
+	// layout.AddGroup("Memory");
+	// layout.AddItem("performance_memory_use_auto_tile", "Use Tiling");
+	// layout.AddItem("performance_memory_tile_size", "Tile Size");
+	// layout.EndGroup();
 
 	layout.AddGroup("Acceleration Structure");
 	layout.AddItem("performance_acceleration_use_spatial_split", "Use Spatial Splits");
@@ -631,6 +632,17 @@ void set_colormanagement(XSI::CustomProperty& prop)
 	cm_gamma.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
 }
 
+void set_logging(XSI::CustomProperty& prop)
+{
+	XSI::CParameterRefArray prop_array = prop.GetParameters();
+
+	XSI::Parameter options_logging_log_details = prop_array.GetItem("options_logging_log_details");
+	bool is_log = options_logging_log_details.GetValue();
+
+	XSI::Parameter options_logging_log_profiling = prop_array.GetItem("options_logging_log_profiling");
+	options_logging_log_profiling.PutCapabilityFlag(block_mode, !is_log);
+}
+
 XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_context) 
 {
 	XSI::PPGEventContext::PPGEvent event_id = event_context.GetEventID();
@@ -656,6 +668,7 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		set_background_surface(cp_source);
 		set_denoising(cp_source);
 		set_colormanagement(cp_source);
+		set_logging(cp_source);
 	}
 	else if (event_id == XSI::PPGEventContext::siParameterChange) 
 	{
@@ -734,6 +747,10 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 			set_colormanagement(prop);
 
 			is_refresh = true;
+		}
+		else if (param_name == "options_logging_log_details")
+		{
+			set_logging(prop);
 		}
 	}
 

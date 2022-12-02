@@ -21,6 +21,11 @@ void UpdateContext::reset()
 	is_update_scene = true;
 
 	prev_dispaly_pass_name = "";
+
+	log_rendertime = false;
+	log_details = false;
+
+	// does not reset full_width and full_height, because these values used as in update scene and create scene
 }
 
 void UpdateContext::set_is_update_scene(bool value)
@@ -176,4 +181,20 @@ void UpdateContext::set_time(const XSI::CTime& time)
 XSI::CTime UpdateContext::get_time()
 {
 	return eval_time;
+}
+
+void UpdateContext::set_logging(bool is_rendertime, bool is_details)
+{
+	log_rendertime = is_rendertime;
+	log_details = is_details;
+}
+
+bool UpdateContext::get_is_log_rendertime()
+{
+	return log_rendertime;
+}
+
+bool UpdateContext::get_is_log_details()
+{
+	return log_details;
 }
