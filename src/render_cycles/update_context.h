@@ -9,6 +9,9 @@
 #include <string>
 #include <vector>
 
+#include "../render_cycles/cyc_session/cyc_pass_utils.h"
+#include "../render_cycles/cyc_scene/cyc_motion.h"
+
 class UpdateContext
 {
 public:
@@ -32,6 +35,10 @@ public:
 	bool is_changed_render_paramters_integrator(const std::unordered_set<std::string>& parameters);
 	bool is_changed_render_paramters_film(const std::unordered_set<std::string>& parameters);
 
+	// return true if we change motion parameters and should recreate the scene
+	bool is_change_render_parameters_motion(const std::unordered_set<std::string>& parameters);
+	bool is_change_render_parameters_camera(const std::unordered_set<std::string>& parameters);
+
 	void set_prev_display_pass_name(const XSI::CString &value);
 
 	XSI::CString get_prev_display_pass_name();
@@ -49,6 +56,22 @@ public:
 	void set_logging(bool is_rendertime, bool is_details);
 	bool get_is_log_rendertime();
 	bool get_is_log_details();
+	
+	void set_motion(const XSI::CParameterRefArray& render_parameters, const XSI::CStringArray& output_channels, const XSI::CString& visual_channel, MotionType known_type = MotionType_Unknown);
+	void set_motion_type(MotionType value);
+	bool get_need_motion();
+	MotionType get_motion_type();
+	size_t get_motion_steps();
+	MotionPosition get_motion_position();
+	float get_motion_shutter_time();
+	bool get_motion_rolling();
+	void set_motion_rolling(bool value);
+	float get_motion_rolling_duration();
+	void set_motion_rolling_duration(float value);
+	float get_motion_fisrt_time();
+	float get_motion_last_time();
+	std::vector<float> get_motion_times();
+	float get_motion_time(size_t step);
 
 private:
 	// after each render prepare session we store here used render parameter values
@@ -75,4 +98,11 @@ private:
 	// set these values every time after scene is created (or updated)
 	bool log_rendertime;
 	bool log_details;
+
+	MotionType motion_type;
+	float motion_shutter_time;
+	std::vector<float> motion_times;
+	MotionPosition motion_position;
+	bool motion_rolling;  // false means None
+	float motion_rolling_duration;  // only for rolling true
 };

@@ -102,16 +102,17 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 	layout.AddGroup("Motion");
 	layout.AddItem("film_motion_use", "Motion Blur");
+	layout.AddItem("film_motion_steps", "Motion Steps");
 	XSI::CValueArray motion_position_combo(6);
 	motion_position_combo[0] = "Start on Frame"; motion_position_combo[1] = 0;
 	motion_position_combo[2] = "Center on Frame"; motion_position_combo[3] = 1;
 	motion_position_combo[4] = "End on Frame"; motion_position_combo[5] = 2;
 	layout.AddEnumControl("film_motion_position", motion_position_combo, "Position", XSI::siControlCombo);
 	layout.AddItem("film_motion_shutter", "Shutter");
-	XSI::CValueArray motion_rollinbg_combo(4);
-	motion_rollinbg_combo[0] = "None"; motion_rollinbg_combo[1] = 0;
-	motion_rollinbg_combo[2] = "Top-Bottom"; motion_rollinbg_combo[3] = 1;
-	layout.AddEnumControl("film_motion_rolling_type", motion_rollinbg_combo, "Rolling Shutter", XSI::siControlCombo);
+	XSI::CValueArray motion_rolling_combo(4);
+	motion_rolling_combo[0] = "None"; motion_rolling_combo[1] = 0;
+	motion_rolling_combo[2] = "Top-Bottom"; motion_rolling_combo[3] = 1;
+	layout.AddEnumControl("film_motion_rolling_type", motion_rolling_combo, "Rolling Shutter", XSI::siControlCombo);
 	layout.AddItem("film_motion_rolling_duration", "Duration");
 	layout.EndGroup();
 
@@ -481,6 +482,9 @@ void set_film_motion(XSI::CustomProperty& prop)
 	XSI::Parameter film_motion_position = prop_array.GetItem("film_motion_position");
 	film_motion_position.PutCapabilityFlag(block_mode, !use_motion);
 
+	XSI::Parameter film_motion_steps = prop_array.GetItem("film_motion_steps");
+	film_motion_steps.PutCapabilityFlag(block_mode, !use_motion);
+
 	XSI::Parameter film_motion_shutter = prop_array.GetItem("film_motion_shutter");
 	film_motion_shutter.PutCapabilityFlag(block_mode, !use_motion);
 
@@ -842,8 +846,9 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 
 	// motion
 	property.AddParameter("film_motion_use", XSI::CValue::siBool, caps, "", "", false, param);
+	property.AddParameter("film_motion_steps", XSI::CValue::siInt4, caps, "", "", 1, 1, 7, 1, 3, param);
 	property.AddParameter("film_motion_position", XSI::CValue::siInt4, caps, "", "", 1, param);
-	property.AddParameter("film_motion_shutter", XSI::CValue::siFloat, caps, "", "", 0.5, 0.01, 1.0, 0.01, 1.0, param);
+	property.AddParameter("film_motion_shutter", XSI::CValue::siFloat, caps, "", "", 0.5, 0.01, FLT_MAX, 0.01, 1.0, param);
 	property.AddParameter("film_motion_rolling_type", XSI::CValue::siInt4, caps, "", "", 0, param);
 	property.AddParameter("film_motion_rolling_duration", XSI::CValue::siFloat, caps, "", "", 0.1, 0.0, 1.0, 0.0, 1.0, param);
 

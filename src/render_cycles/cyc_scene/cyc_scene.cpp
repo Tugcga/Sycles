@@ -230,6 +230,4 @@ void sync_scene(ccl::Scene *scene, UpdateContext* update_context)
 	bg_shader->tag_update(scene);
 
 	scene->background->set_transparent(true);
-
-	sync_camera(scene, update_context);
 }

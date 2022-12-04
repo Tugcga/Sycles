@@ -6,13 +6,14 @@
 
 #include "../../render_cycles/update_context.h"
 #include "../../utilities/math.h"
+#include "../../utilities/logs.h"
 
 void sync_integrator(ccl::Session* session, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
 {
 	ccl::Integrator* integrator = session->scene->integrator;
 	XSI::CTime eval_time = update_context->get_time();
 
-	integrator->set_motion_blur(render_parameters.GetValue("film_motion_use", eval_time));
+	integrator->set_motion_blur(update_context->get_motion_type() == MotionType_Blur);
 
 	integrator->set_max_bounce(render_parameters.GetValue("paths_max_bounces", eval_time));
 	integrator->set_max_diffuse_bounce(render_parameters.GetValue("paths_max_diffuse_bounces", eval_time));

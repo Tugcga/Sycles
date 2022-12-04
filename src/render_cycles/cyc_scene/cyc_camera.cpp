@@ -8,31 +8,97 @@
 #include "../../utilities/math.h"
 #include "../../utilities/logs.h"
 
+static ccl::Transform tweak_camera_matrix(const ccl::Transform& tfm, const ccl::CameraType type, const ccl::PanoramaType panorama_type)
+{
+	ccl::Transform result;
+
+	if (type == ccl::CAMERA_PANORAMA)
+	{
+		if (panorama_type == ccl::PANORAMA_MIRRORBALL)
+		{
+			result = tfm * ccl::make_transform(
+				1.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				0.0f, -1.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+			result = tfm * ccl::make_transform(
+				0.0f, -1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				1.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+	else
+	{
+		result = tfm * ccl::transform_scale(1.0f, 1.0f, 1.0f);
+	}
+
+	return transform_clear_scale(result);
+}
+
 std::vector<float> extract_camera_tfm(const XSI::Camera &xsi_camera)
 {
 	XSI::MATH::CMatrix4 camera_tfm_matrix = xsi_camera.GetKinematics().GetGlobal().GetTransform().GetMatrix4();
 	std::vector<float> xsi_camera_tfm(16);
-	xsi_camera_tfm[0] = camera_tfm_matrix.GetValue(0, 0);
-	xsi_camera_tfm[1] = camera_tfm_matrix.GetValue(0, 1);
-	xsi_camera_tfm[2] = camera_tfm_matrix.GetValue(0, 2);
-	xsi_camera_tfm[3] = camera_tfm_matrix.GetValue(0, 3);
-
-	xsi_camera_tfm[4] = camera_tfm_matrix.GetValue(1, 0);
-	xsi_camera_tfm[5] = camera_tfm_matrix.GetValue(1, 1);
-	xsi_camera_tfm[6] = camera_tfm_matrix.GetValue(1, 2);
-	xsi_camera_tfm[7] = camera_tfm_matrix.GetValue(1, 3);
-
-	xsi_camera_tfm[8] = -1 * camera_tfm_matrix.GetValue(2, 0);
-	xsi_camera_tfm[9] = -1 * camera_tfm_matrix.GetValue(2, 1);
-	xsi_camera_tfm[10] = -1 * camera_tfm_matrix.GetValue(2, 2);
-	xsi_camera_tfm[11] = -1 * camera_tfm_matrix.GetValue(2, 3);
-
-	xsi_camera_tfm[12] = camera_tfm_matrix.GetValue(3, 0);
-	xsi_camera_tfm[13] = camera_tfm_matrix.GetValue(3, 1);
-	xsi_camera_tfm[14] = camera_tfm_matrix.GetValue(3, 2);
-	xsi_camera_tfm[15] = camera_tfm_matrix.GetValue(3, 3);
+	xsi_matrix_to_cycles_array(xsi_camera_tfm, camera_tfm_matrix, true);
 
 	return xsi_camera_tfm;
+}
+
+void sync_camera_motion(ccl::Scene* scene, UpdateContext* update_context, float fov_prev, float fov_next)
+{
+	ccl::Camera* camera = scene->camera;
+	if (update_context->get_need_motion())
+	{
+		ccl::array<ccl::Transform> motions;
+		motions.resize(update_context->get_motion_steps(), camera->get_matrix());
+
+		// setup camera motion properties
+		MotionPosition motion_position = update_context->get_motion_position();
+		float shutter_time = update_context->get_motion_shutter_time();
+		camera->set_motion_position(motion_position == MotionPosition_Start ? ccl::MOTION_POSITION_START : (motion_position == MotionPosition_Center ? ccl::MOTION_POSITION_CENTER : ccl::MOTION_POSITION_END));
+		camera->set_shuttertime(shutter_time);
+		camera->set_rolling_shutter_type(update_context->get_motion_rolling() ? ccl::Camera::RollingShutterType::ROLLING_SHUTTER_TOP : ccl::Camera::RollingShutterType::ROLLING_SHUTTER_NONE);
+		camera->set_rolling_shutter_duration(update_context->get_motion_rolling_duration());
+
+		XSI::Camera xsi_camera = update_context->get_camera();
+		XSI::KinematicState camera_kinematic = xsi_camera.GetKinematics().GetGlobal();
+		std::vector<float> time_array(16, 0.0f);
+		for (size_t i = 0; i < update_context->get_motion_steps(); i++)
+		{
+			float current_time = update_context->get_motion_time(i);
+			xsi_matrix_to_cycles_array(time_array, camera_kinematic.GetTransform(current_time).GetMatrix4(), true);
+			ccl::Transform time_tfm = tweak_camera_matrix(get_transform(time_array), scene->camera->get_camera_type(), scene->camera->get_panorama_type());
+			motions[i] = time_tfm;
+		}
+		time_array.clear();
+		time_array.shrink_to_fit();
+
+		scene->camera->set_motion(motions);
+
+		scene->camera->set_use_perspective_motion(false);
+		if (scene->camera->get_camera_type() == ccl::CAMERA_PERSPECTIVE)
+		{
+			// set previous and next fov
+			scene->camera->set_fov_pre(fov_prev);
+			scene->camera->set_fov_post(fov_next);
+			if (scene->camera->get_fov_pre() != scene->camera->get_fov() || scene->camera->get_fov_post() != scene->camera->get_fov())
+			{
+				scene->camera->set_use_perspective_motion(true);
+			}
+		}
+	}
+	else
+	{
+		ccl::array<ccl::Transform> motions;
+		motions.resize(1, scene->camera->get_matrix());
+		scene->camera->set_motion(motions);
+
+		scene->camera->set_use_perspective_motion(false);
+		scene->camera->set_fov_pre(scene->camera->get_fov());
+		scene->camera->set_fov_post(scene->camera->get_fov());
+	}
 }
 
 void sync_camera(ccl::Scene* scene, UpdateContext* update_context)
@@ -50,6 +116,8 @@ void sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 	 
 	float camera_aspect = float(xsi_camera.GetParameterValue("aspect", eval_time));
 	float fov_grad = float(xsi_camera.GetParameterValue("fov", eval_time));
+	float fov_prev_grad = float(xsi_camera.GetParameterValue("fov", update_context->get_motion_fisrt_time()));
+	float fov_next_grad = float(xsi_camera.GetParameterValue("fov", update_context->get_motion_last_time()));
 	float near_clip = xsi_camera.GetParameterValue("near", eval_time);
 	float far_clip = xsi_camera.GetParameterValue("far", eval_time);
 	bool is_ortho = xsi_camera.GetParameterValue("proj") == 0;
@@ -73,14 +141,20 @@ void sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 			if (camera_aspect <= 1)
 			{
 				fov_grad = RAD2DEGF(2 * atan(tan(DEG2RADF(fov_grad) / 2.0) * camera_aspect));
+				fov_prev_grad = RAD2DEGF(2 * atan(tan(DEG2RADF(fov_prev_grad) / 2.0) * camera_aspect));
+				fov_next_grad = RAD2DEGF(2 * atan(tan(DEG2RADF(fov_next_grad) / 2.0) * camera_aspect));
 			}
 			else
 			{
 				fov_grad = RAD2DEGF(2 * atan(tan(DEG2RADF(fov_grad) / 2.0) / camera_aspect));
+				fov_prev_grad = RAD2DEGF(2 * atan(tan(DEG2RADF(fov_prev_grad) / 2.0) / camera_aspect));
+				fov_next_grad = RAD2DEGF(2 * atan(tan(DEG2RADF(fov_next_grad) / 2.0) / camera_aspect));
 			}
 		}
 	}
 	float fov_rad = DEG2RADF(fov_grad);
+	float fov_prev_rad = DEG2RADF(fov_prev_grad);
+	float fov_next_rad = DEG2RADF(fov_next_grad);
 
 	// clipping distances, for perspective/orthographic only
 	camera->set_nearclip(near_clip);
@@ -91,13 +165,15 @@ void sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 
 	// transforms
 	std::vector<float> camera_tfm = extract_camera_tfm(xsi_camera);
-	camera->set_matrix(get_transform(camera_tfm));
+	camera->set_matrix(tweak_camera_matrix(get_transform(camera_tfm), scene->camera->get_camera_type(), scene->camera->get_panorama_type()));
 
 	// fov
 	camera->set_fov(fov_rad);
 
 	// set curent camera as dicing camera
 	*scene->dicing_camera = *camera;
+
+	sync_camera_motion(scene, update_context, fov_prev_rad, fov_next_rad);
 
 	camera->tag_full_width_modified();
 	camera->tag_full_height_modified();

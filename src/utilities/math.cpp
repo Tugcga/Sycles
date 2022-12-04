@@ -4,6 +4,7 @@
 
 #include <xsi_application.h>
 #include <xsi_time.h>
+#include <xsi_math.h>
 
 #include "util/transform.h"
 #include "util/projection.h"
@@ -121,5 +122,34 @@ double get_random_value(double min, double max)
 	std::uniform_real_distribution<> dist(min, max);
 
 	return dist(rng);
+}
+
+void xsi_matrix_to_cycles_array(std::vector<float>& array, XSI::MATH::CMatrix4 matrix, bool flip_z)
+{
+	array.resize(16);
+	int s = 1;
+	if (flip_z)
+	{
+		s = -1;
+	}
+	array[0] = matrix.GetValue(0, 0);
+	array[1] = matrix.GetValue(0, 1);
+	array[2] = matrix.GetValue(0, 2);
+	array[3] = matrix.GetValue(0, 3);
+
+	array[4] = matrix.GetValue(1, 0);
+	array[5] = matrix.GetValue(1, 1);
+	array[6] = matrix.GetValue(1, 2);
+	array[7] = matrix.GetValue(1, 3);
+
+	array[8] = s * matrix.GetValue(2, 0);
+	array[9] = s * matrix.GetValue(2, 1);
+	array[10] = s * matrix.GetValue(2, 2);
+	array[11] = s * matrix.GetValue(2, 3);
+
+	array[12] = matrix.GetValue(3, 0);
+	array[13] = matrix.GetValue(3, 1);
+	array[14] = matrix.GetValue(3, 2);
+	array[15] = matrix.GetValue(3, 3);
 }
 

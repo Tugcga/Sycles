@@ -46,6 +46,9 @@ private:
 	ccl::Session* session;
 	bool is_session;
 	bool call_abort_render;  // activate when we obtain command from XSI to abort the render, use it in the cancel callback
+	bool create_new_scene;  // set true if in the current session we create new scene from scratch
+	bool is_update_camera;  // at start it false, but if we update camera, then turn it true
+	MotionType in_update_motion_type;
 	OutputContext* output_context;
 	LabelsContext* labels_context;
 	ColorTransformContext* color_transform_context;

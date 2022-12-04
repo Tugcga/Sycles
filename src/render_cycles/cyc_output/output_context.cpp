@@ -364,7 +364,7 @@ void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CStrin
 
 // this method calls after we sync the scene, but before we setup all render passes
 // data from the object after this method is used for setting all render passes
-void OutputContext::set_output_passes(const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
+void OutputContext::set_output_passes(MotionType motion_type, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
 {
 	output_passes_count = 0;
 	output_pass_types.clear();
@@ -393,6 +393,12 @@ void OutputContext::set_output_passes(const XSI::CStringArray& aov_color_names, 
 		// but name from FrameBuffer name of the render context contains names with _ instead of spaces
 		// so, we should replace _ to spaces for all names
 		ccl::PassType pass_type = channel_to_pass_type(replace_symbols(output_channels[i], "_", " "));  // convert from XSI channel name to Cycles pass type
+		if (motion_type == MotionType_Blur && pass_type == ccl::PASS_MOTION)
+		{
+			log_message("It's impossible to render Motion Pass with activated motion blur. Skip this pass from output.", XSI::siWarningMsg);
+			continue;
+		}
+
 		if (pass_type != ccl::PASS_NONE && output_paths[i].Length() > 0)
 		{
 			XSI::CString pass_name = pass_to_name(pass_type);  // cover from Cycles pass type to the standart name

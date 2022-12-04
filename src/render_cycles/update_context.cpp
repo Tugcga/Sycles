@@ -25,6 +25,13 @@ void UpdateContext::reset()
 	log_rendertime = false;
 	log_details = false;
 
+	motion_type = MotionType_None;
+	motion_times.resize(0);
+	motion_rolling = false;
+	motion_shutter_time = 0.5f;
+	motion_rolling_duration = 0.1f;
+	motion_position = MotionPosition_Center;
+
 	// does not reset full_width and full_height, because these values used as in update scene and create scene
 }
 
@@ -137,6 +144,20 @@ bool UpdateContext::is_changed_render_paramters_film(const std::unordered_set<st
 	return is_set_contains_from_array(parameters, film_parameters);
 }
 
+bool UpdateContext::is_change_render_parameters_motion(const std::unordered_set<std::string>& parameters)
+{
+	// "film_motion_use" checked separately
+	// "film_motion_rolling_type" and "film_motion_rolling_duration" requires only camera update
+	std::vector<std::string> motion_parameters = { "film_motion_steps", "film_motion_position", "film_motion_shutter" };
+	return is_set_contains_from_array(parameters, motion_parameters);
+}
+
+bool UpdateContext::is_change_render_parameters_camera(const std::unordered_set<std::string>& parameters)
+{
+	std::vector<std::string> camera_parameters = { "film_motion_rolling_type", "film_motion_rolling_duration" };
+	return is_set_contains_from_array(parameters, camera_parameters);
+}
+
 void UpdateContext::set_prev_display_pass_name(const XSI::CString& value)
 {
 	prev_dispaly_pass_name = value;
@@ -197,4 +218,126 @@ bool UpdateContext::get_is_log_rendertime()
 bool UpdateContext::get_is_log_details()
 {
 	return log_details;
+}
+
+void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters, const XSI::CStringArray& output_channels, const XSI::CString& visual_channel, MotionType known_type)
+{
+	if (known_type == MotionType_Unknown)
+	{
+		motion_type = get_motion_type_from_parameters(render_parameters, eval_time, output_channels, visual_channel);
+	}
+	else
+	{
+		motion_type = known_type;
+	}
+	
+	int film_motion_steps = render_parameters.GetValue("film_motion_steps", eval_time);
+	int film_motion_position = render_parameters.GetValue("film_motion_position", eval_time);
+	int film_motion_rolling_type = render_parameters.GetValue("film_motion_rolling_type", eval_time);
+
+	motion_shutter_time = render_parameters.GetValue("film_motion_shutter", eval_time);
+	// as in Cycles, for pass we use constant shutter time
+	if (motion_type == MotionType_Pass)
+	{
+		motion_shutter_time = 2.0f;
+	}
+	motion_rolling = film_motion_rolling_type == 1;
+	motion_rolling_duration = render_parameters.GetValue("film_motion_rolling_duration", eval_time);
+
+	int motion_steps = (2 << (film_motion_steps - 1)) + 1;
+	motion_position = film_motion_position == 0 ? MotionPosition_Start : (film_motion_position == 1 ? MotionPosition_Center : MotionPosition_End);
+	
+	motion_times.resize(motion_steps, 0.0f);
+	// calculate actual frames for motion steps
+	double center_time = eval_time.GetTime();
+	float center_delta = 0.0;
+	// use motion position parameter only for motion blur mode (for motion pass always use center)
+	if (motion_type != MotionType_Pass)
+	{
+		if (motion_position == MotionPosition_End)
+		{
+			center_delta = -motion_shutter_time * 0.5f;
+		}
+		else if (motion_position == MotionPosition_Start)
+		{
+			center_delta = motion_shutter_time * 0.5f;
+		}
+	}
+	float frame_time = center_time + center_delta;
+	float step_time = motion_shutter_time / (float)(motion_steps - 1);
+	for (size_t i = 0; i < motion_steps; i++)
+	{
+		float moment_time = frame_time - 0.5 * motion_shutter_time + i * step_time;
+		motion_times[i] = moment_time;
+	}
+}
+
+void UpdateContext::set_motion_type(MotionType value)
+{
+	motion_type = value;
+}
+
+bool UpdateContext::get_need_motion()
+{
+	return !(motion_type == MotionType_None);
+}
+
+MotionType UpdateContext::get_motion_type()
+{
+	return motion_type;
+}
+
+size_t UpdateContext::get_motion_steps()
+{
+	return motion_times.size();
+}
+
+MotionPosition UpdateContext::get_motion_position()
+{
+	return motion_position;
+}
+
+float UpdateContext::get_motion_shutter_time()
+{
+	return motion_shutter_time;
+}
+
+bool UpdateContext::get_motion_rolling()
+{
+	return motion_rolling;
+}
+
+void UpdateContext::set_motion_rolling(bool value)
+{
+	motion_rolling = value;
+}
+
+float UpdateContext::get_motion_rolling_duration()
+{
+	return motion_rolling_duration;
+}
+
+void UpdateContext::set_motion_rolling_duration(float value)
+{
+	motion_rolling_duration = value;
+}
+
+float UpdateContext::get_motion_fisrt_time()
+{
+	return motion_times[0];
+}
+
+float UpdateContext::get_motion_last_time()
+{
+	return motion_times[motion_times.size() - 1];
+}
+
+std::vector<float> UpdateContext::get_motion_times()
+{
+	return motion_times;
+}
+
+float UpdateContext::get_motion_time(size_t step)
+{
+	return motion_times[step];
 }

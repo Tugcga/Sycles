@@ -32,6 +32,8 @@ RenderEngineCyc::RenderEngineCyc()
 	make_render = true;
 	is_recreate_session = true;
 	display_pass_name = "";
+	create_new_scene = true;
+	is_update_camera = false;
 }
 
 // when we delete the engine, then at first this method is called, and then the method from base class
@@ -181,6 +183,8 @@ XSI::CStatus RenderEngineCyc::pre_render_engine()
 XSI::CStatus RenderEngineCyc::pre_scene_process()
 {
 	is_recreate_session = false;
+	create_new_scene = false;
+	is_update_camera = false;
 	if (!is_session)
 	{
 		// if there are no session object, create it
@@ -207,6 +211,12 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	// if current dusplay channel is AOV and the previous was also aov with another name, then we should recreate the session and scene
 	// in all other cases we can render other visual pass, but also should sync passes
 	ccl::PassType visual_pass_type = channel_to_pass_type(m_display_channel_name);
+	bool is_motion = m_render_parameters.GetValue("film_motion_use", eval_time);
+	if (is_motion && visual_pass_type == ccl::PASS_MOTION)
+	{
+		// we can not show motion pass when motion blur is activated
+		log_message("It's impossible to render Motion Pass with activated motion blur, output is invalid", XSI::siWarningMsg);
+	}
 
 	// m_display_channel_name contains general name of the cisual pass (Sycles AOV Color, for example)
 	// here we should check actual visual pass (modified if it was aov)
@@ -239,6 +249,25 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 			set_session_samples(session->params, m_render_parameters, eval_time);
 		}
 	}
+
+	// if we should use previuos session, check may be we turn on motion blur
+	// in this case we should recreate the scene from scratch
+	// if we disable motion blur, then nothing to do
+	in_update_motion_type = get_motion_type_from_parameters(m_render_parameters, eval_time, output_channels, m_display_channel_name);
+	if (!is_recreate_session)
+	{
+		if ((in_update_motion_type == MotionType_Blur || in_update_motion_type == MotionType_Pass) && update_context->get_motion_type() == MotionType_None)
+		{
+			is_recreate_session = true;
+		}
+	}
+
+	// set actual motoin type
+	// this value used in integrator
+	// even if we does not update other motion parameters but motion blur is disabled, then in will not be rendered
+	update_context->set_motion_type(in_update_motion_type);
+	update_context->set_motion_rolling(m_render_parameters.GetValue("film_motion_rolling_type", eval_time) == 1);
+	update_context->set_motion_rolling_duration(m_render_parameters.GetValue("film_motion_rolling_duration", eval_time));
 
 	// create temp folder
 	// we will setup it to the session params later after scene is created
@@ -274,7 +303,10 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	if (update_type == UpdateType_Camera)
 	{
 		sync_camera(session->scene, update_context);
+		is_update_camera = true;
 	}
+
+	// TODO: when we update camera motion steps, then recreate the scene, because we should update all motions
 
 	update_context->set_is_update_scene(true);
 
@@ -324,11 +356,15 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	clear_session();
 	session = create_session(session_params, scene_params);
 	is_session = true;
+	create_new_scene = true;
 
-	// rest updater and prepare to store actual data
-	update_context->reset();
+	// reset updater and prepare to store actual data
+	update_context->reset();  // in particular set is_update_scene = true
+	// get all motion properties
+	update_context->set_motion(m_render_parameters, output_channels, m_display_channel_name, in_update_motion_type);
 
 	sync_session(session, update_context, output_context, visual_buffer);  // here we also sync the scene
+	is_update_camera = true;
 
 	// setup callbacks
 	// output driver calls every in the same time as display driver
@@ -341,6 +377,7 @@ XSI::CStatus RenderEngineCyc::create_scene()
 }
 
 // call this method after scene created or updated but before unlock
+// if return Abort, then the engine will recreate the scene
 XSI::CStatus RenderEngineCyc::post_scene()
 {
 	call_abort_render = false;
@@ -352,8 +389,22 @@ XSI::CStatus RenderEngineCyc::post_scene()
 	// check, should we start the render, or we can use previous render result
 	std::unordered_set<std::string> changed_render_parameters = update_context->get_changed_parameters(m_render_parameters);
 
+	if (!create_new_scene)
+	{
+		if (update_context->is_change_render_parameters_motion(changed_render_parameters))
+		{
+			return XSI::CStatus::Abort;
+		}
+	}
+
+	if (!is_update_camera && update_context->is_change_render_parameters_camera(changed_render_parameters))
+	{
+		sync_camera(session->scene, update_context);
+		is_update_camera = true;
+	}
+
 	// initialize visual buffer at the very end
-	// may be we should not render at all, in this case we should reuse previous visual buffer
+	// may be we should not render at all, in this case we should re-use previous visual buffer
 	if (render_type == RenderType_Region && !update_context->get_is_update_scene() && update_context->is_changed_render_parameters_only_cm(changed_render_parameters))
 	{// we make preview render, scene is not changed, only color management render parameter is changed
 		// if current parameters for visual buffer is not changed, then disable the rendering
@@ -384,7 +435,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			m_render_parameters, eval_time);
 
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
-		sync_passes(session->scene, output_context, visual_buffer);
+		sync_passes(session->scene, output_context, visual_buffer, update_context->get_motion_type());
 
 		if (update_context->is_changed_render_paramters_film(changed_render_parameters))
 		{

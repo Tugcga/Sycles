@@ -75,6 +75,9 @@
     <ClCompile Include="render_cycles\cyc_session\cyc_integrator.cpp">
       <Filter>render_cycles\cyc_session</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_motion.cpp">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -199,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="render_cycles\update_context.h">
       <Filter>render_cycles</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_scene\cyc_motion.h">
+      <Filter>render_cycles\cyc_scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

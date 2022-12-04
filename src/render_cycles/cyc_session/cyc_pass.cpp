@@ -93,7 +93,6 @@ ccl::PassType channel_to_pass_type(const XSI::CString &channel_name)
 	else if (channel_name == "Sycles Shadow Catcher") { return ccl::PASS_SHADOW_CATCHER; }
 	else if (channel_name == "Sycles Shadow") { return ccl::PASS_SHADOW; }
 	else if (channel_name == "Sycles Motion") { return ccl::PASS_MOTION; }
-	else if (channel_name == "Sycles Motion Weight") { return ccl::PASS_MOTION_WEIGHT; }
 	else if (channel_name == "Sycles Mist") { return ccl::PASS_MIST; }
 	else if (channel_name == "Sycles Volume Direct") { return ccl::PASS_VOLUME_DIRECT; }
 	else if (channel_name == "Sycles Volume Indirect") { return ccl::PASS_VOLUME_INDIRECT; }
@@ -104,6 +103,16 @@ ccl::PassType channel_to_pass_type(const XSI::CString &channel_name)
 
 	// unknown channel, return None
 	return ccl::PASS_NONE;
+}
+
+XSI::CString get_name_for_motion_display_channel()
+{
+    return "Sycles Motion";
+}
+
+XSI::CString get_name_for_motion_output_channel()
+{
+    return "Sycles_Motion";
 }
 
 XSI::CString pass_to_name(ccl::PassType pass_type)
@@ -262,7 +271,7 @@ void check_visual_aov_name(RenderVisualBuffer* visual_buffer, const XSI::CString
     }
 }
 
-void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer)
+void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer, MotionType motion_type)
 {
     // for test only we add to the scene three aovs:
     // 1. color sphere_color_aov
@@ -281,7 +290,7 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualB
 
     // here we call the main method in output contex
     // and setup all output passes, buffers, pixels and so on
-    output_context->set_output_passes(aov_color_names, aov_value_names, XSI::CStringArray());
+    output_context->set_output_passes(motion_type, aov_color_names, aov_value_names, XSI::CStringArray());
 
     // sync passes
     bool use_shadow_catcher = false;

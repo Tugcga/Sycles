@@ -3,6 +3,7 @@
 
 #include <xsi_application.h>
 #include <xsi_time.h>
+#include <xsi_math.h>
 
 #include "util/transform.h"
 
@@ -18,3 +19,4 @@ unsigned char linear_clamp(float v);
 bool equal_floats(float a, float b);
 ccl::Transform get_transform(std::vector<float>& array);
 double get_random_value(double min, double max);
+void xsi_matrix_to_cycles_array(std::vector<float>& array, XSI::MATH::CMatrix4 matrix, bool flip_z);

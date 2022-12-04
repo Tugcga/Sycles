@@ -19,7 +19,7 @@ ccl::SceneParams get_scene_params(RenderType render_type, const XSI::CParameterR
 void sync_session(ccl::Session *session, UpdateContext* update_context, OutputContext* output_context, RenderVisualBuffer* visual_buffer);
 
 // cyc pass
-void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer* visual_buffer);
+void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer* visual_buffer, MotionType motion_type);
 
 // cyc film
 void sync_film(ccl::Session* session, UpdateContext* update_context, const XSI::CParameterRefArray &render_parameters);

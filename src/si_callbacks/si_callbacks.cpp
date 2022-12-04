@@ -90,7 +90,6 @@ SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
 	renderer.AddDefaultChannel("Sycles Shadow Catcher", XSI::siRenderChannelColorType);  // 3
 	renderer.AddDefaultChannel("Sycles Shadow", XSI::siRenderChannelColorType);  // 3
 	renderer.AddDefaultChannel("Sycles Motion", XSI::siRenderChannelColorType);  // 4
-	renderer.AddDefaultChannel("Sycles Motion Weight", XSI::siRenderChannelGrayscaleType);  // 1
 	renderer.AddDefaultChannel("Sycles Mist", XSI::siRenderChannelGrayscaleType);  // 1
 	renderer.AddDefaultChannel("Sycles Volume Direct", XSI::siRenderChannelColorType);  // 3
 	renderer.AddDefaultChannel("Sycles Volume Indirect", XSI::siRenderChannelColorType);  // 3
