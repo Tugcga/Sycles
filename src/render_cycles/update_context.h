@@ -3,6 +3,7 @@
 #include <xsi_arrayparameter.h>
 #include <xsi_camera.h>
 #include <xsi_time.h>
+#include <xsi_light.h>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -11,6 +12,7 @@
 
 #include "../render_cycles/cyc_session/cyc_pass_utils.h"
 #include "../render_cycles/cyc_scene/cyc_motion.h"
+#include "../render_base/type_enums.h"
 
 class UpdateContext
 {
@@ -70,8 +72,15 @@ public:
 	void set_motion_rolling_duration(float value);
 	float get_motion_fisrt_time();
 	float get_motion_last_time();
-	std::vector<float> get_motion_times();
+	const std::vector<float>& get_motion_times();
 	float get_motion_time(size_t step);
+
+	void set_render_type(RenderType value);
+	RenderType get_render_type();
+
+	void setup_scene_objects(const XSI::CRefArray &isolation_list, const XSI::CRefArray &lights_list, const XSI::CRefArray& scene_list, const XSI::CRefArray &all_objects_list);
+	const std::vector<XSI::Light>& get_xsi_lights();
+	void add_light_index(ULONG xsi_light_id, size_t cyc_light_index);
 
 private:
 	// after each render prepare session we store here used render parameter values
@@ -105,4 +114,13 @@ private:
 	MotionPosition motion_position;
 	bool motion_rolling;  // false means None
 	float motion_rolling_duration;  // only for rolling true
+
+	RenderType render_type;
+
+	// prepare scene objects and form these arrays with input objects for rendering
+	std::vector<XSI::Light> scene_xsi_lights;  // this array contains xsi lights
+	std::vector<XSI::X3DObject> scene_custom_lights;  // this array contains custom lights
+	std::vector<XSI::X3DObject> scene_polymeshes;
+
+	std::unordered_map<ULONG, size_t> lights_xsi_to_cyc; // map from Softimage object id for Ligth (not for x3dobject) to index in the Cycles array of lights
 };

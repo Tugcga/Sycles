@@ -183,6 +183,12 @@ public:
 		render_time_value = value;
 	}
 
+	// use if we should setup real samples insted value from render settings
+	void set_render_samples(int value)
+	{
+		samples_value = value;
+	}
+
 	XSI::CString get_string()
 	{
 		XSI::CString to_return;

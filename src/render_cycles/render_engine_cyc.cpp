@@ -218,6 +218,8 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		log_message("It's impossible to render Motion Pass with activated motion blur, output is invalid", XSI::siWarningMsg);
 	}
 
+	update_context->set_render_type(render_type);
+
 	// m_display_channel_name contains general name of the cisual pass (Sycles AOV Color, for example)
 	// here we should check actual visual pass (modified if it was aov)
 	display_pass_name = channel_name_to_pass_name(m_render_parameters, m_display_channel_name, eval_time);
@@ -295,6 +297,8 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 // return OK, if object successfully updates, Abort in other cases
 XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const UpdateType update_type)
 {
+	return XSI::CStatus::Abort;
+
 	if (!is_session)
 	{
 		return XSI::CStatus::Abort;
@@ -305,8 +309,6 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 		sync_camera(session->scene, update_context);
 		is_update_camera = true;
 	}
-
-	// TODO: when we update camera motion steps, then recreate the scene, because we should update all motions
 
 	update_context->set_is_update_scene(true);
 
@@ -360,10 +362,15 @@ XSI::CStatus RenderEngineCyc::create_scene()
 
 	// reset updater and prepare to store actual data
 	update_context->reset();  // in particular set is_update_scene = true
+
+	// after reset we should set render type again
+	update_context->set_render_type(render_type);
+
 	// get all motion properties
 	update_context->set_motion(m_render_parameters, output_channels, m_display_channel_name, in_update_motion_type);
 
-	sync_session(session, update_context, output_context, visual_buffer);  // here we also sync the scene
+	update_context->setup_scene_objects(m_isolation_list, m_lights_list, m_scene_list, XSI::Application().FindObjects(XSI::siX3DObjectID));
+	sync_scene(session->scene, update_context);
 	is_update_camera = true;
 
 	// setup callbacks
@@ -486,6 +493,10 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	if (make_render)
 	{
 		labels_context->set_render_time(render_time);
+		// this value is coorect only when the render use one tile
+		// now we always use one-tile render (withou tiles with small size)
+		// TODO: when the render has the time limit, then return 0 samples, try to obtain actual samples count
+		labels_context->set_render_samples(session->progress.get_current_sample());
 	}
 
 	// the render is done, add labels to the output (if we need it)

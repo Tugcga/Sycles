@@ -78,6 +78,15 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_motion.cpp">
       <Filter>render_cycles\cyc_scene</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_light.cpp">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities\xsi_properties.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities\xsi_shaders.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -205,6 +214,12 @@
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_scene\cyc_motion.h">
       <Filter>render_cycles\cyc_scene</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\xsi_properties.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\xsi_shaders.h">
+      <Filter>utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

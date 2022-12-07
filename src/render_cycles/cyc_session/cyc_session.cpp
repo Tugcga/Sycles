@@ -184,11 +184,3 @@ ccl::Session* create_session(ccl::SessionParams session_params, ccl::SceneParams
 	
 	return session;
 }
-
-void sync_session(ccl::Session* session, UpdateContext* update_context, OutputContext *output_context, RenderVisualBuffer *visual_buffer)
-{
-	// at first we should sync the camera, because it contains proper value for motion steps
-	sync_camera(session->scene, update_context);
-
-	sync_scene(session->scene, update_context);
-}

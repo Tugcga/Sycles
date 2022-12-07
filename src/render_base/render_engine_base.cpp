@@ -379,6 +379,13 @@ XSI::CStatus RenderEngineBase::scene_process()
 	//memorize isolation list
 	m_isolation_list = m_render_context.GetArrayAttribute("ObjectList");
 
+	// in-scene lights
+	m_lights_list = m_render_context.GetArrayAttribute("Lights");
+
+	// this list can be used for shaderball rendering
+	// and also it contains the root of the scene
+	m_scene_list = m_render_context.GetArrayAttribute("Scene");
+
 	//next all other general staff for the engine
 	XSI::CStatus status = pre_scene_process();
 	if (render_type != prev_render_type)

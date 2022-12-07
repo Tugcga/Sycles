@@ -16,7 +16,6 @@ ccl::BufferParams get_buffer_params(int full_width, int full_height, int offset_
 void set_session_samples(ccl::SessionParams& session_params, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
 ccl::SessionParams get_session_params(const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
 ccl::SceneParams get_scene_params(RenderType render_type, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
-void sync_session(ccl::Session *session, UpdateContext* update_context, OutputContext* output_context, RenderVisualBuffer* visual_buffer);
 
 // cyc pass
 void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer* visual_buffer, MotionType motion_type);

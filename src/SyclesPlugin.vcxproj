@@ -75,6 +75,7 @@
     <ClCompile Include="render_cycles\cyc_output\output_context.cpp" />
     <ClCompile Include="render_cycles\cyc_output\output_drivers.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_camera.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_light.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_motion.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_scene.cpp" />
     <ClCompile Include="render_cycles\cyc_session\cyc_film.cpp" />
@@ -90,6 +91,8 @@
     <ClCompile Include="utilities\math.cpp" />
     <ClCompile Include="utilities\miniz.c" />
     <ClCompile Include="utilities\strings.cpp" />
+    <ClCompile Include="utilities\xsi_properties.cpp" />
+    <ClCompile Include="utilities\xsi_shaders.cpp" />
     <ClCompile Include="version.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +128,8 @@
     <ClInclude Include="utilities\stb_image_write.h" />
     <ClInclude Include="utilities\strings.h" />
     <ClInclude Include="utilities\tinyexr.h" />
+    <ClInclude Include="utilities\xsi_properties.h" />
+    <ClInclude Include="utilities\xsi_shaders.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

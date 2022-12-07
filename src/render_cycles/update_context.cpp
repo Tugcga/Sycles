@@ -1,6 +1,7 @@
 #include "update_context.h"
 #include "../utilities/logs.h"
 #include "../utilities/arrays.h"
+#include "../utilities/xsi_properties.h"
 
 UpdateContext::UpdateContext()
 {
@@ -31,6 +32,12 @@ void UpdateContext::reset()
 	motion_shutter_time = 0.5f;
 	motion_rolling_duration = 0.1f;
 	motion_position = MotionPosition_Center;
+
+	render_type = RenderType_Unknown;
+
+	scene_xsi_lights.resize(0);
+	scene_custom_lights.resize(0);
+	scene_polymeshes.resize(0);
 
 	// does not reset full_width and full_height, because these values used as in update scene and create scene
 }
@@ -89,7 +96,7 @@ std::unordered_set<std::string> UpdateContext::get_changed_parameters(const XSI:
 // return true if at lest one value from the set is in array
 bool is_set_contains_from_array(const std::unordered_set<std::string>& parameters, const std::vector<std::string> &array)
 {
-	for (const auto& value : parameters)
+	for (const std::string& value : parameters)
 	{
 		if (is_contains(array, value))
 		{
@@ -332,7 +339,7 @@ float UpdateContext::get_motion_last_time()
 	return motion_times[motion_times.size() - 1];
 }
 
-std::vector<float> UpdateContext::get_motion_times()
+const std::vector<float>& UpdateContext::get_motion_times()
 {
 	return motion_times;
 }
@@ -340,4 +347,77 @@ std::vector<float> UpdateContext::get_motion_times()
 float UpdateContext::get_motion_time(size_t step)
 {
 	return motion_times[step];
+}
+
+void UpdateContext::set_render_type(RenderType value)
+{
+	render_type = value;
+}
+
+RenderType UpdateContext::get_render_type()
+{
+	return render_type;
+}
+
+void UpdateContext::setup_scene_objects(const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& scene_list, const XSI::CRefArray& all_objects_list)
+{
+	// in this method we should parse input scene objects and sort it by different arrays
+	if (render_type == RenderType_Shaderball)
+	{
+		// for renderball we use scene_list
+	}
+	else
+	{
+		// for other render modes we use other input arrays
+		if (isolation_list.GetCount() > 0)
+		{// render isolation view
+			// we should use all objects from isolation list and all light objects (build-in and custom) from all objects list
+
+		}
+		else
+		{// render general scene view
+			// in this case we should enumerate objects from complete list
+			size_t objects_count = all_objects_list.GetCount();
+			for (size_t i = 0; i < objects_count; i++)
+			{
+				XSI::CRef object_ref = all_objects_list[i];
+				XSI::siClassID object_class = object_ref.GetClassID();
+				if (object_class == XSI::siLightID)
+				{// built-in light
+					XSI::X3DObject xsi_object(object_ref);
+					if (is_render_visible(xsi_object, eval_time))
+					{
+						scene_xsi_lights.push_back((XSI::Light)object_ref);
+					}
+				}
+				else if (object_class == XSI::siX3DObjectID)
+				{
+					XSI::X3DObject xsi_object(object_ref);
+					XSI::CString object_type = xsi_object.GetType();
+					if (object_type == "polymsh")
+					{
+						scene_polymeshes.push_back(xsi_object);
+					}
+					else if (object_type == "cyclesPoint")  // types of custom lights, TODO: addd another supported types (or change their names)
+					{
+						scene_custom_lights.push_back(xsi_object);
+					}
+				}
+				else
+				{
+					
+				}
+			}
+		}
+	}
+}
+
+const std::vector<XSI::Light>& UpdateContext::get_xsi_lights()
+{
+	return scene_xsi_lights;
+}
+
+void UpdateContext::add_light_index(ULONG xsi_light_id, size_t cyc_light_index)
+{
+	lights_xsi_to_cyc[xsi_light_id] = cyc_light_index;
 }

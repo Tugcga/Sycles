@@ -65,7 +65,7 @@ ccl::Mesh* build_sphere(ccl::Scene* scene)
 	return build_primitive(scene, sphere_vertex_count, sphere_vertices, sphere_faces_count, sphere_face_sizes, sphere_face_indexes);
 }
 
-void sync_scene(ccl::Scene *scene, UpdateContext* update_context)
+void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 {
 	// for test purpose only we create simple scene with one plane and one cube with sky light
 	// from actual xsi scene we get only camera position
@@ -211,7 +211,7 @@ void sync_scene(ccl::Scene *scene, UpdateContext* update_context)
 	scene->objects.push_back(second_cube_object);
 
 	// background
-	ccl::Shader* bg_shader = scene->default_background;
+	/*ccl::Shader* bg_shader = scene->default_background;
 	ccl::ShaderGraph* bg_graph = new ccl::ShaderGraph();
 	ccl::BackgroundNode* bg_node = bg_graph->create_node<ccl::BackgroundNode>();
 	bg_node->input("Color")->set(ccl::make_float3(1.0, 1.0, 1.0));
@@ -229,5 +229,21 @@ void sync_scene(ccl::Scene *scene, UpdateContext* update_context)
 	bg_shader->set_graph(bg_graph);
 	bg_shader->tag_update(scene);
 
-	scene->background->set_transparent(true);
+	scene->background->set_transparent(true);*/
+}
+
+void sync_scene(ccl::Scene* scene, UpdateContext* update_context)
+{
+	RenderType render_type = update_context->get_render_type();
+	if (render_type == RenderType_Shaderball)
+	{
+		// for renderball we create a separate scene
+	}
+	else
+	{
+		// in all other cases use scene from the Softimage
+		sync_camera(scene, update_context);
+		sync_xsi_lights(scene, update_context->get_xsi_lights(), update_context);
+		sync_demo_scene(scene, update_context);
+	}
 }

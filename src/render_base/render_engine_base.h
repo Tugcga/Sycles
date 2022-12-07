@@ -21,6 +21,8 @@ public:
 	XSI::Camera camera;
 	XSI::RendererContext m_render_context;  // save it in the pre_render method
 	XSI::CRefArray m_isolation_list;
+	XSI::CRefArray m_lights_list;
+	XSI::CRefArray m_scene_list;
 	XSI::CString archive_folder;  // full path to the folder for archive export. Non-empty only if the user call export scene
 	XSI::CString m_display_channel_name;  // name of the channel for output to the screen (selected channel for the preview render)
 	XSI::Property m_render_property;
