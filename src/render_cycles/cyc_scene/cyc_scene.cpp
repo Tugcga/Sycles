@@ -10,6 +10,8 @@
 #include <xsi_primitive.h>
 #include <xsi_camera.h>
 #include <xsi_kinematics.h>
+#include <xsi_x3dobject.h>
+#include <xsi_light.h>
 
 #include "../../utilities/logs.h"
 #include "../../utilities/math.h"
@@ -232,7 +234,7 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	scene->background->set_transparent(true);*/
 }
 
-void sync_scene(ccl::Scene* scene, UpdateContext* update_context)
+void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
 {
 	RenderType render_type = update_context->get_render_type();
 	if (render_type == RenderType_Shaderball)
@@ -244,6 +246,28 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context)
 		// in all other cases use scene from the Softimage
 		sync_camera(scene, update_context);
 		sync_xsi_lights(scene, update_context->get_xsi_lights(), update_context);
+		if (!update_context->get_use_background_light())
+		{
+			sync_background_color(scene, update_context, render_parameters);
+		}
+
 		sync_demo_scene(scene, update_context);
 	}
+}
+
+XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object)
+{
+	XSI::CString object_type = xsi_object.GetType();
+
+	if (object_type == "light")
+	{// default Softimage light
+		XSI::Light xsi_light(xsi_object);
+		return update_xsi_light_transform(scene, update_context, xsi_light);
+	}
+	else
+	{// unknown object type
+		return XSI::CStatus::Abort;
+	}
+
+	return XSI::CStatus::OK;
 }

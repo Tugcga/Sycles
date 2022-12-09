@@ -278,16 +278,10 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("mist_falloff", "Falloff");
 	layout.EndGroup();
 
-	layout.AddGroup("Background");
-	layout.AddColor("background_color_r", "Color", false);
-	layout.AddItem("background_strength", "Strength");
-	layout.EndGroup();
-
 	layout.AddGroup("Surface");
-	XSI::CValueArray back_sampling_method_combo(6);
-	back_sampling_method_combo[0] = "None"; back_sampling_method_combo[1] = 0;
-	back_sampling_method_combo[2] = "Auto"; back_sampling_method_combo[3] = 1;
-	back_sampling_method_combo[4] = "Manual"; back_sampling_method_combo[5] = 2;
+	XSI::CValueArray back_sampling_method_combo(4);
+	back_sampling_method_combo[0] = "Auto"; back_sampling_method_combo[1] = 0;
+	back_sampling_method_combo[2] = "Manual"; back_sampling_method_combo[3] = 1;
 	layout.AddEnumControl("background_surface_sampling_method", back_sampling_method_combo, "Sampling", XSI::siControlCombo);
 	layout.AddItem("background_surface_resolution", "Map Resolution");
 	layout.AddItem("background_surface_max_bounces", "Max Bounces");
@@ -926,11 +920,6 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("mist_falloff", XSI::CValue::siFloat, caps, "", "", 2.0, 0.0, FLT_MAX, 0.0, 2.0, param);
 
 	// background
-	// color
-	property.AddParameter("background_color_r", XSI::CValue::siDouble, caps, "Color", "", 0.2, param);
-	property.AddParameter("background_color_g", XSI::CValue::siDouble, caps, "", "", 0.2, param);
-	property.AddParameter("background_color_b", XSI::CValue::siDouble, caps, "", "", 0.2, param);
-	property.AddParameter("background_strength", XSI::CValue::siFloat, caps, "", "", 0.0, 0.0, INT_MAX, 0.0, 2.0, param);
 	// visibility
 	property.AddParameter("background_ray_visibility_camera", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("background_ray_visibility_diffuse", XSI::CValue::siBool, caps, "", "", true, param);
@@ -943,7 +932,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("background_volume_homogeneous", XSI::CValue::siBool, caps, "", "", false, param);
 	property.AddParameter("background_volume_step_rate", XSI::CValue::siFloat, caps, "", "", 1.0, 0.01, 100.0, 0.1, 10.0, param);
 	// surface
-	property.AddParameter("background_surface_sampling_method", XSI::CValue::siUInt1, caps, "", "", 1, param);
+	property.AddParameter("background_surface_sampling_method", XSI::CValue::siUInt1, caps, "", "", 0, param);
 	property.AddParameter("background_surface_max_bounces", XSI::CValue::siUInt2, caps, "", "", 1024, 0, 1024, 0, 1024, param);
 	property.AddParameter("background_surface_resolution", XSI::CValue::siInt4, caps, "", "", 1024, 4, 8191, 4, 2048, param);
 	property.AddParameter("background_surface_shadow_caustics", XSI::CValue::siBool, caps, "", "", false, param);

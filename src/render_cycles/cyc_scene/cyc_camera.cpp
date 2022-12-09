@@ -1,8 +1,10 @@
 #include <xsi_kinematics.h>
+#include <xsi_camera.h>
+#include <xsi_status.h>
 
 #include "scene/scene.h"
 #include "scene/camera.h"
-#include <xsi_camera.h>
+
 
 #include "../../render_cycles/update_context.h"
 #include "../../utilities/math.h"
@@ -101,7 +103,7 @@ void sync_camera_motion(ccl::Scene* scene, UpdateContext* update_context, float 
 	}
 }
 
-void sync_camera(ccl::Scene* scene, UpdateContext* update_context)
+XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 {
 	XSI::Camera xsi_camera = update_context->get_camera();
 	XSI::CTime eval_time = update_context->get_time();
@@ -181,4 +183,6 @@ void sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 	camera->tag_fov_modified();
 
 	camera->update(scene);
+
+	return XSI::CStatus::OK;
 }

@@ -40,6 +40,7 @@ public:
 	// return true if we change motion parameters and should recreate the scene
 	bool is_change_render_parameters_motion(const std::unordered_set<std::string>& parameters);
 	bool is_change_render_parameters_camera(const std::unordered_set<std::string>& parameters);
+	bool is_change_render_parameters_background(const std::unordered_set<std::string>& parameters);
 
 	void set_prev_display_pass_name(const XSI::CString &value);
 
@@ -81,6 +82,11 @@ public:
 	void setup_scene_objects(const XSI::CRefArray &isolation_list, const XSI::CRefArray &lights_list, const XSI::CRefArray& scene_list, const XSI::CRefArray &all_objects_list);
 	const std::vector<XSI::Light>& get_xsi_lights();
 	void add_light_index(ULONG xsi_light_id, size_t cyc_light_index);
+	bool is_xsi_light_exists(ULONG xsi_id);
+	size_t get_xsi_light_cycles_index(ULONG xsi_id);
+
+	bool get_use_background_light();
+	void set_background_light_index(size_t value);
 
 private:
 	// after each render prepare session we store here used render parameter values
@@ -122,5 +128,7 @@ private:
 	std::vector<XSI::X3DObject> scene_custom_lights;  // this array contains custom lights
 	std::vector<XSI::X3DObject> scene_polymeshes;
 
+	bool use_background_light;  // set true when we use background light source from the scene, if false, then use only ambient color
+	size_t background_light_index;  // store here background light index in the Cycles array (we always create background light, from scene on manual)
 	std::unordered_map<ULONG, size_t> lights_xsi_to_cyc; // map from Softimage object id for Ligth (not for x3dobject) to index in the Cycles array of lights
 };

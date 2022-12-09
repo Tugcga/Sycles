@@ -115,16 +115,6 @@ ccl::Transform get_transform(std::vector<float>& array)
 	return projection_to_transform(projection);
 }
 
-std::random_device device;
-std::mt19937 rng(device());
-
-double get_random_value(double min, double max)
-{
-	std::uniform_real_distribution<> dist(min, max);
-
-	return dist(rng);
-}
-
 void xsi_matrix_to_cycles_array(std::vector<float>& array, XSI::MATH::CMatrix4 matrix, bool flip_z)
 {
 	array.resize(16);
@@ -152,6 +142,23 @@ void xsi_matrix_to_cycles_array(std::vector<float>& array, XSI::MATH::CMatrix4 m
 	array[13] = matrix.GetValue(3, 1);
 	array[14] = matrix.GetValue(3, 2);
 	array[15] = matrix.GetValue(3, 3);
+}
+
+ccl::Transform xsi_matrix_to_transform(const XSI::MATH::CMatrix4 &xsi_matrix, bool flip_z)
+{
+	std::vector<float> tfm_array;
+	xsi_matrix_to_cycles_array(tfm_array, xsi_matrix, flip_z);
+	return get_transform(tfm_array);
+}
+
+std::random_device device;
+std::mt19937 rng(device());
+
+double get_random_value(double min, double max)
+{
+	std::uniform_real_distribution<> dist(min, max);
+
+	return dist(rng);
 }
 
 ccl::float3 color4_to_float3(const XSI::MATH::CColor4f& color)

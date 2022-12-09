@@ -165,6 +165,17 @@ bool UpdateContext::is_change_render_parameters_camera(const std::unordered_set<
 	return is_set_contains_from_array(parameters, camera_parameters);
 }
 
+bool UpdateContext::is_change_render_parameters_background(const std::unordered_set<std::string>& parameters)
+{
+	std::vector<std::string> background_parameters = { 
+		"film_transparent", "film_transparent_glass", "film_transparent_roughness",
+		"background_ray_visibility_camera", "background_ray_visibility_diffuse", "background_ray_visibility_glossy", "background_ray_visibility_transmission", "background_ray_visibility_scatter",
+		"background_volume_sampling", "background_volume_interpolation", "background_volume_homogeneous", "background_volume_step_rate",
+		"background_surface_sampling_method", "background_surface_max_bounces", "background_surface_resolution", "background_surface_shadow_caustics"
+	};
+	return is_set_contains_from_array(parameters, background_parameters);
+}
+
 void UpdateContext::set_prev_display_pass_name(const XSI::CString& value)
 {
 	prev_dispaly_pass_name = value;
@@ -361,6 +372,7 @@ RenderType UpdateContext::get_render_type()
 
 void UpdateContext::setup_scene_objects(const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& scene_list, const XSI::CRefArray& all_objects_list)
 {
+	use_background_light = false;
 	// in this method we should parse input scene objects and sort it by different arrays
 	if (render_type == RenderType_Shaderball)
 	{
@@ -420,4 +432,24 @@ const std::vector<XSI::Light>& UpdateContext::get_xsi_lights()
 void UpdateContext::add_light_index(ULONG xsi_light_id, size_t cyc_light_index)
 {
 	lights_xsi_to_cyc[xsi_light_id] = cyc_light_index;
+}
+
+bool UpdateContext::is_xsi_light_exists(ULONG xsi_id)
+{
+	return lights_xsi_to_cyc.contains(xsi_id);
+}
+
+size_t UpdateContext::get_xsi_light_cycles_index(ULONG xsi_id)
+{
+	return lights_xsi_to_cyc[xsi_id];
+}
+
+bool UpdateContext::get_use_background_light()
+{
+	return use_background_light;
+}
+
+void UpdateContext::set_background_light_index(size_t value)
+{
+	background_light_index = value;
 }

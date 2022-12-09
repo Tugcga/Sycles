@@ -297,20 +297,46 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 // return OK, if object successfully updates, Abort in other cases
 XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const UpdateType update_type)
 {
-	return XSI::CStatus::Abort;
-
+	log_message("update x3dobject " + xsi_object.GetFullName() + " " + XSI::CString(update_type));
 	if (!is_session)
 	{
 		return XSI::CStatus::Abort;
 	}
 
+	// when change visibility of any object, recreate the scene
+	// this is similar to create a new object or delete it
+	if (update_type == UpdateType_Visibility)
+	{
+		return XSI::CStatus::Abort;
+	}
+
+	XSI::CStatus is_update;
+
 	if (update_type == UpdateType_Camera)
 	{
-		sync_camera(session->scene, update_context);
+		is_update = sync_camera(session->scene, update_context);
 		is_update_camera = true;
+	}
+	else if (update_type == UpdateType_GlobalAmbient)
+	{
+		is_update = update_background_color(session->scene, update_context);
+	}
+	else if (update_type == UpdateType_Transform)
+	{
+		is_update = update_transform(session->scene, update_context, xsi_object);
+	}
+	else if (update_type == UpdateType_XsiLight)
+	{
+		XSI::Light xsi_light(xsi_object);
+		is_update = update_xsi_light(session->scene, update_context, xsi_light);
 	}
 
 	update_context->set_is_update_scene(true);
+
+	if (is_update != XSI::CStatus::OK)
+	{
+		return XSI::CStatus::Abort;
+	}
 
 	return XSI::CStatus::OK;
 }
@@ -355,6 +381,7 @@ XSI::CStatus RenderEngineCyc::update_scene_render()
 // here we create the scene for rendering from scratch
 XSI::CStatus RenderEngineCyc::create_scene()
 {
+	log_message("---create session---");
 	clear_session();
 	session = create_session(session_params, scene_params);
 	is_session = true;
@@ -370,7 +397,7 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	update_context->set_motion(m_render_parameters, output_channels, m_display_channel_name, in_update_motion_type);
 
 	update_context->setup_scene_objects(m_isolation_list, m_lights_list, m_scene_list, XSI::Application().FindObjects(XSI::siX3DObjectID));
-	sync_scene(session->scene, update_context);
+	sync_scene(session->scene, update_context, m_render_parameters);
 	is_update_camera = true;
 
 	// setup callbacks
@@ -401,6 +428,11 @@ XSI::CStatus RenderEngineCyc::post_scene()
 		if (update_context->is_change_render_parameters_motion(changed_render_parameters))
 		{
 			return XSI::CStatus::Abort;
+		}
+
+		if (update_context->is_change_render_parameters_background(changed_render_parameters))
+		{
+			update_background_parameters(session->scene, update_context, m_render_parameters);
 		}
 	}
 

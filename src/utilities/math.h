@@ -20,8 +20,9 @@ unsigned char linear_to_srgb(float v);
 unsigned char linear_clamp(float v);
 bool equal_floats(float a, float b);
 ccl::Transform get_transform(std::vector<float>& array);
-double get_random_value(double min, double max);
 void xsi_matrix_to_cycles_array(std::vector<float>& array, XSI::MATH::CMatrix4 matrix, bool flip_z);
+ccl::Transform xsi_matrix_to_transform(const XSI::MATH::CMatrix4& xsi_matrix, bool flip_z = false);
+double get_random_value(double min, double max);
 
 ccl::float3 color4_to_float3(const XSI::MATH::CColor4f &color);
 ccl::float3 vector3_to_float3(const XSI::MATH::CVector3 &vector);
