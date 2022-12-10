@@ -54,6 +54,7 @@ SICALLBACK XSILoadPlugin(XSI::PluginRegistrar& in_reg)
 
 	in_reg.RegisterEvent("Cyc_OnObjectAdded", XSI::siOnObjectAdded);
 	in_reg.RegisterEvent("Cyc_OnObjectRemoved", XSI::siOnObjectRemoved);
+	in_reg.RegisterEvent("Cyc_OnNestedObjectsChange", XSI::siOnNestedObjectsChange);
 
 	return XSI::CStatus::OK;
 }

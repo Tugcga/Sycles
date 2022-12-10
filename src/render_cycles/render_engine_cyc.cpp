@@ -166,6 +166,8 @@ void RenderEngineCyc::progress_cancel_callback()
 {
 	if (call_abort_render)
 	{
+		// Note: the Cycles stop rendering when we call, but actual stop after render curent tile
+		// it updates tiles one times per second (or two), so, actual abort happens after some seconds
 		session->progress.set_cancel("Abort render");
 		call_abort_render = false;
 	}
@@ -217,8 +219,6 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		// we can not show motion pass when motion blur is activated
 		log_message("It's impossible to render Motion Pass with activated motion blur, output is invalid", XSI::siWarningMsg);
 	}
-
-	update_context->set_render_type(render_type);
 
 	// m_display_channel_name contains general name of the cisual pass (Sycles AOV Color, for example)
 	// here we should check actual visual pass (modified if it was aov)

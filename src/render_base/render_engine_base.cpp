@@ -567,17 +567,22 @@ XSI::CStatus RenderEngineBase::scene_process()
 						else
 						{
 							//get parent object, and if this is a pointcloud, hair or mesh - update it
-							if (xsi_3d_obj.GetType() == XSI::siPolyMeshType)
+							XSI::CString xsi_3d_obj_type = xsi_3d_obj.GetType();
+							if (xsi_3d_obj_type == XSI::siPolyMeshType)
 							{
 								update_status = update_scene(xsi_3d_obj, UpdateType_Mesh);
 							}
-							else if (xsi_3d_obj.GetType() == "pointcloud")
+							else if (xsi_3d_obj_type == "pointcloud")
 							{
 								update_status = update_scene(xsi_3d_obj, UpdateType_Pointcloud);
 							}
-							else if (xsi_3d_obj.GetType() == "light")
+							else if (xsi_3d_obj_type == "light")
 							{
 								update_status = update_scene(xsi_3d_obj, UpdateType_XsiLight);
+							}
+							else if (xsi_3d_obj_type == "camera")
+							{
+								update_status = update_scene(xsi_3d_obj, UpdateType_Camera);
 							}
 							else
 							{
@@ -715,6 +720,11 @@ void RenderEngineBase::on_object_add(XSI::CRef& in_ctxt)
 }
 
 void RenderEngineBase::on_object_remove(XSI::CRef& in_ctxt)
+{
+	force_recreate_scene = true;
+}
+
+void RenderEngineBase::on_nested_objects_changed(XSI::CRef& in_ctx)
 {
 	force_recreate_scene = true;
 }

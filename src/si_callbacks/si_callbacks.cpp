@@ -200,10 +200,16 @@ SICALLBACK Cyc_OnObjectAdded_OnEvent(XSI::CRef& in_ctxt)
 	return XSI::CStatus::OK;
 }
 
-
 SICALLBACK Cyc_OnObjectRemoved_OnEvent(XSI::CRef& in_ctxt)
 {
 	render->on_object_remove(in_ctxt);
+
+	return XSI::CStatus::OK;
+}
+
+SICALLBACK Cyc_OnNestedObjectsChange_OnEvent(XSI::CRef& in_ctxt)
+{
+	render->on_nested_objects_changed(in_ctxt);
 
 	return XSI::CStatus::OK;
 }
@@ -248,8 +254,13 @@ XSI::CStatus end_render_event(XSI::RendererContext& ctxt, XSI::CStringArray& out
 	return status;
 }
 
+// this is for test only
+// remove when it will be not necessary
+size_t process_counter = 0;
+
 SICALLBACK CyclesRender_Process(XSI::CRef &in_ctxt)
 {
+	log_message("process call " + XSI::CString(process_counter++));
 	set_abort(false);
 	XSI::CStatus status;
 

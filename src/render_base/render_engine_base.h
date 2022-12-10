@@ -135,6 +135,7 @@ public:
 	//call these methods when we change scene and force to recreate the scene from scratch
 	void on_object_add(XSI::CRef& in_ctxt);
 	void on_object_remove(XSI::CRef& in_ctxt);
+	void on_nested_objects_changed(XSI::CRef& in_ctx);
 
 private:
 	XSI::CString render_options_name;  // used for update process, to detect that we change parameters of the quick view render settings
