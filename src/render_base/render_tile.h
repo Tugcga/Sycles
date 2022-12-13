@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../utilities/math.h"
+#include "../utilities/logs.h"
 
 struct RGBA
 {

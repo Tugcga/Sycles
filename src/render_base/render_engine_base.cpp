@@ -4,6 +4,7 @@
 #include <xsi_shader.h>
 #include <xsi_clusterproperty.h>
 #include <xsi_renderchannel.h>
+#include <xsi_texture.h>
 
 #include <ctime>
 
@@ -166,6 +167,26 @@ inline bool is_file_exists(const std::string& name)
 	}
 }
 
+ShaderballType shaderball_class_to_type(XSI::siClassID shaderball_class)
+{
+	if (shaderball_class == XSI::siMaterialID)
+	{
+		return ShaderballType_Material;
+	}
+	else if (shaderball_class == XSI::siShaderID)
+	{
+		return ShaderballType_Shader;
+	}
+	else if (shaderball_class == XSI::siTextureID)
+	{
+		return ShaderballType_Texture;
+	}
+	else
+	{
+		return ShaderballType_Unknown;
+	}
+}
+
 XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 {
 	//save render context
@@ -195,6 +216,20 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	if (render_type == RenderType_Pass && archive_folder.Length() > 0)
 	{
 		render_type = RenderType_Export;
+	}
+
+	// get shaderball material
+	// this attribute valid only if we render shaderball
+	m_shaderball_material = m_render_context.GetAttribute("Material");
+
+	if (render_type == RenderType_Shaderball)
+	{
+		XSI::siClassID shaderball_class = m_shaderball_material.GetClassID();
+		m_shaderball_type = shaderball_class_to_type(shaderball_class);
+	}
+	else
+	{
+		m_shaderball_type = ShaderballType_Unknown;
 	}
 
 	//for RenderType_Pass and RenderType_Export we should get outputs from the render settings
@@ -388,6 +423,8 @@ XSI::CStatus RenderEngineBase::scene_process()
 
 	//next all other general staff for the engine
 	XSI::CStatus status = pre_scene_process();
+
+	ULONG current_shaderball_material_id = 0;
 	if (render_type != prev_render_type)
 	{
 		//WARNING: in this case, when we have active material preview and render view, then it recreate the scene from scratch twise - for material render and scene render
@@ -399,7 +436,32 @@ XSI::CStatus RenderEngineBase::scene_process()
 		//it seems that Softimage use one render object (it share userdata) for different tasks
 		status = XSI::CStatus::Abort;
 	}
+	else if(render_type == RenderType_Shaderball)
+	{
+		if (m_shaderball_type == ShaderballType_Material)
+		{
+			XSI::Material shaderball_mat(m_shaderball_material);
+			current_shaderball_material_id = shaderball_mat.GetObjectID();
+		}
+		else if (m_shaderball_type == ShaderballType_Shader)
+		{
+			XSI::Shader shaderball_shader(m_shaderball_material);
+			current_shaderball_material_id = shaderball_shader.GetObjectID();
+		}
+		else if (m_shaderball_type == ShaderballType_Texture)
+		{
+			XSI::Texture shaderball_texture(m_shaderball_material);
+			current_shaderball_material_id = shaderball_texture.GetObjectID();
+		}
+
+		if (current_shaderball_material_id != prev_shaderball_material_id)
+		{
+			status = XSI::CStatus::Abort;
+		}
+	}
+
 	prev_render_type = render_type;
+	prev_shaderball_material_id = current_shaderball_material_id;
 	//if status is Abort, then drop update and recreate the scene
 
 	//next we start update or rectreate the scene

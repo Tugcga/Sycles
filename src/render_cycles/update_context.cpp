@@ -1,3 +1,5 @@
+#include <xsi_model.h>
+
 #include "update_context.h"
 #include "../utilities/logs.h"
 #include "../utilities/arrays.h"
@@ -370,6 +372,27 @@ RenderType UpdateContext::get_render_type()
 	return render_type;
 }
 
+void gather_all_subobjects(const XSI::X3DObject& xsi_object, XSI::CRefArray& output)
+{
+	output.Add(xsi_object.GetRef());
+	XSI::CRefArray children = xsi_object.GetChildren();
+	for (ULONG i = 0; i < children.GetCount(); i++)
+	{
+		gather_all_subobjects(children[i], output);
+	}
+}
+
+XSI::CRefArray gather_all_subobjects(const XSI::Model& root)
+{
+	XSI::CRefArray output;
+	XSI::CRefArray children = root.GetChildren();
+	for (ULONG i = 0; i < children.GetCount(); i++)
+	{
+		gather_all_subobjects(children[i], output);
+	}
+	return output;
+}
+
 void UpdateContext::setup_scene_objects(const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& scene_list, const XSI::CRefArray& all_objects_list)
 {
 	use_background_light = false;
@@ -377,6 +400,35 @@ void UpdateContext::setup_scene_objects(const XSI::CRefArray& isolation_list, co
 	if (render_type == RenderType_Shaderball)
 	{
 		// for renderball we use scene_list
+		bool assign_hero = false;
+		for (size_t i = 0; i < scene_list.GetCount(); i++)
+		{
+			XSI::CRef object_ref = scene_list[i];
+			XSI::siClassID object_class = object_ref.GetClassID();
+			// ignore cameras and lights, consider only polymeshes inside models
+			if (object_class == XSI::siModelID)
+			{
+				XSI::Model xsi_model(object_ref);
+				XSI::CRefArray model_objects = gather_all_subobjects(xsi_model);
+				for (LONG j = 0; j < model_objects.GetCount(); j++)
+				{
+					XSI::X3DObject xsi_object(model_objects[j]);
+					XSI::CString xsi_type = xsi_object.GetType();
+					if (xsi_type == "polymsh")
+					{
+						if (!assign_hero)
+						{
+							shaderball = xsi_object;
+							assign_hero = true;
+						}
+						else
+						{
+							scene_polymeshes.push_back(xsi_object);
+						}
+					}
+				}
+			}
+		}
 	}
 	else
 	{
@@ -452,4 +504,14 @@ bool UpdateContext::get_use_background_light()
 void UpdateContext::set_background_light_index(size_t value)
 {
 	background_light_index = value;
+}
+
+const XSI::X3DObject& UpdateContext::get_shaderball()
+{
+	return shaderball;
+}
+
+const std::vector<XSI::X3DObject>& UpdateContext::get_scene_polymeshes()
+{
+	return scene_polymeshes;
 }

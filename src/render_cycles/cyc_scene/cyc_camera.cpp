@@ -11,41 +11,6 @@
 #include "../../utilities/logs.h"
 #include "../../utilities/xsi_properties.h"
 
-enum CameraType
-{
-	CameraType_General,
-	CameraType_Panoramic
-};
-
-static ccl::Transform tweak_camera_matrix(const ccl::Transform& tfm, const ccl::CameraType type, const ccl::PanoramaType panorama_type)
-{
-	ccl::Transform result;
-
-	if (type == ccl::CAMERA_PANORAMA)
-	{
-		if (panorama_type == ccl::PANORAMA_MIRRORBALL)
-		{
-			result = tfm * ccl::make_transform(
-				1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 1.0f, 0.0f,
-				0.0f, -1.0f, 0.0f, 0.0f);
-		}
-		else
-		{
-			result = tfm * ccl::make_transform(
-				0.0f, -1.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 1.0f, 0.0f,
-				1.0f, 0.0f, 0.0f, 0.0f);
-		}
-	}
-	else
-	{
-		result = tfm * ccl::transform_scale(1.0f, 1.0f, 1.0f);
-	}
-
-	return transform_clear_scale(result);
-}
-
 std::vector<float> extract_camera_tfm(const XSI::Camera &xsi_camera, const XSI::CTime &eval_time)
 {
 	XSI::MATH::CMatrix4 camera_tfm_matrix = xsi_camera.GetKinematics().GetGlobal().GetTransform(eval_time).GetMatrix4();

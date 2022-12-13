@@ -26,3 +26,17 @@ enum UpdateType
 	UpdateType_GlobalAmbient,
 	UpdateType_Pass
 };
+
+enum CameraType
+{
+	CameraType_General,
+	CameraType_Panoramic
+};
+
+enum ShaderballType
+{
+	ShaderballType_Material,
+	ShaderballType_Shader,
+	ShaderballType_Texture,
+	ShaderballType_Unknown
+};

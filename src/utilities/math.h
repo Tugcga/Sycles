@@ -8,6 +8,9 @@
 
 #include "util/transform.h"
 #include "util/math_float3.h"
+#include "scene/camera.h"
+
+#include "../render_base/type_enums.h"
 
 #define DEG2RADF(_deg) ((_deg) * (float)(M_PI / 180.0))
 #define RAD2DEGF(_rad) ((_rad) * (float)(180.0 / M_PI))
@@ -20,6 +23,7 @@ unsigned char linear_to_srgb(float v);
 unsigned char linear_clamp(float v);
 bool equal_floats(float a, float b);
 ccl::Transform get_transform(std::vector<float>& array);
+ccl::Transform tweak_camera_matrix(const ccl::Transform& tfm, const ccl::CameraType type, const ccl::PanoramaType panorama_type);
 void xsi_matrix_to_cycles_array(std::vector<float>& array, XSI::MATH::CMatrix4 matrix, bool flip_z);
 ccl::Transform xsi_matrix_to_transform(const XSI::MATH::CMatrix4& xsi_matrix, bool flip_z = false);
 double get_random_value(double min, double max);

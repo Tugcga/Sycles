@@ -18,43 +18,8 @@
 #include "../cyc_session/cyc_session.h"
 #include "../cyc_scene/cyc_scene.h"
 #include "primitives_geometry.h"
-
-ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes)
-{
-	ccl::Mesh* mesh = scene->create_node<ccl::Mesh>();
-
-	ccl::array<ccl::float3> vertex_coordinates;
-	for (size_t i = 0; i < vertex_count * 3; i += 3)
-	{
-		vertex_coordinates.push_back_slow(ccl::make_float3(vertices[i + 0], vertices[i + 1], vertices[i + 2]));
-	}
-
-	size_t num_triangles = 0;
-	for (size_t i = 0; i < faces_count; i++)
-	{
-		num_triangles += face_sizes[i] - 2;
-	}
-	mesh->reserve_mesh(vertex_coordinates.size(), num_triangles);
-	mesh->set_verts(vertex_coordinates);
-
-	// create triangles
-	int index_offset = 0;
-
-	for (size_t i = 0; i < faces_count; i++)  // iterate over polygons
-	{
-		for (int j = 0; j < face_sizes[i] - 2; j++)  // for each polygon by n-2
-		{
-			int v0 = face_indexes[index_offset];
-			int v1 = face_indexes[index_offset + j + 1];
-			int v2 = face_indexes[index_offset + j + 2];
-			mesh->add_triangle(v0, v1, v2, 0, false);
-		}
-
-		index_offset += face_sizes[i];
-	}
-
-	return mesh;
-}
+#include "../../render_base/type_enums.h"
+#include "../../input/input.h"
 
 // cube from -1 to 1 (the edge size is 2)
 ccl::Mesh* build_cube(ccl::Scene* scene)
@@ -234,12 +199,37 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	scene->background->set_transparent(true);*/
 }
 
-void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
+void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef &shaderball_material, ShaderballType shaderball_type)
 {
 	RenderType render_type = update_context->get_render_type();
 	if (render_type == RenderType_Shaderball)
 	{
 		// for renderball we create a separate scene
+		int shader_id = -1;
+		if (shaderball_type != ShaderballType_Unknown)
+		{
+			if (shaderball_type == ShaderballType_Texture)
+			{
+				shader_id = create_emission_checker(scene, 4.0);
+			}
+			else
+			{
+				shader_id = create_default_shader(scene);
+			}
+		}
+
+		if (shader_id >= 0) {
+			// setup shaderball polymesh
+			sync_shaderball_hero(scene, update_context->get_shaderball(), shader_id, shaderball_type);
+
+			// lights
+			sync_shaderball_light(scene, shaderball_type);
+
+			// camera
+			sync_shaderball_camera(scene, update_context, shaderball_type);
+
+			// TODO: setup background objects
+		}
 	}
 	else
 	{

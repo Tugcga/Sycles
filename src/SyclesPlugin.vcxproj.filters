@@ -87,6 +87,15 @@
     <ClCompile Include="utilities\xsi_shaders.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_materials.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_shaderball.cpp">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_polymesh\cyc_polymesh.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_polymesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -115,6 +124,12 @@
     </Filter>
     <Filter Include="render_cycles\cyc_output">
       <UniqueIdentifier>{ba44cfc5-9d47-4335-8463-74a2aa0a7e44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_cycles\cyc_scene\cyc_materials">
+      <UniqueIdentifier>{a10956aa-a259-4593-8f9a-6715c4885a44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_cycles\cyc_scene\cyc_polymesh">
+      <UniqueIdentifier>{7e87cc52-fa43-488f-8355-f42d29f71e73}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -9,6 +9,9 @@
 
 #include "util/transform.h"
 #include "util/projection.h"
+#include "scene/camera.h"
+
+#include "../render_base/type_enums.h"
 
 const float epsilon = 0.0001f;
 
@@ -113,6 +116,35 @@ ccl::Transform get_transform(std::vector<float>& array)
 	projection.w = ccl::make_float4(array[12], array[13], array[14], array[15]);
 	projection = projection_transpose(projection);
 	return projection_to_transform(projection);
+}
+
+ccl::Transform tweak_camera_matrix(const ccl::Transform& tfm, const ccl::CameraType type, const ccl::PanoramaType panorama_type)
+{
+	ccl::Transform result;
+
+	if (type == ccl::CAMERA_PANORAMA)
+	{
+		if (panorama_type == ccl::PANORAMA_MIRRORBALL)
+		{
+			result = tfm * ccl::make_transform(
+				1.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				0.0f, -1.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+			result = tfm * ccl::make_transform(
+				0.0f, -1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				1.0f, 0.0f, 0.0f, 0.0f);
+		}
+	}
+	else
+	{
+		result = tfm * ccl::transform_scale(1.0f, 1.0f, 1.0f);
+	}
+
+	return transform_clear_scale(result);
 }
 
 void xsi_matrix_to_cycles_array(std::vector<float>& array, XSI::MATH::CMatrix4 matrix, bool flip_z)

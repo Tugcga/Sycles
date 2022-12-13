@@ -84,12 +84,14 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		// next we should create new fragment to visualize it at the screen
 		// we does not need piszels anymore, so, we can apply color correction to this array
 		// apply color correction only to combined pass
-		if (visual_buffer->get_pass_type() == ccl::PASS_COMBINED)
+		if (render_type != RenderType_Shaderball && visual_buffer->get_pass_type() == ccl::PASS_COMBINED)
 		{
 			color_transform_context->apply(tile_width, tile_height, visual_components, &pixels[0]);
 		}
 
-		m_render_context.NewFragment(RenderTile(offset_x + image_corner_x, offset_y + image_corner_y, tile_width, tile_height, pixels, false, visual_components));
+		// for shaderball rendering apply simple sRGB
+		// for all other cases use OCIO
+		m_render_context.NewFragment(RenderTile(offset_x + image_corner_x, offset_y + image_corner_y, tile_width, tile_height, pixels, render_type == RenderType_Shaderball, visual_components));
 
 	}
 	else
@@ -118,7 +120,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 void RenderEngineCyc::postrender_visual_output()
 {
 	// overlay labels and apply color correction only for combined pass
-	if (visual_buffer->get_pass_type() == ccl::PASS_COMBINED)
+	if (visual_buffer->get_pass_type() == ccl::PASS_COMBINED && render_type != RenderType_Shaderball && render_type != RenderType_Rendermap)
 	{
 		ULONG visual_width = visual_buffer->get_width();
 		ULONG visual_height = visual_buffer->get_height();
@@ -232,8 +234,8 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	}
 
 	// check is current session parameters coincide with the previous one
-	session_params = get_session_params(m_render_parameters, eval_time);
-	scene_params = get_scene_params(render_type, m_render_parameters, eval_time);
+	session_params = get_session_params(render_type, m_render_parameters, eval_time);
+	scene_params = get_scene_params(render_type, session_params, m_render_parameters, eval_time);
 
 	if (is_session && !is_recreate_session)
 	{
@@ -248,7 +250,10 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		{
 			// update samples values if we should use old session parameters
 			// in other case we will use these actual parameters, where these values alredy correct
-			set_session_samples(session->params, m_render_parameters, eval_time);
+			if (render_type != RenderType_Shaderball)
+			{
+				set_session_samples(session->params, m_render_parameters, eval_time);
+			}
 		}
 	}
 
@@ -256,6 +261,10 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	// in this case we should recreate the scene from scratch
 	// if we disable motion blur, then nothing to do
 	in_update_motion_type = get_motion_type_from_parameters(m_render_parameters, eval_time, output_channels, m_display_channel_name);
+	if (render_type == RenderType_Shaderball)
+	{
+		in_update_motion_type = MotionType_None;
+	}
 	if (!is_recreate_session)
 	{
 		if ((in_update_motion_type == MotionType_Blur || in_update_motion_type == MotionType_Pass) && update_context->get_motion_type() == MotionType_None)
@@ -357,6 +366,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::SIObject& si_object, const Updat
 // update material
 XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool material_assigning)
 {
+	log_message("update materail " + xsi_material.GetFullName() + ", " + XSI::CString(material_assigning));
 	if (!is_session)
 	{
 		return XSI::CStatus::Abort;
@@ -397,7 +407,7 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	update_context->set_motion(m_render_parameters, output_channels, m_display_channel_name, in_update_motion_type);
 
 	update_context->setup_scene_objects(m_isolation_list, m_lights_list, m_scene_list, XSI::Application().FindObjects(XSI::siX3DObjectID));
-	sync_scene(session->scene, update_context, m_render_parameters);
+	sync_scene(session->scene, update_context, m_render_parameters, m_shaderball_material, m_shaderball_type);
 	is_update_camera = true;
 
 	// setup callbacks
@@ -484,7 +494,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 
 		if (update_context->is_changed_render_paramters_integrator(changed_render_parameters))
 		{
-			sync_integrator(session, update_context, m_render_parameters);
+			sync_integrator(session, update_context, m_render_parameters, render_type, get_input_config());
 		}
 
 		// TODO: try to fix this bug

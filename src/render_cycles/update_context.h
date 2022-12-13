@@ -84,6 +84,8 @@ public:
 	void add_light_index(ULONG xsi_light_id, size_t cyc_light_index);
 	bool is_xsi_light_exists(ULONG xsi_id);
 	size_t get_xsi_light_cycles_index(ULONG xsi_id);
+	const XSI::X3DObject& get_shaderball();
+	const std::vector<XSI::X3DObject>& get_scene_polymeshes();
 
 	bool get_use_background_light();
 	void set_background_light_index(size_t value);
@@ -131,4 +133,6 @@ private:
 	bool use_background_light;  // set true when we use background light source from the scene, if false, then use only ambient color
 	size_t background_light_index;  // store here background light index in the Cycles array (we always create background light, from scene on manual)
 	std::unordered_map<ULONG, size_t> lights_xsi_to_cyc; // map from Softimage object id for Ligth (not for x3dobject) to index in the Cycles array of lights
+
+	XSI::X3DObject shaderball;  // hero shaderball object
 };
