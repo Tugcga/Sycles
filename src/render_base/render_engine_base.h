@@ -25,6 +25,7 @@ public:
 	XSI::CRefArray m_scene_list;
 	XSI::CRef m_shaderball_material;
 	ShaderballType m_shaderball_type;
+	ULONG m_shaderball_material_id;
 	XSI::CString archive_folder;  // full path to the folder for archive export. Non-empty only if the user call export scene
 	XSI::CString m_display_channel_name;  // name of the channel for output to the screen (selected channel for the preview render)
 	XSI::Property m_render_property;
@@ -146,7 +147,6 @@ private:
 	bool note_abort;  // set true when call aboert_render method, set float at the start of scene_process after we lock the scene
 	XSI::CRefArray prev_isolated_objects;
 	RenderType prev_render_type;
-	ULONG prev_shaderball_material_id;
 	
 	bool is_recreate_isolated_view(const XSI::CRefArray &visible_objects);
 };

@@ -2,6 +2,7 @@
 
 #include <xsi_application.h>
 #include <xsi_utils.h>
+#include <xsi_project.h>
 
 #include "device/device.h"
 #include "util/foreach.h"
@@ -252,4 +253,15 @@ void read_ocio_config()
 OCIOConfig get_ocio_config()
 {
 	return ocio_config;
+}
+
+XSI::CString project_path;
+void set_project_path()
+{
+	project_path = XSI::Application().GetActiveProject().GetPath();
+}
+
+XSI::CString get_project_path()
+{
+	return project_path;
 }

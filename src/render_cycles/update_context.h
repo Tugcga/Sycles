@@ -90,6 +90,11 @@ public:
 	bool get_use_background_light();
 	void set_background_light_index(size_t value);
 
+	void add_material_index(ULONG xsi_id, size_t cyc_shader_index, ShaderballType shaderball_type);
+	bool is_material_exists(ULONG xsi_id);
+	size_t get_xsi_material_cycles_index(ULONG xsi_id);
+	ULONG get_shaderball_material_node(ULONG material_id);
+
 private:
 	// after each render prepare session we store here used render parameter values
 	// this map allows to check what parameter is changed from the previous rendere session
@@ -133,6 +138,9 @@ private:
 	bool use_background_light;  // set true when we use background light source from the scene, if false, then use only ambient color
 	size_t background_light_index;  // store here background light index in the Cycles array (we always create background light, from scene on manual)
 	std::unordered_map<ULONG, size_t> lights_xsi_to_cyc; // map from Softimage object id for Ligth (not for x3dobject) to index in the Cycles array of lights
+	std::unordered_map<ULONG, size_t> material_xsi_to_cyc;  // key - object id, value - index of the shader
+	// for shaderball material we use object id of the Node for shaderball (material, shader or texture)
 
 	XSI::X3DObject shaderball;  // hero shaderball object
+	std::unordered_map<ULONG, ULONG> shaderball_material_to_node;  // store map from parent material id to shader node id inside this material (only for shaderball session)
 };

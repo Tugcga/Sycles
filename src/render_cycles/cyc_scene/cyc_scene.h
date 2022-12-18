@@ -4,12 +4,15 @@
 #include <xsi_renderercontext.h>
 #include <xsi_camera.h>
 #include <xsi_status.h>
+#include <xsi_material.h>
+#include <xsi_shader.h>
+#include <xsi_texture.h>
 
 #include "../../render_cycles/update_context.h"
 #include "../../render_base/type_enums.h"
 #include "../../input/input.h"
 
-void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef& shaderball_material, ShaderballType shaderball_type);
+void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
 // cyc_camera
@@ -27,9 +30,16 @@ XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, 
 XSI::CStatus update_xsi_light_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::Light& xsi_light);
 
 // cyc_materials
+// this method used only for developing
+void log_all_shaders();
 // for test only, create some default shader and return the index in the sahders array
 int create_default_shader(ccl::Scene* scene);
 int create_emission_checker(ccl::Scene* scene, float checker_scale);
+int sync_material(ccl::Scene* scene, const XSI::Material& xsi_material, const XSI::CTime& eval_time);  // return shader index in the Cycles shaders array
+int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader, bool is_surface, const XSI::CTime& eval_time);
+int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_texture, const XSI::CTime& eval_time);
+XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_material, size_t shader_index, const XSI::CTime& eval_time);
+XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, const XSI::CTime& eval_time);
 
 // cyc_shadeerball
 void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject& xsi_object, int shader_index, ShaderballType shaderball_type);

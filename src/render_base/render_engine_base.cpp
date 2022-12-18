@@ -5,6 +5,7 @@
 #include <xsi_clusterproperty.h>
 #include <xsi_renderchannel.h>
 #include <xsi_texture.h>
+#include <xsi_shaderdef.h>
 
 #include <ctime>
 
@@ -167,7 +168,7 @@ inline bool is_file_exists(const std::string& name)
 	}
 }
 
-ShaderballType shaderball_class_to_type(XSI::siClassID shaderball_class)
+ShaderballType shaderball_class_to_type(XSI::CRef &shaderball_ref, XSI::siClassID shaderball_class)
 {
 	if (shaderball_class == XSI::siMaterialID)
 	{
@@ -175,7 +176,31 @@ ShaderballType shaderball_class_to_type(XSI::siClassID shaderball_class)
 	}
 	else if (shaderball_class == XSI::siShaderID)
 	{
-		return ShaderballType_Shader;
+		// siShaderID for surface and volume nodes
+		// and also for compounds
+		XSI::Shader xsi_shader(shaderball_ref);
+		XSI::siShaderType shader_type = xsi_shader.GetShaderType();
+		
+		// if this is compound, return unknown type
+		if (shader_type != XSI::siShader)
+		{
+			return ShaderballType_Unknown;
+		}
+		else
+		{
+			XSI::ShaderDef shader_def = xsi_shader.GetShaderDef();
+			XSI::CString shader_family = shader_def.GetPrimaryShaderFamily();
+			if (shader_family == "mrSurfaceMat")
+			{
+				return ShaderballType_SurfaceShader;
+			}
+			else if (shader_family == "mrVolume")
+			{
+				return ShaderballType_VolumeShader;
+			}
+		}
+
+		return ShaderballType_Unknown;
 	}
 	else if (shaderball_class == XSI::siTextureID)
 	{
@@ -225,7 +250,7 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	if (render_type == RenderType_Shaderball)
 	{
 		XSI::siClassID shaderball_class = m_shaderball_material.GetClassID();
-		m_shaderball_type = shaderball_class_to_type(shaderball_class);
+		m_shaderball_type = shaderball_class_to_type(m_shaderball_material, shaderball_class);
 	}
 	else
 	{
@@ -421,10 +446,37 @@ XSI::CStatus RenderEngineBase::scene_process()
 	// and also it contains the root of the scene
 	m_scene_list = m_render_context.GetArrayAttribute("Scene");
 
+	XSI::CStatus shaderball_status = XSI::CStatus::OK;
+
+	ULONG current_shaderball_material_id = 0;
+	if (render_type == RenderType_Shaderball)
+	{
+		if (m_shaderball_type == ShaderballType_Material)
+		{
+			XSI::Material shaderball_mat(m_shaderball_material);
+			current_shaderball_material_id = shaderball_mat.GetObjectID();
+		}
+		else if (m_shaderball_type == ShaderballType_SurfaceShader || m_shaderball_type == ShaderballType_VolumeShader)
+		{
+			XSI::Shader shaderball_shader(m_shaderball_material);
+			current_shaderball_material_id = shaderball_shader.GetObjectID();
+		}
+		else if (m_shaderball_type == ShaderballType_Texture)
+		{
+			XSI::Texture shaderball_texture(m_shaderball_material);
+			current_shaderball_material_id = shaderball_texture.GetObjectID();
+		}
+
+		if (current_shaderball_material_id != m_shaderball_material_id)
+		{
+			shaderball_status = XSI::CStatus::Abort;
+		}
+	}
+	m_shaderball_material_id = current_shaderball_material_id;
+
 	//next all other general staff for the engine
 	XSI::CStatus status = pre_scene_process();
 
-	ULONG current_shaderball_material_id = 0;
 	if (render_type != prev_render_type)
 	{
 		//WARNING: in this case, when we have active material preview and render view, then it recreate the scene from scratch twise - for material render and scene render
@@ -436,32 +488,13 @@ XSI::CStatus RenderEngineBase::scene_process()
 		//it seems that Softimage use one render object (it share userdata) for different tasks
 		status = XSI::CStatus::Abort;
 	}
-	else if(render_type == RenderType_Shaderball)
-	{
-		if (m_shaderball_type == ShaderballType_Material)
-		{
-			XSI::Material shaderball_mat(m_shaderball_material);
-			current_shaderball_material_id = shaderball_mat.GetObjectID();
-		}
-		else if (m_shaderball_type == ShaderballType_Shader)
-		{
-			XSI::Shader shaderball_shader(m_shaderball_material);
-			current_shaderball_material_id = shaderball_shader.GetObjectID();
-		}
-		else if (m_shaderball_type == ShaderballType_Texture)
-		{
-			XSI::Texture shaderball_texture(m_shaderball_material);
-			current_shaderball_material_id = shaderball_texture.GetObjectID();
-		}
 
-		if (current_shaderball_material_id != prev_shaderball_material_id)
-		{
-			status = XSI::CStatus::Abort;
-		}
+	if (shaderball_status != XSI::CStatus::OK)
+	{
+		status = XSI::CStatus::Abort;
 	}
 
 	prev_render_type = render_type;
-	prev_shaderball_material_id = current_shaderball_material_id;
 	//if status is Abort, then drop update and recreate the scene
 
 	//next we start update or rectreate the scene
@@ -672,6 +705,17 @@ XSI::CStatus RenderEngineBase::scene_process()
 						{
 							//update shader inside material
 							//ignore this update, because we will catch material update in other place
+						}
+						break;
+					}
+					case XSI::siTextureID:
+					{
+						XSI::Texture xsi_texture(in_ref);
+						XSI::CRef texture_root = xsi_texture.GetRoot();
+						if (texture_root.GetClassID() == XSI::siMaterialID)
+						{
+							XSI::Material shader_material(texture_root);
+							update_status = update_scene(shader_material, false);
 						}
 						break;
 					}

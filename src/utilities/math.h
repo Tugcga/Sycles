@@ -30,3 +30,9 @@ double get_random_value(double min, double max);
 
 ccl::float3 color4_to_float3(const XSI::MATH::CColor4f &color);
 ccl::float3 vector3_to_float3(const XSI::MATH::CVector3 &vector);
+
+float get_minimum(float v1, float v2, float v3);
+float get_maximum(float v1, float v2, float v3);
+
+float interpolate_float_with_middle(float a, float b, float t, float middle);
+XSI::MATH::CColor4f interpolate_color(const XSI::MATH::CColor4f& color1, const XSI::MATH::CColor4f& color2, float t, float mid = 0.5);

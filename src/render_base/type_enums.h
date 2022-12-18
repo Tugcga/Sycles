@@ -36,7 +36,8 @@ enum CameraType
 enum ShaderballType
 {
 	ShaderballType_Material,
-	ShaderballType_Shader,
+	ShaderballType_SurfaceShader,
+	ShaderballType_VolumeShader,
 	ShaderballType_Texture,
 	ShaderballType_Unknown
 };

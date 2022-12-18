@@ -1,5 +1,11 @@
 #pragma once
 #include <xsi_application.h>
+#include <xsi_time.h>
+
+#include <vector>
+#include <string>
+
+#include "util/array.h"
 
 // remove digits from the given string
 XSI::CString remove_digits(const XSI::CString& orignal_str);
@@ -17,3 +23,8 @@ XSI::CString get_common_substring(const XSI::CStringArray& strings_array);
 // if inputs are D:\images\pass.1.png aov_name then the result will be
 // D:\images\pass.aov_name.1.png
 XSI::CString add_aov_name_to_path(const XSI::CString &file_path, const XSI::CString &aov_name);
+
+std::vector<size_t> get_symbol_positions(const XSI::CString& string, char symbol);
+
+ccl::array<int> string_to_array(const XSI::CString& string);
+std::string build_source_image_path(const XSI::CString& path, const XSI::CString& source_type, bool is_cyclic, int sequence_start, int sequence_frames, int sequence_offset, const XSI::CTime& eval_time, bool allow_tile, bool& change_to_udims);

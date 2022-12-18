@@ -12,6 +12,9 @@
 #include <xsi_kinematics.h>
 #include <xsi_x3dobject.h>
 #include <xsi_light.h>
+#include <xsi_material.h>
+#include <xsi_shader.h>
+#include <xsi_texture.h>
 
 #include "../../utilities/logs.h"
 #include "../../utilities/math.h"
@@ -199,28 +202,47 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	scene->background->set_transparent(true);*/
 }
 
-void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef &shaderball_material, ShaderballType shaderball_type)
+void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef &shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id)
 {
 	RenderType render_type = update_context->get_render_type();
+	XSI::CTime eval_time = update_context->get_time();
 	if (render_type == RenderType_Shaderball)
 	{
 		// for renderball we create a separate scene
-		int shader_id = -1;
+		int shader_index = -1;
 		if (shaderball_type != ShaderballType_Unknown)
 		{
-			if (shaderball_type == ShaderballType_Texture)
+			if (shaderball_type == ShaderballType_Material)
 			{
-				shader_id = create_emission_checker(scene, 4.0);
+				XSI::Material xsi_material(shaderball_material);
+				shader_index = sync_material(scene, xsi_material, eval_time);
+			}
+			else if (shaderball_type == ShaderballType_SurfaceShader)
+			{
+				XSI::Shader xsi_shader(shaderball_material);
+				shader_index = sync_shaderball_shadernode(scene, xsi_shader, true, eval_time);
+			}
+			else if (shaderball_type == ShaderballType_VolumeShader)
+			{
+				XSI::Shader xsi_shader(shaderball_material);
+				shader_index = sync_shaderball_shadernode(scene, xsi_shader, false, eval_time);
+			}
+			else if (shaderball_type == ShaderballType_Texture)
+			{
+				XSI::Texture xsi_texture(shaderball_material);
+				shader_index = sync_shaderball_texturenode(scene, xsi_texture, eval_time);
 			}
 			else
 			{
-				shader_id = create_default_shader(scene);
+				shader_index = create_default_shader(scene);
 			}
 		}
 
-		if (shader_id >= 0) {
+		if (shader_index >= 0) {
+			update_context->add_material_index(shaderball_material_id, shader_index, shaderball_type);
+
 			// setup shaderball polymesh
-			sync_shaderball_hero(scene, update_context->get_shaderball(), shader_id, shaderball_type);
+			sync_shaderball_hero(scene, update_context->get_shaderball(), shader_index, shaderball_type);
 
 			// lights
 			sync_shaderball_light(scene, shaderball_type);

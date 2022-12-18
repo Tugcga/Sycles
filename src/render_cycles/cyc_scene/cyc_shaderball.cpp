@@ -66,7 +66,7 @@ void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject &xsi_object, i
 	object->set_asset_name(ccl::ustring("shaderball"));
 	ccl::Transform object_tfm = ccl::transform_identity();
 
-	if (shaderball_type == ShaderballType_Material || shaderball_type == ShaderballType_Shader)
+	if (shaderball_type == ShaderballType_Material || shaderball_type == ShaderballType_SurfaceShader || shaderball_type == ShaderballType_VolumeShader)
 	{
 		object_tfm = object_tfm * ccl::transform_scale(6.0, 6.0, 6.0);
 	}
@@ -124,7 +124,7 @@ void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, cc
 
 void sync_shaderball_light(ccl::Scene* scene, ShaderballType shaderball_type)
 {
-	if (shaderball_type == ShaderballType_Material || shaderball_type == ShaderballType_Shader)
+	if (shaderball_type == ShaderballType_Material || shaderball_type == ShaderballType_SurfaceShader || shaderball_type == ShaderballType_VolumeShader)
 	{
 		// for materials use three are lights with hardcoded positions
 		XSI::MATH::CVector3 light_01_position(3.02, 7.71, 11.39);  // left

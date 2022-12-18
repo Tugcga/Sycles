@@ -202,3 +202,70 @@ ccl::float3 vector3_to_float3(const XSI::MATH::CVector3& vector)
 {
 	return ccl::make_float3(vector.GetX(), vector.GetY(), vector.GetZ());
 }
+
+
+float get_minimum(float v1, float v2, float v3)
+{
+	float to_return = v1;
+	if (v2 < to_return)
+	{
+		to_return = v2;
+	}
+	if (v3 < to_return)
+	{
+		to_return = v3;
+	}
+	return to_return;
+}
+
+float get_maximum(float v1, float v2, float v3)
+{
+	float to_return = v1;
+	if (v2 > to_return)
+	{
+		to_return = v2;
+	}
+	if (v3 > to_return)
+	{
+		to_return = v3;
+	}
+	return to_return;
+}
+
+float interpolate_float(float a, float b, float t)
+{
+	return (1 - t) * a + t * b;
+}
+
+float transform_time_by_mid(float t, float mid)
+{
+	if (mid < 0.001)
+	{
+		mid = 0.001;
+	}
+	if (mid > 0.999)
+	{
+		mid = 0.999;
+	}
+	if (t < mid)
+	{
+		return 0.5 * t / mid;
+	}
+	else
+	{
+		return 0.5 * t / (1 - mid) + (0.5 - mid) / (1 - mid);
+	}
+}
+
+float interpolate_float_with_middle(float a, float b, float t, float middle)
+{
+	return interpolate_float(a, b, transform_time_by_mid(t, middle));
+}
+
+XSI::MATH::CColor4f interpolate_color(const XSI::MATH::CColor4f& color1, const XSI::MATH::CColor4f& color2, float t, float mid)
+{
+	return XSI::MATH::CColor4f(interpolate_float_with_middle(color1.GetR(), color2.GetR(), t, mid),
+		interpolate_float_with_middle(color1.GetG(), color2.GetG(), t, mid),
+		interpolate_float_with_middle(color1.GetB(), color2.GetB(), t, mid),
+		interpolate_float_with_middle(color1.GetA(), color2.GetA(), t, mid));
+}

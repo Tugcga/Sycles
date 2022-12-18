@@ -200,6 +200,9 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	update_context->set_camera(camera);
 	update_context->set_time(eval_time);
 
+	// memorize current project path
+	set_project_path();
+
 	// we should setup output passes after parsing scene, because it may contains aovs and lightgroups
 	output_context->set_render_type(render_type);
 	output_context->set_output_size((ULONG)image_size_width, (ULONG)image_size_height);
@@ -319,7 +322,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 		return XSI::CStatus::Abort;
 	}
 
-	XSI::CStatus is_update;
+	XSI::CStatus is_update = XSI::CStatus::OK;
 
 	if (update_type == UpdateType_Camera)
 	{
@@ -366,13 +369,37 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::SIObject& si_object, const Updat
 // update material
 XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool material_assigning)
 {
-	log_message("update materail " + xsi_material.GetFullName() + ", " + XSI::CString(material_assigning));
 	if (!is_session)
 	{
 		return XSI::CStatus::Abort;
 	}
 
+	XSI::CStatus is_update = XSI::CStatus::OK;
+
+	ULONG material_id = xsi_material.GetObjectID();
+	if (update_context->is_material_exists(material_id))
+	{
+		is_update = update_material(session->scene, xsi_material, update_context->get_xsi_material_cycles_index(material_id), update_context->get_time());
+	}
+	else
+	{
+		// may be we in the shaderball render mode, but update not material but subshader
+		if (render_type == RenderType_Shaderball)
+		{
+			ULONG shader_id = update_context->get_shaderball_material_node(material_id);
+			if (update_context->is_material_exists(shader_id))
+			{
+				is_update = update_shaderball_shadernode(session->scene, shader_id, m_shaderball_type, update_context->get_xsi_material_cycles_index(shader_id), update_context->get_time());
+			}
+		}
+	}
+
 	update_context->set_is_update_scene(true);
+
+	if (is_update != XSI::CStatus::OK)
+	{
+		return XSI::CStatus::Abort;
+	}
 
 	return XSI::CStatus::OK;
 }
@@ -407,7 +434,7 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	update_context->set_motion(m_render_parameters, output_channels, m_display_channel_name, in_update_motion_type);
 
 	update_context->setup_scene_objects(m_isolation_list, m_lights_list, m_scene_list, XSI::Application().FindObjects(XSI::siX3DObjectID));
-	sync_scene(session->scene, update_context, m_render_parameters, m_shaderball_material, m_shaderball_type);
+	sync_scene(session->scene, update_context, m_render_parameters, m_shaderball_material, m_shaderball_type, m_shaderball_material_id);
 	is_update_camera = true;
 
 	// setup callbacks

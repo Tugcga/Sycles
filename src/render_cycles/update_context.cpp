@@ -1,4 +1,9 @@
 #include <xsi_model.h>
+#include <xsi_material.h>
+#include <xsi_shader.h>
+#include <xsi_projectitem.h>
+#include <xsi_texture.h>
+#include <xsi_application.h>
 
 #include "update_context.h"
 #include "../utilities/logs.h"
@@ -42,6 +47,10 @@ void UpdateContext::reset()
 	scene_polymeshes.resize(0);
 
 	// does not reset full_width and full_height, because these values used as in update scene and create scene
+
+	lights_xsi_to_cyc.clear();
+	material_xsi_to_cyc.clear();
+	shaderball_material_to_node.clear();
 }
 
 void UpdateContext::set_is_update_scene(bool value)
@@ -514,4 +523,62 @@ const XSI::X3DObject& UpdateContext::get_shaderball()
 const std::vector<XSI::X3DObject>& UpdateContext::get_scene_polymeshes()
 {
 	return scene_polymeshes;
+}
+
+void UpdateContext::add_material_index(ULONG xsi_id, size_t cyc_shader_index, ShaderballType shaderball_type)
+{
+	material_xsi_to_cyc[xsi_id] = cyc_shader_index;
+
+	if (shaderball_type != ShaderballType_Material && shaderball_type != ShaderballType_Unknown)
+	{
+		// write also id of the host object (material, camera or light)
+		// in the update process we obtain only this host object
+		// so, if it non-empty, then we will update not updated object, but current shader (or texture) node
+		XSI::ProjectItem item = XSI::Application().GetObjectFromID(xsi_id);
+		XSI::CRef parent;
+		if (shaderball_type == ShaderballType_SurfaceShader || shaderball_type == ShaderballType_VolumeShader)
+		{
+			XSI::Shader xsi_shader(item);
+			parent = xsi_shader.GetRoot();
+		}
+		else if (shaderball_type == ShaderballType_Texture)
+		{
+			XSI::Texture xsi_texture(item);
+			parent = xsi_texture.GetRoot();
+		}
+
+		ULONG parent_id = 0;
+		XSI::siClassID parent_class = parent.GetClassID();
+		if (parent_class == XSI::siMaterialID)
+		{
+			XSI::Material parent_material(parent);
+			parent_id = parent_material.GetObjectID();
+		}
+		if (parent_id > 0)
+		{
+			shaderball_material_to_node[parent_id] = xsi_id;
+		}
+	}
+}
+
+bool UpdateContext::is_material_exists(ULONG xsi_id)
+{
+	return material_xsi_to_cyc.contains(xsi_id);
+}
+
+size_t UpdateContext::get_xsi_material_cycles_index(ULONG xsi_id)
+{
+	return material_xsi_to_cyc[xsi_id];
+}
+
+ULONG UpdateContext::get_shaderball_material_node(ULONG material_id)
+{
+	if (shaderball_material_to_node.contains(material_id))
+	{
+		return shaderball_material_to_node[material_id];
+	}
+	else
+	{
+		return 0;
+	}
 }

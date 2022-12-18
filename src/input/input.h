@@ -17,3 +17,6 @@ InputConfig get_input_config();
 
 void read_ocio_config();
 OCIOConfig get_ocio_config();
+
+void set_project_path();
+XSI::CString get_project_path();

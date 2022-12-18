@@ -5,6 +5,8 @@
 #include <xsi_application.h>
 #include <xsi_project.h>
 
+#include "../input/input.h"
+
 bool create_dir(const std::string& file_path)
 {
 	const size_t lastSlash = file_path.find_last_of("/\\");
@@ -45,7 +47,7 @@ XSI::CString create_temp_path()
 	UuidCreate(&uuid);
 	char* uuid_str;
 	UuidToStringA(&uuid, (RPC_CSTR*)&uuid_str);
-	XSI::CString temp_path = XSI::Application().GetActiveProject().GetPath() + "\\sycles_temp_" + XSI::CString(uuid_str);
+	XSI::CString temp_path = get_project_path() + "\\sycles_temp_" + XSI::CString(uuid_str);
 	RpcStringFreeA((RPC_CSTR*)&uuid_str);
 
 	std::string temp_path_str = temp_path.GetAsciiString();

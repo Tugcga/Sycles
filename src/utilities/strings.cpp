@@ -1,4 +1,10 @@
 #include <xsi_application.h>
+#include <xsi_time.h>
+
+#include <vector>
+#include <string>
+
+#include "util/array.h"
 
 XSI::CString remove_digits(const XSI::CString& orignal_str)
 {
@@ -102,4 +108,219 @@ XSI::CString add_aov_name_to_path(const XSI::CString& file_path, const XSI::CStr
 	}
 
 	return file_path.GetSubString(0, second_dot_pos) + "." + aov_name + file_path.GetSubString(second_dot_pos);
+}
+
+std::vector<size_t> get_symbol_positions(const XSI::CString &string, char symbol)
+{
+	std::vector<size_t> to_return;
+
+	for (ULONG i = 0; i < string.Length(); i++)
+	{
+		if (string.GetAt(i) == symbol)
+		{
+			to_return.push_back(i);
+		}
+	}
+
+	return to_return;
+}
+
+bool is_vector_contains(ccl::array<int> &array, int value)
+{
+	for (size_t i = 0; i < array.size(); i++)
+	{
+		if (array[i] == value)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+int char_to_digit(char s)
+{
+	if (s == '0') { return 0; }
+	else if (s == '1') { return 1; }
+	else if (s == '2') { return 2; }
+	else if (s == '3') { return 3; }
+	else if (s == '4') { return 4; }
+	else if (s == '5') { return 5; }
+	else if (s == '6') { return 6; }
+	else if (s == '7') { return 7; }
+	else if (s == '8') { return 8; }
+	else if (s == '9') { return 9; }
+	return 0;
+}
+
+ccl::array<int> string_to_array(const XSI::CString &string)
+{
+	ccl::array<int> array;
+	int buffer = 0;
+	for (size_t i = 0; i < string.Length(); i++)
+	{
+		char s = string.GetAt(i);
+		if (s == ' ')
+		{// finish the string, release the buffer
+			if (buffer > 1000 && buffer < 10000)
+			{
+				if (!is_vector_contains(array, buffer))
+				{
+					array.push_back_slow(buffer);
+				}
+			}
+			buffer = 0;
+		}
+		else
+		{
+			buffer = buffer * 10 + char_to_digit(s);
+		}
+	}
+	// also release the buffer at the end
+	if (buffer > 1000 && buffer < 10000)
+	{
+		if (!is_vector_contains(array, buffer))
+		{
+			array.push_back_slow(buffer);
+		}
+	}
+	return array;
+}
+
+bool is_digit(char s)
+{
+	if (s == '1' || s == '2' || s == '3' || s == '4' || s == '5' || s == '6' || s == '7' || s == '8' || s == '9' || s == '0')
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool is_number(const XSI::CString &str)
+{
+	for (ULONG i = 0; i < str.Length(); i++)
+	{
+		if (!is_digit(str.GetAt(i)))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+std::string build_source_image_path(const XSI::CString &path, const XSI::CString &source_type, bool is_cyclic, int sequence_start, int sequence_frames, int sequence_offset, const XSI::CTime &eval_time, bool allow_tile, bool &change_to_udims)
+{
+	sequence_frames = std::max(1, sequence_frames);
+	if (source_type == XSI::CString("single_image"))
+	{
+		return path.GetAsciiString();
+	}
+	else if (source_type == XSI::CString("tiled"))
+	{
+		if (allow_tile)
+		{
+			// find the first appearence of the 1001 from the right side, and change it to <UDIM>
+			size_t i = path.Length() - 4;
+			while (i >= 0)
+			{
+				if (path.GetSubString(i, 4) == XSI::CString("1001"))
+				{
+					change_to_udims = true;
+					return std::string((path.GetSubString(0, i) + "<UDIM>" + path.GetSubString(i + 4)).GetAsciiString());
+				}
+				else
+				{
+					i = i - 1;
+				}
+			}
+			return path.GetAsciiString();
+		}
+		else
+		{
+			return path.GetAsciiString();
+		}
+	}
+	else
+	{
+		double d_frame = eval_time.GetTime();
+		int int_frame = static_cast<int>(d_frame + (d_frame >= 0 ? 0.5 : -0.5));
+		int f = int_frame - sequence_start;
+		if (is_cyclic)
+		{
+			while (f < 0)
+			{
+				f = f + sequence_frames;
+			}
+			while (f >= sequence_frames)
+			{
+				f = f - sequence_frames;
+			}
+		}
+		else
+		{
+			if (f < 0)
+			{
+				f = 0;
+			}
+			if (f >= sequence_frames)
+			{
+				f = sequence_frames - 1;
+			}
+		}
+		f = f + sequence_offset + 1;
+
+		// next we should find image with ending and change it by f-value
+		std::vector<size_t> point_positions = get_symbol_positions(path, '.');
+		if (point_positions.size() > 0)
+		{
+			XSI::CString general_path = path.GetSubString(0, point_positions[point_positions.size() - 1]);
+			XSI::CString ext = path.GetSubString(point_positions[point_positions.size() - 1] + 1);  // extension without point
+			// in general_path we shold find last '_'
+			std::vector<size_t> line_positions = get_symbol_positions(general_path, '_');
+			//get the maximum from point positions and line positions
+			int limit_pos = -1;
+			if (point_positions.size() == 1)
+			{// no point in the path, find throw the lines
+				if (line_positions.size() > 0)
+				{
+					limit_pos = line_positions[line_positions.size() - 1];
+				}
+			}
+			else
+			{// there are point in the path
+				if (line_positions.size() == 0)
+				{
+					limit_pos = point_positions[point_positions.size() - 2];
+				}
+				else
+				{
+					limit_pos = std::max(line_positions[line_positions.size() - 1], point_positions[point_positions.size() - 2]);
+				}
+			}
+
+			if (limit_pos != -1)
+			{
+				XSI::CString number_part = general_path.GetSubString(limit_pos + 1);
+				if (is_number(number_part))
+				{
+					return (general_path.GetSubString(0, limit_pos + 1) + XSI::CString(f) + "." + ext).GetAsciiString();
+				}
+				else
+				{// the part is not a number
+					return path.GetAsciiString();
+				}
+			}
+			else
+			{// no . or _ before extension, so, can't recognize the frame number
+				return path.GetAsciiString();
+			}
+		}
+		else
+		{// no point in the path, so, no extension
+			return path.GetAsciiString();
+		}
+	}
 }

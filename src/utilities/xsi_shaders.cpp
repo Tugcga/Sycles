@@ -3,8 +3,10 @@
 #include <xsi_shader.h>
 #include <xsi_time.h>
 #include <xsi_color4f.h>
+#include <xsi_fcurve.h>
 
 #include "xsi_shaders.h"
+#include "logs.h"
 
 ShaderParameterType get_shader_parameter_type(XSI::ShaderParameter& parameter)
 {
@@ -43,6 +45,35 @@ ShaderParameterType get_shader_parameter_type(XSI::ShaderParameter& parameter)
 	}
 }
 
+XSI::CString get_output_parameter_connected_to_input_parameter(const XSI::Shader &xsi_shader, const XSI::CString &input_name)
+{
+	XSI::CParameterRefArray xsi_parameters = xsi_shader.GetParameters();
+	for (ULONG i = 0; i < xsi_parameters.GetCount(); i++)
+	{
+		XSI::ShaderParameter param(xsi_parameters[i]);
+		XSI::CString param_name = param.GetName();
+		if (param_name.Length() > 0)
+		{
+			bool is_input;
+			XSI::siShaderParameterType param_type = xsi_shader.GetShaderParameterType(param_name, is_input);
+			if (!is_input)
+			{
+				XSI::CRefArray targets = xsi_shader.GetShaderParameterTargets(param_name);
+				for (LONG j = 0; j < targets.GetCount(); j++)
+				{
+					XSI::ShaderParameter p = targets.GetItem(j);
+					if (p.GetName() == input_name)
+					{
+						return param_name;
+					}
+				}
+			}
+		}
+	}
+
+	return "";
+}
+
 XSI::ShaderParameter get_root_shader_parameter(const XSI::CRefArray& first_level_shaders, const XSI::CString& root_parameter_name, bool check_substring)
 {
 	for (ULONG i = 0; i < first_level_shaders.GetCount(); i++)
@@ -52,14 +83,14 @@ XSI::ShaderParameter get_root_shader_parameter(const XSI::CRefArray& first_level
 		for (ULONG j = 0; j < shader_params.GetCount(); j++)
 		{
 			XSI::Parameter parameter(shader_params.GetItem(j));
-			XSI::CString parameter_name = parameter.GetName();
+			XSI::CString node_parameter_name = parameter.GetName();
 			bool is_input;
-			XSI::siShaderParameterType param_type = shader.GetShaderParameterType(parameter_name, is_input);
+			XSI::siShaderParameterType param_type = shader.GetShaderParameterType(node_parameter_name, is_input);
 			// here there is a bug in Softimage: output parameter does not visible or interpreter as input, when it is a port, created from inside of the compound
 			if (!is_input)
 			{
 				// this is output shader parameter
-				XSI::CRefArray targets = shader.GetShaderParameterTargets(parameter_name);
+				XSI::CRefArray targets = shader.GetShaderParameterTargets(node_parameter_name);
 				for (LONG k = 0; k < targets.GetCount(); k++)
 				{
 					XSI::ShaderParameter p = targets.GetItem(k);
@@ -71,13 +102,15 @@ XSI::ShaderParameter get_root_shader_parameter(const XSI::CRefArray& first_level
 			}
 		}
 	}
+
 	return XSI::ShaderParameter();
 }
 
 bool is_shader_compound(const XSI::Shader& shader)
 {
-	XSI::CRefArray sub_shaders = shader.GetAllShaders();
-	return sub_shaders.GetCount() > 0;
+	return shader.GetShaderType() == XSI::siShaderCompound;
+	//XSI::CRefArray sub_shaders = shader.GetAllShaders();
+	//return sub_shaders.GetCount() > 0;
 }
 
 XSI::Shader get_input_node(const XSI::ShaderParameter& parameter, bool ignore_converters)
@@ -137,7 +170,7 @@ XSI::Shader get_input_node(const XSI::ShaderParameter& parameter, bool ignore_co
 	}
 }
 
-XSI::Parameter get_source_parameter(XSI::Parameter& parameter)
+XSI::ShaderParameter get_source_parameter(const XSI::ShaderParameter &parameter, bool return_output)
 {
 	XSI::CRef source = parameter.GetSource();
 	if (source.IsValid())
@@ -153,7 +186,7 @@ XSI::Parameter get_source_parameter(XSI::Parameter& parameter)
 			if (source_prog_id.GetSubString(0, 13) == "XSIRTCOMPOUND")
 			{
 				// parameter connected to the compound port, try to find next connection
-				return get_source_parameter(source_param);
+				return get_source_parameter(source_param, return_output);
 			}
 			else
 			{
@@ -165,24 +198,24 @@ XSI::Parameter get_source_parameter(XSI::Parameter& parameter)
 					{
 						// find substring, this is passtrouhg node
 						// get input parameter of the node
-						XSI::Parameter p = source_node.GetParameter("input");
-						return get_source_parameter(p);
+						XSI::ShaderParameter p(source_node.GetParameter("input"));
+						return get_source_parameter(p, return_output);
 					}
 					else
 					{
-						return parameter;
+						return return_output ? source_param : parameter;
 					}
 				}
 				else
 				{
-					// this is any shader node, so, our parameter connected to something, return itself
-					return parameter;
+					// this is any shader node, so, our parameter connected to something
+					return return_output ? source_param : parameter;
 				}
 			}
 		}
 		else
 		{
-			// parameter connect not to the shader parameter, this is wron, so, return the input parameter
+			// parameter connect not to the shader parameter, this is wrong, so, return the input parameter
 			return parameter;
 		}
 	}
@@ -195,48 +228,48 @@ XSI::Parameter get_source_parameter(XSI::Parameter& parameter)
 
 float get_float_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time)
 {
-	XSI::Parameter param = all_parameters.GetItem(parameter_name);
-	XSI::Parameter param_final = get_source_parameter(param);
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
 
 	return (float)param_final.GetValue(eval_time);
 }
 
 int get_int_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time)
 {
-	XSI::Parameter param = all_parameters.GetItem(parameter_name);
-	XSI::Parameter param_final = get_source_parameter(param);
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
 
 	return (int)param_final.GetValue(eval_time);
 }
 
 bool get_bool_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time)
 {
-	XSI::Parameter param = all_parameters.GetItem(parameter_name);
-	XSI::Parameter param_final = get_source_parameter(param);
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
 
 	return (bool)param_final.GetValue(eval_time);
 }
 
 XSI::CString get_string_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time)
 {
-	XSI::Parameter param = all_parameters.GetItem(parameter_name);
-	XSI::Parameter param_final = get_source_parameter(param);
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
 
 	return (XSI::CString)param_final.GetValue(eval_time);
 }
 
 XSI::MATH::CColor4f get_color_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time)
 {
-	XSI::Parameter param = all_parameters.GetItem(parameter_name);
-	XSI::Parameter param_final = get_source_parameter(param);
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
 
 	return (XSI::MATH::CColor4f)param_final.GetValue(eval_time);
 }
 
 XSI::MATH::CVector3 get_vector_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time)
 {
-	XSI::Parameter param = all_parameters.GetItem(parameter_name);
-	XSI::Parameter param_final = get_source_parameter(param);
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
 	XSI::CParameterRefArray v_params = param_final.GetParameters();
 	XSI::Parameter p[3];
 	p[0] = XSI::Parameter(v_params[0]);
@@ -244,4 +277,12 @@ XSI::MATH::CVector3 get_vector_parameter_value(const XSI::CParameterRefArray& al
 	p[2] = XSI::Parameter(v_params[2]);
 
 	return XSI::MATH::CVector3(p[0].GetValue(eval_time), p[1].GetValue(eval_time), p[2].GetValue(eval_time));
+}
+
+XSI::FCurve get_fcurve_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time)
+{
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
+
+	return (XSI::FCurve)param_final.GetValue(eval_time);
 }
