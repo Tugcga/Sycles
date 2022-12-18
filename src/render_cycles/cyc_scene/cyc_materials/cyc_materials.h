@@ -4,6 +4,7 @@
 
 #include <xsi_shader.h>
 #include <xsi_time.h>
+#include <xsi_shaderparameter.h>
 
 #include <unordered_map>
 

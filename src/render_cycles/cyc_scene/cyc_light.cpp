@@ -18,6 +18,7 @@
 #include <xsi_property.h>
 #include <xsi_status.h>
 
+#include "cyc_materials/cyc_materials.h"
 #include "../../render_cycles/update_context.h"
 #include "../../utilities/logs.h"
 #include "../../utilities/xsi_shaders.h"
@@ -27,20 +28,20 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 {
 	XSI::CRefArray xsi_shaders = xsi_light.GetShaders();
 	XSI::ShaderParameter root_parameter = get_root_shader_parameter(xsi_shaders, "LightShader", false);
-	XSI::MATH::CColor4f xsi_color(0.0, 0.0, 0.0, 0.0);
-	float xsi_intensity = 0.0f;
+	XSI::ShaderParameter color_parameter;
+	XSI::ShaderParameter intensity_parameter;
+	ULONG xsi_light_shader_id = 0;
 
 	if (root_parameter.IsValid())
 	{
 		XSI::Shader xsi_light_node = get_input_node(root_parameter);
 		if (xsi_light_node.IsValid() && xsi_light_node.GetProgID() == "Softimage.soft_light.1.0")
 		{
-			// TODO: supports shader networks here, read connections to color and intensity
-
 			// get color and intensity of the shader
 			XSI::CParameterRefArray all_params = xsi_light_node.GetParameters();
-			xsi_color = get_color_parameter_value(all_params, "color", eval_time);
-			xsi_intensity = get_float_parameter_value(all_params, "intensity", eval_time);
+			color_parameter = all_params.GetItem("color");
+			intensity_parameter = all_params.GetItem("intensity");
+			xsi_light_shader_id = xsi_light_node.GetObjectID();
 		}
 	}
 
@@ -48,8 +49,30 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 	light_shader->name = "Light " + std::to_string(xsi_light.GetObjectID()) + " shader";
 	ccl::ShaderGraph* graph = new ccl::ShaderGraph();
 	ccl::EmissionNode* node = new ccl::EmissionNode();
-	node->set_color(color4_to_float3(xsi_color));
-	node->set_strength(xsi_intensity);
+
+	std::unordered_map<ULONG, ccl::ShaderNode*> nodes_map;
+
+	// emission node has input Color and Strength ports
+	// so, we should try to connect it to nodes, connected to original color and intensity ports
+	// we should get shader node, connected to the color shader parameter (if it valid)
+	if (color_parameter.IsValid())
+	{
+		sync_float3_parameter(color_parameter, "Color", node, graph, nodes_map, eval_time);
+	}
+	else
+	{
+		node->set_color(ccl::make_float3(0.0, 0.0, 0.0));
+	}
+
+	if (intensity_parameter.IsValid())
+	{
+		sync_float_parameter(intensity_parameter, "Strength", node, graph, nodes_map, eval_time);
+	}
+	else
+	{
+		node->set_strength(0.0f);
+	}
+	
 	graph->add(node);
 	ccl::ShaderNode* out = graph->output();
 	graph->connect(node->output("Emission"), out->input("Surface"));
@@ -103,6 +126,8 @@ void sync_xsi_light_tfm(ccl::Light* light, const XSI::Light& xsi_light, const XS
 void sync_xsi_light(ccl::Scene* scene, ccl::Light* light, ccl::Shader* light_shader, const XSI::Light &xsi_light, const XSI::CTime &eval_time)
 {
 	// get light shader
+	// here we need shader only for light parameters (spread and umbra)
+	// actual shader created in another place
 	XSI::CRefArray xsi_shaders = xsi_light.GetShaders();
 	XSI::ShaderParameter root_parameter = get_root_shader_parameter(xsi_shaders, "LightShader", false);
 	float xsi_spread = 1.0f;  // in degrees, used only for infinite light, define the size of the sun
