@@ -256,8 +256,10 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 	else
 	{
 		// in all other cases use scene from the Softimage
+		sync_scene_materials(scene, update_context);
 		sync_camera(scene, update_context);
 		sync_xsi_lights(scene, update_context->get_xsi_lights(), update_context);
+		sync_custom_lights(scene, update_context->get_custom_lights(), update_context, render_parameters);
 		if (!update_context->get_use_background_light())
 		{
 			sync_background_color(scene, update_context, render_parameters);

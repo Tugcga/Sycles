@@ -51,6 +51,8 @@ void UpdateContext::reset()
 	lights_xsi_to_cyc.clear();
 	material_xsi_to_cyc.clear();
 	shaderball_material_to_node.clear();
+	background_light_index = -1;
+	need_update_background = false;
 }
 
 void UpdateContext::set_is_update_scene(bool value)
@@ -467,13 +469,16 @@ void UpdateContext::setup_scene_objects(const XSI::CRefArray& isolation_list, co
 				{
 					XSI::X3DObject xsi_object(object_ref);
 					XSI::CString object_type = xsi_object.GetType();
-					if (object_type == "polymsh")
+					if (is_render_visible(xsi_object, eval_time))
 					{
-						scene_polymeshes.push_back(xsi_object);
-					}
-					else if (object_type == "cyclesPoint")  // types of custom lights, TODO: addd another supported types (or change their names)
-					{
-						scene_custom_lights.push_back(xsi_object);
+						if (object_type == "polymsh")
+						{
+							scene_polymeshes.push_back(xsi_object);
+						}
+						else if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea" || object_type == "cyclesBackground")
+						{
+							scene_custom_lights.push_back(xsi_object);
+						}
 					}
 				}
 				else
@@ -488,6 +493,11 @@ void UpdateContext::setup_scene_objects(const XSI::CRefArray& isolation_list, co
 const std::vector<XSI::Light>& UpdateContext::get_xsi_lights()
 {
 	return scene_xsi_lights;
+}
+
+const std::vector<XSI::X3DObject>& UpdateContext::get_custom_lights()
+{
+	return scene_custom_lights;
 }
 
 void UpdateContext::add_light_index(ULONG xsi_light_id, size_t cyc_light_index)
@@ -510,9 +520,36 @@ bool UpdateContext::get_use_background_light()
 	return use_background_light;
 }
 
-void UpdateContext::set_background_light_index(size_t value)
+void UpdateContext::set_use_background_light(size_t shader_index, ULONG material_id)
+{
+	use_background_light = true;
+	background_shader_index = shader_index;
+	background_xsi_material_id = material_id;
+}
+
+void UpdateContext::reset_need_update_background()
+{
+	need_update_background = false;
+}
+
+void UpdateContext::activate_need_update_background()
+{
+	need_update_background = true;
+}
+
+bool UpdateContext::is_need_update_background()
+{
+	return need_update_background;
+}
+
+void UpdateContext::set_background_light_index(int value)
 {
 	background_light_index = value;
+}
+
+int UpdateContext::get_background_light_index()
+{
+	return background_light_index;
 }
 
 const XSI::X3DObject& UpdateContext::get_shaderball()
@@ -581,4 +618,14 @@ ULONG UpdateContext::get_shaderball_material_node(ULONG material_id)
 	{
 		return 0;
 	}
+}
+
+size_t UpdateContext::get_background_shader_index()
+{
+	return background_shader_index;
+}
+
+ULONG UpdateContext::get_background_xsi_material_id()
+{
+	return background_xsi_material_id;
 }

@@ -8,6 +8,9 @@
 #include <xsi_arrayparameter.h>
 #include <xsi_parameter.h>
 #include <xsi_kinematics.h>
+#include <xsi_light.h>
+
+#include "logs.h"
 
 bool is_render_visible(XSI::X3DObject& xsi_object, const XSI::CTime &eval_time)
 {
@@ -33,7 +36,7 @@ bool get_xsi_object_property(XSI::X3DObject &xsi_object, const XSI::CString &pro
 	}
 }
 
-bool obtain_subsub_directions(const XSI::Shader &xsi_shader, float &sun_x, float &sun_y, float &sun_z)
+bool obtain_subsub_directions(const XSI::Shader &xsi_shader, float &sun_x, float &sun_y, float &sun_z, const XSI::CTime &eval_time)
 {
 	XSI::CRef parent = xsi_shader.GetParent();
 	XSI::Material parent_material(parent);
@@ -47,19 +50,35 @@ bool obtain_subsub_directions(const XSI::Shader &xsi_shader, float &sun_x, float
 			for (size_t i = 0; i < children.GetCount(); i++)
 			{
 				XSI::X3DObject c = children.GetItem(i);
-				XSI::CParameterRefArray params = c.GetParameters();
-				XSI::Parameter lightType = params.GetItem("cycles_primitive_type");
-				XSI::CValue light_type = lightType.GetValue();
-				if (!light_type.IsEmpty())
+				if (is_render_visible(c, eval_time))
 				{
-					XSI::CString type_str(light_type);
-					if (type_str == "light_sun")
+					bool use_native_sun = false;
+					XSI::siClassID c_class = c.GetClassID();
+					if (c_class == XSI::siClassID::siLightID)
 					{
-						XSI::MATH::CMatrix4 light_transform = c.GetKinematics().GetGlobal().GetTransform().GetMatrix4();
-						sun_x = light_transform.GetValue(2, 0);
-						sun_y = light_transform.GetValue(2, 1);
-						sun_z = light_transform.GetValue(2, 2);
-						return true;
+						XSI::Light c_light(c);
+						int xsi_light_type = c_light.GetParameterValue("Type", eval_time);
+						if (xsi_light_type == 1)
+						{
+							use_native_sun = true;
+						}
+					}
+
+					XSI::CParameterRefArray params = c.GetParameters();
+					XSI::Parameter lightType = params.GetItem("cycles_primitive_type");
+
+					XSI::CValue light_type = lightType.GetValue();
+					if (use_native_sun || !light_type.IsEmpty())
+					{
+						XSI::CString type_str(light_type);
+						if (use_native_sun || type_str == "light_sun")
+						{
+							XSI::MATH::CMatrix4 light_transform = c.GetKinematics().GetGlobal().GetTransform().GetMatrix4();
+							sun_x = light_transform.GetValue(2, 0);
+							sun_y = light_transform.GetValue(2, 1);
+							sun_z = light_transform.GetValue(2, 2);
+							return true;
+						}
 					}
 				}
 			}

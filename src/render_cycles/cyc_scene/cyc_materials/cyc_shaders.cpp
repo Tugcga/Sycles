@@ -514,7 +514,7 @@ ccl::ShaderNode* sync_cycles_shader(const XSI::Shader& xsi_shader, const XSI::CS
 		float sun_x;
 		float sun_y;
 		float sun_z;
-		bool is_subsun = obtain_subsub_directions(xsi_shader, sun_x, sun_y, sun_z);
+		bool is_subsun = obtain_subsub_directions(xsi_shader, sun_x, sun_y, sun_z, eval_time);
 
 		float dirSquare = sun_direction_x * sun_direction_x + sun_direction_y * sun_direction_y + sun_direction_z * sun_direction_z;
 		if (dirSquare > 0.01)

@@ -102,6 +102,9 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\names_converter.cpp">
       <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_primitives\prim_lights.cpp">
+      <Filter>render_cycles\cyc_primitives</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -136,6 +139,9 @@
     </Filter>
     <Filter Include="render_cycles\cyc_scene\cyc_polymesh">
       <UniqueIdentifier>{7e87cc52-fa43-488f-8355-f42d29f71e73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_cycles\cyc_primitives">
+      <UniqueIdentifier>{74842a32-f7db-4fe0-ac31-a53b3160c692}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -12,6 +12,16 @@
 #include "../../render_base/type_enums.h"
 #include "../../input/input.h"
 
+enum CustomLightType
+{
+	CustomLightType_Point,
+	CustomLightType_Sun,
+	CustomLightType_Spot,
+	CustomLightType_Area,
+	CustomLightType_Background,
+	CustomLightType_Unknown
+};
+
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
@@ -20,6 +30,7 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context);
 
 // cyc_light
 void sync_xsi_lights(ccl::Scene* scene, const std::vector<XSI::Light>& xsi_lights, UpdateContext* update_context);
+void sync_custom_lights(ccl::Scene* scene, const std::vector<XSI::X3DObject>& custom_lights, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
 void sync_background_color(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
 
 // this method called when we change ambience color
@@ -28,6 +39,7 @@ XSI::CStatus update_background_color(ccl::Scene* scene, UpdateContext* update_co
 XSI::CStatus update_background_parameters(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
 XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, const XSI::Light& xsi_light);
 XSI::CStatus update_xsi_light_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::Light& xsi_light);
+void update_background(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
 
 // cyc_materials
 // this method used only for developing
@@ -38,6 +50,7 @@ int create_emission_checker(ccl::Scene* scene, float checker_scale);
 int sync_material(ccl::Scene* scene, const XSI::Material& xsi_material, const XSI::CTime& eval_time);  // return shader index in the Cycles shaders array
 int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader, bool is_surface, const XSI::CTime& eval_time);
 int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_texture, const XSI::CTime& eval_time);
+void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context);
 XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_material, size_t shader_index, const XSI::CTime& eval_time);
 XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, const XSI::CTime& eval_time);
 

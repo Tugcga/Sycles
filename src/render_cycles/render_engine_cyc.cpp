@@ -199,6 +199,7 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	update_context->set_image_size(image_full_size_width, image_full_size_height);
 	update_context->set_camera(camera);
 	update_context->set_time(eval_time);
+	update_context->reset_need_update_background();
 
 	// memorize current project path
 	set_project_path();
@@ -471,6 +472,11 @@ XSI::CStatus RenderEngineCyc::post_scene()
 		{
 			update_background_parameters(session->scene, update_context, m_render_parameters);
 		}
+	}
+
+	if (update_context->is_need_update_background())
+	{
+		update_background(session->scene, update_context, m_render_parameters);
 	}
 
 	if (!is_update_camera && update_context->is_change_render_parameters_camera(changed_render_parameters))

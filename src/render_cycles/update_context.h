@@ -79,8 +79,13 @@ public:
 	void set_render_type(RenderType value);
 	RenderType get_render_type();
 
+	void reset_need_update_background();
+	void activate_need_update_background();
+	bool is_need_update_background();
+
 	void setup_scene_objects(const XSI::CRefArray &isolation_list, const XSI::CRefArray &lights_list, const XSI::CRefArray& scene_list, const XSI::CRefArray &all_objects_list);
 	const std::vector<XSI::Light>& get_xsi_lights();
+	const std::vector<XSI::X3DObject>& get_custom_lights();
 	void add_light_index(ULONG xsi_light_id, size_t cyc_light_index);
 	bool is_xsi_light_exists(ULONG xsi_id);
 	size_t get_xsi_light_cycles_index(ULONG xsi_id);
@@ -88,7 +93,11 @@ public:
 	const std::vector<XSI::X3DObject>& get_scene_polymeshes();
 
 	bool get_use_background_light();
-	void set_background_light_index(size_t value);
+	void set_use_background_light(size_t shader_index, ULONG material_id);  // activate use backgound light
+	void set_background_light_index(int value);
+	int get_background_light_index();
+	size_t get_background_shader_index();
+	ULONG get_background_xsi_material_id();
 
 	void add_material_index(ULONG xsi_id, size_t cyc_shader_index, ShaderballType shaderball_type);
 	bool is_material_exists(ULONG xsi_id);
@@ -104,6 +113,10 @@ private:
 	// at the very start it set to false, but if something should be changed, then is set to true
 	// if it false, then we should not render, because the visual buffer already contains rendered image
 	bool is_update_scene;
+
+	// set true if we change something in the scene and this may effect to the backgound
+	// set false in every pre scene process
+	bool need_update_background;
 
 	// the name of the display channel from previous render call
 	XSI::CString prev_dispaly_pass_name;
@@ -136,8 +149,10 @@ private:
 	std::vector<XSI::X3DObject> scene_polymeshes;
 
 	bool use_background_light;  // set true when we use background light source from the scene, if false, then use only ambient color
-	size_t background_light_index;  // store here background light index in the Cycles array (we always create background light, from scene on manual)
-	std::unordered_map<ULONG, size_t> lights_xsi_to_cyc; // map from Softimage object id for Ligth (not for x3dobject) to index in the Cycles array of lights
+	size_t background_shader_index;  // index in the Cycles array of shaders
+	ULONG background_xsi_material_id;  // material id from library, used for custom backround light source
+	int background_light_index;  // store here background light index in the Cycles array (we always create background light, from scene on manual), when no light is assigned, then -1
+	std::unordered_map<ULONG, size_t> lights_xsi_to_cyc; // map from Softimage object id for Ligth (not for x3dobject) to index in the Cycles array of lights, for custm light from x3dobject id to cycles index
 	std::unordered_map<ULONG, size_t> material_xsi_to_cyc;  // key - object id, value - index of the shader
 	// for shaderball material we use object id of the Node for shaderball (material, shader or texture)
 

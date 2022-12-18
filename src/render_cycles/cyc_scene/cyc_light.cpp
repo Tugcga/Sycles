@@ -19,6 +19,7 @@
 #include <xsi_status.h>
 
 #include "cyc_materials/cyc_materials.h"
+#include "cyc_scene.h"
 #include "../../render_cycles/update_context.h"
 #include "../../utilities/logs.h"
 #include "../../utilities/xsi_shaders.h"
@@ -256,20 +257,24 @@ void sync_xsi_lights(ccl::Scene* scene, const std::vector<XSI::Light> &xsi_light
 	}
 }
 
-ccl::ShaderGraph* build_backgound_default_graph(const XSI::MATH::CColor4f &color)
+void sync_custom_light(ccl::Scene* scene, CustomLightType light_type, const XSI::CParameterRefArray &xsi_parameters, const XSI::KinematicState &xsi_kine, const XSI::CTime &eval_time)
 {
-	ccl::ShaderGraph* bg_graph = new ccl::ShaderGraph();
-	ccl::BackgroundNode* bg_node = bg_graph->create_node<ccl::BackgroundNode>();
-	bg_node->input("Color")->set(color4_to_float3(color));
-	bg_node->input("Strength")->set(1.0f);
-	ccl::ShaderNode* bg_out = bg_graph->output();
-	bg_graph->add(bg_node);
-	bg_graph->connect(bg_node->output("Background"), bg_out->input("Surface"));
+	//ccl::Light* light = scene->create_node<ccl::Light>();
 
-	return bg_graph;
+
 }
 
-void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
+CustomLightType get_custom_light_type(const XSI::CString &type_str)
+{
+	if (type_str == "cyclesPoint") { return CustomLightType_Point; }
+	else if (type_str == "cyclesSun") { return CustomLightType_Sun; }
+	else if (type_str == "cyclesSpot") { return CustomLightType_Spot; }
+	else if (type_str == "cyclesArea") { return CustomLightType_Area; }
+	else if (type_str == "cyclesBackground") { return CustomLightType_Background; }
+	else { return CustomLightType_Unknown; }
+}
+
+void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
 {
 	background->set_transparent(render_parameters.GetValue("film_transparent", eval_time));
 	background->set_transparent_glass(background->get_transparent() ? (bool)render_parameters.GetValue("film_transparent_glass", eval_time) : false);
@@ -291,7 +296,7 @@ void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, 
 	bg_shader->set_volume_step_rate(render_parameters.GetValue("background_volume_step_rate", eval_time));
 }
 
-void set_background_light_params(ccl::Scene* scene, ccl::Light* light, ccl::Shader* bg_shader, const XSI::CParameterRefArray& render_parameters, const XSI::CTime &eval_time)
+void set_background_light_params(ccl::Scene* scene, ccl::Light* light, ccl::Shader* bg_shader, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
 {
 	int background_surface_sampling_method = render_parameters.GetValue("background_surface_sampling_method", eval_time);
 	int background_surface_resolution = render_parameters.GetValue("background_surface_resolution", eval_time);
@@ -311,13 +316,75 @@ void set_background_light(ccl::Scene* scene, ccl::Background* background, ccl::S
 	set_background_params(background, bg_shader, render_parameters, eval_time);
 
 	// add background light to the scene
-	ccl::Light* light = scene->create_node<ccl::Light>();
+	int bg_index = update_context->get_background_light_index();
+	ccl::Light* light;
+	if (bg_index >= 0)
+	{
+		light = scene->lights[bg_index];
+	}
+	else
+	{
+		light = scene->create_node<ccl::Light>();
+		update_context->set_background_light_index(scene->lights.size() - 1);
+	}
+
 	light->set_is_enabled(true);
 	light->set_light_type(ccl::LightType::LIGHT_BACKGROUND);
 
 	set_background_light_params(scene, light, bg_shader, render_parameters, eval_time);
+}
 
-	update_context->set_background_light_index(scene->lights.size() - 1);
+void sync_custom_background(ccl::Scene* scene, const XSI::X3DObject &xsi_object, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
+{
+	// at first we should get the shader
+	XSI::Material xsi_material = xsi_object.GetMaterial();
+	ULONG xsi_material_id = xsi_material.GetObjectID();
+	if (update_context->is_material_exists(xsi_material_id))
+	{
+		size_t shader_index = update_context->get_xsi_material_cycles_index(xsi_material_id);
+		if (shader_index >= 0 && shader_index < scene->shaders.size())
+		{
+			ccl::Shader* shader = scene->shaders[shader_index];
+			scene->default_background = shader;
+			set_background_light(scene, scene->background, scene->default_background, update_context, render_parameters, eval_time);
+			update_context->set_use_background_light(shader_index, xsi_material.GetObjectID());
+		}
+	}
+}
+
+void sync_custom_lights(ccl::Scene* scene, const std::vector<XSI::X3DObject>& custom_lights, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
+{
+	XSI::CTime eval_time = update_context->get_time();
+	for (size_t i = 0; i < custom_lights.size(); i++)
+	{
+		XSI::X3DObject xsi_object = custom_lights[i];
+		CustomLightType light_type = get_custom_light_type(xsi_object.GetType());
+		if (light_type != CustomLightType_Unknown)
+		{
+			if (light_type == CustomLightType_Background)
+			{
+				sync_custom_background(scene, xsi_object, update_context, render_parameters, eval_time);
+			}
+			else
+			{
+				sync_custom_light(scene, light_type, xsi_object.GetParameters(), xsi_object.GetKinematics().GetGlobal(), eval_time);
+				//update_context->add_light_index(xsi_object.GetObjectID(), scene->lights.size() - 1);
+			}
+		}
+	}
+}
+
+ccl::ShaderGraph* build_backgound_default_graph(const XSI::MATH::CColor4f &color)
+{
+	ccl::ShaderGraph* bg_graph = new ccl::ShaderGraph();
+	ccl::BackgroundNode* bg_node = bg_graph->create_node<ccl::BackgroundNode>();
+	bg_node->input("Color")->set(color4_to_float3(color));
+	bg_node->input("Strength")->set(1.0f);
+	ccl::ShaderNode* bg_out = bg_graph->output();
+	bg_graph->add(bg_node);
+	bg_graph->connect(bg_node->output("Background"), bg_out->input("Surface"));
+
+	return bg_graph;
 }
 
 XSI::MATH::CColor4f get_xsi_ambience(const XSI::CTime &eval_time)
@@ -343,6 +410,7 @@ XSI::MATH::CColor4f get_xsi_ambience(const XSI::CTime &eval_time)
 	return to_return;
 }
 
+// called at the scene creation process, if there are no background lights in custom lights array
 void sync_background_color(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
 {
 	XSI::CTime eval_time = update_context->get_time();
@@ -357,6 +425,7 @@ void sync_background_color(ccl::Scene* scene, UpdateContext* update_context, con
 	set_background_light(scene, scene->background, bg_shader, update_context, render_parameters, eval_time);
 }
 
+// called when we change ambience color of the scene
 XSI::CStatus update_background_color(ccl::Scene* scene, UpdateContext* update_context)
 {
 	if (!update_context->get_use_background_light())
@@ -367,11 +436,15 @@ XSI::CStatus update_background_color(ccl::Scene* scene, UpdateContext* update_co
 		ccl::Shader* bg_shader = scene->default_background;
 		bg_shader->set_graph(build_backgound_default_graph(ambience_color));
 		bg_shader->tag_update(scene);
+
+		// update the shader, no need to do this again
+		update_context->reset_need_update_background();
 	}
 
 	return XSI::CStatus::OK;
 }
 
+// called in post scene if we change background parameters from render settings
 XSI::CStatus update_background_parameters(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
 {
 	XSI::CTime eval_time = update_context->get_time();
@@ -393,6 +466,8 @@ XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, 
 		sync_xsi_light(scene, light, build_xsi_light_shader(scene, xsi_light, eval_time), xsi_light, eval_time);
 		light->tag_update(scene);
 
+		update_context->activate_need_update_background();
+
 		return XSI::CStatus::OK;
 	}
 	else
@@ -413,10 +488,27 @@ XSI::CStatus update_xsi_light_transform(ccl::Scene* scene, UpdateContext* update
 		sync_xsi_light_tfm(light, xsi_light, eval_time);
 		light->tag_update(scene);
 
+		// we may change position of the light for sun in background sky
+		update_context->activate_need_update_background();
+
 		return XSI::CStatus::OK;
 	}
 	else
 	{
 		return XSI::CStatus::Abort;
+	}
+}
+
+void update_background(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
+{
+	if (update_context->get_use_background_light())
+	{
+		size_t shader_index = update_context->get_background_shader_index();
+		ULONG material_id = update_context->get_background_xsi_material_id();
+		XSI::ProjectItem item = XSI::Application().GetObjectFromID(material_id);
+		XSI::Material xsi_material(item);
+
+		XSI::CStatus is_update = update_material(scene, xsi_material, shader_index, update_context->get_time());
+		set_background_light(scene, scene->background, scene->default_background, update_context, render_parameters, update_context->get_time());
 	}
 }

@@ -3,8 +3,17 @@
 #include <xsi_pluginregistrar.h>
 #include <xsi_status.h>
 
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h> // Needed for OpenGL on windows
+
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include "version.h"
 #include "input/input.h"
+
+extern GLUquadric* g_quadric = NULL;
 
 SICALLBACK XSILoadPlugin(XSI::PluginRegistrar& in_reg)
 {
@@ -56,6 +65,24 @@ SICALLBACK XSILoadPlugin(XSI::PluginRegistrar& in_reg)
 	in_reg.RegisterEvent("Cyc_OnObjectRemoved", XSI::siOnObjectRemoved);
 	in_reg.RegisterEvent("Cyc_OnNestedObjectsChange", XSI::siOnNestedObjectsChange);
 
+	in_reg.RegisterPrimitive("cyclesPoint");
+	in_reg.RegisterPrimitive("cyclesSun");
+	in_reg.RegisterPrimitive("cyclesSpot");
+	in_reg.RegisterPrimitive("cyclesArea");
+	in_reg.RegisterPrimitive("cyclesBackground");
+
+	if (g_quadric != NULL)
+	{
+		::gluDeleteQuadric(g_quadric);
+		g_quadric = NULL;
+	}
+	g_quadric = ::gluNewQuadric();
+	if (!g_quadric)
+	{
+		return XSI::CStatus::Fail;
+	}
+	::gluQuadricDrawStyle(g_quadric, GLU_SILHOUETTE);
+
 	return XSI::CStatus::OK;
 }
 
@@ -64,6 +91,12 @@ SICALLBACK XSIUnloadPlugin(const XSI::PluginRegistrar& in_reg)
 	XSI::CString strPluginName;
 	strPluginName = in_reg.GetName();
 	XSI::Application().LogMessage(strPluginName + " has been unloaded.", XSI::siVerboseMsg);
+
+	if (g_quadric != NULL)
+	{
+		::gluDeleteQuadric(g_quadric);
+		g_quadric = NULL;
+	}
 
 	return XSI::CStatus::OK;
 }

@@ -7,7 +7,11 @@
 #include <xsi_time.h>
 #include <xsi_shaderdef.h>
 #include <xsi_texture.h>
+#include <xsi_project.h>
+#include <xsi_scene.h>
+#include <xsi_materiallibrary.h>
 
+#include "../../update_context.h"
 #include "../../../utilities/logs.h"
 #include "../../../utilities/strings.h"
 #include "../../../utilities/xsi_shaders.h"
@@ -521,6 +525,33 @@ int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_textu
 	XSI::Shader xsi_texture_shader(xsi_texture);
 
 	return sync_shaderball_shadernode(scene, xsi_texture_shader, true, eval_time);
+}
+
+void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context)
+{
+	XSI::Scene xsi_scene = XSI::Application().GetActiveProject().GetActiveScene();
+	XSI::CRefArray material_libs = xsi_scene.GetMaterialLibraries();
+	XSI::CTime eval_time = update_context->get_time();
+
+	for (LONG lib_index = 0; lib_index < material_libs.GetCount(); lib_index++)
+	{
+		XSI::MaterialLibrary lib = material_libs.GetItem(lib_index);
+		XSI::CRefArray materials = lib.GetItems();
+		for (LONG mat_index = 0; mat_index < materials.GetCount(); mat_index++)
+		{
+			XSI::Material xsi_material = materials.GetItem(mat_index);
+			ULONG xsi_id = xsi_material.GetObjectID();
+			XSI::CRefArray used_objects = xsi_material.GetUsedBy();
+			if (used_objects.GetCount() > 0)
+			{
+				int shader_index = sync_material(scene, xsi_material, eval_time);
+				if (shader_index >= 0)
+				{
+					update_context->add_material_index(xsi_id, shader_index, ShaderballType_Unknown);
+				}
+			}
+		}
+	}
 }
 
 XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material &xsi_material, size_t shader_index, const XSI::CTime &eval_time)
