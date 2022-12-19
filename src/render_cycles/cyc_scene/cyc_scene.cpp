@@ -278,8 +278,13 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 		XSI::Light xsi_light(xsi_object);
 		return update_xsi_light_transform(scene, update_context, xsi_light);
 	}
+	else if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea")
+	{
+		return update_custom_light_transform(scene, update_context, xsi_object);
+	}
 	else
 	{// unknown object type
+		log_message("update transform for unknown " + object_type);
 		return XSI::CStatus::Abort;
 	}
 

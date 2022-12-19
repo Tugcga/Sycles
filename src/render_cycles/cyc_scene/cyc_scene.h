@@ -12,16 +12,6 @@
 #include "../../render_base/type_enums.h"
 #include "../../input/input.h"
 
-enum CustomLightType
-{
-	CustomLightType_Point,
-	CustomLightType_Sun,
-	CustomLightType_Spot,
-	CustomLightType_Area,
-	CustomLightType_Background,
-	CustomLightType_Unknown
-};
-
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
@@ -38,7 +28,9 @@ void sync_background_color(ccl::Scene* scene, UpdateContext* update_context, con
 XSI::CStatus update_background_color(ccl::Scene* scene, UpdateContext* update_context);
 XSI::CStatus update_background_parameters(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
 XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, const XSI::Light& xsi_light);
+XSI::CStatus update_custom_light(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object);
 XSI::CStatus update_xsi_light_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::Light& xsi_light);
+XSI::CStatus update_custom_light_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object);
 void update_background(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
 
 // cyc_materials

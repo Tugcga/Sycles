@@ -24,6 +24,7 @@
 #include "../../utilities/logs.h"
 #include "../../utilities/xsi_shaders.h"
 #include "../../utilities/math.h"
+#include "../../render_base/type_enums.h"
 
 ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_light, const XSI::CTime& eval_time)
 {
@@ -85,6 +86,23 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 	return light_shader;
 }
 
+// common method as for xsi lights and custom lights
+void sync_light_tfm(ccl::Light* light, const XSI::MATH::CMatrix4 &xsi_tfm_matrix)
+{
+	//XSI::MATH::CVector3 xsi_tfm_position = xsi_tfm.GetTranslation();  // translation does not changed by previous rotation, so, we can use it
+	XSI::MATH::CVector3 xsi_tfm_position = XSI::MATH::CVector3(xsi_tfm_matrix.GetValue(3, 0), xsi_tfm_matrix.GetValue(3, 1), xsi_tfm_matrix.GetValue(3, 2));
+	XSI::MATH::CVector3 xsi_tfm_direction = XSI::MATH::CVector3(-1 * xsi_tfm_matrix.GetValue(2, 0), -1 * xsi_tfm_matrix.GetValue(2, 1), -1 * xsi_tfm_matrix.GetValue(2, 2));
+
+	light->set_dir(vector3_to_float3(xsi_tfm_direction));
+	light->set_co(vector3_to_float3(xsi_tfm_position));
+
+	// also here set axis u and v
+	XSI::MATH::CVector3 xsi_axis_u = XSI::MATH::CVector3(xsi_tfm_matrix.GetValue(0, 0), xsi_tfm_matrix.GetValue(0, 1), xsi_tfm_matrix.GetValue(0, 2));
+	XSI::MATH::CVector3 xsi_axis_v = XSI::MATH::CVector3(xsi_tfm_matrix.GetValue(1, 0), xsi_tfm_matrix.GetValue(1, 1), xsi_tfm_matrix.GetValue(1, 2));
+	light->set_axisu(vector3_to_float3(xsi_axis_u));
+	light->set_axisv(vector3_to_float3(xsi_axis_v));
+}
+
 void sync_xsi_light_tfm(ccl::Light* light, const XSI::Light& xsi_light, const XSI::CTime& eval_time)
 {
 	bool xsi_area = xsi_light.GetParameterValue("LightArea", eval_time);
@@ -109,19 +127,7 @@ void sync_xsi_light_tfm(ccl::Light* light, const XSI::Light& xsi_light, const XS
 		XSI::MATH::CMatrix4 rotate_matrix = rotate_tfm.GetMatrix4();
 		xsi_tfm_matrix.Mul(rotate_matrix, xsi_tfm_matrix);
 	}
-
-	XSI::MATH::CVector3 xsi_tfm_position = xsi_tfm.GetTranslation();  // translation does not changed by previous rotation, so, we can use it
-	XSI::MATH::CVector3 xsi_tfm_direction = XSI::MATH::CVector3(-1 * xsi_tfm_matrix.GetValue(2, 0), -1 * xsi_tfm_matrix.GetValue(2, 1), -1 * xsi_tfm_matrix.GetValue(2, 2));
-
-	light->set_dir(vector3_to_float3(xsi_tfm_direction));
-	light->set_co(vector3_to_float3(xsi_tfm_position));
-
-	// also here set axis u and v
-	XSI::MATH::CVector3 xsi_axis_u = XSI::MATH::CVector3(xsi_tfm_matrix.GetValue(0, 0), xsi_tfm_matrix.GetValue(0, 1), xsi_tfm_matrix.GetValue(0, 2));
-	XSI::MATH::CVector3 xsi_axis_v = XSI::MATH::CVector3(xsi_tfm_matrix.GetValue(1, 0), xsi_tfm_matrix.GetValue(1, 1), xsi_tfm_matrix.GetValue(1, 2));
-	light->set_axisu(vector3_to_float3(xsi_axis_u));
-	light->set_axisv(vector3_to_float3(xsi_axis_v));
-
+	sync_light_tfm(light, xsi_tfm_matrix);
 }
 
 void sync_xsi_light(ccl::Scene* scene, ccl::Light* light, ccl::Shader* light_shader, const XSI::Light &xsi_light, const XSI::CTime &eval_time)
@@ -233,9 +239,6 @@ void sync_xsi_light(ccl::Scene* scene, ccl::Light* light, ccl::Shader* light_sha
 	light->set_use_scatter(true);
 	light->set_is_shadow_catcher(false);
 
-	// set transform
-	sync_xsi_light_tfm(light, xsi_light, eval_time);
-
 	light->set_random_id(ccl::hash_uint2(ccl::hash_string(xsi_light.GetUniqueName().GetAsciiString()), 0));
 }
 
@@ -251,17 +254,69 @@ void sync_xsi_lights(ccl::Scene* scene, const std::vector<XSI::Light> &xsi_light
 		ccl::Shader* light_shader = build_xsi_light_shader(scene, xsi_light, eval_time);
 		// setup light parameters
 		sync_xsi_light(scene, light, light_shader, xsi_light, eval_time);
+		sync_xsi_light_tfm(light, xsi_light, eval_time);
 
 		// save connection between light object in the Softimage scene and in the Cycles scene
 		update_context->add_light_index(xsi_light.GetObjectID(), scene->lights.size() - 1);
 	}
 }
 
-void sync_custom_light(ccl::Scene* scene, CustomLightType light_type, const XSI::CParameterRefArray &xsi_parameters, const XSI::KinematicState &xsi_kine, const XSI::CTime &eval_time)
+void sync_custom_light(ccl::Light* light, const XSI::CString &xsi_name, CustomLightType light_type, const XSI::CParameterRefArray &xsi_parameters, const XSI::CTime &eval_time)
 {
-	//ccl::Light* light = scene->create_node<ccl::Light>();
+	light->set_is_enabled(true);
 
+	if (light_type == CustomLightType_Point)
+	{
+		light->set_light_type(ccl::LightType::LIGHT_POINT);
+		light->set_size(xsi_parameters.GetValue("size", eval_time));
+	}
+	else if (light_type == CustomLightType_Sun)
+	{
+		light->set_light_type(ccl::LightType::LIGHT_DISTANT);
+		light->set_angle(xsi_parameters.GetValue("angle", eval_time));
+	}
+	else if (light_type == CustomLightType_Spot)
+	{
+		light->set_light_type(ccl::LightType::LIGHT_SPOT);
+		light->set_size(xsi_parameters.GetValue("size", eval_time));
+		light->set_spot_angle(DEG2RADF((float)xsi_parameters.GetValue("spot_angle", eval_time)));
+		light->set_spot_smooth(xsi_parameters.GetValue("spot_smooth", eval_time));
+	}
+	else if (light_type == CustomLightType_Area)
+	{
+		light->set_light_type(ccl::LightType::LIGHT_AREA);
+		light->set_size(1.0f);
+		light->set_sizeu(xsi_parameters.GetValue("sizeU", eval_time));
+		light->set_sizev(xsi_parameters.GetValue("sizeV", eval_time));
+		light->set_is_portal(xsi_parameters.GetValue("is_portal", eval_time));
+		light->set_spread(DEG2RADF((float)xsi_parameters.GetValue("spread", eval_time)));
+		XSI::CValue shape_value = xsi_parameters.GetValue("shape", eval_time);
+		bool is_round = false;
+		if (!shape_value.IsEmpty())
+		{
+			is_round = static_cast<int>(shape_value) != 0;
+		}
+		light->set_round(is_round);
+	}
 
+	light->set_strength(ccl::one_float3() * (float)xsi_parameters.GetValue("power", eval_time));
+	light->set_cast_shadow(xsi_parameters.GetValue("cast_shadow", eval_time));
+	light->set_use_mis(xsi_parameters.GetValue("multiple_importance", eval_time));
+	light->set_max_bounces(xsi_parameters.GetValue("max_bounces", eval_time));
+	light->set_use_camera(xsi_parameters.GetValue("use_camera", eval_time));
+	light->set_use_diffuse(xsi_parameters.GetValue("use_diffuse", eval_time));
+	light->set_use_glossy(xsi_parameters.GetValue("use_glossy", eval_time));
+	light->set_use_transmission(xsi_parameters.GetValue("use_transmission", eval_time));
+	light->set_use_scatter(xsi_parameters.GetValue("use_scatter", eval_time));
+	light->set_is_shadow_catcher(xsi_parameters.GetValue("is_shadow_catcher", eval_time));
+
+	light->set_random_id(ccl::hash_uint2(ccl::hash_string(xsi_name.GetAsciiString()), 0));
+}
+
+void sync_custom_light_tfm(ccl::Light* light, const XSI::KinematicState &xsi_kine, const XSI::CTime& eval_time)
+{
+	XSI::MATH::CMatrix4 xsi_matrix = xsi_kine.GetTransform(eval_time).GetMatrix4();
+	sync_light_tfm(light, xsi_matrix);
 }
 
 CustomLightType get_custom_light_type(const XSI::CString &type_str)
@@ -367,8 +422,22 @@ void sync_custom_lights(ccl::Scene* scene, const std::vector<XSI::X3DObject>& cu
 			}
 			else
 			{
-				sync_custom_light(scene, light_type, xsi_object.GetParameters(), xsi_object.GetKinematics().GetGlobal(), eval_time);
-				//update_context->add_light_index(xsi_object.GetObjectID(), scene->lights.size() - 1);
+				// get light shader index
+				XSI::Material xsi_material = xsi_object.GetMaterial();
+				ULONG xsi_material_id = xsi_material.GetObjectID();
+				if (update_context->is_material_exists(xsi_material_id))
+				{
+					size_t shader_index = update_context->get_xsi_material_cycles_index(xsi_material_id);
+
+					ccl::Light* light = scene->create_node<ccl::Light>();
+					ccl::Shader* shader = scene->shaders[shader_index];
+					light->set_shader(shader);
+
+					sync_custom_light(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time);
+					sync_custom_light_tfm(light, xsi_object.GetKinematics().GetGlobal(), eval_time);
+
+					update_context->add_light_index(xsi_object.GetObjectID(), scene->lights.size() - 1);
+				}
 			}
 		}
 	}
@@ -476,6 +545,30 @@ XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, 
 	}
 }
 
+XSI::CStatus update_custom_light(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object)
+{
+	ULONG xsi_id = xsi_object.GetObjectID();
+	CustomLightType light_type = get_custom_light_type(xsi_object.GetType());
+	if (update_context->is_xsi_light_exists(xsi_id) && light_type != CustomLightType_Unknown && light_type != CustomLightType_Background)
+	{
+		size_t light_index = update_context->get_xsi_light_cycles_index(xsi_id);
+		XSI::CTime eval_time = update_context->get_time();
+
+		ccl::Light* light = scene->lights[light_index];
+
+		sync_custom_light(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time);
+		light->tag_update(scene);
+
+		update_context->activate_need_update_background();
+
+		return XSI::CStatus::OK;
+	}
+	else
+	{
+		return XSI::CStatus::Abort;
+	}
+}
+
 XSI::CStatus update_xsi_light_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::Light& xsi_light)
 {
 	ULONG xsi_id = xsi_light.GetObjectID();
@@ -489,6 +582,28 @@ XSI::CStatus update_xsi_light_transform(ccl::Scene* scene, UpdateContext* update
 		light->tag_update(scene);
 
 		// we may change position of the light for sun in background sky
+		update_context->activate_need_update_background();
+
+		return XSI::CStatus::OK;
+	}
+	else
+	{
+		return XSI::CStatus::Abort;
+	}
+}
+
+XSI::CStatus update_custom_light_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object)
+{
+	ULONG xsi_id = xsi_object.GetObjectID();
+	if (update_context->is_xsi_light_exists(xsi_id))
+	{
+		size_t light_index = update_context->get_xsi_light_cycles_index(xsi_id);
+		XSI::CTime eval_time = update_context->get_time();
+
+		ccl::Light* light = scene->lights[light_index];
+		sync_custom_light_tfm(light, xsi_object.GetKinematics().GetGlobal(), eval_time);
+		light->tag_update(scene);
+
 		update_context->activate_need_update_background();
 
 		return XSI::CStatus::OK;

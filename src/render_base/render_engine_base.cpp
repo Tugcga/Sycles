@@ -556,6 +556,7 @@ XSI::CStatus RenderEngineBase::scene_process()
 				XSI::SIObject xsi_obj = XSI::SIObject(in_ref);
 				XSI::siClassID class_id = in_ref.GetClassID();
 				XSI::CStatus update_status(XSI::CStatus::Undefined);
+
 				switch (class_id)
 				{
 					case XSI::siStaticKinematicStateID:
@@ -583,6 +584,22 @@ XSI::CStatus RenderEngineBase::scene_process()
 						break;
 					}
 					case XSI::siCustomPrimitiveID:
+					{
+						XSI::CString xsi_obj_name = xsi_obj.GetName();
+						XSI::X3DObject xsi_3d_obj(xsi_obj.GetParent());
+						if (xsi_obj_name == "cyclesPoint" || xsi_obj_name == "cyclesSun" || xsi_obj_name == "cyclesSpot" || xsi_obj_name == "cyclesArea")
+						{
+							update_status = update_scene(xsi_3d_obj, UpdateType_LightPrimitive);
+						}
+						else
+						{
+							if (xsi_obj.GetName() == "VDBPrimitive")
+							{// update parameters of vdb
+								update_status = update_scene(xsi_3d_obj, UpdateType_VDBPrimitive);
+							}
+						}
+						break;
+					}
 					case XSI::siPrimitiveID:
 					case XSI::siClusterID:
 					case XSI::siClusterPropertyID:

@@ -342,6 +342,14 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	{
 		XSI::Light xsi_light(xsi_object);
 		is_update = update_xsi_light(session->scene, update_context, xsi_light);
+		if (is_update == XSI::CStatus::OK)
+		{
+			is_update = update_transform(session->scene, update_context, xsi_object);
+		}
+	}
+	else if (update_type == UpdateType_LightPrimitive)
+	{
+		is_update = update_custom_light(session->scene, update_context, xsi_object);
 	}
 
 	update_context->set_is_update_scene(true);
@@ -421,6 +429,7 @@ XSI::CStatus RenderEngineCyc::create_scene()
 {
 	log_message("---create session---");
 	clear_session();
+
 	session = create_session(session_params, scene_params);
 	is_session = true;
 	create_new_scene = true;

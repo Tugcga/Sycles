@@ -171,8 +171,6 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 		}
 	}
 
-	
-
 	return session_params;
 }
 

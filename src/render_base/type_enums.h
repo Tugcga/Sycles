@@ -24,7 +24,9 @@ enum UpdateType
 	UpdateType_Subdivision,
 	UpdateType_Render,
 	UpdateType_GlobalAmbient,
-	UpdateType_Pass
+	UpdateType_Pass,
+	UpdateType_LightPrimitive,
+	UpdateType_VDBPrimitive
 };
 
 enum CameraType
@@ -40,4 +42,14 @@ enum ShaderballType
 	ShaderballType_VolumeShader,
 	ShaderballType_Texture,
 	ShaderballType_Unknown
+};
+
+enum CustomLightType
+{
+	CustomLightType_Point,
+	CustomLightType_Sun,
+	CustomLightType_Spot,
+	CustomLightType_Area,
+	CustomLightType_Background,
+	CustomLightType_Unknown
 };

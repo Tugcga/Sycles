@@ -53,6 +53,7 @@ void UpdateContext::reset()
 	shaderball_material_to_node.clear();
 	background_light_index = -1;
 	need_update_background = false;
+	use_background_light = false;
 }
 
 void UpdateContext::set_is_update_scene(bool value)
