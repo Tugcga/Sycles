@@ -54,6 +54,8 @@ void UpdateContext::reset()
 	background_light_index = -1;
 	need_update_background = false;
 	use_background_light = false;
+
+	lightgroups.clear();
 }
 
 void UpdateContext::set_is_update_scene(bool value)
@@ -185,7 +187,8 @@ bool UpdateContext::is_change_render_parameters_background(const std::unordered_
 		"film_transparent", "film_transparent_glass", "film_transparent_roughness",
 		"background_ray_visibility_camera", "background_ray_visibility_diffuse", "background_ray_visibility_glossy", "background_ray_visibility_transmission", "background_ray_visibility_scatter",
 		"background_volume_sampling", "background_volume_interpolation", "background_volume_homogeneous", "background_volume_step_rate",
-		"background_surface_sampling_method", "background_surface_max_bounces", "background_surface_resolution", "background_surface_shadow_caustics"
+		"background_surface_sampling_method", "background_surface_max_bounces", "background_surface_resolution", "background_surface_shadow_caustics",
+		"background_lightgroup"
 	};
 	return is_set_contains_from_array(parameters, background_parameters);
 }
@@ -629,4 +632,23 @@ size_t UpdateContext::get_background_shader_index()
 ULONG UpdateContext::get_background_xsi_material_id()
 {
 	return background_xsi_material_id;
+}
+
+void UpdateContext::add_lightgroup(const XSI::CString& name)
+{
+	if (name.Length() > 0)
+	{
+		lightgroups.insert(std::string(name.GetAsciiString()));
+	}
+}
+
+XSI::CStringArray UpdateContext::get_lightgropus()
+{
+	XSI::CStringArray to_return;
+	for (std::string v : lightgroups)
+	{
+		to_return.Add(XSI::CString(v.c_str()));
+	}
+
+	return to_return;
 }

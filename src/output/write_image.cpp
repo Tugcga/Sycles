@@ -364,6 +364,10 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 				{
 					pass_name = remove_prefix_from_aov_name(pass_name.c_str()).GetAsciiString();
 				}
+				else if (pass_type == ccl::PASS_COMBINED && pass_name.size() >= 9)
+				{
+					pass_name = remove_prefix_from_lightgroup_name(pass_name.c_str()).GetAsciiString();
+				}
 
 				if (components_count >= 1)
 				{

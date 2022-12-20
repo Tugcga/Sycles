@@ -261,7 +261,7 @@ void sync_xsi_lights(ccl::Scene* scene, const std::vector<XSI::Light> &xsi_light
 	}
 }
 
-void sync_custom_light(ccl::Light* light, const XSI::CString &xsi_name, CustomLightType light_type, const XSI::CParameterRefArray &xsi_parameters, const XSI::CTime &eval_time)
+void sync_custom_light(ccl::Light* light, const XSI::CString &xsi_name, CustomLightType light_type, const XSI::CParameterRefArray &xsi_parameters, const XSI::CTime &eval_time, XSI::CString &out_lightgroup)
 {
 	light->set_is_enabled(true);
 
@@ -309,8 +309,11 @@ void sync_custom_light(ccl::Light* light, const XSI::CString &xsi_name, CustomLi
 	light->set_use_transmission(xsi_parameters.GetValue("use_transmission", eval_time));
 	light->set_use_scatter(xsi_parameters.GetValue("use_scatter", eval_time));
 	light->set_is_shadow_catcher(xsi_parameters.GetValue("is_shadow_catcher", eval_time));
+	light->set_use_caustics(xsi_parameters.GetValue("shadow_caustics", eval_time));
 
 	light->set_random_id(ccl::hash_uint2(ccl::hash_string(xsi_name.GetAsciiString()), 0));
+	out_lightgroup = xsi_parameters.GetValue("lightgroup", eval_time);
+	light->set_lightgroup(ccl::ustring(out_lightgroup.GetAsciiString()));
 }
 
 void sync_custom_light_tfm(ccl::Light* light, const XSI::KinematicState &xsi_kine, const XSI::CTime& eval_time)
@@ -329,7 +332,7 @@ CustomLightType get_custom_light_type(const XSI::CString &type_str)
 	else { return CustomLightType_Unknown; }
 }
 
-void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
+void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, const XSI::CParameterRefArray& render_parameters, const XSI::CString &lightgroup, const XSI::CTime& eval_time)
 {
 	background->set_transparent(render_parameters.GetValue("film_transparent", eval_time));
 	background->set_transparent_glass(background->get_transparent() ? (bool)render_parameters.GetValue("film_transparent_glass", eval_time) : false);
@@ -342,6 +345,7 @@ void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, 
 	visibility |= bool(render_parameters.GetValue("background_ray_visibility_transmission", eval_time)) ? ccl::PATH_RAY_TRANSMIT : 0;
 	visibility |= bool(render_parameters.GetValue("background_ray_visibility_scatter", eval_time)) ? ccl::PATH_RAY_VOLUME_SCATTER : 0;
 	background->set_visibility(visibility);
+	background->set_lightgroup(ccl::ustring(lightgroup.GetAsciiString()));
 
 	bg_shader->set_heterogeneous_volume(render_parameters.GetValue("background_volume_homogeneous", eval_time));
 	int background_volume_sampling = render_parameters.GetValue("background_volume_sampling", eval_time);
@@ -368,7 +372,9 @@ void set_background_light_params(ccl::Scene* scene, ccl::Light* light, ccl::Shad
 
 void set_background_light(ccl::Scene* scene, ccl::Background* background, ccl::Shader* bg_shader, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
 {
-	set_background_params(background, bg_shader, render_parameters, eval_time);
+	XSI::CString lightgroup = render_parameters.GetValue("background_lightgroup", eval_time);
+	update_context->add_lightgroup(lightgroup);
+	set_background_params(background, bg_shader, render_parameters, lightgroup, eval_time);
 
 	// add background light to the scene
 	int bg_index = update_context->get_background_light_index();
@@ -433,7 +439,9 @@ void sync_custom_lights(ccl::Scene* scene, const std::vector<XSI::X3DObject>& cu
 					ccl::Shader* shader = scene->shaders[shader_index];
 					light->set_shader(shader);
 
-					sync_custom_light(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time);
+					XSI::CString lightgroup;
+					sync_custom_light(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time, lightgroup);
+					update_context->add_lightgroup(lightgroup);
 					sync_custom_light_tfm(light, xsi_object.GetKinematics().GetGlobal(), eval_time);
 
 					update_context->add_light_index(xsi_object.GetObjectID(), scene->lights.size() - 1);
@@ -556,7 +564,9 @@ XSI::CStatus update_custom_light(ccl::Scene* scene, UpdateContext* update_contex
 
 		ccl::Light* light = scene->lights[light_index];
 
-		sync_custom_light(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time);
+		XSI::CString lightgroup;
+		sync_custom_light(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time, lightgroup);
+		update_context->add_lightgroup(lightgroup);
 		light->tag_update(scene);
 
 		update_context->activate_need_update_background();

@@ -30,42 +30,50 @@ extern GLUquadric* g_quadric;
 void add_standard_parameters(CustomPrimitive& in_prim, CString primitiveTypeName)
 {
 	Factory fact = Application().GetFactory();
-	CRef typeDef = fact.CreateParamDef("cycles_primitive_type", CValue::siString, primitiveTypeName);
+	CRef type_def = fact.CreateParamDef("cycles_primitive_type", CValue::siString, primitiveTypeName);
 
-	CRef maxBouncesDef = fact.CreateParamDef("max_bounces", CValue::siInt4, kParamCaps, "max_bounces", "", 1024, 0, INT_MAX, 512, 2048);
-	CRef castShadowDef = fact.CreateParamDef("cast_shadow", CValue::siBool, kParamCaps, "cast_shadow", "", true, 0, 1, 0, 1);
-	CRef mulImpDef = fact.CreateParamDef("multiple_importance", CValue::siBool, kParamCaps, "multiple_importance", "", true, 0, 1, 0, 1);
-	CRef useCameraDef = fact.CreateParamDef("use_camera", CValue::siBool, kParamCaps, "use_camera", "", false, 0, 1, 0, 1);
-	CRef useDiffuseDef = fact.CreateParamDef("use_diffuse", CValue::siBool, kParamCaps, "use_diffuse", "", true, 0, 1, 0, 1);
-	CRef useGlossyDef = fact.CreateParamDef("use_glossy", CValue::siBool, kParamCaps, "use_glossy", "", true, 0, 1, 0, 1);
-	CRef useTransmissionDef = fact.CreateParamDef("use_transmission", CValue::siBool, kParamCaps, "use_transmission", "", true, 0, 1, 0, 1);
-	CRef useScatterDef = fact.CreateParamDef("use_scatter", CValue::siBool, kParamCaps, "use_scatter", "", true, 0, 1, 0, 1);
+	CRef max_bounces_def = fact.CreateParamDef("max_bounces", CValue::siInt4, kParamCaps, "max_bounces", "", 1024, 0, INT_MAX, 512, 2048);
+	CRef cast_shadow_def = fact.CreateParamDef("cast_shadow", CValue::siBool, kParamCaps, "cast_shadow", "", true, 0, 1, 0, 1);
+	CRef mis_def = fact.CreateParamDef("multiple_importance", CValue::siBool, kParamCaps, "multiple_importance", "", true, 0, 1, 0, 1);
+	CRef use_camera_def = fact.CreateParamDef("use_camera", CValue::siBool, kParamCaps, "use_camera", "", false, 0, 1, 0, 1);
+	CRef use_diffuse_def = fact.CreateParamDef("use_diffuse", CValue::siBool, kParamCaps, "use_diffuse", "", true, 0, 1, 0, 1);
+	CRef use_glossy_def = fact.CreateParamDef("use_glossy", CValue::siBool, kParamCaps, "use_glossy", "", true, 0, 1, 0, 1);
+	CRef use_transmission_def = fact.CreateParamDef("use_transmission", CValue::siBool, kParamCaps, "use_transmission", "", true, 0, 1, 0, 1);
+	CRef use_scatter_def = fact.CreateParamDef("use_scatter", CValue::siBool, kParamCaps, "use_scatter", "", true, 0, 1, 0, 1);
+	CRef shadow_caustics_def = fact.CreateParamDef("shadow_caustics", CValue::siBool, kParamCaps, "shadow_caustics", "", false, 0, 1, 0, 1);
 
 	CRef is_shadow_catcher_def = fact.CreateParamDef("is_shadow_catcher", CValue::siBool, kParamCaps, "is_shadow_catcher", "", true, 0, 1, 0, 1);
 
+	CRef lightgroup_def = fact.CreateParamDef("lightgroup", CValue::siString, kParamCaps, "lightgroup", "", "", "", "", "", "");
+
 	Parameter type;
-	Parameter maxBounces;
-	Parameter castShadow;
-	Parameter mulImp;
-	Parameter useCamera;
-	Parameter useDiffuse;
-	Parameter useGlossy;
-	Parameter useTransmission;
-	Parameter useScatter;
+	Parameter max_bounces;
+	Parameter cast_shadow;
+	Parameter mis;
+	Parameter use_camera;
+	Parameter use_diffuse;
+	Parameter use_glossy;
+	Parameter use_transmission;
+	Parameter use_scatter;
+	Parameter shadow_caustics;
 
 	Parameter is_shadow_catcher;
-	in_prim.AddParameter(typeDef, type);
+	Parameter lightgroup;
 
-	in_prim.AddParameter(maxBouncesDef, maxBounces);
-	in_prim.AddParameter(castShadowDef, castShadow);
-	in_prim.AddParameter(mulImpDef, mulImp);
-	in_prim.AddParameter(useCameraDef, useCamera);
-	in_prim.AddParameter(useDiffuseDef, useDiffuse);
-	in_prim.AddParameter(useGlossyDef, useGlossy);
-	in_prim.AddParameter(useTransmissionDef, useTransmission);
-	in_prim.AddParameter(useScatterDef, useScatter);
+	in_prim.AddParameter(type_def, type);
+
+	in_prim.AddParameter(max_bounces_def, max_bounces);
+	in_prim.AddParameter(cast_shadow_def, cast_shadow);
+	in_prim.AddParameter(mis_def, mis);
+	in_prim.AddParameter(use_camera_def, use_camera);
+	in_prim.AddParameter(use_diffuse_def, use_diffuse);
+	in_prim.AddParameter(use_glossy_def, use_glossy);
+	in_prim.AddParameter(use_transmission_def, use_transmission);
+	in_prim.AddParameter(use_scatter_def, use_scatter);
+	in_prim.AddParameter(shadow_caustics_def, shadow_caustics);
 
 	in_prim.AddParameter(is_shadow_catcher_def, is_shadow_catcher);
+	in_prim.AddParameter(lightgroup_def, lightgroup);
 }
 
 SICALLBACK cyclesPoint_Define(const CRef& in_ref)
@@ -89,6 +97,7 @@ SICALLBACK cyclesPoint_Define(const CRef& in_ref)
 		in_prim.AddParameter(rayLengthDef, rayLength);
 
 		add_standard_parameters(in_prim, "light_point");
+
 	}
 	return CStatus::OK;
 }
@@ -114,6 +123,8 @@ SICALLBACK cyclesPoint_DefineLayout(CRef& in_ctxt)
 	oLayout.AddItem("max_bounces", "Max Bounces");
 	oLayout.AddItem("cast_shadow", "Cast Shadow");
 	oLayout.AddItem("multiple_importance", "Multiple Importance");
+	oLayout.AddItem("shadow_caustics", "Shadow Caustics");
+	oLayout.AddItem("lightgroup", "Light Group");
 	oLayout.EndGroup();
 
 	oLayout.AddGroup("Mask");
@@ -336,6 +347,8 @@ SICALLBACK cyclesSun_DefineLayout(CRef& in_ctxt)
 	oLayout.AddItem("max_bounces", "Max Bounces");
 	oLayout.AddItem("cast_shadow", "Cast Shadow");
 	oLayout.AddItem("multiple_importance", "Multiple Importance");
+	oLayout.AddItem("shadow_caustics", "Shadow Caustics");
+	oLayout.AddItem("lightgroup", "Light Group");
 	oLayout.EndGroup();
 
 	oLayout.AddGroup("Mask");
@@ -523,6 +536,8 @@ SICALLBACK cyclesSpot_DefineLayout(CRef& in_ctxt)
 	oLayout.AddItem("max_bounces", "Max Bounces");
 	oLayout.AddItem("cast_shadow", "Cast Shadow");
 	oLayout.AddItem("multiple_importance", "Multiple Importance");
+	oLayout.AddItem("shadow_caustics", "Shadow Caustics");
+	oLayout.AddItem("lightgroup", "Light Group");
 	oLayout.EndGroup();
 
 	oLayout.AddGroup("Mask");
@@ -722,6 +737,8 @@ SICALLBACK cyclesArea_DefineLayout(CRef& in_ctxt)
 	oLayout.AddItem("max_bounces", "Max Bounces");
 	oLayout.AddItem("cast_shadow", "Cast Shadow");
 	oLayout.AddItem("multiple_importance", "Multiple Importance");
+	oLayout.AddItem("shadow_caustics", "Shadow Caustics");
+	oLayout.AddItem("lightgroup", "Light Group");
 	oLayout.EndGroup();
 
 	oLayout.AddGroup("Mask");

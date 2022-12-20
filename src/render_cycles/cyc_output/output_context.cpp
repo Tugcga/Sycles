@@ -392,7 +392,10 @@ void OutputContext::set_output_passes(MotionType motion_type, const XSI::CString
 		// channel for visual pass has proper name (Sycles Depth, for example)
 		// but name from FrameBuffer name of the render context contains names with _ instead of spaces
 		// so, we should replace _ to spaces for all names
-		ccl::PassType pass_type = channel_to_pass_type(replace_symbols(output_channels[i], "_", " "));  // convert from XSI channel name to Cycles pass type
+		XSI::CString output_channel_name = replace_symbols(output_channels[i], "_", " ");
+		bool is_lightgroup = output_channel_name == "Sycles Lightgroup";
+		ccl::PassType pass_type = channel_to_pass_type(output_channel_name);  // convert from XSI channel name to Cycles pass type
+		// for lightgroups pass type is Combined
 		if (motion_type == MotionType_Blur && pass_type == ccl::PASS_MOTION)
 		{
 			log_message("It's impossible to render Motion Pass with activated motion blur. Skip this pass from output.", XSI::siWarningMsg);
@@ -401,8 +404,8 @@ void OutputContext::set_output_passes(MotionType motion_type, const XSI::CString
 
 		if (pass_type != ccl::PASS_NONE && output_paths[i].Length() > 0)
 		{
-			XSI::CString pass_name = pass_to_name(pass_type);  // cover from Cycles pass type to the standart name
-			int pass_components = get_pass_components(pass_type);
+			XSI::CString pass_name = pass_to_name(pass_type);  // cover from Cycles pass type to the standart name (PASS_COMBINED -> Combined, for example)
+			int pass_components = get_pass_components(pass_type, is_lightgroup);
 			total_components += pass_components;
 
 			if (pass_type == ccl::PASS_AOV_COLOR || pass_type == ccl::PASS_AOV_VALUE)
@@ -415,15 +418,27 @@ void OutputContext::set_output_passes(MotionType motion_type, const XSI::CString
 					XSI::CString aov_name = add_prefix_to_aov_name(aov_names[aov_index], pass_type == ccl::PASS_AOV_COLOR);
 					// we assume that input arrays contains aov names without repetitions
 
-					int pass_components = get_pass_components(pass_type);
+					int pass_components = get_pass_components(pass_type, false);
 					total_components += pass_components;
 
 					// we should modify output pass, add at the end the name of the pass (original name, not modified)
 					add_one_pass_data(pass_type, aov_name, pass_components, i, add_aov_name_to_path(output_paths[i], aov_names[aov_index]));
 				}
 			}
+			else if (pass_type == ccl::PASS_COMBINED && is_lightgroup)
+			{
+				for (size_t lg_index = 0; lg_index < lightgroup_names.GetCount(); lg_index++)
+				{
+					XSI::CString lg_name = add_prefix_to_lightgroup_name(lightgroup_names[lg_index]);
+					int pass_components = get_pass_components(pass_type, true);
+					total_components += pass_components;
+
+					add_one_pass_data(pass_type, lg_name, pass_components, i, add_aov_name_to_path(output_paths[i], lightgroup_names[lg_index]));
+				}
+			}
 			else
 			{
+				// if pass is not aov or lightgroup, then use it default name
 				add_one_pass_data(pass_type, pass_name, pass_components, i, output_paths[i]);
 			}
 		}

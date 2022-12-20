@@ -84,7 +84,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		// next we should create new fragment to visualize it at the screen
 		// we does not need piszels anymore, so, we can apply color correction to this array
 		// apply color correction only to combined pass
-		if (render_type != RenderType_Shaderball && visual_buffer->get_pass_type() == ccl::PASS_COMBINED)
+		if (render_type != RenderType_Shaderball && visual_buffer->get_pass_type() == ccl::PASS_COMBINED && visual_components == 4)  // actual Combined has 4 components, but lightgroups only 3
 		{
 			color_transform_context->apply(tile_width, tile_height, visual_components, &pixels[0]);
 		}
@@ -104,7 +104,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	{
 		ccl::PassType pass_type = output_context->get_output_pass_type(i);
 		ccl::ustring pass_name = output_context->get_output_pass_name(i);
-		int pass_components = get_pass_components(pass_type);
+		int pass_components = get_pass_components(pass_type, pass_type == ccl::PASS_COMBINED && pass_name.size() >= 9);  // because lightgroup pass has the name Combined_... (length >= 9)
 		is_get = tile.get_pass_pixels(pass_name, pass_components, &pixels[0]);
 		if (is_get)
 		{
@@ -120,7 +120,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 void RenderEngineCyc::postrender_visual_output()
 {
 	// overlay labels and apply color correction only for combined pass
-	if (visual_buffer->get_pass_type() == ccl::PASS_COMBINED && render_type != RenderType_Shaderball && render_type != RenderType_Rendermap)
+	if (visual_buffer->get_pass_type() == ccl::PASS_COMBINED && render_type != RenderType_Shaderball && render_type != RenderType_Rendermap && visual_buffer->get_pass_name() == "Combined")
 	{
 		ULONG visual_width = visual_buffer->get_width();
 		ULONG visual_height = visual_buffer->get_height();
@@ -128,11 +128,12 @@ void RenderEngineCyc::postrender_visual_output()
 		{
 			// here we shold use the copy of the visual buffer pixels, because original pixels may be used later in the update
 			std::vector<float> visual_pixels = visual_buffer->get_buffer_pixels();
+			size_t components = visual_buffer->get_components();
 
 			// make color correction
 			if (color_transform_context->get_use_correction())
 			{
-				color_transform_context->apply(visual_width, visual_height, 4, &visual_pixels[0]);
+				color_transform_context->apply(visual_width, visual_height, components, &visual_pixels[0]);
 			}
 
 			// add labels
@@ -142,7 +143,7 @@ void RenderEngineCyc::postrender_visual_output()
 			}
 
 			// set render fragment
-			m_render_context.NewFragment(RenderTile(image_corner_x, image_corner_y, visual_width, visual_height, visual_pixels, false, 4));  // combined always have 4 components
+			m_render_context.NewFragment(RenderTile(image_corner_x, image_corner_y, visual_width, visual_height, visual_pixels, false, components));  // combined always have 4 components
 
 			// clear vector
 			visual_pixels.clear();
@@ -526,7 +527,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			m_render_parameters, eval_time);
 
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
-		sync_passes(session->scene, output_context, visual_buffer, update_context->get_motion_type());
+		sync_passes(session->scene, output_context, visual_buffer, update_context->get_motion_type(), update_context->get_lightgropus());
 
 		if (update_context->is_changed_render_paramters_film(changed_render_parameters))
 		{

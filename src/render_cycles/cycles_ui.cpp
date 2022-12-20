@@ -302,6 +302,10 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("background_volume_step_rate", "Step Size");
 	layout.EndGroup();
 
+	layout.AddGroup("Light Group");
+	layout.AddItem("background_lightgroup", "Light Group");
+	layout.EndGroup();
+
 	layout.AddGroup("Ray Visibility");
 	layout.AddItem("background_ray_visibility_diffuse", "Diffuse");
 	layout.AddItem("background_ray_visibility_glossy", "Glossy");
@@ -936,6 +940,8 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("background_surface_max_bounces", XSI::CValue::siUInt2, caps, "", "", 1024, 0, 1024, 0, 1024, param);
 	property.AddParameter("background_surface_resolution", XSI::CValue::siInt4, caps, "", "", 1024, 4, 8191, 4, 2048, param);
 	property.AddParameter("background_surface_shadow_caustics", XSI::CValue::siBool, caps, "", "", false, param);
+	// lightgroup
+	property.AddParameter("background_lightgroup", XSI::CValue::siString, caps, "", "", "", param);
 
 	// denoising tab
 	property.AddParameter("denoise_mode", XSI::CValue::siInt4, caps, "", "", 0, 0, 2, 0, 2, param);

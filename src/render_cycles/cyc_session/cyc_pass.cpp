@@ -21,6 +21,11 @@ XSI::CString add_prefix_to_aov_name(const XSI::CString &name, bool is_color)
     }
 }
 
+XSI::CString add_prefix_to_lightgroup_name(const XSI::CString& name)
+{
+    return "Combined_" + name;
+}
+
 XSI::CString remove_prefix_from_aov_name(const XSI::CString &name)
 {
     if (name.Length() >= 9)
@@ -33,6 +38,22 @@ XSI::CString remove_prefix_from_aov_name(const XSI::CString &name)
     }
 }
 
+XSI::CString remove_prefix_from_lightgroup_name(const XSI::CString &name)
+{
+    if (name.Length() >= 9)
+    {
+        return name.GetSubString(9);
+    }
+    else
+    {
+        return name;
+    }
+}
+
+// this function called for define name for visual buffer only
+// in pre render callback
+// channel_name is a name of preview channel (m_display_channel_name)
+// so, this name without _
 XSI::CString channel_name_to_pass_name(const XSI::CParameterRefArray& render_parameters, const XSI::CString& channel_name, const XSI::CTime& eval_time)
 {
     ccl::PassType local_pass_type = channel_to_pass_type(channel_name);
@@ -42,7 +63,12 @@ XSI::CString channel_name_to_pass_name(const XSI::CParameterRefArray& render_par
         local_pass_type = ccl::PASS_COMBINED;
     }
     XSI::CString local_pass_name = pass_to_name(local_pass_type);
-    if (local_pass_type == ccl::PASS_AOV_COLOR || local_pass_type == ccl::PASS_AOV_VALUE)
+    if (channel_name == "Sycles Lightgroup")
+    {
+        // we define local_pass_type as Combined, but we should change actual name to obtain not general combined pass, but lightgroup
+        local_pass_name = add_prefix_to_lightgroup_name(render_parameters.GetValue("output_pass_preview_name", eval_time));
+    }
+    else if (local_pass_type == ccl::PASS_AOV_COLOR || local_pass_type == ccl::PASS_AOV_VALUE)
     {// change the name of the pass into name from render parameters
         // at present time we does not know is this name correct or not
         // so, does not change it to correct name, but later show warning message, if the name is incorrect
@@ -60,46 +86,51 @@ ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name, cc
 	pass->set_name(name);
 	pass->set_mode(mode);
 
+    if (type == ccl::PASS_COMBINED && name.size() >= 9)
+    {
+        pass->set_lightgroup(ccl::ustring(remove_prefix_from_lightgroup_name(XSI::CString(name.c_str())).GetAsciiString()));
+    }
+
 	return pass;
 }
 
-int get_pass_components(ccl::PassType pass_type)
+int get_pass_components(ccl::PassType pass_type, bool is_lightgroup)
 {
-	ccl::PassInfo pass_info = ccl::Pass::get_info(pass_type);
+	ccl::PassInfo pass_info = ccl::Pass::get_info(pass_type, false, is_lightgroup);
 	return pass_info.num_components;
 }
 
 ccl::PassType channel_to_pass_type(const XSI::CString &channel_name)
 {
-	if (channel_name == "Sycles Combined" || channel_name == "Main") { return ccl::PASS_COMBINED; }
-	else if (channel_name == "Sycles Depth") { return ccl::PASS_DEPTH; }
-	else if (channel_name == "Sycles Position") { return ccl::PASS_POSITION; }
-	else if (channel_name == "Sycles Normal") { return ccl::PASS_NORMAL; }
-	else if (channel_name == "Sycles UV") { return ccl::PASS_UV; }
-	else if (channel_name == "Sycles Object ID") { return ccl::PASS_OBJECT_ID; }
-	else if (channel_name == "Sycles Material ID") { return ccl::PASS_MATERIAL_ID; }
-	else if (channel_name == "Sycles Diffuse Color") { return ccl::PASS_DIFFUSE_COLOR; }
-	else if (channel_name == "Sycles Glossy Color") { return ccl::PASS_GLOSSY_COLOR; }
-	else if (channel_name == "Sycles Transmission Color") { return ccl::PASS_TRANSMISSION_COLOR; }
-	else if (channel_name == "Sycles Diffuse Indirect") { return ccl::PASS_DIFFUSE_INDIRECT; }
-	else if (channel_name == "Sycles Glossy Indirect") { return ccl::PASS_GLOSSY_INDIRECT; }
-	else if (channel_name == "Sycles Transmission Indirect") { return ccl::PASS_TRANSMISSION_INDIRECT; }
-	else if (channel_name == "Sycles Diffuse Direct") { return ccl::PASS_DIFFUSE_DIRECT; }
-	else if (channel_name == "Sycles Glossy Direct") { return ccl::PASS_GLOSSY_DIRECT; }
-	else if (channel_name == "Sycles Transmission Direct") { return ccl::PASS_TRANSMISSION_DIRECT; }
-	else if (channel_name == "Sycles Emission") { return ccl::PASS_EMISSION; }
-	else if (channel_name == "Sycles Background") { return ccl::PASS_BACKGROUND; }
-	else if (channel_name == "Sycles AO") { return ccl::PASS_AO; }
-	else if (channel_name == "Sycles Shadow Catcher") { return ccl::PASS_SHADOW_CATCHER; }
-	else if (channel_name == "Sycles Shadow") { return ccl::PASS_SHADOW; }
-	else if (channel_name == "Sycles Motion") { return ccl::PASS_MOTION; }
-	else if (channel_name == "Sycles Mist") { return ccl::PASS_MIST; }
-	else if (channel_name == "Sycles Volume Direct") { return ccl::PASS_VOLUME_DIRECT; }
-	else if (channel_name == "Sycles Volume Indirect") { return ccl::PASS_VOLUME_INDIRECT; }
-	else if (channel_name == "Sycles Sample Count") { return ccl::PASS_SAMPLE_COUNT; }
-	else if (channel_name == "Sycles AOV Color") { return ccl::PASS_AOV_COLOR; }
-	else if (channel_name == "Sycles AOV Value") { return ccl::PASS_AOV_VALUE; }
-    // TODO: recognize lightgroup pass
+    if (channel_name == "Sycles Combined" || channel_name == "Main") { return ccl::PASS_COMBINED; }
+    else if (channel_name == "Sycles Depth") { return ccl::PASS_DEPTH; }
+    else if (channel_name == "Sycles Position") { return ccl::PASS_POSITION; }
+    else if (channel_name == "Sycles Normal") { return ccl::PASS_NORMAL; }
+    else if (channel_name == "Sycles UV") { return ccl::PASS_UV; }
+    else if (channel_name == "Sycles Object ID") { return ccl::PASS_OBJECT_ID; }
+    else if (channel_name == "Sycles Material ID") { return ccl::PASS_MATERIAL_ID; }
+    else if (channel_name == "Sycles Diffuse Color") { return ccl::PASS_DIFFUSE_COLOR; }
+    else if (channel_name == "Sycles Glossy Color") { return ccl::PASS_GLOSSY_COLOR; }
+    else if (channel_name == "Sycles Transmission Color") { return ccl::PASS_TRANSMISSION_COLOR; }
+    else if (channel_name == "Sycles Diffuse Indirect") { return ccl::PASS_DIFFUSE_INDIRECT; }
+    else if (channel_name == "Sycles Glossy Indirect") { return ccl::PASS_GLOSSY_INDIRECT; }
+    else if (channel_name == "Sycles Transmission Indirect") { return ccl::PASS_TRANSMISSION_INDIRECT; }
+    else if (channel_name == "Sycles Diffuse Direct") { return ccl::PASS_DIFFUSE_DIRECT; }
+    else if (channel_name == "Sycles Glossy Direct") { return ccl::PASS_GLOSSY_DIRECT; }
+    else if (channel_name == "Sycles Transmission Direct") { return ccl::PASS_TRANSMISSION_DIRECT; }
+    else if (channel_name == "Sycles Emission") { return ccl::PASS_EMISSION; }
+    else if (channel_name == "Sycles Background") { return ccl::PASS_BACKGROUND; }
+    else if (channel_name == "Sycles AO") { return ccl::PASS_AO; }
+    else if (channel_name == "Sycles Shadow Catcher") { return ccl::PASS_SHADOW_CATCHER; }
+    else if (channel_name == "Sycles Shadow") { return ccl::PASS_SHADOW; }
+    else if (channel_name == "Sycles Motion") { return ccl::PASS_MOTION; }
+    else if (channel_name == "Sycles Mist") { return ccl::PASS_MIST; }
+    else if (channel_name == "Sycles Volume Direct") { return ccl::PASS_VOLUME_DIRECT; }
+    else if (channel_name == "Sycles Volume Indirect") { return ccl::PASS_VOLUME_INDIRECT; }
+    else if (channel_name == "Sycles Sample Count") { return ccl::PASS_SAMPLE_COUNT; }
+    else if (channel_name == "Sycles AOV Color") { return ccl::PASS_AOV_COLOR; }
+    else if (channel_name == "Sycles AOV Value") { return ccl::PASS_AOV_VALUE; }
+    else if (channel_name == "Sycles Lightgroup") { return ccl::PASS_COMBINED; }
 
 	// unknown channel, return None
 	return ccl::PASS_NONE;
@@ -241,10 +272,41 @@ bool is_aov_name_correct(const XSI::CString& pass_name, const XSI::CStringArray&
     return false;
 }
 
-void check_visual_aov_name(RenderVisualBuffer* visual_buffer, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
+bool is_lightgroup_is_correct(const XSI::CString& pass_name, const XSI::CStringArray& lightgroups)
+{
+    for (size_t i = 0; i < lightgroups.GetCount(); i++)
+    {
+        XSI::CString lg_name = lightgroups[i];
+        if (lg_name == pass_name)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void check_visual_aov_name(RenderVisualBuffer* visual_buffer, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
 {
     ccl::PassType visual_pass = visual_buffer->get_pass_type();
-    if (visual_pass == ccl::PASS_AOV_COLOR || visual_pass == ccl::PASS_AOV_VALUE)
+    if (visual_pass == ccl::PASS_COMBINED && visual_buffer->get_pass_name() != "Combined")
+    {
+        // visual is Lightgroup
+        XSI::CString pass_name = remove_prefix_from_lightgroup_name(visual_buffer->get_pass_name().c_str());
+        if (!is_lightgroup_is_correct(pass_name, lightgroup_names))
+        {
+            bool is_switch = lightgroup_names.GetCount() > 0;
+            log_message("Display channel is set to Light Group with " +
+                XSI::CString(pass_name.Length() == 0 ? "empty name." : "name " + pass_name + ". There is no pass with this name.") +
+                XSI::CString(is_switch ? " Switch to " + lightgroup_names[0] + "." : ""), XSI::siWarningMsg);
+
+            if (is_switch)
+            {
+                visual_buffer->set_pass_name(add_prefix_to_lightgroup_name(lightgroup_names[0]));
+            }
+        }
+    }
+    else if (visual_pass == ccl::PASS_AOV_COLOR || visual_pass == ccl::PASS_AOV_VALUE)
     {
         bool is_color = visual_pass == ccl::PASS_AOV_COLOR;
         XSI::CString pass_name = remove_prefix_from_aov_name(visual_buffer->get_pass_name().c_str());  // this is original name
@@ -271,7 +333,7 @@ void check_visual_aov_name(RenderVisualBuffer* visual_buffer, const XSI::CString
     }
 }
 
-void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer, MotionType motion_type)
+void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer, MotionType motion_type, const XSI::CStringArray &lightgroups)
 {
     // for test only we add to the scene three aovs:
     // 1. color sphere_color_aov
@@ -286,11 +348,11 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualB
     aov_value_names.Add("plane_value_aov");
 
     // if visual pass is aov, then check that the name of the pass is correct
-    check_visual_aov_name(visual_buffer, aov_color_names, aov_value_names);
+    check_visual_aov_name(visual_buffer, aov_color_names, aov_value_names, lightgroups);
 
     // here we call the main method in output contex
     // and setup all output passes, buffers, pixels and so on
-    output_context->set_output_passes(motion_type, aov_color_names, aov_value_names, XSI::CStringArray());
+    output_context->set_output_passes(motion_type, aov_color_names, aov_value_names, lightgroups);
 
     // sync passes
     bool use_shadow_catcher = false;

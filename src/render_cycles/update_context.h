@@ -104,6 +104,9 @@ public:
 	size_t get_xsi_material_cycles_index(ULONG xsi_id);
 	ULONG get_shaderball_material_node(ULONG material_id);
 
+	void add_lightgroup(const XSI::CString& name);
+	XSI::CStringArray get_lightgropus();
+
 private:
 	// after each render prepare session we store here used render parameter values
 	// this map allows to check what parameter is changed from the previous rendere session
@@ -142,6 +145,8 @@ private:
 	float motion_rolling_duration;  // only for rolling true
 
 	RenderType render_type;
+
+	std::unordered_set<std::string> lightgroups;
 
 	// prepare scene objects and form these arrays with input objects for rendering
 	std::vector<XSI::Light> scene_xsi_lights;  // this array contains xsi lights

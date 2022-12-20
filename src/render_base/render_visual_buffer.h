@@ -35,13 +35,13 @@ public:
 
 	void setup(ULONG image_width, ULONG image_height, ULONG crop_left, ULONG crop_bottom, ULONG crop_width, ULONG crop_height, const XSI::CString &channel_name, const XSI::CString &display_pass_name, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
 	{
-		pass_type = channel_to_pass_type(channel_name);
+		pass_type = channel_to_pass_type(channel_name);  // for lightgroups it returns Combined
 		if (pass_type == ccl::PASS_NONE)
 		{
 			pass_type = ccl::PASS_COMBINED;
 		}
 		pass_name = ccl::ustring(display_pass_name.GetAsciiString());
-		components = get_pass_components(pass_type);  // don't forget: when visual pass is lightgroup, then pass type is Combined, but it has only 3 components
+		components = get_pass_components(pass_type, channel_name == "Sycles Lightgroup");
 
 		full_width = image_width;
 		full_height = image_height;
