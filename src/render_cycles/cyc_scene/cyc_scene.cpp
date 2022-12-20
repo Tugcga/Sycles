@@ -15,6 +15,8 @@
 #include <xsi_material.h>
 #include <xsi_shader.h>
 #include <xsi_texture.h>
+#include <xsi_time.h>
+#include <xsi_arrayparameter.h>
 
 #include "../../utilities/logs.h"
 #include "../../utilities/math.h"
@@ -200,6 +202,22 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	bg_shader->tag_update(scene);
 
 	scene->background->set_transparent(true);*/
+}
+
+void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const XSI::CTime& eval_time)
+{
+	// set common shader parameters for all shaders
+	bool use_mis = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_use_mis", eval_time);
+	bool transparent_shadows = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_transparent_shadows", eval_time);
+	int disp_method = render_type == RenderType_Shaderball ? 2 : (int)render_parameters.GetValue("options_displacement_method", eval_time);
+
+	for (size_t i = 0; i < scene->shaders.size(); i++)
+	{
+		ccl::Shader* shader = scene->shaders[i];
+		shader->set_use_mis(use_mis);
+		shader->set_use_transparent_shadow(transparent_shadows);
+		shader->set_displacement_method(disp_method == 0 ? ccl::DisplacementMethod::DISPLACE_BUMP : (disp_method == 1 ? ccl::DisplacementMethod::DISPLACE_TRUE : ccl::DisplacementMethod::DISPLACE_BOTH));
+	}
 }
 
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef &shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id)

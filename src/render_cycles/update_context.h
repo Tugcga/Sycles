@@ -41,6 +41,7 @@ public:
 	bool is_change_render_parameters_motion(const std::unordered_set<std::string>& parameters);
 	bool is_change_render_parameters_camera(const std::unordered_set<std::string>& parameters);
 	bool is_change_render_parameters_background(const std::unordered_set<std::string>& parameters);
+	bool is_change_render_parameters_shaders(const std::unordered_set<std::string>& parameters);
 
 	void set_prev_display_pass_name(const XSI::CString &value);
 

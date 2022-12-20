@@ -540,6 +540,11 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			sync_integrator(session, update_context, m_render_parameters, render_type, get_input_config());
 		}
 
+		if (render_type == RenderType_Shaderball || update_context->is_change_render_parameters_shaders(changed_render_parameters))
+		{
+			sync_shader_settings(session->scene, m_render_parameters, render_type, eval_time);
+		}
+
 		// TODO: try to fix this bug
 		// set temp directory for session parameters
 		// session->params.temp_dir = temp_path.GetAsciiString();

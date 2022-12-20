@@ -558,6 +558,7 @@ XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material &xsi_materia
 {
 	ccl::ShaderGraph* shader_graph = material_to_graph(xsi_material, eval_time);
 	ccl::Shader* shader = scene->shaders[shader_index];
+
 	shader->set_graph(shader_graph);
 	shader->tag_update(scene);
 

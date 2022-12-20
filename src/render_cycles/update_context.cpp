@@ -193,6 +193,14 @@ bool UpdateContext::is_change_render_parameters_background(const std::unordered_
 	return is_set_contains_from_array(parameters, background_parameters);
 }
 
+bool UpdateContext::is_change_render_parameters_shaders(const std::unordered_set<std::string>& parameters)
+{
+	std::vector<std::string> background_parameters = {
+		"options_shaders_use_mis", "options_shaders_transparent_shadows", "options_displacement_method"
+	};
+	return is_set_contains_from_array(parameters, background_parameters);
+}
+
 void UpdateContext::set_prev_display_pass_name(const XSI::CString& value)
 {
 	prev_dispaly_pass_name = value;
