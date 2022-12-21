@@ -217,7 +217,24 @@ void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& rend
 		shader->set_use_mis(use_mis);
 		shader->set_use_transparent_shadow(transparent_shadows);
 		shader->set_displacement_method(disp_method == 0 ? ccl::DisplacementMethod::DISPLACE_BUMP : (disp_method == 1 ? ccl::DisplacementMethod::DISPLACE_TRUE : ccl::DisplacementMethod::DISPLACE_BOTH));
+
+		shader->tag_use_mis_modified();
+		shader->tag_use_transparent_shadow_modified();
+		shader->tag_displacement_method_modified();
 	}
+}
+
+bool find_scene_shaders_displacement(ccl::Scene* scene)
+{
+	for (size_t i = 0; i < scene->shaders.size(); i++)
+	{
+		ccl::Shader* shader = scene->shaders[i];
+		if (shader->has_displacement)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef &shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id)
@@ -233,7 +250,11 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 			if (shaderball_type == ShaderballType_Material)
 			{
 				XSI::Material xsi_material(shaderball_material);
-				shader_index = sync_material(scene, xsi_material, eval_time);
+				std::vector<XSI::CStringArray> aovs(2);
+				aovs[0].Clear();
+				aovs[1].Clear();
+
+				shader_index = sync_material(scene, xsi_material, eval_time, aovs);
 			}
 			else if (shaderball_type == ShaderballType_SurfaceShader)
 			{

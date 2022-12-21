@@ -107,6 +107,9 @@ public:
 
 	void add_lightgroup(const XSI::CString& name);
 	XSI::CStringArray get_lightgropus();
+	void add_aov_names(const XSI::CStringArray &in_color_aovs, const XSI::CStringArray &in_value_aovs);
+	XSI::CStringArray get_color_aovs();
+	XSI::CStringArray get_value_aovs();
 
 private:
 	// after each render prepare session we store here used render parameter values
@@ -148,6 +151,8 @@ private:
 	RenderType render_type;
 
 	std::unordered_set<std::string> lightgroups;
+	std::unordered_set<std::string> color_aovs;
+	std::unordered_set<std::string> value_aovs;
 
 	// prepare scene objects and form these arrays with input objects for rendering
 	std::vector<XSI::Light> scene_xsi_lights;  // this array contains xsi lights

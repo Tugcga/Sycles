@@ -837,20 +837,27 @@ XSI::CStatus RenderEngineBase::post_render()
 	return status;
 }
 
-void RenderEngineBase::on_object_add(XSI::CRef& in_ctxt)
+void RenderEngineBase::activate_force_recreate_scene()
 {
 	force_recreate_scene = true;
+}
+
+void RenderEngineBase::on_object_add(XSI::CRef& in_ctxt)
+{
+	activate_force_recreate_scene();
 }
 
 void RenderEngineBase::on_object_remove(XSI::CRef& in_ctxt)
 {
-	force_recreate_scene = true;
+	activate_force_recreate_scene();
 }
 
 void RenderEngineBase::on_nested_objects_changed(XSI::CRef& in_ctx)
 {
-	force_recreate_scene = true;
+	activate_force_recreate_scene();
 }
+
+
 
 void RenderEngineBase::abort_render()
 {

@@ -57,9 +57,12 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 	// emission node has input Color and Strength ports
 	// so, we should try to connect it to nodes, connected to original color and intensity ports
 	// we should get shader node, connected to the color shader parameter (if it valid)
+	std::vector<XSI::CStringArray> aovs(2);
+	aovs[0].Clear();
+	aovs[1].Clear();
 	if (color_parameter.IsValid())
 	{
-		sync_float3_parameter(color_parameter, "Color", node, graph, nodes_map, eval_time);
+		sync_float3_parameter(color_parameter, "Color", node, graph, nodes_map, eval_time, aovs);
 	}
 	else
 	{
@@ -68,7 +71,7 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 
 	if (intensity_parameter.IsValid())
 	{
-		sync_float_parameter(intensity_parameter, "Strength", node, graph, nodes_map, eval_time);
+		sync_float_parameter(intensity_parameter, "Strength", node, graph, nodes_map, eval_time, aovs);
 	}
 	else
 	{
@@ -633,7 +636,10 @@ void update_background(ccl::Scene* scene, UpdateContext* update_context, const X
 		XSI::ProjectItem item = XSI::Application().GetObjectFromID(material_id);
 		XSI::Material xsi_material(item);
 
-		XSI::CStatus is_update = update_material(scene, xsi_material, shader_index, update_context->get_time());
+		std::vector<XSI::CStringArray> aovs(2);
+		aovs[0].Clear();
+		aovs[1].Clear();
+		XSI::CStatus is_update = update_material(scene, xsi_material, shader_index, update_context->get_time(), aovs);
 		set_background_light(scene, scene->background, scene->default_background, update_context, render_parameters, update_context->get_time());
 	}
 }

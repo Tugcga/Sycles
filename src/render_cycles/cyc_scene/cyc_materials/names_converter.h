@@ -287,12 +287,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesOutputColorAOV.1.0", {
-			{"Color", "Color"}, {"outColor", "Color"}
+			{"Color", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesOutputValueAOV.1.0", {
-			{"Value", "Value"}, {"outValue", "Value"}
+			{"Value", "Value"}
 		}
 	},
 	{

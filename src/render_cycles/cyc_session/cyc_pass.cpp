@@ -286,7 +286,7 @@ bool is_lightgroup_is_correct(const XSI::CString& pass_name, const XSI::CStringA
     return false;
 }
 
-void check_visual_aov_name(RenderVisualBuffer* visual_buffer, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
+void check_visual_aov_lightgroup_name(RenderVisualBuffer* visual_buffer, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
 {
     ccl::PassType visual_pass = visual_buffer->get_pass_type();
     if (visual_pass == ccl::PASS_COMBINED && visual_buffer->get_pass_name() != "Combined")
@@ -333,22 +333,10 @@ void check_visual_aov_name(RenderVisualBuffer* visual_buffer, const XSI::CString
     }
 }
 
-void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer, MotionType motion_type, const XSI::CStringArray &lightgroups)
+void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer, MotionType motion_type, const XSI::CStringArray &lightgroups, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
 {
-    // for test only we add to the scene three aovs:
-    // 1. color sphere_color_aov
-    // 2. value sphere_value_aov
-    // 3. value plane_value_aov
-
-    // TODO: make shure that all names are unique, does not use two equal names (even it existst in different nodes)
-    XSI::CStringArray aov_color_names;
-    aov_color_names.Add("sphere_color_aov");
-    XSI::CStringArray aov_value_names;
-    aov_value_names.Add("sphere_value_aov");
-    aov_value_names.Add("plane_value_aov");
-
     // if visual pass is aov, then check that the name of the pass is correct
-    check_visual_aov_name(visual_buffer, aov_color_names, aov_value_names, lightgroups);
+    check_visual_aov_lightgroup_name(visual_buffer, aov_color_names, aov_value_names, lightgroups);
 
     // here we call the main method in output contex
     // and setup all output passes, buffers, pixels and so on

@@ -15,6 +15,7 @@
 #include "../../input/input.h"
 
 void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const XSI::CTime& eval_time);
+bool find_scene_shaders_displacement(ccl::Scene* scene);
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
@@ -42,11 +43,11 @@ void log_all_shaders();
 // for test only, create some default shader and return the index in the sahders array
 int create_default_shader(ccl::Scene* scene);
 int create_emission_checker(ccl::Scene* scene, float checker_scale);
-int sync_material(ccl::Scene* scene, const XSI::Material& xsi_material, const XSI::CTime& eval_time);  // return shader index in the Cycles shaders array
+int sync_material(ccl::Scene* scene, const XSI::Material& xsi_material, const XSI::CTime& eval_time, std::vector<XSI::CStringArray>& aovs);  // return shader index in the Cycles shaders array
 int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader, bool is_surface, const XSI::CTime& eval_time);
 int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_texture, const XSI::CTime& eval_time);
 void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context);
-XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_material, size_t shader_index, const XSI::CTime& eval_time);
+XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_material, size_t shader_index, const XSI::CTime& eval_time, std::vector<XSI::CStringArray>& aovs);
 XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, const XSI::CTime& eval_time);
 
 // cyc_shadeerball

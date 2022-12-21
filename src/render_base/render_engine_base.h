@@ -135,6 +135,8 @@ public:
 
 	void clear();
 
+	void activate_force_recreate_scene();
+
 	//call these methods when we change scene and force to recreate the scene from scratch
 	void on_object_add(XSI::CRef& in_ctxt);
 	void on_object_remove(XSI::CRef& in_ctxt);

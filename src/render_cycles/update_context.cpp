@@ -56,6 +56,8 @@ void UpdateContext::reset()
 	use_background_light = false;
 
 	lightgroups.clear();
+	color_aovs.clear();
+	value_aovs.clear();
 }
 
 void UpdateContext::set_is_update_scene(bool value)
@@ -654,6 +656,49 @@ XSI::CStringArray UpdateContext::get_lightgropus()
 {
 	XSI::CStringArray to_return;
 	for (std::string v : lightgroups)
+	{
+		to_return.Add(XSI::CString(v.c_str()));
+	}
+
+	return to_return;
+}
+
+void UpdateContext::add_aov_names(const XSI::CStringArray& in_color_aovs, const XSI::CStringArray& in_value_aovs)
+{
+	for (ULONG i = 0; i < in_color_aovs.GetCount(); i++)
+	{
+		std::string new_color = std::string(in_color_aovs[i].GetAsciiString());
+		if (new_color.length() > 0)
+		{
+			color_aovs.insert(new_color);
+		}
+	}
+
+	for (ULONG i = 0; i < in_value_aovs.GetCount(); i++)
+	{
+		std::string new_value = std::string(in_value_aovs[i].GetAsciiString());
+		if (new_value.length() > 0)
+		{
+			value_aovs.insert(new_value);
+		}
+	}
+}
+
+XSI::CStringArray UpdateContext::get_color_aovs()
+{
+	XSI::CStringArray to_return;
+	for (std::string v : color_aovs)
+	{
+		to_return.Add(XSI::CString(v.c_str()));
+	}
+
+	return to_return;
+}
+
+XSI::CStringArray UpdateContext::get_value_aovs()
+{
+	XSI::CStringArray to_return;
+	for (std::string v : value_aovs)
 	{
 		to_return.Add(XSI::CString(v.c_str()));
 	}

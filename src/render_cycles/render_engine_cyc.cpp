@@ -389,7 +389,12 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 	ULONG material_id = xsi_material.GetObjectID();
 	if (update_context->is_material_exists(material_id))
 	{
-		is_update = update_material(session->scene, xsi_material, update_context->get_xsi_material_cycles_index(material_id), update_context->get_time());
+		std::vector<XSI::CStringArray> aovs(2);
+		aovs[0].Clear();
+		aovs[1].Clear();
+		is_update = update_material(session->scene, xsi_material, update_context->get_xsi_material_cycles_index(material_id), update_context->get_time(), aovs);
+
+		update_context->add_aov_names(aovs[0], aovs[1]);
 	}
 	else
 	{
@@ -527,7 +532,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			m_render_parameters, eval_time);
 
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
-		sync_passes(session->scene, output_context, visual_buffer, update_context->get_motion_type(), update_context->get_lightgropus());
+		sync_passes(session->scene, output_context, visual_buffer, update_context->get_motion_type(), update_context->get_lightgropus(), update_context->get_color_aovs(), update_context->get_value_aovs());
 
 		if (update_context->is_changed_render_paramters_film(changed_render_parameters))
 		{
@@ -543,6 +548,20 @@ XSI::CStatus RenderEngineCyc::post_scene()
 		if (render_type == RenderType_Shaderball || update_context->is_change_render_parameters_shaders(changed_render_parameters))
 		{
 			sync_shader_settings(session->scene, m_render_parameters, render_type, eval_time);
+		}
+
+		// qick fix for displacement problem
+		// with active displacement, vertices of the mesh is shifted with respect to displacement map
+		// and at the next update it shift these vertices again
+		int settings_displacement_type = m_render_parameters.GetValue("options_displacement_method", eval_time);
+		if (settings_displacement_type != 0)
+		{// 0 - bump displacement
+			bool is_find_displacement = find_scene_shaders_displacement(session->scene);
+			if (is_find_displacement)
+			{
+				// a the next update the scene will be recreated from scratch
+				activate_force_recreate_scene();
+			}
 		}
 
 		// TODO: try to fix this bug
