@@ -4,6 +4,7 @@
 #include <xsi_shaderparameter.h>
 #include <xsi_utils.h>
 #include <xsi_project.h>
+#include <xsi_imageclip2.h>
 
 #include "scene/shader.h"
 #include "scene/shader_graph.h"
@@ -410,7 +411,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		ccl::ImageTextureNode* node = shader_graph->create_node<ccl::ImageTextureNode>();
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
-		XSI::CString file_path = get_string_parameter_value(xsi_parameters, "FilePath", eval_time);
+		XSI::ShaderParameter image_tex_param = xsi_parameters.GetItem("image");
+		XSI::CRef image_tex_source = image_tex_param.GetSource();
+		XSI::CString file_path = "";
 		XSI::CString color_space = get_string_parameter_value(xsi_parameters, "ColorSpace", eval_time);
 		XSI::CString interpolation = get_string_parameter_value(xsi_parameters, "Interpolation", eval_time);
 		XSI::CString projection = get_string_parameter_value(xsi_parameters, "Projection", eval_time);
@@ -423,10 +426,10 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		int offset = get_int_parameter_value(xsi_parameters, "ImageOffset", eval_time);
 		bool cyclic = get_bool_parameter_value(xsi_parameters, "ImageCyclic", eval_time);
 
-		file_path = XSI::CUtils::ResolveTokenString(file_path, eval_time, false);
-		if (file_path.Length() > 0 && !XSI::CUtils::IsAbsolutePath(file_path))
-		{// path is relative, try to combine it with project path
-			file_path = XSI::CUtils::ResolvePath(XSI::CUtils::BuildPath(get_project_path(), file_path));
+		if (image_tex_source.IsValid())
+		{
+			XSI::ImageClip2 clip(image_tex_source);
+			file_path = clip.GetFileName();
 		}
 
 		if (file_path.Length() > 0)
@@ -474,7 +477,10 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		ccl::EnvironmentTextureNode* node = shader_graph->create_node<ccl::EnvironmentTextureNode>();
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
-		XSI::CString file_path = get_string_parameter_value(xsi_parameters, "FilePath", eval_time);
+		XSI::ShaderParameter image_tex_param = xsi_parameters.GetItem("image");
+		XSI::CRef image_tex_source = image_tex_param.GetSource();
+		XSI::CString file_path = "";
+
 		XSI::CString color_space = get_string_parameter_value(xsi_parameters, "ColorSpace", eval_time);
 		XSI::CString interpolation = get_string_parameter_value(xsi_parameters, "Interpolation", eval_time);
 		XSI::CString projection = get_string_parameter_value(xsi_parameters, "Projection", eval_time);
@@ -485,10 +491,10 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		int offset = get_int_parameter_value(xsi_parameters, "ImageOffset", eval_time);
 		bool cyclic = get_bool_parameter_value(xsi_parameters, "ImageCyclic", eval_time);
 
-		file_path = XSI::CUtils::ResolveTokenString(file_path, eval_time, false);
-		if (file_path.Length() > 0 && !XSI::CUtils::IsAbsolutePath(file_path))
-		{// path is relative, try to combine it with project path
-			file_path = XSI::CUtils::ResolvePath(XSI::CUtils::BuildPath(get_project_path(), file_path));
+		if (image_tex_source.IsValid())
+		{
+			XSI::ImageClip2 clip(image_tex_source);
+			file_path = clip.GetFileName();
 		}
 
 		if (file_path.Length() > 0)
@@ -498,6 +504,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			node->set_colorspace(color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));
+
+			return node;
 		}
 		else
 		{

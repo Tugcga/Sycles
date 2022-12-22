@@ -42,6 +42,10 @@ RenderEngineCyc::RenderEngineCyc()
 // when we delete the engine, then at first this method is called, and then the method from base class
 RenderEngineCyc::~RenderEngineCyc()
 {
+	// TODO: there is a bug in Cycles (or OIIO)
+	// when use texture image, then it does not properly unload and the scene can not unload from memory
+	// this leads to error after close Softimage
+	// may be updates will resolve this
 	clear_session();
 	delete output_context;
 	delete labels_context;

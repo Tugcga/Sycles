@@ -583,6 +583,11 @@ def add_input_fcurve(paramOptions, params, name="fcurve", defaultValue=None):
     params.AddParamDef(name, c.siShaderDataTypeProfileCurve, paramOptions)
 
 
+def add_input_image(param_options, params, default_value="", name="image"):
+    param_options.SetDefaultValue(default_value)
+    params.AddParamDef(name, c.siShaderDataTypeImage, param_options)
+
+
 def add_input_gradient(paramOptions, params, name="gradient"):
     params.AddParamDef(name, c.siShaderDataTypeGradient, paramOptions)
 
@@ -602,7 +607,6 @@ def no_port_pram_options():
     paramOptions.SetTexturable(False)
     paramOptions.SetReadOnly(False)
     paramOptions.SetInspectable(True)
-    # paramOptions.SetAttribute(c.siReferenceFilterAttribute, c.siShaderReferenceFilter)
     return paramOptions
 
 
@@ -1576,7 +1580,7 @@ def CyclesShadersPlugin_CyclesImageTexture_1_0_Define(in_ctxt):
 
     # Input Parameters
     params = shader_def.InputParamDefs
-    add_input_string(no_port_pram_options(), params, "", "FilePath")
+    add_input_image(no_port_pram_options(), params, "", "image")
     add_input_string(no_port_pram_options(), params, "color", "ColorSpace")
     add_input_string(no_port_pram_options(), params, "Linear", "Interpolation")
     add_input_string(no_port_pram_options(), params, "flat", "Projection")
@@ -1598,8 +1602,7 @@ def CyclesShadersPlugin_CyclesImageTexture_1_0_Define(in_ctxt):
     # next init ppg
     ppg_layout = shader_def.PPGLayout
     ppg_layout.AddGroup("Parameters")
-    pathItem = ppg_layout.AddItem("FilePath", "File Path", c.siControlFilePath)
-    pathItem.SetAttribute(c.siUIOpenFile, True)
+    ppg_layout.AddItem("image", "Image")
     ppg_layout.AddEnumControl("ColorSpace", color_space_enum, "Color Space")
     ppg_layout.AddEnumControl("Interpolation", interpolation_enum, "Interpolation")
     ppg_layout.AddEnumControl("Projection", projection_enum, "Projection")
@@ -1616,7 +1619,7 @@ def CyclesShadersPlugin_CyclesImageTexture_1_0_Define(in_ctxt):
     ppg_layout.EndGroup()
 
     ppg_layout.Language = "Python"
-    ppg_layout.Logic = '''
+    ppg_layout.Logic = '''import os
 def update_ui(prop):
     projection_value = prop.Parameters("Projection").Value
     if projection_value == "box":
@@ -1637,35 +1640,37 @@ def update_ui(prop):
         prop.Parameters("ImageCyclic").ReadOnly = False
 
 def update_tiles(prop):
-    file_path = XSIUtils.ResolveTokenString(prop.Parameters("FilePath").Value, 0, False)
-    source_value = prop.Parameters("ImageSource").Value
-    if len(file_path) > 0 and source_value == "tiled":
-        file_name = os.path.basename(file_path)  # selected file (not full path)
-        start_index = file_name.rfind("1001")
-        tiles = []
-        if start_index > -1:
-            prefix_name = file_name[0: start_index]
-            postfix_name = file_name[start_index + 4:]
-            dir_path = os.path.dirname(file_path)  # directory with selected file
-            files_list = os.listdir(dir_path)  # all files in the directory
-            for f_name in files_list:
-                potential_tile = f_name[start_index:start_index + 4]
-                potential_prefix = f_name[0: start_index]
-                potential_postfix = f_name[start_index + 4:]
-                if potential_prefix == prefix_name and potential_postfix == postfix_name and potential_tile.isnumeric():
-                    if potential_tile not in tiles:
-                        tiles.append(potential_tile)
-        if len(tiles) == 0:
-            # tiles.append("1001")
-            pass
-        prop.Parameters("tiles").Value = " ".join(tiles)
+    image_param = prop.Parameters("image")
+    image_source = image_param.Source
+    if image_source is not None:
+        file_path = image_source.GetFileName()
+        source_value = prop.Parameters("ImageSource").Value
+        if len(file_path) > 0 and source_value == "tiled":
+            file_name = os.path.basename(file_path)  # selected file (not full path)
+            start_index = file_name.rfind("1001")
+            tiles = []
+            if start_index > -1:
+                prefix_name = file_name[0: start_index]
+                postfix_name = file_name[start_index + 4:]
+                dir_path = os.path.dirname(file_path)  # directory with selected file
+                files_list = os.listdir(dir_path)  # all files in the directory
+                for f_name in files_list:
+                    potential_tile = f_name[start_index:start_index + 4]
+                    potential_prefix = f_name[0: start_index]
+                    potential_postfix = f_name[start_index + 4:]
+                    if potential_prefix == prefix_name and potential_postfix == postfix_name and potential_tile.isnumeric():
+                        if potential_tile not in tiles:
+                            tiles.append(potential_tile)
+            if len(tiles) == 0:
+                pass
+            prop.Parameters("tiles").Value = " ".join(tiles)
 
 def OnInit():
     prop = PPG.Inspected(0)
     update_ui(prop)
     update_tiles(prop)
 
-def FilePath_OnChanged():
+def image_OnChanged():
     prop = PPG.Inspected(0)
     update_tiles(prop)
 
@@ -1699,7 +1704,7 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
 
     # Input Parameters
     params = shader_def.InputParamDefs
-    add_input_string(no_port_pram_options(), params, "", "FilePath")
+    add_input_image(no_port_pram_options(), params, "", "image")
     add_input_string(no_port_pram_options(), params, "color", "ColorSpace")
     add_input_string(no_port_pram_options(), params, "Linear", "Interpolation")
     add_input_string(no_port_pram_options(), params, "equirectangular", "Projection")
@@ -1717,8 +1722,7 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
     # next init ppg
     ppg_layout = shader_def.PPGLayout
     ppg_layout.AddGroup("Parameters")
-    pathItem = ppg_layout.AddItem("FilePath", "File Path", c.siControlFilePath)
-    pathItem.SetAttribute(c.siUIOpenFile, True)
+    ppg_layout.AddItem("image", "Image")
     ppg_layout.AddEnumControl("ColorSpace", color_space_enum, "Color Space")
     ppg_layout.AddEnumControl("Interpolation", interpolation_enum, "Interpolation")
     ppg_layout.AddEnumControl("Projection", env_projection_enum, "Projection")
