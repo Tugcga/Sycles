@@ -43,3 +43,6 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene, const XSI::Shader& xsi_sh
 
 // osl
 ccl::ShaderNode* sync_osl_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, std::vector<XSI::CStringArray> &aovs, const XSI::CTime& eval_time);
+
+// XSI native sahders
+ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, std::vector<XSI::CStringArray>& aovs, const XSI::CTime& eval_time);

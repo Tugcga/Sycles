@@ -72,6 +72,10 @@ ccl::ClosureType get_distribution(const XSI::CString& distribution, Distribution
 		if (distribution == "GGX") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_GGX_GLASS_ID; }
 		else { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_MULTI_GGX_GLASS_ID; }
 	}
+	else
+	{
+		return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_MULTI_GGX_GLASS_ID;
+	}
 }
 
 ccl::ClosureType get_subsurface_method(const XSI::CString& method_string)

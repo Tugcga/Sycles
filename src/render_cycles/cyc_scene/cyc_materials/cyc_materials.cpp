@@ -214,6 +214,10 @@ ccl::ShaderNode* xsi_node_to_cycles(
 		{
 			return sync_osl_shader(scene, shader_graph, xsi_shader, nodes_map, aovs, eval_time);
 		}
+		else if (shadernode_type == ShadernodeType_NativeXSI)
+		{
+			return sync_xsi_shader(scene, shader_graph, xsi_shader, out_type, nodes_map, aovs, eval_time);
+		}
 		else
 		{
 			return NULL;

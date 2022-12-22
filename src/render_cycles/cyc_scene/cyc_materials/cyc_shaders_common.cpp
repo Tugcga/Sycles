@@ -48,6 +48,11 @@ ShadernodeType get_shadernode_type(const XSI::Shader &xsi_shader, XSI::CString &
 			out_type = "osl";
 			return ShadernodeType_OSL;
 		}
+		else if (app_name == "Softimage")
+		{
+			out_type = prog_id.GetSubString(pos[0] + 1, pos[1] - pos[0] - 1);
+			return ShadernodeType_NativeXSI;
+		}
 		else
 		{
 			return ShadernodeType_Unknown;
@@ -111,7 +116,7 @@ bool make_nodes_connection(ccl::ShaderGraph* shader_graph, ccl::ShaderNode* outp
 	// obtain output xsi shader node type, again
 	XSI::CString type_name;
 	ShadernodeType output_node_type = get_shadernode_type(xsi_output_shader, type_name);
-	if (output_node_type == ShadernodeType_Cycles)
+	if (output_node_type == ShadernodeType_Cycles || output_node_type == ShadernodeType_NativeXSI)
 	{
 		std::string connect_name = convert_port_name(xsi_output_shader.GetProgID(), xsi_output_name);
 		if (connect_name.length() > 0)
@@ -134,10 +139,6 @@ bool make_nodes_connection(ccl::ShaderGraph* shader_graph, ccl::ShaderNode* outp
 			shader_graph->connect(output_node->output(xsi_output_name.GetSubString(3).GetAsciiString()), input_node->input(input_name.c_str()));
 			return true;
 		}
-	}
-	else if (output_node_type == ShadernodeType_NativeXSI)
-	{
-
 	}
 
 	return false;

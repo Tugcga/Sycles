@@ -82,6 +82,7 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_shaders.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_shaders_common.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\names_converter.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_materials\xsi_native.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_motion.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_polymesh\cyc_polymesh.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_scene.cpp" />

@@ -477,6 +477,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		ccl::EnvironmentTextureNode* node = shader_graph->create_node<ccl::EnvironmentTextureNode>();
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
+		node->tex_mapping.rotation = ccl::make_float3(-0.5f * XSI::MATH::PI, 0.0f, 0.0f);
+
 		XSI::ShaderParameter image_tex_param = xsi_parameters.GetItem("image");
 		XSI::CRef image_tex_source = image_tex_param.GetSource();
 		XSI::CString file_path = "";

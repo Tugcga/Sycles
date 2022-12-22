@@ -474,6 +474,41 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		"CyclesShadersPlugin.CyclesRGBToBW.1.0", {
 			{"Color", "Color"}, {"outVal", "Val"}
 		}
+	},
+	{
+		"Softimage.sib_scalar_to_color.1.0", {
+			{"out", "Color"}  // replace by RGBRampNode
+		}
+	},
+	{
+		"Softimage.sib_vector_to_color.1.0", {
+			{"out", "Image"}  // output node is CombineRGB
+		}
+	},
+			{
+		"Softimage.sib_vector_to_scalar.1.0", {
+			{"out", "Value"}  // output node is Math
+		}
+	},
+	{
+		"Softimage.sib_color_to_scalar.1.0", {
+			{"out", "Val"}  // replace by RGBToBW
+		}
+	},
+	{
+		"Softimage.txt2d-image-explicit.1.0", {
+			{"out", "Color"}  // replace by ImageTexture
+		}
+	},
+	{
+		"Softimage.material-lambert.1.0", {
+			{"out", "BSDF"}  // replace by DiffuseBSDF
+		}
+	},
+	{
+		"Softimage.material-phong.1.0", {
+			{"out", "BSDF"}  // replace by PrincipledBSDF
+		}
 	}
 };
 
