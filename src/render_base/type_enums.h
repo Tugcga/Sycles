@@ -53,3 +53,12 @@ enum CustomLightType
 	CustomLightType_Background,
 	CustomLightType_Unknown
 };
+
+enum ShadernodeType
+{
+	ShadernodeType_Cycles,
+	ShadernodeType_CyclesAOV,
+	ShadernodeType_OSL,
+	ShadernodeType_NativeXSI,
+	ShadernodeType_Unknown
+};

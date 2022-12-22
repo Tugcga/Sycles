@@ -41,6 +41,8 @@ public:
 
 	void update_render_tile(const ccl::OutputDriver::Tile& tile);
 
+	void path_init(const XSI::CString &plugin_path);
+
 private:
 	// internal variables
 	ccl::Session* session;

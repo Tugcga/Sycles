@@ -116,6 +116,8 @@ SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
 	// and also read ocio config from external file
 	read_ocio_config();
 
+	render->path_init(get_plugin_path());
+
 	return XSI::CStatus::OK;
 }
 

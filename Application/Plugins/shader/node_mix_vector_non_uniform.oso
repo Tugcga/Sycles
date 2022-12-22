@@ -1,0 +1,34 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.11.17
+# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_mix_vector_non_uniform.oso
+shader node_mix_vector_non_uniform
+param	int	use_clamp	0		%read{0,0} %write{2147483647,-1}
+param	vector	Factor	0.5 0.5 0.5		%read{4,6} %write{2147483647,-1}
+param	vector	A	0 0 0		%read{7,7} %write{2147483647,-1}
+param	vector	B	0 0 0		%read{7,7} %write{2147483647,-1}
+oparam	vector	Result	0 0 0		%read{2147483647,-1} %write{7,7}
+local	vector	t	%read{7,7} %write{5,6}
+const	float	$const1	0		%read{1,1} %write{2147483647,-1}
+temp	vector	$tmp1	%read{5,5} %write{1,1}
+const	float	$const2	1		%read{2,2} %write{2147483647,-1}
+temp	vector	$tmp2	%read{4,4} %write{2,2}
+const	string	$const3	"clamp"		%read{3,3} %write{2147483647,-1}
+temp	vector	$tmp3	%read{5,5} %write{4,4}
+code ___main___
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector_non_uniform.osl:12
+#   vector t = (use_clamp) ? clamp(Factor, 0.0, 1.0) : Factor;
+	if		use_clamp 6 7 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector_non_uniform.osl"} %line{12} %argrw{"r"}
+	assign		$tmp1 $const1 	%argrw{"wr"}
+	assign		$tmp2 $const2 	%argrw{"wr"}
+	functioncall	$const3 6 	%argrw{"r"}
+# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:138
+# vector clamp (vector x, vector minval, vector maxval) { return max(min(x,maxval),minval); }
+	min		$tmp3 Factor $tmp2 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{138} %argrw{"wrr"}
+	max		t $tmp3 $tmp1 	%argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector_non_uniform.osl:12
+#   vector t = (use_clamp) ? clamp(Factor, 0.0, 1.0) : Factor;
+	assign		t Factor 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector_non_uniform.osl"} %line{12} %argrw{"wr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector_non_uniform.osl:13
+#   Result = mix(A, B, t);
+	mix		Result A B t 	%line{13} %argrw{"wrrr"}
+	end

@@ -1,0 +1,96 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.11.17
+# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_attribute.oso
+shader node_attribute
+param	string	bump_offset	"center"		%read{9,19} %write{2147483647,-1}
+param	string	name	""		%read{1,7} %write{2147483647,-1} %derivs
+oparam	point	Vector	0 0 0		%read{13,24} %write{6,24} %derivs
+oparam	color	Color	0 0 0		%read{6,22} %write{5,22} %derivs
+oparam	float	Fac	0		%read{15,26} %write{7,26} %derivs
+oparam	float	Alpha	0		%read{17,28} %write{8,28} %derivs
+local	float[4]	data	%read{2,8} %write{0,1} %derivs
+const	float[4]	$const1	0 0 0 0 		%read{0,0} %write{2147483647,-1}
+temp	int	$tmp1	%read{2147483647,-1} %write{1,1}
+const	int	$const2	0		%read{2,2} %write{2147483647,-1}
+temp	float	$tmp2	%read{5,5} %write{2,2} %derivs
+const	int	$const3	1		%read{3,3} %write{2147483647,-1}
+temp	float	$tmp3	%read{5,5} %write{3,3} %derivs
+const	int	$const4	2		%read{4,4} %write{2147483647,-1}
+temp	float	$tmp4	%read{5,5} %write{4,4} %derivs
+temp	int	$tmp5	%read{2147483647,-1} %write{7,7}
+const	int	$const5	3		%read{8,8} %write{2147483647,-1}
+const	string	$const6	"dx"		%read{9,9} %write{2147483647,-1}
+temp	int	$tmp6	%read{10,10} %write{9,9}
+temp	color	$tmp7	%read{12,12} %write{11,11} %derivs
+temp	vector	$tmp8	%read{14,14} %write{13,13} %derivs
+temp	float	$tmp9	%read{16,16} %write{15,15} %derivs
+temp	float	$tmp10	%read{18,18} %write{17,17} %derivs
+const	string	$const7	"dy"		%read{19,19} %write{2147483647,-1}
+temp	int	$tmp11	%read{20,20} %write{19,19}
+temp	color	$tmp12	%read{22,22} %write{21,21} %derivs
+temp	vector	$tmp13	%read{24,24} %write{23,23} %derivs
+temp	float	$tmp14	%read{26,26} %write{25,25} %derivs
+temp	float	$tmp15	%read{28,28} %write{27,27} %derivs
+code ___main___
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:13
+#   float data[4] = {0.0, 0.0, 0.0, 0.0};
+	assign		data $const1 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl"} %line{13} %argrw{"wr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:14
+#   getattribute(name, data);
+	getattribute	$tmp1 name data 	%line{14} %argrw{"wrw"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:15
+#   Color = color(data[0], data[1], data[2]);
+	aref		$tmp2 data $const2 	%line{15} %argrw{"wrr"}
+	aref		$tmp3 data $const3 	%argrw{"wrr"}
+	aref		$tmp4 data $const4 	%argrw{"wrr"}
+	color		Color $tmp2 $tmp3 $tmp4 	%argrw{"wrrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:16
+#   Vector = point(Color);
+	assign		Vector Color 	%line{16} %argrw{"wr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:17
+#   getattribute(name, Fac);
+	getattribute	$tmp5 name Fac 	%line{17} %argrw{"wrw"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:18
+#   Alpha = data[3];
+	aref		Alpha data $const5 	%line{18} %argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:20
+#   if (bump_offset == "dx") {
+	eq		$tmp6 bump_offset $const6 	%line{20} %argrw{"wrr"}
+	if		$tmp6 19 29 	%argrw{"r"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:21
+#     Color += Dx(Color);
+	Dx		$tmp7 Color 	%line{21} %argrw{"wr"} %argderivs{1}
+	add		Color Color $tmp7 	%argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:22
+#     Vector += Dx(Vector);
+	Dx		$tmp8 Vector 	%line{22} %argrw{"wr"} %argderivs{1}
+	add		Vector Vector $tmp8 	%argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:23
+#     Fac += Dx(Fac);
+	Dx		$tmp9 Fac 	%line{23} %argrw{"wr"} %argderivs{1}
+	add		Fac Fac $tmp9 	%argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:24
+#     Alpha += Dx(Alpha);
+	Dx		$tmp10 Alpha 	%line{24} %argrw{"wr"} %argderivs{1}
+	add		Alpha Alpha $tmp10 	%argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:26
+#   else if (bump_offset == "dy") {
+	eq		$tmp11 bump_offset $const7 	%line{26} %argrw{"wrr"}
+	if		$tmp11 29 29 	%argrw{"r"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:27
+#     Color += Dy(Color);
+	Dy		$tmp12 Color 	%line{27} %argrw{"wr"} %argderivs{1}
+	add		Color Color $tmp12 	%argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:28
+#     Vector += Dy(Vector);
+	Dy		$tmp13 Vector 	%line{28} %argrw{"wr"} %argderivs{1}
+	add		Vector Vector $tmp13 	%argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:29
+#     Fac += Dy(Fac);
+	Dy		$tmp14 Fac 	%line{29} %argrw{"wr"} %argderivs{1}
+	add		Fac Fac $tmp14 	%argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_attribute.osl:30
+#     Alpha += Dy(Alpha);
+	Dy		$tmp15 Alpha 	%line{30} %argrw{"wr"} %argderivs{1}
+	add		Alpha Alpha $tmp15 	%argrw{"wrr"}
+	end

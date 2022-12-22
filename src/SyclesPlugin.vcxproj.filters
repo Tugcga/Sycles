@@ -105,6 +105,12 @@
     <ClCompile Include="render_cycles\cyc_primitives\prim_lights.cpp">
       <Filter>render_cycles\cyc_primitives</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_osl.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_shaders_common.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">

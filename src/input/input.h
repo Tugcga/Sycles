@@ -14,6 +14,7 @@ XSI::CStringArray get_available_devices_names();
 
 void read_config_ini();
 InputConfig get_input_config();
+ULONG get_shaderball_displacement_method();
 
 void read_ocio_config();
 OCIOConfig get_ocio_config();

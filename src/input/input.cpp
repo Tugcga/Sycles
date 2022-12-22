@@ -127,6 +127,9 @@ void read_config_ini()
 		const char* clamp_indirect_str = ini.GetValue("Shaderball", "clamp_indirect", "1.0");
 		shaderball.clamp_indirect = strtof(clamp_indirect_str, nullptr);
 
+		const char* displacement_method_str = ini.GetValue("Shaderball", "displacement_method", "2");
+		shaderball.displacement_method = std::max(0, std::min(2, std::stoi(displacement_method_str, nullptr)));
+
 		ConfigRender render;
 		const char* devices_str = ini.GetValue("Render", "devices", "16");
 		render.devices = std::stoi(devices_str, nullptr);
@@ -176,6 +179,18 @@ void read_config_ini()
 		input_config.shaderball = shaderball;
 		input_config.render = render;
 		input_config.series = series;
+	}
+}
+
+ULONG get_shaderball_displacement_method()
+{
+	if (input_config.is_init)
+	{
+		return input_config.shaderball.displacement_method;
+	}
+	else
+	{
+		return 2;
 	}
 }
 

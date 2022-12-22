@@ -204,12 +204,12 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	scene->background->set_transparent(true);*/
 }
 
-void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const XSI::CTime& eval_time)
+void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const ULONG shaderball_displacement, const XSI::CTime& eval_time)
 {
 	// set common shader parameters for all shaders
 	bool use_mis = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_use_mis", eval_time);
 	bool transparent_shadows = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_transparent_shadows", eval_time);
-	int disp_method = render_type == RenderType_Shaderball ? 2 : (int)render_parameters.GetValue("options_displacement_method", eval_time);
+	int disp_method = render_type == RenderType_Shaderball ? shaderball_displacement : (int)render_parameters.GetValue("options_displacement_method", eval_time);
 
 	for (size_t i = 0; i < scene->shaders.size(); i++)
 	{

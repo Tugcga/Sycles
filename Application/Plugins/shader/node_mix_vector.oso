@@ -1,0 +1,30 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.11.17
+# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_mix_vector.oso
+shader node_mix_vector
+param	int	use_clamp	0		%read{0,0} %write{2147483647,-1}
+param	float	Factor	0.5		%read{2,4} %write{2147483647,-1}
+param	vector	A	0 0 0		%read{5,5} %write{2147483647,-1}
+param	vector	B	0 0 0		%read{5,5} %write{2147483647,-1}
+oparam	vector	Result	0 0 0		%read{2147483647,-1} %write{5,5}
+local	float	t	%read{5,5} %write{3,4}
+const	float	$const1	0		%read{3,3} %write{2147483647,-1}
+const	float	$const2	1		%read{2,2} %write{2147483647,-1}
+const	string	$const3	"clamp"		%read{1,1} %write{2147483647,-1}
+temp	float	$tmp1	%read{3,3} %write{2,2}
+code ___main___
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector.osl:12
+#   float t = (use_clamp) ? clamp(Factor, 0.0, 1.0) : Factor;
+	if		use_clamp 4 5 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector.osl"} %line{12} %argrw{"r"}
+	functioncall	$const3 4 	%argrw{"r"}
+# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:141
+# float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
+	min		$tmp1 Factor $const2 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	max		t $tmp1 $const1 	%argrw{"wrr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector.osl:12
+#   float t = (use_clamp) ? clamp(Factor, 0.0, 1.0) : Factor;
+	assign		t Factor 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector.osl"} %line{12} %argrw{"wr"}
+# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mix_vector.osl:13
+#   Result = mix(A, B, t);
+	mix		Result A B t 	%line{13} %argrw{"wrrr"}
+	end

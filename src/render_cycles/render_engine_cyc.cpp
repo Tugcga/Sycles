@@ -8,6 +8,9 @@
 #include "xsi_renderchannel.h"
 #include "xsi_framebuffer.h"
 #include "xsi_projectitem.h"
+#include "xsi_utils.h"
+
+#include "util/path.h"
 
 #include "render_engine_cyc.h"
 #include "cyc_session/cyc_session.h"
@@ -44,6 +47,12 @@ RenderEngineCyc::~RenderEngineCyc()
 	delete labels_context;
 	delete color_transform_context;
 	delete update_context;
+}
+
+void RenderEngineCyc::path_init(const XSI::CString& plugin_path)
+{
+	XSI::CString folder_path = XSI::CUtils::BuildPath(plugin_path, "..", "..");
+	ccl::path_init(folder_path.GetAsciiString());
 }
 
 void RenderEngineCyc::clear_session()
@@ -547,13 +556,13 @@ XSI::CStatus RenderEngineCyc::post_scene()
 
 		if (render_type == RenderType_Shaderball || update_context->is_change_render_parameters_shaders(changed_render_parameters))
 		{
-			sync_shader_settings(session->scene, m_render_parameters, render_type, eval_time);
+			sync_shader_settings(session->scene, m_render_parameters, render_type, get_shaderball_displacement_method(), eval_time);
 		}
 
 		// qick fix for displacement problem
 		// with active displacement, vertices of the mesh is shifted with respect to displacement map
 		// and at the next update it shift these vertices again
-		int settings_displacement_type = m_render_parameters.GetValue("options_displacement_method", eval_time);
+		int settings_displacement_type = render_type == RenderType_Shaderball ? get_shaderball_displacement_method() : (int)m_render_parameters.GetValue("options_displacement_method", eval_time);
 		if (settings_displacement_type != 0)
 		{// 0 - bump displacement
 			bool is_find_displacement = find_scene_shaders_displacement(session->scene);

@@ -48,7 +48,6 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 		}
 
 		// set shading system by using shaderball config
-		use_ocl = false;  // TODO: remove this line, use it only for tests
 		session_params.shadingsystem = use_ocl ? ccl::SHADINGSYSTEM_OSL : ccl::SHADINGSYSTEM_SVM;
 		session_params.use_profiling = false;
 		session_params.samples = samples;

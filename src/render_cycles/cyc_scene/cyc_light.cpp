@@ -62,7 +62,7 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 	aovs[1].Clear();
 	if (color_parameter.IsValid())
 	{
-		sync_float3_parameter(color_parameter, "Color", node, graph, nodes_map, eval_time, aovs);
+		sync_float3_parameter(scene, graph, node, color_parameter, nodes_map, aovs, "Color", eval_time);
 	}
 	else
 	{
@@ -71,7 +71,7 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 
 	if (intensity_parameter.IsValid())
 	{
-		sync_float_parameter(intensity_parameter, "Strength", node, graph, nodes_map, eval_time, aovs);
+		sync_float_parameter(scene, graph, node, intensity_parameter, nodes_map, aovs, "Strength", eval_time);
 	}
 	else
 	{

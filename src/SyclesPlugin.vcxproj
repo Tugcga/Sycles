@@ -78,7 +78,9 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_camera.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_light.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_materials.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_osl.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_shaders.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_shaders_common.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\names_converter.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_motion.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_polymesh\cyc_polymesh.cpp" />
