@@ -9,10 +9,12 @@
 #include "scene/shader.h"
 #include "scene/shader_graph.h"
 #include "scene/shader_nodes.h"
+#include "scene/image.h"
 
 #include <unordered_map>
 #include <string>
 
+#include "../cyc_loaders/cyc_loaders.h"
 #include "../../../input/input.h"
 #include "../../../utilities/logs.h"
 #include "../../../utilities/math.h"
@@ -430,10 +432,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		{
 			XSI::ImageClip2 clip(image_tex_source);
 			file_path = clip.GetFileName();
-		}
 
-		if (file_path.Length() > 0)
-		{
 			bool file_contains_udims = false;
 			ccl::array<int> tiles_array;
 			// check is directory with texture contains udim tiles
@@ -456,7 +455,16 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 				node->set_tiles(tiles_array);
 			}
 
-			node->set_filename(OIIO::ustring(filename));
+			//node->set_filename(OIIO::ustring(filename));
+			ULONG xsi_clip_id = clip.GetObjectID();
+
+			// we add each clip separately (without caching in update context)
+			// because one clip in different materials can have different effects (crop, blur and so on)
+			// so, we should use different images
+			// TODO: make proper load of tiled images
+			XSIImageLoader* image_loader = new XSIImageLoader(clip, eval_time);
+			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
+
 			node->set_colorspace(color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw);
 			node->set_projection(projection == "flat" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT : (projection == "box" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_BOX : (projection == "sphere" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_SPHERE : (projection == "tube" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_TUBE : ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT))));
 			node->set_projection_blend(projection_blend);
@@ -497,12 +505,13 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		{
 			XSI::ImageClip2 clip(image_tex_source);
 			file_path = clip.GetFileName();
-		}
 
-		if (file_path.Length() > 0)
-		{
 			bool temp_flag = false;
-			node->set_filename(OIIO::ustring(build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, false, temp_flag)));
+			std::string filename = build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, false, temp_flag);
+			//node->set_filename(OIIO::ustring(filename)));
+
+			XSIImageLoader* image_loader = new XSIImageLoader(clip, eval_time);
+			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
 			node->set_colorspace(color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));

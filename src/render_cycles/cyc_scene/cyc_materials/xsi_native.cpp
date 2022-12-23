@@ -16,6 +16,7 @@
 #include "../../../utilities/math.h"
 #include "../../../utilities/logs.h"
 #include "cyc_materials.h"
+#include "../cyc_loaders/cyc_loaders.h"
 
 ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString &shader_type, std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, std::vector<XSI::CStringArray>& aovs, const XSI::CTime& eval_time)
 {
@@ -143,7 +144,10 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			nodes_map[xsi_shader_id] = node;
 			node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
-			node->set_filename(OIIO::ustring(file_path.GetAsciiString()));
+			//node->set_filename(OIIO::ustring(file_path.GetAsciiString()));
+			XSIImageLoader* image_loader = new XSIImageLoader(clip, eval_time);
+			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
+
 			node->set_colorspace(ccl::u_colorspace_srgb);
 			node->set_projection(ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT);
 			node->set_projection_blend(0.0);

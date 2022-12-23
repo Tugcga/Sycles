@@ -77,6 +77,7 @@
     <ClCompile Include="render_cycles\cyc_primitives\prim_lights.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_camera.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_light.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_image_loader.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_materials.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_osl.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_shaders.cpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="render_cycles\cyc_output\output_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_drivers.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_labels.h" />
+    <ClInclude Include="render_cycles\cyc_scene\cyc_loaders\cyc_loaders.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_materials\cyc_materials.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_materials\names_converter.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_motion.h" />

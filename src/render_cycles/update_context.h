@@ -13,6 +13,7 @@
 #include "../render_cycles/cyc_session/cyc_pass_utils.h"
 #include "../render_cycles/cyc_scene/cyc_motion.h"
 #include "../render_base/type_enums.h"
+#include "cyc_scene/cyc_loaders/cyc_loaders.h"
 
 class UpdateContext
 {

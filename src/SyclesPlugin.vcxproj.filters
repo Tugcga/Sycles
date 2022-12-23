@@ -114,6 +114,9 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\xsi_native.cpp">
       <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_image_loader.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_loaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -151,6 +154,9 @@
     </Filter>
     <Filter Include="render_cycles\cyc_primitives">
       <UniqueIdentifier>{74842a32-f7db-4fe0-ac31-a53b3160c692}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_cycles\cyc_scene\cyc_loaders">
+      <UniqueIdentifier>{ec4af057-1ff4-4dfb-b6ea-11f1746f97f5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -262,6 +268,9 @@
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_scene\cyc_materials\names_converter.h">
       <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_scene\cyc_loaders\cyc_loaders.h">
+      <Filter>render_cycles\cyc_scene\cyc_loaders</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
