@@ -85,14 +85,9 @@ public:
 	void activate_need_update_background();
 	bool is_need_update_background();
 
-	void setup_scene_objects(const XSI::CRefArray &isolation_list, const XSI::CRefArray &lights_list, const XSI::CRefArray& scene_list, const XSI::CRefArray &all_objects_list);
-	const std::vector<XSI::Light>& get_xsi_lights();
-	const std::vector<XSI::X3DObject>& get_custom_lights();
 	void add_light_index(ULONG xsi_light_id, size_t cyc_light_index);
 	bool is_xsi_light_exists(ULONG xsi_id);
-	size_t get_xsi_light_cycles_index(ULONG xsi_id);
-	const XSI::X3DObject& get_shaderball();
-	const std::vector<XSI::X3DObject>& get_scene_polymeshes();
+	std::vector<size_t> get_xsi_light_cycles_indexes(ULONG xsi_id);
 
 	bool get_use_background_light();
 	void set_use_background_light(size_t shader_index, ULONG material_id);  // activate use backgound light
@@ -111,6 +106,15 @@ public:
 	void add_aov_names(const XSI::CStringArray &in_color_aovs, const XSI::CStringArray &in_value_aovs);
 	XSI::CStringArray get_color_aovs();
 	XSI::CStringArray get_value_aovs();
+
+	void add_light_instance_data(ULONG xsi_instance_root_id, size_t cycles_light_index, std::vector<ULONG> master_ids);
+	bool is_light_from_instance_data_contains_id(ULONG xsi_id);
+	std::unordered_map<size_t, std::vector<ULONG>> get_light_from_instance_data(ULONG xsi_id);
+	void add_light_nested_instance_data(ULONG nested_id, ULONG host_id);
+	bool is_light_nested_to_host_instances_contains_id(ULONG id);
+	std::vector<ULONG> get_light_nested_to_host_instances_ids(ULONG id);
+	bool is_light_id_to_instance_contains_id(ULONG id);
+	std::vector<ULONG> get_light_id_to_instance_ids(ULONG id);
 
 private:
 	// after each render prepare session we store here used render parameter values
@@ -155,19 +159,36 @@ private:
 	std::unordered_set<std::string> color_aovs;
 	std::unordered_set<std::string> value_aovs;
 
-	// prepare scene objects and form these arrays with input objects for rendering
-	std::vector<XSI::Light> scene_xsi_lights;  // this array contains xsi lights
-	std::vector<XSI::X3DObject> scene_custom_lights;  // this array contains custom lights
-	std::vector<XSI::X3DObject> scene_polymeshes;
-
 	bool use_background_light;  // set true when we use background light source from the scene, if false, then use only ambient color
 	size_t background_shader_index;  // index in the Cycles array of shaders
 	ULONG background_xsi_material_id;  // material id from library, used for custom backround light source
 	int background_light_index;  // store here background light index in the Cycles array (we always create background light, from scene on manual), when no light is assigned, then -1
-	std::unordered_map<ULONG, size_t> lights_xsi_to_cyc; // map from Softimage object id for Ligth (not for x3dobject) to index in the Cycles array of lights, for custm light from x3dobject id to cycles index
-	std::unordered_map<ULONG, size_t> material_xsi_to_cyc;  // key - object id, value - index of the shader
-	// for shaderball material we use object id of the Node for shaderball (material, shader or texture)
 
-	XSI::X3DObject shaderball;  // hero shaderball object
+	// map from Softimage object id for Light (not for x3dobject) to index in the Cycles array of lights
+	// for custm light from x3dobject id to cycles index
+	// value is array, it contains indexes in Cycles lights array of one master light in scene and several instances
+	// when we change parameterse of the master light, then we should resync all lights in Cycles array with thiese indexes
+	// this is a map from master light id to different cycles light indexes
+	std::unordered_map<ULONG, std::vector<size_t>> lights_xsi_to_cyc;
+
+	// this map from instance root id to a map, which contains data about cycles light indexes and corresponded xsi master root ids and xsi master object ids (in this order)
+	// this map should be used when we change transform of the instance root object (instance objects can not moved)
+	// then we obtain all key of the corresponding map - these will be cycles light indices
+	// and then for each cycles light index obtain master root id and master object id
+	// obtain corresponding xsi objects and extract valid transforms
+	std::unordered_map<ULONG, std::unordered_map<size_t, std::vector<ULONG>>> xsi_light_from_instance_map;
+
+	// key - id of the instance,
+	// value - ids of all instances, where the key is object, store only the top level of the instance
+	std::unordered_map<ULONG, std::vector<ULONG>> xsi_light_nested_to_hosts_instances_map;
+
+	// key - id light object in the scene
+	// value - array of all instances, whcich contains this light
+	std::unordered_map<ULONG, std::vector<ULONG>> xsi_light_id_to_instance_map;
+
+	// key - object id, value - index of the shader
+	// for shaderball material we use object id of the Node for shaderball (material, shader or texture)
+	std::unordered_map<ULONG, size_t> material_xsi_to_cyc;
+	
 	std::unordered_map<ULONG, ULONG> shaderball_material_to_node;  // store map from parent material id to shader node id inside this material (only for shaderball session)
 };

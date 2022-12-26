@@ -9,6 +9,8 @@
 #include <xsi_texture.h>
 #include <xsi_time.h>
 #include <xsi_arrayparameter.h>
+#include <xsi_transformation.h>
+#include <xsi_kinematicstate.h>
 
 #include "../../render_cycles/update_context.h"
 #include "../../render_base/type_enums.h"
@@ -16,15 +18,19 @@
 
 void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const ULONG shaderball_displacement, const XSI::CTime& eval_time);
 bool find_scene_shaders_displacement(ccl::Scene* scene);
-void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id);
+void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& scene_list, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id);
+void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray& all_models_list);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
 // cyc_camera
 XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context);
 
 // cyc_light
-void sync_xsi_lights(ccl::Scene* scene, const std::vector<XSI::Light>& xsi_lights, UpdateContext* update_context);
-void sync_custom_lights(ccl::Scene* scene, const std::vector<XSI::X3DObject>& custom_lights, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
+void sync_light_tfm(ccl::Light* light, const XSI::MATH::CMatrix4& xsi_tfm_matrix);
+XSI::MATH::CTransformation tweak_xsi_light_transform(const XSI::MATH::CTransformation& xsi_tfm, const XSI::Light& xsi_light, const XSI::CTime& eval_time);
+void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContext* update_context);
+void sync_custom_background(ccl::Scene* scene, const XSI::X3DObject& xsi_object, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
+void sync_custom_light(ccl::Scene* scene, const XSI::X3DObject& xsi_object, UpdateContext* update_context);
 void sync_background_color(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
 
 // this method called when we change ambience color
@@ -57,3 +63,8 @@ void sync_shaderball_camera(ccl::Scene* scene, UpdateContext* update_context, Sh
 
 // cyc_polymesh
 ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes);
+
+// cyc_isntance
+void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model, const XSI::MATH::CTransformation& override_instance_tfm = XSI::MATH::CTransformation(), std::vector<ULONG> master_ids = {}, ULONG override_root_id = 0);
+XSI::CStatus update_instance_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& xsi_model);
+XSI::CStatus update_instance_transform_from_master_object(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);

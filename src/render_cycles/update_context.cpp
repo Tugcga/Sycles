@@ -42,10 +42,6 @@ void UpdateContext::reset()
 
 	render_type = RenderType_Unknown;
 
-	scene_xsi_lights.resize(0);
-	scene_custom_lights.resize(0);
-	scene_polymeshes.resize(0);
-
 	// does not reset full_width and full_height, because these values used as in update scene and create scene
 
 	lights_xsi_to_cyc.clear();
@@ -58,6 +54,10 @@ void UpdateContext::reset()
 	lightgroups.clear();
 	color_aovs.clear();
 	value_aovs.clear();
+
+	xsi_light_from_instance_map.clear();
+	xsi_light_nested_to_hosts_instances_map.clear();
+	xsi_light_id_to_instance_map.clear();
 }
 
 void UpdateContext::set_is_update_scene(bool value)
@@ -397,126 +397,17 @@ RenderType UpdateContext::get_render_type()
 	return render_type;
 }
 
-void gather_all_subobjects(const XSI::X3DObject& xsi_object, XSI::CRefArray& output)
+void UpdateContext::add_light_index(ULONG xsi_light_id, size_t cyc_light_index)
 {
-	output.Add(xsi_object.GetRef());
-	XSI::CRefArray children = xsi_object.GetChildren();
-	for (ULONG i = 0; i < children.GetCount(); i++)
+	if (lights_xsi_to_cyc.contains(xsi_light_id))
 	{
-		gather_all_subobjects(children[i], output);
-	}
-}
-
-XSI::CRefArray gather_all_subobjects(const XSI::Model& root)
-{
-	XSI::CRefArray output;
-	XSI::CRefArray children = root.GetChildren();
-	for (ULONG i = 0; i < children.GetCount(); i++)
-	{
-		gather_all_subobjects(children[i], output);
-	}
-	return output;
-}
-
-void UpdateContext::setup_scene_objects(const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& scene_list, const XSI::CRefArray& all_objects_list)
-{
-	use_background_light = false;
-	// in this method we should parse input scene objects and sort it by different arrays
-	if (render_type == RenderType_Shaderball)
-	{
-		// for renderball we use scene_list
-		bool assign_hero = false;
-		for (size_t i = 0; i < scene_list.GetCount(); i++)
-		{
-			XSI::CRef object_ref = scene_list[i];
-			XSI::siClassID object_class = object_ref.GetClassID();
-			// ignore cameras and lights, consider only polymeshes inside models
-			if (object_class == XSI::siModelID)
-			{
-				XSI::Model xsi_model(object_ref);
-				XSI::CRefArray model_objects = gather_all_subobjects(xsi_model);
-				for (LONG j = 0; j < model_objects.GetCount(); j++)
-				{
-					XSI::X3DObject xsi_object(model_objects[j]);
-					XSI::CString xsi_type = xsi_object.GetType();
-					if (xsi_type == "polymsh")
-					{
-						if (!assign_hero)
-						{
-							shaderball = xsi_object;
-							assign_hero = true;
-						}
-						else
-						{
-							scene_polymeshes.push_back(xsi_object);
-						}
-					}
-				}
-			}
-		}
+		lights_xsi_to_cyc[xsi_light_id].push_back(cyc_light_index);
 	}
 	else
 	{
-		// for other render modes we use other input arrays
-		if (isolation_list.GetCount() > 0)
-		{// render isolation view
-			// we should use all objects from isolation list and all light objects (build-in and custom) from all objects list
-
-		}
-		else
-		{// render general scene view
-			// in this case we should enumerate objects from complete list
-			size_t objects_count = all_objects_list.GetCount();
-			for (size_t i = 0; i < objects_count; i++)
-			{
-				XSI::CRef object_ref = all_objects_list[i];
-				XSI::siClassID object_class = object_ref.GetClassID();
-				if (object_class == XSI::siLightID)
-				{// built-in light
-					XSI::X3DObject xsi_object(object_ref);
-					if (is_render_visible(xsi_object, eval_time))
-					{
-						scene_xsi_lights.push_back((XSI::Light)object_ref);
-					}
-				}
-				else if (object_class == XSI::siX3DObjectID)
-				{
-					XSI::X3DObject xsi_object(object_ref);
-					XSI::CString object_type = xsi_object.GetType();
-					if (is_render_visible(xsi_object, eval_time))
-					{
-						if (object_type == "polymsh")
-						{
-							scene_polymeshes.push_back(xsi_object);
-						}
-						else if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea" || object_type == "cyclesBackground")
-						{
-							scene_custom_lights.push_back(xsi_object);
-						}
-					}
-				}
-				else
-				{
-					
-				}
-			}
-		}
+		std::vector<size_t> array(1, cyc_light_index);
+		lights_xsi_to_cyc[xsi_light_id] = array;
 	}
-}
-
-const std::vector<XSI::Light>& UpdateContext::get_xsi_lights()
-{
-	return scene_xsi_lights;
-}
-
-const std::vector<XSI::X3DObject>& UpdateContext::get_custom_lights()
-{
-	return scene_custom_lights;
-}
-
-void UpdateContext::add_light_index(ULONG xsi_light_id, size_t cyc_light_index)
-{
-	lights_xsi_to_cyc[xsi_light_id] = cyc_light_index;
 }
 
 bool UpdateContext::is_xsi_light_exists(ULONG xsi_id)
@@ -524,7 +415,7 @@ bool UpdateContext::is_xsi_light_exists(ULONG xsi_id)
 	return lights_xsi_to_cyc.contains(xsi_id);
 }
 
-size_t UpdateContext::get_xsi_light_cycles_index(ULONG xsi_id)
+std::vector<size_t> UpdateContext::get_xsi_light_cycles_indexes(ULONG xsi_id)
 {
 	return lights_xsi_to_cyc[xsi_id];
 }
@@ -564,16 +455,6 @@ void UpdateContext::set_background_light_index(int value)
 int UpdateContext::get_background_light_index()
 {
 	return background_light_index;
-}
-
-const XSI::X3DObject& UpdateContext::get_shaderball()
-{
-	return shaderball;
-}
-
-const std::vector<XSI::X3DObject>& UpdateContext::get_scene_polymeshes()
-{
-	return scene_polymeshes;
 }
 
 void UpdateContext::add_material_index(ULONG xsi_id, size_t cyc_shader_index, ShaderballType shaderball_type)
@@ -704,4 +585,76 @@ XSI::CStringArray UpdateContext::get_value_aovs()
 	}
 
 	return to_return;
+}
+
+// master_ids is array [m1, o1, m2, o2, ...]
+// where mi and oi are master root and master object
+// this array has length > 2 if there are nested prefabs
+// in this case m1, o1 defines top level, m2, o2 next nested level and so on
+// at the end tow last values are the final master root id and master object (which is actualy exported)
+void UpdateContext::add_light_instance_data(ULONG xsi_instance_root_id, size_t cycles_light_index, std::vector<ULONG> master_ids)
+{
+	if (xsi_light_from_instance_map.contains(xsi_instance_root_id))
+	{
+		xsi_light_from_instance_map[xsi_instance_root_id][cycles_light_index].insert(xsi_light_from_instance_map[xsi_instance_root_id][cycles_light_index].end(), master_ids.begin(), master_ids.end());
+	}
+	else
+	{
+		std::unordered_map<size_t, std::vector<ULONG>> new_map;
+		new_map[cycles_light_index].insert(new_map[cycles_light_index].end(), master_ids.begin(), master_ids.end());
+
+		xsi_light_from_instance_map[xsi_instance_root_id] = new_map;
+	}
+
+	ULONG master_object_id = master_ids[master_ids.size() - 1];
+	if (xsi_light_id_to_instance_map.contains(master_object_id))
+	{
+		xsi_light_id_to_instance_map[master_object_id].push_back(xsi_instance_root_id);
+	}
+	else
+	{
+		xsi_light_id_to_instance_map[master_object_id] = { xsi_instance_root_id };
+	}
+}
+
+bool UpdateContext::is_light_from_instance_data_contains_id(ULONG xsi_id)
+{
+	return xsi_light_from_instance_map.contains(xsi_id);
+}
+
+std::unordered_map<size_t, std::vector<ULONG>> UpdateContext::get_light_from_instance_data(ULONG xsi_id)
+{
+	return xsi_light_from_instance_map[xsi_id];
+}
+
+void UpdateContext::add_light_nested_instance_data(ULONG nested_id, ULONG host_id)
+{
+	if (xsi_light_nested_to_hosts_instances_map.contains(nested_id))
+	{
+		xsi_light_nested_to_hosts_instances_map[nested_id].push_back(host_id);
+	}
+	else
+	{
+		xsi_light_nested_to_hosts_instances_map[nested_id] = { host_id };
+	}
+}
+
+bool UpdateContext::is_light_nested_to_host_instances_contains_id(ULONG id)
+{
+	return xsi_light_nested_to_hosts_instances_map.contains(id);
+}
+
+std::vector<ULONG> UpdateContext::get_light_nested_to_host_instances_ids(ULONG id)
+{
+	return xsi_light_nested_to_hosts_instances_map[id];
+}
+
+bool UpdateContext::is_light_id_to_instance_contains_id(ULONG id)
+{
+	return xsi_light_id_to_instance_map.contains(id);
+}
+
+std::vector<ULONG> UpdateContext::get_light_id_to_instance_ids(ULONG id)
+{
+	return xsi_light_id_to_instance_map[id];
 }

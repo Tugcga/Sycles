@@ -76,6 +76,7 @@
     <ClCompile Include="render_cycles\cyc_output\output_drivers.cpp" />
     <ClCompile Include="render_cycles\cyc_primitives\prim_lights.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_camera.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_instance.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_light.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_image_loader.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_materials.cpp" />

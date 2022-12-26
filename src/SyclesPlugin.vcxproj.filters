@@ -117,6 +117,9 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_image_loader.cpp">
       <Filter>render_cycles\cyc_scene\cyc_loaders</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_instance.cpp">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">

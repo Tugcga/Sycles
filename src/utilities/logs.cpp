@@ -223,3 +223,18 @@ XSI::CString to_string(const std::vector<size_t>& array)
 	to_return += "]";
 	return to_return;
 }
+
+XSI::CString to_string(const XSI::MATH::CMatrix4& matrix)
+{
+	XSI::CString to_return = "";
+	for (ULONG i = 0; i < 4; i++)
+	{
+		for (ULONG j = 0; j < 4; j++)
+		{
+			to_return += XSI::CString(matrix.GetValue(i, j));
+		}
+		to_return += "\n";
+	}
+
+	return to_return;
+}

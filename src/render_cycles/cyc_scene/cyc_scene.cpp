@@ -17,6 +17,7 @@
 #include <xsi_texture.h>
 #include <xsi_time.h>
 #include <xsi_arrayparameter.h>
+#include <xsi_model.h>
 
 #include "../../utilities/logs.h"
 #include "../../utilities/math.h"
@@ -25,6 +26,7 @@
 #include "primitives_geometry.h"
 #include "../../render_base/type_enums.h"
 #include "../../input/input.h"
+#include "../../utilities/xsi_properties.h"
 
 // cube from -1 to 1 (the edge size is 2)
 ccl::Mesh* build_cube(ccl::Scene* scene)
@@ -237,7 +239,198 @@ bool find_scene_shaders_displacement(ccl::Scene* scene)
 	return false;
 }
 
-void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef &shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id)
+void gather_all_subobjects(const XSI::X3DObject& xsi_object, XSI::CRefArray& output)
+{
+	output.Add(xsi_object.GetRef());
+	XSI::CRefArray children = xsi_object.GetChildren();
+	for (ULONG i = 0; i < children.GetCount(); i++)
+	{
+		gather_all_subobjects(children[i], output);
+	}
+}
+
+XSI::CRefArray gather_all_subobjects(const XSI::Model& root)
+{
+	XSI::CRefArray output;
+	XSI::CRefArray children = root.GetChildren();
+	for (ULONG i = 0; i < children.GetCount(); i++)
+	{
+		gather_all_subobjects(children[i], output);
+	}
+	return output;
+}
+
+void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& scene_list, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id)
+{
+	int shader_index = -1;
+	XSI::CTime eval_time = update_context->get_time();
+	if (shaderball_type != ShaderballType_Unknown)
+	{
+		if (shaderball_type == ShaderballType_Material)
+		{
+			XSI::Material xsi_material(shaderball_material);
+			std::vector<XSI::CStringArray> aovs(2);
+			aovs[0].Clear();
+			aovs[1].Clear();
+
+			shader_index = sync_material(scene, xsi_material, eval_time, aovs);
+		}
+		else if (shaderball_type == ShaderballType_SurfaceShader)
+		{
+			XSI::Shader xsi_shader(shaderball_material);
+			shader_index = sync_shaderball_shadernode(scene, xsi_shader, true, eval_time);
+		}
+		else if (shaderball_type == ShaderballType_VolumeShader)
+		{
+			XSI::Shader xsi_shader(shaderball_material);
+			shader_index = sync_shaderball_shadernode(scene, xsi_shader, false, eval_time);
+		}
+		else if (shaderball_type == ShaderballType_Texture)
+		{
+			XSI::Texture xsi_texture(shaderball_material);
+			shader_index = sync_shaderball_texturenode(scene, xsi_texture, eval_time);
+		}
+		else
+		{
+			shader_index = create_default_shader(scene);
+		}
+	}
+
+	if (shader_index >= 0) {
+		update_context->add_material_index(shaderball_material_id, shader_index, shaderball_type);
+
+		// setup shaderball polymesh
+		bool assign_hero = false;
+		for (size_t i = 0; i < scene_list.GetCount(); i++)
+		{
+			XSI::CRef object_ref = scene_list[i];
+			XSI::siClassID object_class = object_ref.GetClassID();
+			// ignore cameras and lights, consider only polymeshes inside models
+			if (object_class == XSI::siModelID)
+			{
+				XSI::Model xsi_model(object_ref);
+				XSI::CRefArray model_objects = gather_all_subobjects(xsi_model);
+				for (LONG j = 0; j < model_objects.GetCount(); j++)
+				{
+					XSI::X3DObject xsi_object(model_objects[j]);
+					XSI::CString xsi_type = xsi_object.GetType();
+					if (xsi_type == "polymsh")
+					{
+						if (!assign_hero)
+						{
+							sync_shaderball_hero(scene, xsi_object, shader_index, shaderball_type);
+							assign_hero = true;
+						}
+						else
+						{
+							// mesh is background object
+							// TODO: sync polymeshes
+						}
+					}
+				}
+			}
+		}
+
+		// lights
+		sync_shaderball_light(scene, shaderball_type);
+
+		// camera
+		sync_shaderball_camera(scene, update_context, shaderball_type);
+	}
+}
+
+void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray &all_models_list)
+{
+	RenderType render_type = update_context->get_render_type();
+	XSI::CTime eval_time = update_context->get_time();
+
+	sync_scene_materials(scene, update_context);
+
+	sync_camera(scene, update_context);
+
+	if (isolation_list.GetCount() > 0)
+	{// render isolation view
+		// we should use all objects from isolation list and all light objects (build-in and custom) from all objects list
+
+	}
+	else
+	{// render general scene view
+		// in this case we should enumerate objects from complete list
+		size_t objects_count = all_x3dobjects_list.GetCount();
+		for (size_t i = 0; i < objects_count; i++)
+		{
+			XSI::CRef object_ref = all_x3dobjects_list[i];
+			XSI::siClassID object_class = object_ref.GetClassID();
+			if (object_class == XSI::siLightID)
+			{// built-in light
+				XSI::X3DObject xsi_object(object_ref);
+				if (is_render_visible(xsi_object, eval_time))
+				{
+					XSI::Light xsi_light(xsi_object);
+					sync_xsi_light(scene, xsi_light, update_context);
+				}
+			}
+			else if (object_class == XSI::siX3DObjectID)
+			{
+				XSI::X3DObject xsi_object(object_ref);
+				XSI::CString object_type = xsi_object.GetType();
+
+				if (is_render_visible(xsi_object, eval_time))
+				{
+					if (object_type == "polymsh")
+					{
+						
+					}
+					else if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea")
+					{
+						sync_custom_light(scene, xsi_object, update_context);
+					}
+					else if (object_type == "cyclesBackground")
+					{
+						sync_custom_background(scene, xsi_object, update_context, render_parameters, eval_time);
+					}
+					else
+					{
+						log_message("unknown x3dobject " + object_type);
+					}
+				}
+			}
+			else if (object_class == XSI::siCameraID || object_class == XSI::siNullID || object_class == XSI::siCameraRigID)
+			{
+				// ignore nothing to do
+			}
+			else
+			{
+				log_message("unknown object class " + XSI::CString(object_class));
+			}
+		}
+
+		// next iterate models
+		size_t models_count = all_models_list.GetCount();
+		for (size_t i = 0; i < models_count; i++)
+		{
+			XSI::CRef xsi_model_ref = all_models_list[i];
+			XSI::Model xsi_model(xsi_model_ref);
+			if (xsi_model.IsValid() && is_render_visible(xsi_model, eval_time))
+			{
+				XSI::siModelKind model_kind = xsi_model.GetModelKind();
+				if (model_kind == XSI::siModelKind_Instance)
+				{// this is instance model
+					sync_instance_model(scene, update_context, xsi_model);
+				}
+			}
+		}
+	}
+
+	if (!update_context->get_use_background_light())
+	{
+		sync_background_color(scene, update_context, render_parameters);
+	}
+
+	sync_demo_scene(scene, update_context);
+}
+
+/*void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id)
 {
 	RenderType render_type = update_context->get_render_type();
 	XSI::CTime eval_time = update_context->get_time();
@@ -306,7 +499,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 
 		sync_demo_scene(scene, update_context);
 	}
-}
+}*/
 
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object)
 {
@@ -315,11 +508,33 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 	if (object_type == "light")
 	{// default Softimage light
 		XSI::Light xsi_light(xsi_object);
-		return update_xsi_light_transform(scene, update_context, xsi_light);
+		XSI::CStatus is_update = update_xsi_light_transform(scene, update_context, xsi_light);
+		if (is_update == XSI::CStatus::OK)
+		{
+			// try to update instances (if it exists)
+			is_update = update_instance_transform_from_master_object(scene, update_context, xsi_object);
+		}
+
+		return is_update;
 	}
 	else if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea")
 	{
-		return update_custom_light_transform(scene, update_context, xsi_object);
+		XSI::CStatus is_update = update_custom_light_transform(scene, update_context, xsi_object);
+		if (is_update == XSI::CStatus::OK)
+		{
+			is_update = update_instance_transform_from_master_object(scene, update_context, xsi_object);
+		}
+		return is_update;
+	}
+	else if (object_type == "#model")
+	{
+		XSI::Model xsi_model(xsi_object);
+		XSI::siModelKind model_kind = xsi_model.GetModelKind();
+		if (model_kind == XSI::siModelKind_Instance)
+		{// this is instance model
+			// TODO: may be we change transform of the instance root, but it contained in some master root
+			return update_instance_transform(scene, update_context, xsi_model);
+		}
 	}
 	else
 	{// unknown object type

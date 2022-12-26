@@ -106,8 +106,40 @@ void sync_light_tfm(ccl::Light* light, const XSI::MATH::CMatrix4 &xsi_tfm_matrix
 	light->set_axisv(vector3_to_float3(xsi_axis_v));
 }
 
+XSI::MATH::CTransformation tweak_xsi_light_transform(const XSI::MATH::CTransformation &xsi_tfm, const XSI::Light& xsi_light, const XSI::CTime& eval_time)
+{
+	bool xsi_area = xsi_light.GetParameterValue("LightArea", eval_time);
+	int xsi_area_shape = xsi_light.GetParameterValue("LightAreaGeom", eval_time);
+
+	XSI::MATH::CTransformation rotate_tfm;
+	rotate_tfm.SetIdentity();
+	if (xsi_area && xsi_area_shape != 3)
+	{
+		float xsi_rotation_x = xsi_light.GetParameterValue("LightAreaXformRX", eval_time);
+		float xsi_rotation_y = xsi_light.GetParameterValue("LightAreaXformRY", eval_time);
+		float xsi_rotation_z = xsi_light.GetParameterValue("LightAreaXformRZ", eval_time);
+
+		// rectangle can be rotated, so, change transform matrix
+		rotate_tfm.SetRotX(xsi_rotation_x);
+		rotate_tfm.SetRotY(xsi_rotation_y);
+		rotate_tfm.SetRotZ(xsi_rotation_z);
+	}
+
+	XSI::MATH::CTransformation to_return;
+	to_return.Mul(rotate_tfm, xsi_tfm);
+	to_return.SetScalingFromValues(1.0, 1.0, 1.0);
+
+	return to_return;
+}
+
 void sync_xsi_light_tfm(ccl::Light* light, const XSI::Light& xsi_light, const XSI::CTime& eval_time)
 {
+	XSI::MATH::CTransformation xsi_tfm = xsi_light.GetKinematics().GetGlobal().GetTransform(eval_time);
+	XSI::MATH::CTransformation xsi_tweaked_tfm = tweak_xsi_light_transform(xsi_tfm, xsi_light, eval_time);
+	
+	sync_light_tfm(light, xsi_tweaked_tfm.GetMatrix4());
+
+	/*
 	bool xsi_area = xsi_light.GetParameterValue("LightArea", eval_time);
 	int xsi_area_shape = xsi_light.GetParameterValue("LightAreaGeom", eval_time);
 
@@ -130,10 +162,10 @@ void sync_xsi_light_tfm(ccl::Light* light, const XSI::Light& xsi_light, const XS
 		XSI::MATH::CMatrix4 rotate_matrix = rotate_tfm.GetMatrix4();
 		xsi_tfm_matrix.Mul(rotate_matrix, xsi_tfm_matrix);
 	}
-	sync_light_tfm(light, xsi_tfm_matrix);
+	sync_light_tfm(light, xsi_tfm_matrix);*/
 }
 
-void sync_xsi_light(ccl::Scene* scene, ccl::Light* light, ccl::Shader* light_shader, const XSI::Light &xsi_light, const XSI::CTime &eval_time)
+void sync_xsi_light_object(ccl::Scene* scene, ccl::Light* light, ccl::Shader* light_shader, const XSI::Light &xsi_light, const XSI::CTime &eval_time)
 {
 	// get light shader
 	// here we need shader only for light parameters (spread and umbra)
@@ -245,26 +277,23 @@ void sync_xsi_light(ccl::Scene* scene, ccl::Light* light, ccl::Shader* light_sha
 	light->set_random_id(ccl::hash_uint2(ccl::hash_string(xsi_light.GetUniqueName().GetAsciiString()), 0));
 }
 
-void sync_xsi_lights(ccl::Scene* scene, const std::vector<XSI::Light> &xsi_lights, UpdateContext* update_context)
+void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContext* update_context)
 {
 	XSI::CTime eval_time = update_context->get_time();
-	for (size_t i = 0; i < xsi_lights.size(); i++)
-	{
-		XSI::Light xsi_light = xsi_lights[i];
-		 // crete Cycles light
-		ccl::Light* light = scene->create_node<ccl::Light>();
 
-		ccl::Shader* light_shader = build_xsi_light_shader(scene, xsi_light, eval_time);
-		// setup light parameters
-		sync_xsi_light(scene, light, light_shader, xsi_light, eval_time);
-		sync_xsi_light_tfm(light, xsi_light, eval_time);
+	// create Cycles light
+	ccl::Light* light = scene->create_node<ccl::Light>();
 
-		// save connection between light object in the Softimage scene and in the Cycles scene
-		update_context->add_light_index(xsi_light.GetObjectID(), scene->lights.size() - 1);
-	}
+	ccl::Shader* light_shader = build_xsi_light_shader(scene, xsi_light, eval_time);
+	// setup light parameters
+	sync_xsi_light_object(scene, light, light_shader, xsi_light, eval_time);
+	sync_xsi_light_tfm(light, xsi_light, eval_time);
+
+	// save connection between light object in the Softimage scene and in the Cycles scene
+	update_context->add_light_index(xsi_light.GetObjectID(), scene->lights.size() - 1);
 }
 
-void sync_custom_light(ccl::Light* light, const XSI::CString &xsi_name, CustomLightType light_type, const XSI::CParameterRefArray &xsi_parameters, const XSI::CTime &eval_time, XSI::CString &out_lightgroup)
+void sync_custom_light_object(ccl::Light* light, const XSI::CString &xsi_name, CustomLightType light_type, const XSI::CParameterRefArray &xsi_parameters, const XSI::CTime &eval_time, XSI::CString &out_lightgroup)
 {
 	light->set_is_enabled(true);
 
@@ -318,6 +347,12 @@ void sync_custom_light(ccl::Light* light, const XSI::CString &xsi_name, CustomLi
 	out_lightgroup = xsi_parameters.GetValue("lightgroup", eval_time);
 	light->set_lightgroup(ccl::ustring(out_lightgroup.GetAsciiString()));
 }
+
+/*void sync_light_tfm(ccl::Light* light, const XSI::MATH::CTransformation& xsi_tfm)
+{
+	XSI::MATH::CMatrix4 xsi_matrix = xsi_tfm.GetMatrix4();
+	sync_light_tfm(light, xsi_matrix);
+}*/
 
 void sync_custom_light_tfm(ccl::Light* light, const XSI::KinematicState &xsi_kine, const XSI::CTime& eval_time)
 {
@@ -416,39 +451,31 @@ void sync_custom_background(ccl::Scene* scene, const XSI::X3DObject &xsi_object,
 	}
 }
 
-void sync_custom_lights(ccl::Scene* scene, const std::vector<XSI::X3DObject>& custom_lights, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
+void sync_custom_light(ccl::Scene* scene, const XSI::X3DObject & xsi_object, UpdateContext* update_context)
 {
 	XSI::CTime eval_time = update_context->get_time();
-	for (size_t i = 0; i < custom_lights.size(); i++)
+	CustomLightType light_type = get_custom_light_type(xsi_object.GetType());
+	if (light_type != CustomLightType_Unknown)
 	{
-		XSI::X3DObject xsi_object = custom_lights[i];
-		CustomLightType light_type = get_custom_light_type(xsi_object.GetType());
-		if (light_type != CustomLightType_Unknown)
+		if (light_type != CustomLightType_Background && light_type != CustomLightType_Unknown)
 		{
-			if (light_type == CustomLightType_Background)
+			// get light shader index
+			XSI::Material xsi_material = xsi_object.GetMaterial();
+			ULONG xsi_material_id = xsi_material.GetObjectID();
+			if (update_context->is_material_exists(xsi_material_id))
 			{
-				sync_custom_background(scene, xsi_object, update_context, render_parameters, eval_time);
-			}
-			else
-			{
-				// get light shader index
-				XSI::Material xsi_material = xsi_object.GetMaterial();
-				ULONG xsi_material_id = xsi_material.GetObjectID();
-				if (update_context->is_material_exists(xsi_material_id))
-				{
-					size_t shader_index = update_context->get_xsi_material_cycles_index(xsi_material_id);
+				size_t shader_index = update_context->get_xsi_material_cycles_index(xsi_material_id);
 
-					ccl::Light* light = scene->create_node<ccl::Light>();
-					ccl::Shader* shader = scene->shaders[shader_index];
-					light->set_shader(shader);
+				ccl::Light* light = scene->create_node<ccl::Light>();
+				ccl::Shader* shader = scene->shaders[shader_index];
+				light->set_shader(shader);
 
-					XSI::CString lightgroup;
-					sync_custom_light(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time, lightgroup);
-					update_context->add_lightgroup(lightgroup);
-					sync_custom_light_tfm(light, xsi_object.GetKinematics().GetGlobal(), eval_time);
+				XSI::CString lightgroup;
+				sync_custom_light_object(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time, lightgroup);
+				update_context->add_lightgroup(lightgroup);
+				sync_custom_light_tfm(light, xsi_object.GetKinematics().GetGlobal(), eval_time);
 
-					update_context->add_light_index(xsi_object.GetObjectID(), scene->lights.size() - 1);
-				}
+				update_context->add_light_index(xsi_object.GetObjectID(), scene->lights.size() - 1);
 			}
 		}
 	}
@@ -539,12 +566,17 @@ XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, 
 	ULONG xsi_id = xsi_light.GetObjectID();
 	if (update_context->is_xsi_light_exists(xsi_id))
 	{
-		size_t light_index = update_context->get_xsi_light_cycles_index(xsi_id);
+		std::vector<size_t> light_indexes = update_context->get_xsi_light_cycles_indexes(xsi_id);
 		XSI::CTime eval_time = update_context->get_time();
 
-		ccl::Light* light = scene->lights[light_index];
-		sync_xsi_light(scene, light, build_xsi_light_shader(scene, xsi_light, eval_time), xsi_light, eval_time);
-		light->tag_update(scene);
+		for (size_t i = 0; i < light_indexes.size(); i++)
+		{
+			size_t light_index = light_indexes[i];
+
+			ccl::Light* light = scene->lights[light_index];
+			sync_xsi_light_object(scene, light, build_xsi_light_shader(scene, xsi_light, eval_time), xsi_light, eval_time);
+			light->tag_update(scene);
+		}
 
 		update_context->activate_need_update_background();
 
@@ -562,15 +594,21 @@ XSI::CStatus update_custom_light(ccl::Scene* scene, UpdateContext* update_contex
 	CustomLightType light_type = get_custom_light_type(xsi_object.GetType());
 	if (update_context->is_xsi_light_exists(xsi_id) && light_type != CustomLightType_Unknown && light_type != CustomLightType_Background)
 	{
-		size_t light_index = update_context->get_xsi_light_cycles_index(xsi_id);
+		// get all cycles light indexes which corresponds to the given xsi light
+		std::vector<size_t> light_indexes = update_context->get_xsi_light_cycles_indexes(xsi_id);
 		XSI::CTime eval_time = update_context->get_time();
 
-		ccl::Light* light = scene->lights[light_index];
+		for (size_t i = 0; i < light_indexes.size(); i++)
+		{
+			size_t light_index = light_indexes[i];
 
-		XSI::CString lightgroup;
-		sync_custom_light(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time, lightgroup);
-		update_context->add_lightgroup(lightgroup);
-		light->tag_update(scene);
+			ccl::Light* light = scene->lights[light_index];
+
+			XSI::CString lightgroup;
+			sync_custom_light_object(light, xsi_object.GetUniqueName(), light_type, xsi_object.GetParameters(), eval_time, lightgroup);
+			update_context->add_lightgroup(lightgroup);
+			light->tag_update(scene);
+		}
 
 		update_context->activate_need_update_background();
 
@@ -587,12 +625,22 @@ XSI::CStatus update_xsi_light_transform(ccl::Scene* scene, UpdateContext* update
 	ULONG xsi_id = xsi_light.GetObjectID();
 	if (update_context->is_xsi_light_exists(xsi_id))
 	{
-		size_t light_index = update_context->get_xsi_light_cycles_index(xsi_id);
+		// change transform of the light in the scene
+		// this light can corresponds different lights in cycles, because it's possible to exists instances
+
+		std::vector<size_t> light_indexes = update_context->get_xsi_light_cycles_indexes(xsi_id);
 		XSI::CTime eval_time = update_context->get_time();
 
-		ccl::Light* light = scene->lights[light_index];
-		sync_xsi_light_tfm(light, xsi_light, eval_time);
-		light->tag_update(scene);
+		// here we update transforms of all instances, but all of them will coincide
+		// later we will update instnce transforms by using additional data
+		for (size_t i = 0; i < light_indexes.size(); i++)
+		{
+			size_t light_index = light_indexes[i];
+
+			ccl::Light* light = scene->lights[light_index];
+			sync_xsi_light_tfm(light, xsi_light, eval_time);
+			light->tag_update(scene);
+		}
 
 		// we may change position of the light for sun in background sky
 		update_context->activate_need_update_background();
@@ -610,13 +658,17 @@ XSI::CStatus update_custom_light_transform(ccl::Scene* scene, UpdateContext* upd
 	ULONG xsi_id = xsi_object.GetObjectID();
 	if (update_context->is_xsi_light_exists(xsi_id))
 	{
-		size_t light_index = update_context->get_xsi_light_cycles_index(xsi_id);
+		std::vector<size_t> light_indexes = update_context->get_xsi_light_cycles_indexes(xsi_id);
 		XSI::CTime eval_time = update_context->get_time();
 
-		ccl::Light* light = scene->lights[light_index];
-		sync_custom_light_tfm(light, xsi_object.GetKinematics().GetGlobal(), eval_time);
-		light->tag_update(scene);
+		for(size_t i = 0; i < light_indexes.size(); i++)
+		{
+			size_t light_index = light_indexes[i];
 
+			ccl::Light* light = scene->lights[light_index];
+			sync_custom_light_tfm(light, xsi_object.GetKinematics().GetGlobal(), eval_time);
+			light->tag_update(scene);
+		}
 		update_context->activate_need_update_background();
 
 		return XSI::CStatus::OK;

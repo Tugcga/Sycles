@@ -42,10 +42,6 @@ RenderEngineCyc::RenderEngineCyc()
 // when we delete the engine, then at first this method is called, and then the method from base class
 RenderEngineCyc::~RenderEngineCyc()
 {
-	// TODO: there is a bug in Cycles (or OIIO)
-	// when use texture image, then it does not properly unload and the scene can not unload from memory
-	// this leads to error after close Softimage
-	// may be updates will resolve this
 	clear_session();
 	delete output_context;
 	delete labels_context;
@@ -454,7 +450,7 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	create_new_scene = true;
 
 	// reset updater and prepare to store actual data
-	update_context->reset();  // in particular set is_update_scene = true
+	update_context->reset();  // in particular set is_update_scene = true and use_background_light = false
 
 	// after reset we should set render type again
 	update_context->set_render_type(render_type);
@@ -462,8 +458,14 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	// get all motion properties
 	update_context->set_motion(m_render_parameters, output_channels, m_display_channel_name, in_update_motion_type);
 
-	update_context->setup_scene_objects(m_isolation_list, m_lights_list, m_scene_list, XSI::Application().FindObjects(XSI::siX3DObjectID));
-	sync_scene(session->scene, update_context, m_render_parameters, m_shaderball_material, m_shaderball_type, m_shaderball_material_id);
+	if (render_type == RenderType_Shaderball)
+	{
+		sync_shaderball_scene(session->scene, update_context, m_scene_list, m_shaderball_material, m_shaderball_type, m_shaderball_material_id);
+	}
+	else
+	{
+		sync_scene(session->scene, update_context, m_render_parameters, m_isolation_list, m_lights_list, XSI::Application().FindObjects(XSI::siX3DObjectID), XSI::Application().FindObjects(XSI::siModelID));
+	}
 	is_update_camera = true;
 
 	// setup callbacks
