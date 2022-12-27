@@ -1,5 +1,7 @@
 #pragma once
 #include "scene/scene.h"
+#include "scene/object.h"
+#include "scene/hair.h"
 
 #include <xsi_renderercontext.h>
 #include <xsi_camera.h>
@@ -61,10 +63,11 @@ void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject& xsi_object, i
 void sync_shaderball_light(ccl::Scene* scene, ShaderballType shaderball_type);
 void sync_shaderball_camera(ccl::Scene* scene, UpdateContext* update_context, ShaderballType shaderball_type);
 
-// cyc_polymesh
-ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes);
-
 // cyc_isntance
 void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model, const XSI::MATH::CTransformation& override_instance_tfm = XSI::MATH::CTransformation(), std::vector<ULONG> master_ids = {}, ULONG override_root_id = 0);
 XSI::CStatus update_instance_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& xsi_model);
 XSI::CStatus update_instance_transform_from_master_object(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+
+// cyc_transform
+void sync_transform(ccl::Object* object, UpdateContext* update_context, const XSI::KinematicState &xsi_kine);
+XSI::CStatus sync_geometry_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object);

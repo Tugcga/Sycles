@@ -76,6 +76,9 @@
     <ClCompile Include="render_cycles\cyc_output\output_drivers.cpp" />
     <ClCompile Include="render_cycles\cyc_primitives\prim_lights.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_camera.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_geometry.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_hair.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_polymesh.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_instance.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_light.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_image_loader.cpp" />
@@ -86,9 +89,9 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\names_converter.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\xsi_native.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_motion.cpp" />
-    <ClCompile Include="render_cycles\cyc_scene\cyc_polymesh\cyc_polymesh.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_scene.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_shaderball.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_transform.cpp" />
     <ClCompile Include="render_cycles\cyc_session\cyc_film.cpp" />
     <ClCompile Include="render_cycles\cyc_session\cyc_integrator.cpp" />
     <ClCompile Include="render_cycles\cyc_session\cyc_pass.cpp" />
@@ -120,6 +123,7 @@
     <ClInclude Include="render_cycles\cyc_output\color_transform_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_drivers.h" />
+    <ClInclude Include="render_cycles\cyc_scene\cyc_geometry\cyc_geometry.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_labels.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_loaders\cyc_loaders.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_materials\cyc_materials.h" />

@@ -16,6 +16,7 @@
 #include "cyc_session/cyc_session.h"
 #include "cyc_scene/cyc_scene.h"
 #include "cyc_output/output_drivers.h"
+#include "cyc_scene/cyc_geometry/cyc_geometry.h"
 #include "../utilities/logs.h"
 #include "../output/write_image.h"
 #include "../utilities/arrays.h"
@@ -360,6 +361,10 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	else if (update_type == UpdateType_LightPrimitive)
 	{
 		is_update = update_custom_light(session->scene, update_context, xsi_object);
+	}
+	else if (update_type == UpdateType_Hair)
+	{
+		is_update = update_hair(session->scene, update_context, xsi_object, m_render_parameters);
 	}
 
 	update_context->set_is_update_scene(true);

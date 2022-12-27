@@ -509,6 +509,11 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		"Softimage.material-phong.1.0", {
 			{"out", "BSDF"}  // replace by PrincipledBSDF
 		}
+	},
+	{
+		"Softimage.rh_renderer.1.0", {
+			{"out", "BSDF"}  // replace by HairBsdfNode
+		}
 	}
 };
 

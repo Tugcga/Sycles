@@ -9,6 +9,7 @@
 
 #include "util/transform.h"
 #include "util/projection.h"
+#include "util/color.h"
 #include "scene/camera.h"
 
 #include "../render_base/type_enums.h"
@@ -86,6 +87,11 @@ unsigned char linear_to_srgb(float v)
 		return  (unsigned char)((12.92f * v * 255.0f) + 0.5f);
 	}
 	return (unsigned char)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 255.0f + 0.5f);
+}
+
+float srgb_to_linear(float value)
+{
+	return ccl::color_srgb_to_linear(value);
 }
 
 unsigned char linear_clamp(float v)

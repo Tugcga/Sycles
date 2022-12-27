@@ -89,6 +89,14 @@ public:
 	bool is_xsi_light_exists(ULONG xsi_id);
 	std::vector<size_t> get_xsi_light_cycles_indexes(ULONG xsi_id);
 
+	void add_geometry_index(ULONG xsi_id, size_t cyc_geo_index);
+	bool is_geometry_exists(ULONG xsi_id);
+	size_t get_geometry_index(ULONG xsi_id);
+
+	void add_object_index(ULONG xsi_id, size_t cyc_index);
+	bool is_object_exists(ULONG xsi_id);
+	std::vector<size_t> get_object_cycles_indexes(ULONG xsi_id);
+
 	bool get_use_background_light();
 	void set_use_background_light(size_t shader_index, ULONG material_id);  // activate use backgound light
 	void set_background_light_index(int value);
@@ -170,6 +178,15 @@ private:
 	// when we change parameterse of the master light, then we should resync all lights in Cycles array with thiese indexes
 	// this is a map from master light id to different cycles light indexes
 	std::unordered_map<ULONG, std::vector<size_t>> lights_xsi_to_cyc;
+
+	// this similar map, but for geometry: polygon meshes, strands, hairs, volumes
+	// key is id of the xsi primitive (HairPrimitive or Primitive for mesh)
+	// value - index in cycles geometry array, for different instances we should use the same geometry
+	std::unordered_map<ULONG, size_t> geometry_xsi_to_cyc;
+
+	// this map from object id to index in cycles objects array
+	// value is array because it should contains indexes for all instance copies of the given xsi object
+	std::unordered_map<ULONG, std::vector<size_t>> object_xsi_to_cyc;
 
 	// this map from instance root id to a map, which contains data about cycles light indexes and corresponded xsi master root ids and xsi master object ids (in this order)
 	// this map should be used when we change transform of the instance root object (instance objects can not moved)

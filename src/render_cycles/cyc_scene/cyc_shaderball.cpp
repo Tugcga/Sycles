@@ -17,6 +17,7 @@
 #include "../../render_base/type_enums.h"
 #include "primitives_geometry.h"
 #include "cyc_scene.h"
+#include "cyc_geometry/cyc_geometry.h"
 #include "../../utilities/math.h"
 #include "../../utilities/logs.h"
 

@@ -58,6 +58,8 @@ void UpdateContext::reset()
 	xsi_light_from_instance_map.clear();
 	xsi_light_nested_to_hosts_instances_map.clear();
 	xsi_light_id_to_instance_map.clear();
+	geometry_xsi_to_cyc.clear();
+	object_xsi_to_cyc.clear();
 }
 
 void UpdateContext::set_is_update_scene(bool value)
@@ -418,6 +420,43 @@ bool UpdateContext::is_xsi_light_exists(ULONG xsi_id)
 std::vector<size_t> UpdateContext::get_xsi_light_cycles_indexes(ULONG xsi_id)
 {
 	return lights_xsi_to_cyc[xsi_id];
+}
+
+void UpdateContext::add_geometry_index(ULONG xsi_id, size_t cyc_geo_index)
+{
+	geometry_xsi_to_cyc[xsi_id] = cyc_geo_index;
+}
+
+bool UpdateContext::is_geometry_exists(ULONG xsi_id)
+{
+	return geometry_xsi_to_cyc.contains(xsi_id);
+}
+
+size_t UpdateContext::get_geometry_index(ULONG xsi_id)
+{
+	return geometry_xsi_to_cyc[xsi_id];
+}
+
+void UpdateContext::add_object_index(ULONG xsi_id, size_t cyc_index)
+{
+	if (object_xsi_to_cyc.contains(xsi_id))
+	{
+		object_xsi_to_cyc[xsi_id].push_back(cyc_index);
+	}
+	else
+	{
+		object_xsi_to_cyc[xsi_id] = { cyc_index };
+	}
+}
+
+bool UpdateContext::is_object_exists(ULONG xsi_id)
+{
+	return object_xsi_to_cyc.contains(xsi_id);
+}
+
+std::vector<size_t> UpdateContext::get_object_cycles_indexes(ULONG xsi_id)
+{
+	return object_xsi_to_cyc[xsi_id];
 }
 
 bool UpdateContext::get_use_background_light()

@@ -9,8 +9,13 @@
 #include <xsi_parameter.h>
 #include <xsi_kinematics.h>
 #include <xsi_light.h>
+#include <xsi_model.h>
+#include <xsi_vector3.h>
+
+#include <string>
 
 #include "logs.h"
+#include "math.h"
 
 bool is_render_visible(XSI::X3DObject& xsi_object, const XSI::CTime &eval_time)
 {
@@ -86,4 +91,39 @@ bool obtain_subsub_directions(const XSI::Shader &xsi_shader, float &sun_x, float
 	}
 
 	return false;
+}
+
+// TODO: this function should return the first model, contained input object
+// if this model is root, then return the name of the object
+std::string get_asset_name(const XSI::X3DObject& xsi_object)
+{
+	XSI::Model root = XSI::Application().GetActiveSceneRoot();
+	if (xsi_object.IsEqualTo(root))
+	{
+		return xsi_object.GetName().GetAsciiString();
+	}
+
+	XSI::X3DObject current = xsi_object;
+	while (!current.GetParent3DObject().IsEqualTo(root) && !current.GetParent3DObject().IsEqualTo(current))
+	{
+		current = current.GetParent3DObject();
+	}
+	return current.GetName().GetAsciiString();
+}
+
+XSI::MATH::CVector3 get_object_color(XSI::X3DObject& xsi_object, const XSI::CTime& eval_time)
+{
+	XSI::Property display_property;
+	XSI::CStatus display_status = xsi_object.GetPropertyFromName("Display", display_property);
+	if (display_status.Succeeded())
+	{
+		float display_r = display_property.GetParameterValue("wirecolorr", eval_time);
+		float display_g = display_property.GetParameterValue("wirecolorg", eval_time);
+		float display_b = display_property.GetParameterValue("wirecolorb", eval_time);
+		return XSI::MATH::CVector3(srgb_to_linear(display_r), srgb_to_linear(display_g), srgb_to_linear(display_b));
+	}
+	else
+	{
+		return XSI::MATH::CVector3(0.0f, 0.0f, 0.0f);
+	}
 }

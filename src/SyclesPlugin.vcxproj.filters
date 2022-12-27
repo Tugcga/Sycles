@@ -93,9 +93,6 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_shaderball.cpp">
       <Filter>render_cycles\cyc_scene</Filter>
     </ClCompile>
-    <ClCompile Include="render_cycles\cyc_scene\cyc_polymesh\cyc_polymesh.cpp">
-      <Filter>render_cycles\cyc_scene\cyc_polymesh</Filter>
-    </ClCompile>
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_shaders.cpp">
       <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
     </ClCompile>
@@ -119,6 +116,18 @@
     </ClCompile>
     <ClCompile Include="render_cycles\cyc_scene\cyc_instance.cpp">
       <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_polymesh.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_hair.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_transform.cpp">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_geometry.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -152,14 +161,14 @@
     <Filter Include="render_cycles\cyc_scene\cyc_materials">
       <UniqueIdentifier>{a10956aa-a259-4593-8f9a-6715c4885a44}</UniqueIdentifier>
     </Filter>
-    <Filter Include="render_cycles\cyc_scene\cyc_polymesh">
-      <UniqueIdentifier>{7e87cc52-fa43-488f-8355-f42d29f71e73}</UniqueIdentifier>
-    </Filter>
     <Filter Include="render_cycles\cyc_primitives">
       <UniqueIdentifier>{74842a32-f7db-4fe0-ac31-a53b3160c692}</UniqueIdentifier>
     </Filter>
     <Filter Include="render_cycles\cyc_scene\cyc_loaders">
       <UniqueIdentifier>{ec4af057-1ff4-4dfb-b6ea-11f1746f97f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="render_cycles\cyc_scene\cyc_geometry">
+      <UniqueIdentifier>{7e87cc52-fa43-488f-8355-f42d29f71e73}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -274,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_scene\cyc_loaders\cyc_loaders.h">
       <Filter>render_cycles\cyc_scene\cyc_loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_scene\cyc_geometry\cyc_geometry.h">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

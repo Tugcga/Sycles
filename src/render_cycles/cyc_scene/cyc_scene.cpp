@@ -22,7 +22,8 @@
 #include "../../utilities/logs.h"
 #include "../../utilities/math.h"
 #include "../cyc_session/cyc_session.h"
-#include "../cyc_scene/cyc_scene.h"
+#include "cyc_scene.h"
+#include "cyc_geometry/cyc_geometry.h"
 #include "primitives_geometry.h"
 #include "../../render_base/type_enums.h"
 #include "../../input/input.h"
@@ -165,14 +166,23 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	// add cube
 	ccl::Mesh* cube_mesh = build_cube(scene);
 	cube_mesh->set_used_shaders(used_shaders);
-	ccl::Object* cube_object = new ccl::Object();
+	
+	/*ccl::Object* cube_object = scene->create_node<ccl::Object>();
 	cube_object->set_geometry(cube_mesh);
 	cube_object->name = "cube";
 	cube_object->set_asset_name(ccl::ustring("cube"));
 	ccl::Transform cube_tfm = ccl::transform_identity();
 	cube_tfm = cube_tfm * ccl::transform_translate(ccl::make_float3(0, 2, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
-	cube_object->set_tfm(cube_tfm);
-	scene->objects.push_back(cube_object);
+	cube_object->set_tfm(cube_tfm);*/
+	ccl::Hair* hair_geom = scene->create_node<ccl::Hair>();
+	hair_geom->set_used_shaders(used_shaders);
+	hair_geom->reserve_curves(0, 0);
+	hair_geom->add_curve_key(ccl::make_float3(0.0, 0.0, 0.0), 1.0);
+	hair_geom->add_curve_key(ccl::make_float3(0.0, 4.0, 0.0), 1.0);
+	hair_geom->add_curve(0, 0);
+
+	ccl::Object* hair_object = scene->create_node<ccl::Object>();
+	hair_object->set_geometry(hair_geom);
 
 	// add one more cube
 	ccl::Object* second_cube_object = new ccl::Object();
@@ -183,27 +193,6 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	second_cube_tfm = second_cube_tfm * ccl::transform_translate(ccl::make_float3(3.5, 1, 2)) * ccl::transform_scale(1.0f, 1.0f, 1.0f);
 	second_cube_object->set_tfm(second_cube_tfm);
 	scene->objects.push_back(second_cube_object);
-
-	// background
-	/*ccl::Shader* bg_shader = scene->default_background;
-	ccl::ShaderGraph* bg_graph = new ccl::ShaderGraph();
-	ccl::BackgroundNode* bg_node = bg_graph->create_node<ccl::BackgroundNode>();
-	bg_node->input("Color")->set(ccl::make_float3(1.0, 1.0, 1.0));
-	bg_node->input("Strength")->set(0.25);
-	ccl::ShaderNode* bg_out = bg_graph->output();
-	bg_graph->add(bg_node);
-	bg_graph->connect(bg_node->output("Background"), bg_out->input("Surface"));
-	ccl::SkyTextureNode* sky_node = bg_graph->create_node<ccl::SkyTextureNode>();
-	sky_node->tex_mapping.rotation = ccl::make_float3(-0.5 * XSI::MATH::PI, 0, 0);
-	sky_node->set_sun_rotation(DEG2RADF(45.0));
-	sky_node->set_sun_elevation(DEG2RADF(36.0));
-	sky_node->set_sun_size(0.001f);
-	bg_graph->add(sky_node);
-	bg_graph->connect(sky_node->output("Color"), bg_node->input("Color"));
-	bg_shader->set_graph(bg_graph);
-	bg_shader->tag_update(scene);
-
-	scene->background->set_transparent(true);*/
 }
 
 void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const ULONG shaderball_displacement, const XSI::CTime& eval_time)
@@ -373,13 +362,28 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 			else if (object_class == XSI::siX3DObjectID)
 			{
 				XSI::X3DObject xsi_object(object_ref);
+				ULONG xsi_id = xsi_object.GetObjectID();
 				XSI::CString object_type = xsi_object.GetType();
 
 				if (is_render_visible(xsi_object, eval_time))
 				{
 					if (object_type == "polymsh")
 					{
-						
+						// sync_polymesh_object(scene, update_context, xsi_object);
+					}
+					else if (object_type == "hair")
+					{
+						ccl::Object* hair_object = scene->create_node<ccl::Object>();
+						// TODO: there is a strange bug
+						// if we create cycles object inside the funciotn, then the render is crash
+						ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object, render_parameters);
+						hair_object->set_geometry(hair_geom);
+
+						update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+					}
+					else if (object_type == "pointcloud")
+					{
+
 					}
 					else if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea")
 					{
@@ -427,79 +431,8 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 		sync_background_color(scene, update_context, render_parameters);
 	}
 
-	sync_demo_scene(scene, update_context);
+	//sync_demo_scene(scene, update_context);
 }
-
-/*void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id)
-{
-	RenderType render_type = update_context->get_render_type();
-	XSI::CTime eval_time = update_context->get_time();
-	if (render_type == RenderType_Shaderball)
-	{
-		// for renderball we create a separate scene
-		int shader_index = -1;
-		if (shaderball_type != ShaderballType_Unknown)
-		{
-			if (shaderball_type == ShaderballType_Material)
-			{
-				XSI::Material xsi_material(shaderball_material);
-				std::vector<XSI::CStringArray> aovs(2);
-				aovs[0].Clear();
-				aovs[1].Clear();
-
-				shader_index = sync_material(scene, xsi_material, eval_time, aovs);
-			}
-			else if (shaderball_type == ShaderballType_SurfaceShader)
-			{
-				XSI::Shader xsi_shader(shaderball_material);
-				shader_index = sync_shaderball_shadernode(scene, xsi_shader, true, eval_time);
-			}
-			else if (shaderball_type == ShaderballType_VolumeShader)
-			{
-				XSI::Shader xsi_shader(shaderball_material);
-				shader_index = sync_shaderball_shadernode(scene, xsi_shader, false, eval_time);
-			}
-			else if (shaderball_type == ShaderballType_Texture)
-			{
-				XSI::Texture xsi_texture(shaderball_material);
-				shader_index = sync_shaderball_texturenode(scene, xsi_texture, eval_time);
-			}
-			else
-			{
-				shader_index = create_default_shader(scene);
-			}
-		}
-
-		if (shader_index >= 0) {
-			update_context->add_material_index(shaderball_material_id, shader_index, shaderball_type);
-
-			// setup shaderball polymesh
-			sync_shaderball_hero(scene, update_context->get_shaderball(), shader_index, shaderball_type);
-
-			// lights
-			sync_shaderball_light(scene, shaderball_type);
-
-			// camera
-			sync_shaderball_camera(scene, update_context, shaderball_type);
-
-			// TODO: setup background objects
-		}
-	}
-	else
-	{
-		// in all other cases use scene from the Softimage
-		sync_scene_materials(scene, update_context);
-		sync_camera(scene, update_context);
-		sync_xsi_lights(scene, update_context->get_xsi_lights(), update_context);
-		sync_custom_lights(scene, update_context->get_custom_lights(), update_context, render_parameters);
-		if (!update_context->get_use_background_light())
-		{
-			sync_background_color(scene, update_context, render_parameters);
-		}
-
-		sync_demo_scene(scene, update_context);
-	}
-}*/
 
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object)
 {
@@ -535,6 +468,20 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 			// TODO: may be we change transform of the instance root, but it contained in some master root
 			return update_instance_transform(scene, update_context, xsi_model);
 		}
+	}
+	else if (object_type == "polymsh")
+	{
+		XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
+		// here we set the same transform for all instances of the object
+		// so, we should to sync instance transforms
+
+		//TODO: do it
+		return is_update;
+	}
+	else if (object_type == "hair")
+	{
+		XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
+		return is_update;
 	}
 	else
 	{// unknown object type

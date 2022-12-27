@@ -684,6 +684,10 @@ XSI::CStatus RenderEngineBase::scene_process()
 							{
 								update_status = update_scene(xsi_3d_obj, UpdateType_Mesh);
 							}
+							else if (xsi_3d_obj_type == "hair")
+							{
+								update_status = update_scene(xsi_3d_obj, UpdateType_Hair);
+							}
 							else if (xsi_3d_obj_type == "pointcloud")
 							{
 								update_status = update_scene(xsi_3d_obj, UpdateType_Pointcloud);
@@ -699,6 +703,7 @@ XSI::CStatus RenderEngineBase::scene_process()
 							else
 							{
 								//update unknown property
+								log_message("update unknown property " + property_type + " for object type " + xsi_3d_obj_type);
 							}
 						}
 						break;

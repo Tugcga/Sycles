@@ -1,5 +1,11 @@
 #include "scene/mesh.h"
 #include "scene/scene.h"
+#include "scene/object.h"
+#include "scene/hair.h"
+
+#include <xsi_x3dobject.h>
+
+#include "../../update_context.h"
 
 ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes)
 {
@@ -36,4 +42,9 @@ ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices,
 	}
 
 	return mesh;
+}
+
+void sync_polymesh_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object)
+{
+
 }
