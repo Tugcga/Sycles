@@ -41,7 +41,7 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 
 	// try to set custom hair property
 	XSI::Property xsi_property;
-	bool use_property = get_xsi_object_property(xsi_object, "CyclesHairs", xsi_property);
+	bool use_property = get_xsi_object_property(xsi_object, property_name, xsi_property);
 	out_motion_deform = false;
 	lightgroup = "";
 	if (use_property)

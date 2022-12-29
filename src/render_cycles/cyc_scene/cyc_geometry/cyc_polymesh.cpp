@@ -30,6 +30,7 @@
 #include "../../../utilities/logs.h"
 #include "../../../utilities/math.h"
 #include "../../../utilities/strings.h"
+#include "../../../render_base/type_enums.h"
 
 ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes)
 {
@@ -114,7 +115,6 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 	xsi_geo_acc.GetPolygonMaterialIndices(xsi_polygon_material_indices);
 
 	// read geometry data
-	XSI::CLongArray triangle_vertices;
 	XSI::CLongArray triangle_nodes;
 	XSI::CDoubleArray vertex_positions;
 	XSI::CLongArray polygon_materials;  // index in the large material list (with repetitions) for each polygon
@@ -122,7 +122,6 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 	LONG triangles_count = xsi_geo_acc.GetTriangleCount();
 	LONG nodes_count = xsi_geo_acc.GetNodeCount();
 	ULONG vertex_count = xsi_geo_acc.GetVertexCount();
-	xsi_geo_acc.GetTriangleVertexIndices(triangle_vertices);
 	xsi_geo_acc.GetTriangleNodeIndices(triangle_nodes);
 	xsi_geo_acc.GetVertexPositions(vertex_positions);
 	xsi_geo_acc.GetPolygonMaterialIndices(polygon_materials);
@@ -149,18 +148,6 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 			xsi_node_to_vertex[node_index] = v_index;
 		}
 	}
-
-	//log_message("triangles_count " + XSI::CString(triangles_count));
-	//log_message("nodes_count " + XSI::CString(nodes_count));
-	//log_message("vertex_count " + XSI::CString(vertex_count));
-
-	//log_message("node vertices: " + to_string(xsi_node_to_vertex));
-
-	//log_message("triangle_vertices " + to_string(triangle_vertices));
-	//log_message("triangle_nodes " + to_string(triangle_nodes));
-	//log_message("triangle_polygons " + to_string(triangle_polygons));
-	//log_message("vertex_positions " + to_string(vertex_positions));
-	//log_message("polygon_materials " + to_string(polygon_materials));
 
 	// for triagle mesh vertices are xsi nodes
 	mesh->reserve_mesh(nodes_count, triangles_count);
@@ -230,6 +217,190 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 	// motion deform
 }
 
+void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor& xsi_geo_acc, const XSI::PolygonMesh& xsi_polymesh, SubdivideMode subdiv_mode, ULONG subdiv_level, float subdiv_dicing_rate, const XSI::MATH::CMatrix4 &xsi_matrix)
+{
+	XSI::CLongArray xsi_polygon_material_indices;
+	xsi_geo_acc.GetPolygonMaterialIndices(xsi_polygon_material_indices);
+
+	XSI::CDoubleArray vertex_positions;
+	XSI::CLongArray polygon_materials;
+	ULONG vertex_count = xsi_geo_acc.GetVertexCount();
+	xsi_geo_acc.GetVertexPositions(vertex_positions);
+	xsi_geo_acc.GetPolygonMaterialIndices(polygon_materials);
+
+	XSI::CVertexRefArray xsi_vertices = xsi_polymesh.GetVertices();
+	XSI::CPolygonFaceRefArray xsi_faces = xsi_polymesh.GetPolygons();
+	XSI::CLongArray polygon_sizes;
+	xsi_geo_acc.GetPolygonVerticesCount(polygon_sizes);
+	size_t polygons_count = polygon_sizes.GetCount();
+
+	mesh->reserve_mesh(vertex_count, 0);
+	int num_corners = 0;
+	int num_ngons = 0;
+	for (size_t i = 0; i < polygon_sizes.GetCount(); i++)
+	{
+		num_corners += polygon_sizes[i];
+		num_ngons += polygon_sizes[i] == 4 ? 0 : 1;
+	}
+	mesh->reserve_subd_faces(polygons_count, num_ngons, num_corners);
+
+	ccl::array<ccl::float3> mesh_vertices(vertex_count);
+	ccl::array<ccl::float3> mesh_normals(vertex_count);
+	for (size_t v_index = 0; v_index < vertex_count; v_index++)
+	{
+		XSI::Vertex vertex = xsi_vertices[v_index];
+		XSI::MATH::CVector3 vertex_position = vertex.GetPosition();
+		ccl::float3 position = ccl::make_float3(vertex_position.GetX(), vertex_position.GetY(), vertex_position.GetZ());
+		bool is_valid = true;
+		XSI::MATH::CVector3 normal = vertex.GetNormal(is_valid);
+		mesh_vertices[v_index] = position;
+		mesh_normals[v_index] = vector3_to_float3(normal);
+	}
+	mesh->set_verts(mesh_vertices);
+
+	// normals
+	ccl::AttributeSet& attributes = mesh->subd_attributes;
+	ccl::Attribute* attr_n = attributes.add(ccl::ATTR_STD_VERTEX_NORMAL, ccl::ustring("std_normal"));
+	std::memcpy(attr_n->data_float3(), mesh_normals.data(), sizeof(ccl::float3) * mesh_normals.size());
+
+
+	ccl::Attribute* gen_attr = attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
+	gen_attr->flags |= ccl::ATTR_SUBDIVIDED;
+	std::memcpy(gen_attr->data_float3(), mesh->get_verts().data(), sizeof(ccl::float3) * mesh->get_verts().size());
+
+	// faces
+	ccl::vector<int> vi;
+	size_t faces_count = xsi_faces.GetCount();
+	for (size_t face_index = 0; face_index < faces_count; face_index++)
+	{
+		XSI::PolygonFace face(xsi_faces[face_index]);
+		XSI::CVertexRefArray face_vertices = face.GetVertices();
+		size_t face_vertex_count = face_vertices.GetCount();
+		vi.resize(face_vertex_count);
+		for (size_t v = 0; v < face_vertex_count; v++)
+		{
+			XSI::Vertex vert(face_vertices[v]);
+			vi[v] = vert.GetIndex();
+		}
+		mesh->add_subd_face(&vi[0], face_vertex_count, xsi_polygon_material_indices[face_index], false);
+	}
+
+	//creases
+	size_t num_creases = 0;
+	XSI::CEdgeRefArray xsi_edges_array = xsi_polymesh.GetEdges();
+	size_t xsi_edges_array_count = xsi_edges_array.GetCount();
+	std::vector<double> creases_values(xsi_edges_array_count, 0.0);
+	std::vector<int> creases_vertices(2 * xsi_edges_array_count, -1);
+
+	for (size_t e_index = 0; e_index < xsi_edges_array_count; e_index++)
+	{
+		XSI::Edge edge(xsi_edges_array[e_index]);
+		double crease_value = edge.GetCrease();
+		if (crease_value > 0)
+		{
+			XSI::CVertexRefArray edge_vertices = edge.GetVertices();
+			if (edge_vertices.GetCount() == 2)
+			{
+				num_creases++;
+				creases_values[e_index] = crease_value;
+
+				XSI::Vertex v0(edge_vertices[0]);
+				XSI::Vertex v1(edge_vertices[1]);
+				creases_vertices[2 * e_index] = v0.GetIndex();
+				creases_vertices[2 * e_index + 1] = v1.GetIndex();
+			}
+		}
+	}
+
+	mesh->reserve_subd_creases(num_creases);
+	if (num_creases > 0)
+	{
+		// set values if we need it
+		for (size_t e_index = 0; e_index < xsi_edges_array_count; e_index++)
+		{
+			size_t v0 = creases_vertices[2 * e_index];
+			size_t v1 = creases_vertices[2 * e_index + 1];
+			double crease_value = creases_values[e_index];
+			if (v0 >= 0 && v1 >= 0 && crease_value > 0.0)
+			{
+				mesh->add_edge_crease(v0, v1, crease_value);
+			}
+		}
+	}
+	creases_values.clear();
+	creases_values.shrink_to_fit();
+	creases_vertices.clear();
+	creases_vertices.shrink_to_fit();
+
+	// next for the vertices
+	for (size_t v_index = 0; v_index < vertex_count; v_index++)
+	{
+		XSI::Vertex vertex = xsi_vertices[v_index];
+		double vertex_crease = vertex.GetCrease();
+		if (vertex_crease > 0.0)
+		{
+			mesh->add_vertex_crease(v_index, vertex_crease);
+		}
+	}
+
+	XSI::CLongArray triangle_nodes;  // these arrays does not actualy used for subdivided mesh
+	XSI::CFloatArray node_normals;
+	LONG nodes_count = xsi_geo_acc.GetNodeCount();
+	LONG triangles_count = xsi_geo_acc.GetTriangleCount();
+	sync_mesh_attribute_vertex_color(scene, mesh, attributes, xsi_geo_acc, false, triangle_nodes, xsi_faces);
+	sync_mesh_attribute_random_per_island(scene, mesh, attributes, false, nodes_count, triangles_count, triangle_nodes, xsi_polymesh, xsi_faces);
+	sync_mesh_attribute_pointness(scene, mesh, false, vertex_count, nodes_count, xsi_vertices, node_normals, xsi_polymesh);
+
+	// uvs
+	XSI::CRefArray uv_refs = xsi_geo_acc.GetUVs();
+	// export first uv as default uv attribute
+	sync_mesh_uvs(mesh, false, triangles_count, nodes_count, uv_refs, xsi_faces, triangle_nodes);
+	// export tangent for each uv
+	for (size_t i = 0; i < uv_refs.GetCount(); i++)
+	{
+		XSI::ClusterProperty uv_prop(uv_refs[i]);
+		mikk_compute_tangents(mesh, uv_prop.GetName().GetAsciiString(), true);
+	}
+
+	std::vector<LONG> xsi_node_to_vertex;
+	sync_ice_attributes(scene, mesh, xsi_polymesh, false, vertex_count, nodes_count, xsi_node_to_vertex);
+
+	// set subdivision
+	mesh->set_subd_dicing_rate(subdiv_dicing_rate);
+	mesh->set_subd_max_level(subdiv_level);
+	ccl::Transform tfm = xsi_matrix_to_transform(xsi_matrix);
+	mesh->set_subd_objecttoworld(tfm);
+
+	// without open subdiv the mode always is Linear
+	mesh->set_subdivision_type(subdiv_mode == SubdivideMode_Linear ? ccl::Mesh::SUBDIVISION_LINEAR : ccl::Mesh::SUBDIVISION_CATMULL_CLARK);
+}
+
+void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, SubdivideMode &io_mode, float &io_dicing_rate, const XSI::CTime &eval_time)
+{
+	XSI::Property xsi_property;
+	bool use_property = get_xsi_object_property(xsi_object, "CyclesMesh", xsi_property);
+	if (use_property)
+	{
+		XSI::CParameterRefArray xsi_params = xsi_property.GetParameters();
+
+		int level = xsi_params.GetValue("subdiv_max_level", eval_time);
+		float dicing_rate = xsi_params.GetValue("subdiv_dicing_rate", eval_time);
+		int mode = xsi_params.GetValue("subdiv_type", eval_time);
+
+		if (mode != 0)
+		{
+			io_dicing_rate = dicing_rate;
+			io_level = level;
+			io_mode = mode == 1 ? SubdivideMode_Linear : SubdivideMode_CatmulClark;
+
+			if (io_level <= 0)
+			{
+				io_mode = SubdivideMode_None;
+			}
+		}
+	}
+}
+
 void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContext* update_context, XSI::X3DObject &xsi_object, const XSI::Primitive &xsi_primitive, const XSI::CTime &eval_time)
 {
 	// geometry is new, create it
@@ -268,14 +439,21 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	}
 	mesh_geom->set_used_shaders(used_shaders);
 
-	if (geo_subdivs == 0)
+	float subdiv_dicing_rate = 1.0f;
+	SubdivideMode subdiv_mode = geo_subdivs == 0 ? SubdivideMode_None : SubdivideMode_CatmulClark;
+	sync_mesh_subdiv_property(xsi_object, geo_subdivs, subdiv_mode, subdiv_dicing_rate, eval_time);
+
+	geo_subdivs = std::max(0, geo_subdivs);
+	subdiv_dicing_rate = std::max(0.1f, subdiv_dicing_rate);
+
+	if (subdiv_mode == SubdivideMode_None)
 	{// non subdivided mesh
 		// so, we should create triangles
 		sync_triangle_mesh(scene, mesh_geom, xsi_geo_acc, xsi_polymesh);
 	}
 	else
 	{// create subdivide mesh
-
+		sync_subdivide_mesh(scene, mesh_geom, xsi_geo_acc, xsi_polymesh, subdiv_mode, geo_subdivs, subdiv_dicing_rate, xsi_object.GetKinematics().GetGlobal().GetTransform(eval_time).GetMatrix4());
 	}
 }
 

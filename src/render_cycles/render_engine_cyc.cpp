@@ -372,7 +372,9 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType_MeshProperty)
 	{
-
+		// we can change subdivide parameters, in this case we should recreate the mesh
+		// in all other cases we should simply update object properties
+		is_update = update_polymesh(session->scene, update_context, xsi_object, m_render_parameters);
 	}
 	else if (update_type == UpdateType_HairProperty)
 	{

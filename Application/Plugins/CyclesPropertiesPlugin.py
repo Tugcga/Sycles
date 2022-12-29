@@ -249,17 +249,9 @@ def AddCyclesBake_Execute():
 def CyclesMesh_Define(in_ctxt):
     oCustomProperty = in_ctxt.Source
     oProp = in_ctxt.Source
-    oProp.AddParameter2("uv_index", c.siInt2, 0, 0, 10000, 0, 2, False, False)
-    oProp.AddParameter3("export_all_uvs", c.siBool, 0)
-    oProp.AddParameter3("export_all_tangents", c.siBool, 0)
     oProp.AddParameter2("pass_id", c.siInt2, 0, 0, 10000, 0, 10, False, False)
     oProp.AddParameter3("subdiv_type", c.siInt2, 0)
     oProp.AddParameter2("subdiv_max_level", c.siInt2, 1, 0, 64, 0, 8, False, True)
-    oProp.AddParameter3("subdiv_options_crease", c.siInt2, 0)
-    oProp.AddParameter3("subdiv_options_boundary", c.siInt2, 2)
-    oProp.AddParameter3("subdiv_options_triangle", c.siInt2, 0)
-    oProp.AddParameter3("subdiv_adaptive", c.siBool, True)
-    oProp.AddParameter3("subdiv_uv", c.siBool, True)
     oProp.AddParameter3("shadow_catcher", c.siBool, 0)
     oProp.AddParameter2("shadow_terminator", c.siFloat, 0.0, 0.0, 1.0, 0.0, 1.0, False, True)
     oProp.AddParameter2("shadow_terminator_geometry", c.siFloat, 0.1, 0.0, 1.0, 0.0, 1.0, False, True)
@@ -538,37 +530,27 @@ def CyclesBake_baking_shader_OnChanged():
     CyclesBakePropertyBuildUI()
 
 
+def mesh_ui_update(prop):
+    subdiv_type = prop.Parameters("subdiv_type").Value
+    if subdiv_type == 0:
+        prop.Parameters("subdiv_max_level").ReadOnly = True
+        prop.Parameters("subdiv_dicing_rate").ReadOnly = True
+    else:
+        prop.Parameters("subdiv_max_level").ReadOnly = False
+        prop.Parameters("subdiv_dicing_rate").ReadOnly = False
+
+
 def MeshPropertyBuildUI():
     prop = PPG.Inspected(0)
     oLayout = PPG.PPGLayout
     oLayout.Clear()
 
-    oLayout.AddTab("UV")
-    oLayout.AddGroup("Properties")
-    # TODO: may be always export all uv coordinates?
-    oLayout.AddItem("uv_index", "Default UV Index")
-    oLayout.AddItem("export_all_uvs", "Save All UV Coordinates")
-    # oLayout.AddItem("export_all_tangents", "Save Tangents For All UV Coordinates")  # not implemented
-    oLayout.EndGroup()
-
     oLayout.AddTab("Subdivision")
     oLayout.AddGroup("Properties")
     oLayout.AddEnumControl("subdiv_type", subdivTypes, "Subdivision Type")
     oLayout.AddItem("subdiv_max_level", "Subdivision Level")
-    oLayout.AddItem("subdiv_adaptive", "Adaptive Subdivision")
-    is_subdiv_adaptive = prop.Parameters("subdiv_adaptive").Value
+    oLayout.AddItem("subdiv_dicing_rate", "Dicing Rate")  # implemented in built-in osd
     oLayout.EndGroup()
-    if is_subdiv_adaptive:
-        oLayout.AddGroup("Adaptive Settings")
-        oLayout.AddItem("subdiv_dicing_rate", "Dicing Rate")  # implemented in built-in osd
-        oLayout.AddItem("subdiv_uv", "Subdivide UV")
-        oLayout.EndGroup()
-    else:
-        oLayout.AddGroup("Subdivision Rules")
-        # oLayout.AddEnumControl("subdiv_options_crease", options_crease, "Edge Crease")  # no effect in the render
-        oLayout.AddEnumControl("subdiv_options_boundary", options_boundary, "Vertex Boundary Interpolation")
-        oLayout.AddEnumControl("subdiv_options_triangle", options_triangle, "Triangle Subdivsion Weights")
-        oLayout.EndGroup()
 
     oLayout.AddTab("Shading")
     oLayout.AddGroup("Shadow Terminator")
@@ -615,9 +597,12 @@ def MeshPropertyBuildUI():
     oLayout.EndGroup()
     PPG.Refresh()
 
+    mesh_ui_update(prop)
 
-def CyclesMesh_subdiv_adaptive_OnChanged():
-    MeshPropertyBuildUI()
+
+def CyclesMesh_subdiv_type_OnChanged():
+    prop = PPG.Inspected(0)
+    mesh_ui_update(prop)
 
 
 def CyclesHairsPropertyBuildUI():

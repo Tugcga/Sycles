@@ -66,3 +66,10 @@ enum ShadernodeType
 	ShadernodeType_NativeXSI,
 	ShadernodeType_Unknown
 };
+
+enum SubdivideMode
+{
+	SubdivideMode_None,
+	SubdivideMode_Linear,
+	SubdivideMode_CatmulClark
+};
