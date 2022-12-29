@@ -5,6 +5,8 @@
 #include <xsi_time.h>
 #include <xsi_math.h>
 #include <xsi_color4f.h>
+#include <xsi_vector3f.h>
+#include <xsi_vector2f.h>
 
 #include "util/transform.h"
 #include "util/math_float3.h"
@@ -31,7 +33,10 @@ ccl::Transform xsi_matrix_to_transform(const XSI::MATH::CMatrix4& xsi_matrix, bo
 double get_random_value(double min, double max);
 
 ccl::float3 color4_to_float3(const XSI::MATH::CColor4f &color);
+ccl::float4 color4_to_float4(const XSI::MATH::CColor4f& color);
 ccl::float3 vector3_to_float3(const XSI::MATH::CVector3 &vector);
+ccl::float3 vector3_to_float3(const XSI::MATH::CVector3f& vector);
+ccl::float2 vector2_to_float2(const XSI::MATH::CVector2f& vector);
 
 float get_minimum(float v1, float v2, float v3);
 float get_maximum(float v1, float v2, float v3);

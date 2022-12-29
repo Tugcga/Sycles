@@ -129,6 +129,12 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_geometry.cpp">
       <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_polymesh_attributes.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_tangent_attribute.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -285,6 +291,12 @@
       <Filter>render_cycles\cyc_scene\cyc_loaders</Filter>
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_scene\cyc_geometry\cyc_geometry.h">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_scene\cyc_geometry\cyc_polymesh_attributes.h">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_scene\cyc_geometry\cyc_tangent_attribute.h">
       <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
     </ClInclude>
   </ItemGroup>

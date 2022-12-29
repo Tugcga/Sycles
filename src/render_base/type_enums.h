@@ -26,7 +26,11 @@ enum UpdateType
 	UpdateType_GlobalAmbient,
 	UpdateType_Pass,
 	UpdateType_LightPrimitive,
-	UpdateType_VDBPrimitive
+	UpdateType_VDBPrimitive,
+	UpdateType_MeshProperty,
+	UpdateType_HairProperty,
+	UpdateType_PointcloudProperty,
+	UpdateType_VolumeProperty
 };
 
 enum CameraType

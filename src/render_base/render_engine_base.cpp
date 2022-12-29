@@ -676,6 +676,22 @@ XSI::CStatus RenderEngineBase::scene_process()
 						{
 							update_status = update_scene(xsi_3d_obj, UpdateType_GlobalAmbient);
 						}
+						else if (property_type == "CyclesMesh")
+						{
+							update_status = update_scene(xsi_3d_obj, UpdateType_MeshProperty);
+						}
+						else if (property_type == "CyclesHairs")
+						{
+							update_status = update_scene(xsi_3d_obj, UpdateType_HairProperty);
+						}
+						else if (property_type == "CyclesPointcloud")
+						{
+							update_status = update_scene(xsi_3d_obj, UpdateType_PointcloudProperty);
+						}
+						else if (property_type == "CyclesVolume")
+						{
+							update_status = update_scene(xsi_3d_obj, UpdateType_VolumeProperty);
+						}
 						else
 						{
 							//get parent object, and if this is a pointcloud, hair or mesh - update it

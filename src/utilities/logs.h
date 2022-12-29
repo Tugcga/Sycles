@@ -1,4 +1,6 @@
 #pragma once
+#include "util/array.h"
+#include "util/types.h"
 
 #include <xsi_application.h>
 #include <xsi_string.h>
@@ -19,6 +21,7 @@ XSI::CString to_string(const XSI::CLongArray& array);
 XSI::CString to_string(const XSI::CDoubleArray& array);
 XSI::CString to_string(const std::vector<std::string>& array);
 XSI::CString to_string(const std::vector<ULONG> &array);
+XSI::CString to_string(const std::vector<LONG>& array);
 XSI::CString to_string(const std::set<ULONG>& array);
 XSI::CString to_string(const std::vector<unsigned int> &array);
 XSI::CString to_string(const std::vector<float> &array);
@@ -30,3 +33,4 @@ XSI::CString to_string(const XSI::MATH::CVector3 &vector);
 XSI::CString to_string(const XSI::CStringArray &array);
 XSI::CString to_string(const std::vector<size_t>& array);
 XSI::CString to_string(const XSI::MATH::CMatrix4& matrix);
+XSI::CString to_string(const ccl::array<ccl::float2> &array);

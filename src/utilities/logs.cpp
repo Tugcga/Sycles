@@ -1,3 +1,6 @@
+#include "util/array.h"
+#include "util/types.h"
+
 #include <xsi_string.h>
 #include <xsi_application.h>
 #include <xsi_color.h>
@@ -81,6 +84,22 @@ XSI::CString to_string(const std::vector<std::string>& array)
 }
 
 XSI::CString to_string(const std::vector<ULONG> &array)
+{
+	if (array.size() == 0)
+	{
+		return "[]";
+	}
+
+	XSI::CString to_return = "[" + XSI::CString(array[0]);
+	for (ULONG i = 1; i < array.size(); i++)
+	{
+		to_return += ", " + XSI::CString(array[i]);
+	}
+	to_return += "]";
+	return to_return;
+}
+
+XSI::CString to_string(const std::vector<LONG>& array)
 {
 	if (array.size() == 0)
 	{
@@ -235,6 +254,19 @@ XSI::CString to_string(const XSI::MATH::CMatrix4& matrix)
 		}
 		to_return += "\n";
 	}
+
+	return to_return;
+}
+
+XSI::CString to_string(const ccl::array<ccl::float2>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
 
 	return to_return;
 }

@@ -8,6 +8,7 @@
 
 #include "../update_context.h"
 #include "../../utilities/math.h"
+#include "../../utilities/logs.h"
 
 void sync_transform(ccl::Object* object, UpdateContext* update_context, const XSI::KinematicState& xsi_kine)
 {
@@ -16,6 +17,7 @@ void sync_transform(ccl::Object* object, UpdateContext* update_context, const XS
 	ccl::Transform tfm = xsi_matrix_to_transform(xsi_matrix);
 
 	object->set_tfm(tfm);
+	object->tag_tfm_modified();
 
 	// TODO: create motion
 	// but it will be better at first implement plygon meshes
@@ -29,11 +31,13 @@ XSI::CStatus sync_geometry_transform(ccl::Scene* scene, UpdateContext* update_co
 	if (update_context->is_object_exists(xsi_id))
 	{
 		std::vector<size_t> indexes = update_context->get_object_cycles_indexes(xsi_id);
+		
 		for(size_t i = 0; i < indexes.size(); i++)
 		{
 			size_t index = indexes[i];
 			ccl::Object* object = scene->objects[index];
 			sync_transform(object, update_context, xsi_kine);
+			object->tag_update(scene);
 		}
 	}
 	else

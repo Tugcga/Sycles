@@ -14,7 +14,8 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 
 // cyc_polymesh
 ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes);
-void sync_polymesh_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object);
+ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::CParameterRefArray& render_parameters);
+XSI::CStatus update_polymesh(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::CParameterRefArray& render_parameters);
 
 // cyc_hair
 ccl::Hair* sync_hair_object(ccl::Scene* scene, ccl::Object* hair_object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::CParameterRefArray& render_parameters);

@@ -369,7 +369,11 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 				{
 					if (object_type == "polymsh")
 					{
-						// sync_polymesh_object(scene, update_context, xsi_object);
+						ccl::Object* mesh_object = scene->create_node<ccl::Object>();
+						ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object, render_parameters);
+						mesh_object->set_geometry(mesh_geom);
+
+						update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 					}
 					else if (object_type == "hair")
 					{

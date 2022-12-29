@@ -6,6 +6,8 @@
 #include <xsi_time.h>
 #include <xsi_math.h>
 #include <xsi_color4f.h>
+#include <xsi_vector3f.h>
+#include <xsi_vector2f.h>
 
 #include "util/transform.h"
 #include "util/projection.h"
@@ -204,11 +206,25 @@ ccl::float3 color4_to_float3(const XSI::MATH::CColor4f& color)
 	return ccl::make_float3(color.GetR(), color.GetG(), color.GetB());
 }
 
+ccl::float4 color4_to_float4(const XSI::MATH::CColor4f& color)
+{
+	return ccl::make_float4(color.GetR(), color.GetG(), color.GetB(), color.GetA());
+}
+
 ccl::float3 vector3_to_float3(const XSI::MATH::CVector3& vector)
 {
 	return ccl::make_float3(vector.GetX(), vector.GetY(), vector.GetZ());
 }
 
+ccl::float3 vector3_to_float3(const XSI::MATH::CVector3f& vector)
+{
+	return ccl::make_float3(vector.GetX(), vector.GetY(), vector.GetZ());
+}
+
+ccl::float2 vector2_to_float2(const XSI::MATH::CVector2f& vector)
+{
+	return ccl::make_float2(vector.GetX(), vector.GetY());
+}
 
 float get_minimum(float v1, float v2, float v3)
 {

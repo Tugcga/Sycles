@@ -366,6 +366,26 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	{
 		is_update = update_hair(session->scene, update_context, xsi_object, m_render_parameters);
 	}
+	else if (update_type == UpdateType_Mesh)
+	{
+		is_update = update_polymesh(session->scene, update_context, xsi_object, m_render_parameters);
+	}
+	else if (update_type == UpdateType_MeshProperty)
+	{
+
+	}
+	else if (update_type == UpdateType_HairProperty)
+	{
+
+	}
+	else if (update_type == UpdateType_PointcloudProperty)
+	{
+
+	}
+	else if (update_type == UpdateType_VolumeProperty)
+	{
+
+	}
 
 	update_context->set_is_update_scene(true);
 
