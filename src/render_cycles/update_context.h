@@ -21,6 +21,8 @@ public:
 	UpdateContext();
 	~UpdateContext();
 
+	void set_current_render_parameters(const XSI::CParameterRefArray &render_parameters);
+	XSI::CParameterRefArray get_current_render_parameters();
 	void setup_prev_render_parameters(const XSI::CParameterRefArray &render_parameters);
 
 	// return the list of all render parameter names, changed from the last render session (or full list of parameters, if there are no any previous renders)
@@ -77,6 +79,7 @@ public:
 	float get_motion_last_time();
 	const std::vector<float>& get_motion_times();
 	float get_motion_time(size_t step);
+	size_t get_main_motion_step();  // retun index with respect to selected position (0 if at start, last if at end and middle if at center), 0 if there is no motion
 
 	void set_render_type(RenderType value);
 	RenderType get_render_type();
@@ -118,13 +121,21 @@ public:
 	void add_light_instance_data(ULONG xsi_instance_root_id, size_t cycles_light_index, std::vector<ULONG> master_ids);
 	bool is_light_from_instance_data_contains_id(ULONG xsi_id);
 	std::unordered_map<size_t, std::vector<ULONG>> get_light_from_instance_data(ULONG xsi_id);
-	void add_light_nested_instance_data(ULONG nested_id, ULONG host_id);
-	bool is_light_nested_to_host_instances_contains_id(ULONG id);
-	std::vector<ULONG> get_light_nested_to_host_instances_ids(ULONG id);
+	void add_nested_instance_data(ULONG nested_id, ULONG host_id);
+	bool is_nested_to_host_instances_contains_id(ULONG id);
+	std::vector<ULONG> get_nested_to_host_instances_ids(ULONG id);
 	bool is_light_id_to_instance_contains_id(ULONG id);
 	std::vector<ULONG> get_light_id_to_instance_ids(ULONG id);
 
+	void add_geometry_instance_data(ULONG xsi_instance_root_id, size_t cycles_geometry_index, std::vector<ULONG> master_ids);
+	bool is_geometry_from_instance_data_contains_id(ULONG xsi_id);
+	std::unordered_map<size_t, std::vector<ULONG>> get_geometry_from_instance_data(ULONG xsi_id);
+	void add_geometry_nested_instance_data(ULONG nested_id, ULONG host_id);
+	bool is_geometry_id_to_instance_contains_id(ULONG id);
+	std::vector<ULONG> get_geometry_id_to_instance_ids(ULONG id);
+
 private:
+	XSI::CParameterRefArray current_render_parameters;
 	// after each render prepare session we store here used render parameter values
 	// this map allows to check what parameter is changed from the previous rendere session
 	std::unordered_map<std::string, XSI::CValue> prev_render_parameters;
@@ -197,11 +208,15 @@ private:
 
 	// key - id of the instance,
 	// value - ids of all instances, where the key is object, store only the top level of the instance
-	std::unordered_map<ULONG, std::vector<ULONG>> xsi_light_nested_to_hosts_instances_map;
+	std::unordered_map<ULONG, std::vector<ULONG>> xsi_nested_to_hosts_instances_map;
 
 	// key - id light object in the scene
 	// value - array of all instances, whcich contains this light
 	std::unordered_map<ULONG, std::vector<ULONG>> xsi_light_id_to_instance_map;
+
+	// use similar maps for geometry (hair, meshes and volumes)
+	std::unordered_map<ULONG, std::unordered_map<size_t, std::vector<ULONG>>> xsi_geometry_from_instance_map;
+	std::unordered_map<ULONG, std::vector<ULONG>> xsi_geometry_id_to_instance_map;
 
 	// key - object id, value - index of the shader
 	// for shaderball material we use object id of the Node for shaderball (material, shader or texture)

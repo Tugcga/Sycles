@@ -21,6 +21,8 @@
 void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const ULONG shaderball_displacement, const XSI::CTime& eval_time);
 bool find_scene_shaders_displacement(ccl::Scene* scene);
 void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& scene_list, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id);
+void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model, const std::vector<XSI::MATH::CTransformation>& override_instance_tfm_array, std::vector<ULONG> master_ids, ULONG override_root_id);
+void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model);
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray& all_models_list);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
@@ -64,10 +66,13 @@ void sync_shaderball_light(ccl::Scene* scene, ShaderballType shaderball_type);
 void sync_shaderball_camera(ccl::Scene* scene, UpdateContext* update_context, ShaderballType shaderball_type);
 
 // cyc_isntance
-void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model, const XSI::MATH::CTransformation& override_instance_tfm = XSI::MATH::CTransformation(), std::vector<ULONG> master_ids = {}, ULONG override_root_id = 0);
+XSI::MATH::CTransformation calc_instance_object_tfm(const XSI::MATH::CTransformation& master_root_tfm, const XSI::MATH::CTransformation& master_object_tfm, const XSI::MATH::CTransformation& instance_root_tfm);
+std::vector<XSI::MATH::CTransformation> calc_instance_object_tfm(const XSI::KinematicState& master_root, const XSI::KinematicState& master_object, const std::vector<XSI::MATH::CTransformation>& instance_root_tfm_array, bool need_motion, const std::vector<float> &motion_times, const XSI::CTime& eval_time);
 XSI::CStatus update_instance_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& xsi_model);
 XSI::CStatus update_instance_transform_from_master_object(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
 // cyc_transform
 void sync_transform(ccl::Object* object, UpdateContext* update_context, const XSI::KinematicState &xsi_kine);
+void sync_transforms(ccl::Object* object, const std::vector<XSI::MATH::CTransformation>& xsi_tfms_array, size_t main_motion_step);
 XSI::CStatus sync_geometry_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object);
+std::vector<XSI::MATH::CTransformation> build_transforms_array(const XSI::KinematicState& xsi_kine, bool need_motion, const std::vector<float>& motion_times, const XSI::CTime& eval_time);

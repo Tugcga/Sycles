@@ -249,6 +249,16 @@ XSI::CRefArray gather_all_subobjects(const XSI::Model& root)
 	return output;
 }
 
+// find all children, not only at first level
+XSI::CRefArray get_model_children(const XSI::X3DObject& xsi_object)
+{
+	XSI::CRefArray children;
+	XSI::CStringArray str_families_subobject;
+	children = xsi_object.FindChildren2("", "", str_families_subobject);
+
+	return children;
+}
+
 void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& scene_list, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id)
 {
 	int shader_index = -1;
@@ -326,6 +336,136 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 		// camera
 		sync_shaderball_camera(scene, update_context, shaderball_type);
 	}
+}
+
+// this function has three optional arguments: override_instance_tfm, master_ids and override_root_id
+// these arguments used when the instance contains nested instance
+// in this case we process this nested instance, but pass as these arguments data from the top level
+// so, override_instance_tfm is either identical or transfrom of the top level instance object
+// master_ids either empty or the path of id to the nested subinstance
+// override_root_id is id of the top level instance
+void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model, const std::vector<XSI::MATH::CTransformation>& override_instance_tfm_array, std::vector<ULONG> master_ids, ULONG override_root_id)
+{
+	bool use_override = master_ids.size() > 0;
+
+	XSI::Model xsi_master = instance_model.GetInstanceMaster();
+	XSI::CRefArray children = get_model_children(xsi_master);
+	XSI::CTime eval_time = update_context->get_time();
+
+	bool need_motion = update_context->get_need_motion();
+	std::vector<float> motion_times = update_context->get_motion_times();
+	size_t main_motion_step = update_context->get_main_motion_step();
+
+	// build array of transforms for motions
+	// if motion is disabled, then this array contains only one transform
+	std::vector<XSI::MATH::CTransformation> instance_tfms_array = build_transforms_array(instance_model.GetKinematics().GetGlobal(), need_motion, motion_times, eval_time);
+
+	for (size_t i = 0; i < children.GetCount(); i++)
+	{
+		XSI::X3DObject xsi_object(children[i]);
+		ULONG xsi_id = xsi_object.GetObjectID();
+		XSI::CString xsi_object_type = xsi_object.GetType();
+		
+		std::vector<XSI::MATH::CTransformation> instance_object_tfm_array =
+			calc_instance_object_tfm(
+				xsi_master.GetKinematics().GetGlobal(),
+				xsi_object.GetKinematics().GetGlobal(),
+				use_override ? override_instance_tfm_array : instance_tfms_array,
+				need_motion, motion_times, eval_time);
+
+		if (is_render_visible(xsi_object, eval_time))
+		{
+			if (xsi_object_type == "polymsh")
+			{
+				ccl::Object* mesh_object = scene->create_node<ccl::Object>();
+				ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object, update_context->get_current_render_parameters());
+
+				mesh_object->set_geometry(mesh_geom);
+				size_t object_index = scene->objects.size() - 1;
+				update_context->add_object_index(xsi_id, object_index);
+
+				sync_transforms(mesh_object, instance_object_tfm_array, main_motion_step);
+
+				// add data to update context about indices of masters and cycles objects
+				std::vector<ULONG> m_ids(master_ids);
+				m_ids.push_back(xsi_master.GetObjectID());
+				m_ids.push_back(xsi_object.GetObjectID());
+				update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
+			}
+			else if (xsi_object_type == "hair")
+			{
+				ccl::Object* hair_object = scene->create_node<ccl::Object>();
+				ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object, update_context->get_current_render_parameters());
+
+				hair_object->set_geometry(hair_geom);
+				size_t object_index = scene->objects.size() - 1;
+				update_context->add_object_index(xsi_id, object_index);
+
+				sync_transforms(hair_object, instance_object_tfm_array, main_motion_step);
+
+				// add data to update context about indices of masters and cycles objects
+				std::vector<ULONG> m_ids(master_ids);
+				m_ids.push_back(xsi_master.GetObjectID());
+				m_ids.push_back(xsi_object.GetObjectID());
+				update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
+			}
+			else if (xsi_object_type == "light")
+			{
+				// create copy of the light
+				XSI::Light xsi_light(xsi_object);
+
+				// in this method we set master object transform
+				sync_xsi_light(scene, xsi_light, update_context);
+				size_t light_index = scene->lights.size() - 1;
+				ccl::Light* light = scene->lights[light_index];
+				sync_light_tfm(light, tweak_xsi_light_transform(instance_object_tfm_array[main_motion_step], xsi_light, eval_time).GetMatrix4());
+
+				// add data to update context about indices of masters and cycles objects
+				std::vector<ULONG> m_ids(master_ids);
+				m_ids.push_back(xsi_master.GetObjectID());
+				m_ids.push_back(xsi_object.GetObjectID());
+				update_context->add_light_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), light_index, m_ids);
+			}
+			else if (xsi_object_type == "cyclesPoint" || xsi_object_type == "cyclesSun" || xsi_object_type == "cyclesSpot" || xsi_object_type == "cyclesArea")  // does not consider background, because it should be unique
+			{
+				sync_custom_light(scene, xsi_object, update_context);
+
+				size_t light_index = scene->lights.size() - 1;
+				ccl::Light* light = scene->lights[light_index];
+				sync_light_tfm(light, instance_object_tfm_array[main_motion_step].GetMatrix4());
+
+				std::vector<ULONG> m_ids(master_ids);
+				m_ids.push_back(xsi_master.GetObjectID());
+				m_ids.push_back(xsi_object.GetObjectID());
+				update_context->add_light_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), light_index, m_ids);
+			}
+			else if (xsi_object_type == "#model")
+			{
+				XSI::Model xsi_model(xsi_object);
+				XSI::siModelKind model_kind = xsi_model.GetModelKind();
+				if (model_kind == XSI::siModelKind_Instance)
+				{// this is instance inside the instance
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master.GetObjectID());
+					m_ids.push_back(xsi_object.GetObjectID());
+					// and pass it to the sync method as real global transform fo the instanciated root object
+					sync_instance_model(scene, update_context, xsi_model, instance_object_tfm_array, m_ids, use_override ? override_root_id : instance_model.GetObjectID());
+
+					// we should write to the update context the data about nested instance
+					update_context->add_nested_instance_data(xsi_model.GetObjectID(), use_override ? override_root_id : instance_model.GetObjectID());
+				}
+			}
+			else
+			{
+				log_message("unknown object in instance master " + xsi_object.GetName() + " type: " + xsi_object_type);
+			}
+		}
+	}
+}
+
+void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model)
+{
+	sync_instance_model(scene, update_context, instance_model, { XSI::MATH::CTransformation() }, {}, 0);
 }
 
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray &all_models_list)
@@ -424,6 +564,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 				XSI::siModelKind model_kind = xsi_model.GetModelKind();
 				if (model_kind == XSI::siModelKind_Instance)
 				{// this is instance model
+					// we should implement the function here, because in ohter file it produce the crash
 					sync_instance_model(scene, update_context, xsi_model);
 				}
 			}
@@ -469,7 +610,6 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 		XSI::siModelKind model_kind = xsi_model.GetModelKind();
 		if (model_kind == XSI::siModelKind_Instance)
 		{// this is instance model
-			// TODO: may be we change transform of the instance root, but it contained in some master root
 			return update_instance_transform(scene, update_context, xsi_model);
 		}
 	}
@@ -479,12 +619,20 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 		// here we set the same transform for all instances of the object
 		// so, we should to sync instance transforms
 
-		//TODO: do it
+		if (is_update == XSI::CStatus::OK)
+		{
+			is_update = update_instance_transform_from_master_object(scene, update_context, xsi_object);
+		}
 		return is_update;
 	}
 	else if (object_type == "hair")
 	{
 		XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
+		if (is_update == XSI::CStatus::OK)
+		{
+			is_update = update_instance_transform_from_master_object(scene, update_context, xsi_object);
+		}
+
 		return is_update;
 	}
 	else

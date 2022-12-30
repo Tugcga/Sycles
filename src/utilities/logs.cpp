@@ -283,3 +283,8 @@ XSI::CString to_string(const ccl::vector<ccl::float3>& array)
 
 	return to_return;
 }
+
+XSI::CString to_string_flot4(const ccl::float4& value)
+{
+	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ", " + XSI::CString(value.z) + ", " + XSI::CString(value.w) + ")";
+}

@@ -56,8 +56,10 @@ void UpdateContext::reset()
 	value_aovs.clear();
 
 	xsi_light_from_instance_map.clear();
-	xsi_light_nested_to_hosts_instances_map.clear();
+	xsi_nested_to_hosts_instances_map.clear();
 	xsi_light_id_to_instance_map.clear();
+	xsi_geometry_from_instance_map.clear();
+	xsi_geometry_id_to_instance_map.clear();
 	geometry_xsi_to_cyc.clear();
 	object_xsi_to_cyc.clear();
 }
@@ -70,6 +72,16 @@ void UpdateContext::set_is_update_scene(bool value)
 bool UpdateContext::get_is_update_scene()
 {
 	return is_update_scene;
+}
+
+void UpdateContext::set_current_render_parameters(const XSI::CParameterRefArray& render_parameters)
+{
+	current_render_parameters = render_parameters;
+}
+
+XSI::CParameterRefArray UpdateContext::get_current_render_parameters()
+{
+	return current_render_parameters;
 }
 
 void UpdateContext::setup_prev_render_parameters(const XSI::CParameterRefArray& render_parameters)
@@ -381,12 +393,43 @@ float UpdateContext::get_motion_last_time()
 
 const std::vector<float>& UpdateContext::get_motion_times()
 {
-	return motion_times;
+	if (get_need_motion())
+	{
+		return motion_times;
+	}
+	else
+	{
+		std::vector<float> to_return = { (float)eval_time.GetTime() };
+		return to_return;
+	}
 }
 
 float UpdateContext::get_motion_time(size_t step)
 {
 	return motion_times[step];
+}
+
+size_t UpdateContext::get_main_motion_step()
+{
+	if (get_need_motion())
+	{
+		if (motion_position == MotionSettingsPosition::MotionPosition_Start)
+		{
+			return 0;
+		}
+		else if (motion_position == MotionSettingsPosition::MotionPosition_End)
+		{
+			return motion_times.size() - 1;
+		}
+		else
+		{// center
+			return motion_times.size() / 2;
+		}
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void UpdateContext::set_render_type(RenderType value)
@@ -666,26 +709,26 @@ std::unordered_map<size_t, std::vector<ULONG>> UpdateContext::get_light_from_ins
 	return xsi_light_from_instance_map[xsi_id];
 }
 
-void UpdateContext::add_light_nested_instance_data(ULONG nested_id, ULONG host_id)
+void UpdateContext::add_nested_instance_data(ULONG nested_id, ULONG host_id)
 {
-	if (xsi_light_nested_to_hosts_instances_map.contains(nested_id))
+	if (xsi_nested_to_hosts_instances_map.contains(nested_id))
 	{
-		xsi_light_nested_to_hosts_instances_map[nested_id].push_back(host_id);
+		xsi_nested_to_hosts_instances_map[nested_id].push_back(host_id);
 	}
 	else
 	{
-		xsi_light_nested_to_hosts_instances_map[nested_id] = { host_id };
+		xsi_nested_to_hosts_instances_map[nested_id] = { host_id };
 	}
 }
 
-bool UpdateContext::is_light_nested_to_host_instances_contains_id(ULONG id)
+bool UpdateContext::is_nested_to_host_instances_contains_id(ULONG id)
 {
-	return xsi_light_nested_to_hosts_instances_map.contains(id);
+	return xsi_nested_to_hosts_instances_map.contains(id);
 }
 
-std::vector<ULONG> UpdateContext::get_light_nested_to_host_instances_ids(ULONG id)
+std::vector<ULONG> UpdateContext::get_nested_to_host_instances_ids(ULONG id)
 {
-	return xsi_light_nested_to_hosts_instances_map[id];
+	return xsi_nested_to_hosts_instances_map[id];
 }
 
 bool UpdateContext::is_light_id_to_instance_contains_id(ULONG id)
@@ -696,4 +739,49 @@ bool UpdateContext::is_light_id_to_instance_contains_id(ULONG id)
 std::vector<ULONG> UpdateContext::get_light_id_to_instance_ids(ULONG id)
 {
 	return xsi_light_id_to_instance_map[id];
+}
+
+void UpdateContext::add_geometry_instance_data(ULONG xsi_instance_root_id, size_t cycles_geometry_index, std::vector<ULONG> master_ids)
+{
+	if (xsi_geometry_from_instance_map.contains(xsi_instance_root_id))
+	{
+		xsi_geometry_from_instance_map[xsi_instance_root_id][cycles_geometry_index].insert(xsi_geometry_from_instance_map[xsi_instance_root_id][cycles_geometry_index].end(), master_ids.begin(), master_ids.end());
+	}
+	else
+	{
+		std::unordered_map<size_t, std::vector<ULONG>> new_map;
+		new_map[cycles_geometry_index].insert(new_map[cycles_geometry_index].end(), master_ids.begin(), master_ids.end());
+
+		xsi_geometry_from_instance_map[xsi_instance_root_id] = new_map;
+	}
+
+	ULONG master_object_id = master_ids[master_ids.size() - 1];
+	if (xsi_geometry_id_to_instance_map.contains(master_object_id))
+	{
+		xsi_geometry_id_to_instance_map[master_object_id].push_back(xsi_instance_root_id);
+	}
+	else
+	{
+		xsi_geometry_id_to_instance_map[master_object_id] = { xsi_instance_root_id };
+	}
+}
+
+bool UpdateContext::is_geometry_from_instance_data_contains_id(ULONG xsi_id)
+{
+	return xsi_geometry_from_instance_map.contains(xsi_id);
+}
+
+std::unordered_map<size_t, std::vector<ULONG>> UpdateContext::get_geometry_from_instance_data(ULONG xsi_id)
+{
+	return xsi_geometry_from_instance_map[xsi_id];
+}
+
+bool UpdateContext::is_geometry_id_to_instance_contains_id(ULONG id)
+{
+	return xsi_geometry_id_to_instance_map.contains(id);
+}
+
+std::vector<ULONG> UpdateContext::get_geometry_id_to_instance_ids(ULONG id)
+{
+	return xsi_geometry_id_to_instance_map[id];
 }

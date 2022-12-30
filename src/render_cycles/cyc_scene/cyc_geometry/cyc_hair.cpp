@@ -35,7 +35,7 @@ struct XsiHairWeightMap
 	std::vector<float> data;
 };
 
-void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* update_context, const XSI::HairPrimitive &xsi_hair, bool use_motion_blur, ccl::vector<ccl::float4> &out_original_positions, LONG out_num_keys)
+void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* update_context, const XSI::HairPrimitive &xsi_hair, bool use_motion_blur, ccl::vector<ccl::float4> &out_original_positions, LONG &out_num_keys)
 {
 	XSI::CTime eval_time = update_context->get_time();
 
@@ -329,73 +329,86 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 
 void sync_hair_motion_deform(ccl::Hair* hair, UpdateContext* update_context, XSI::X3DObject &xsi_object, LONG num_keys, ccl::vector<ccl::float4> &original_positions)
 {
-	int motion_steps = update_context->get_motion_steps();
+	size_t motion_steps = update_context->get_motion_steps();
 	hair->set_motion_steps(motion_steps);
+	hair->set_use_motion_blur(true);
 
 	size_t attribute_index = 0;
 	ccl::Attribute* attr_m_positions = hair->attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_strand_position"));
 	ccl::float4* motion_positions = attr_m_positions->data_float4();
-	for (size_t mi = 0; mi < motion_steps; mi++)
+	MotionSettingsPosition motion_position = update_context->get_motion_position();
+	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
-		if (mi != motion_steps / 2)
+		size_t time_motion_step = mi;
+		if (motion_position == MotionSettingsPosition::MotionPosition_Start)
 		{
-			float time = update_context->get_motion_time(mi);
-
-			XSI::HairPrimitive time_primitive(xsi_object.GetActivePrimitive(time));
-			LONG time_total_hairs = time_primitive.GetParameterValue("TotalHairs");
-			LONG time_strands_mult = time_primitive.GetParameterValue("StrandMult");
-			if (time_strands_mult <= 1)
+			time_motion_step++;
+		}
+		else if(motion_position == MotionSettingsPosition::MotionPosition_Center)
+		{// center
+			if (mi >= motion_steps / 2)
 			{
-				time_strands_mult = 1;
+				time_motion_step++;
 			}
-			time_total_hairs = time_total_hairs * time_strands_mult;
-			XSI::CRenderHairAccessor time_rha = time_primitive.GetRenderHairAccessor(time_total_hairs);
-			LONG time_keys_count = 0;
+		}
+
+		float time = update_context->get_motion_time(time_motion_step);
+
+		XSI::HairPrimitive time_primitive(xsi_object.GetActivePrimitive(time));
+		LONG time_total_hairs = time_primitive.GetParameterValue("TotalHairs");
+		LONG time_strands_mult = time_primitive.GetParameterValue("StrandMult");
+		if (time_strands_mult <= 1)
+		{
+			time_strands_mult = 1;
+		}
+		time_total_hairs = time_total_hairs * time_strands_mult;
+		XSI::CRenderHairAccessor time_rha = time_primitive.GetRenderHairAccessor(time_total_hairs);
+		LONG time_keys_count = 0;
+		while (time_rha.Next())
+		{
+			XSI::CLongArray time_vertex_count;
+			time_rha.GetVerticesCount(time_vertex_count);
+			LONG time_strands = time_vertex_count.GetCount();
+			for (LONG i = 0; i < time_strands; i++)
+			{
+				LONG n_count = time_vertex_count[i];
+				time_keys_count += n_count;
+			}
+		}
+
+		time_rha.Reset();
+		if (time_keys_count == num_keys)
+		{
 			while (time_rha.Next())
 			{
-				XSI::CLongArray time_vertex_count;
-				time_rha.GetVerticesCount(time_vertex_count);
-				LONG time_strands = time_vertex_count.GetCount();
-				for (LONG i = 0; i < time_strands; i++)
+				XSI::CLongArray time_vertices_count_array;
+				time_rha.GetVerticesCount(time_vertices_count_array);
+				LONG time_strands_count = time_vertices_count_array.GetCount();
+				XSI::CFloatArray time_positions;
+				time_rha.GetVertexPositions(time_positions);
+				XSI::CFloatArray time_radiuses;
+				time_rha.GetVertexRadiusValues(time_radiuses);
+				LONG time_pos_key = 0;
+				LONG time_rad_key = 0;
+				// positions
+				for (LONG i = 0; i < time_strands_count; i++)
 				{
-					LONG n_count = time_vertex_count[i];
-					time_keys_count += n_count;
-				}
-			}
-			time_rha.Reset();
-			if (time_keys_count == num_keys)
-			{
-				while (time_rha.Next())
-				{
-					XSI::CLongArray time_vertices_count_array;
-					time_rha.GetVerticesCount(time_vertices_count_array);
-					LONG time_strands_count = time_vertices_count_array.GetCount();
-					XSI::CFloatArray time_positions;
-					time_rha.GetVertexPositions(time_positions);
-					XSI::CFloatArray time_radiuses;
-					time_rha.GetVertexRadiusValues(time_radiuses);
-					LONG time_pos_key = 0;
-					LONG time_rad_key = 0;
-					// positions
-					for (LONG i = 0; i < time_strands_count; i++)
+					LONG time_n_count = time_vertices_count_array[i];
+					for (LONG j = 0; j < time_n_count; j++)
 					{
-						LONG time_n_count = time_vertices_count_array[i];
-						for (LONG j = 0; j < time_n_count; j++)
-						{
-							ccl::float4 val = ccl::make_float4(time_positions[time_pos_key], time_positions[time_pos_key + 1], time_positions[time_pos_key + 2], time_radiuses[time_rad_key]);
-							motion_positions[attribute_index++] = val;
-							time_pos_key = time_pos_key + 3;
-							time_rad_key = time_rad_key + 1;
-						}
+						ccl::float4 val = ccl::make_float4(time_positions[time_pos_key], time_positions[time_pos_key + 1], time_positions[time_pos_key + 2], time_radiuses[time_rad_key]);
+						motion_positions[attribute_index++] = val;
+						time_pos_key = time_pos_key + 3;
+						time_rad_key = time_rad_key + 1;
 					}
 				}
 			}
-			else
-			{// invalid data, the number of keys is nonequal to original
-				for (size_t k_index = 0; k_index < original_positions.size(); k_index++)
-				{
-					motion_positions[attribute_index++] = original_positions[k_index];
-				}
+		}
+		else
+		{// invalid data, the number of keys is nonequal to original
+			for (size_t k_index = 0; k_index < original_positions.size(); k_index++)
+			{
+				motion_positions[attribute_index++] = original_positions[k_index];
 			}
 		}
 	}
@@ -411,6 +424,10 @@ void sync_hair_geom_process(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateConte
 	if (use_motion_blur)
 	{
 		sync_hair_motion_deform(hair_geom, update_context, xsi_object, num_keys, original_positions);
+	}
+	else
+	{
+		hair_geom->set_use_motion_blur(false);
 	}
 
 	original_positions.clear();

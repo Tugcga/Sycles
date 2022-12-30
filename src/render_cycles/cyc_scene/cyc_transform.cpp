@@ -25,7 +25,7 @@ void sync_transform(ccl::Object* object, UpdateContext* update_context, const XS
 		ccl::array<ccl::Transform> motion_tfms;
 		motion_tfms.resize(motion_steps, ccl::transform_empty());
 
-		for (size_t i = 0; i < update_context->get_motion_steps(); i++)
+		for (size_t i = 0; i < motion_steps; i++)
 		{
 			float current_time = update_context->get_motion_time(i);
 			ccl::Transform time_tfm = xsi_matrix_to_transform(xsi_kine.GetTransform(current_time).GetMatrix4());
@@ -33,7 +33,31 @@ void sync_transform(ccl::Object* object, UpdateContext* update_context, const XS
 		}
 		
 		object->set_motion(motion_tfms);
+		object->tag_motion_modified();
 	}
+}
+
+void sync_transforms(ccl::Object* object, const std::vector<XSI::MATH::CTransformation> &xsi_tfms_array, size_t main_motion_step)
+{
+	ccl::Transform tfm = xsi_matrix_to_transform(xsi_tfms_array[main_motion_step].GetMatrix4());
+	
+	if (xsi_tfms_array.size() > 1)
+	{// motion transfroms
+		size_t motion_steps = xsi_tfms_array.size();
+		ccl::array<ccl::Transform> motion_tfms;
+		motion_tfms.resize(motion_steps, ccl::transform_empty());
+
+		for (size_t i = 0; i < motion_steps; i++)
+		{
+			ccl::Transform time_tfm = xsi_matrix_to_transform(xsi_tfms_array[i].GetMatrix4());
+			motion_tfms[i] = time_tfm;
+		}
+
+		object->set_motion(motion_tfms);
+		object->tag_motion_modified();
+	}
+
+	object->set_tfm(tfm);
 }
 
 XSI::CStatus sync_geometry_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject &xsi_object)
@@ -59,4 +83,21 @@ XSI::CStatus sync_geometry_transform(ccl::Scene* scene, UpdateContext* update_co
 	}
 
 	return XSI::CStatus::OK;
+}
+
+std::vector<XSI::MATH::CTransformation> build_transforms_array(const XSI::KinematicState &xsi_kine, bool need_motion, const std::vector<float> &motion_times, const XSI::CTime &eval_time)
+{
+	if (need_motion)
+	{
+		std::vector<XSI::MATH::CTransformation> to_return(motion_times.size(), XSI::MATH::CTransformation());
+		for (size_t i = 0; i < motion_times.size(); i++)
+		{
+			to_return[i] = xsi_kine.GetTransform(motion_times[i]);
+		}
+		return to_return;
+	}
+	else
+	{
+		return { xsi_kine.GetTransform(eval_time) };
+	}
 }

@@ -92,7 +92,6 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 // common method as for xsi lights and custom lights
 void sync_light_tfm(ccl::Light* light, const XSI::MATH::CMatrix4 &xsi_tfm_matrix)
 {
-	//XSI::MATH::CVector3 xsi_tfm_position = xsi_tfm.GetTranslation();  // translation does not changed by previous rotation, so, we can use it
 	XSI::MATH::CVector3 xsi_tfm_position = XSI::MATH::CVector3(xsi_tfm_matrix.GetValue(3, 0), xsi_tfm_matrix.GetValue(3, 1), xsi_tfm_matrix.GetValue(3, 2));
 	XSI::MATH::CVector3 xsi_tfm_direction = XSI::MATH::CVector3(-1 * xsi_tfm_matrix.GetValue(2, 0), -1 * xsi_tfm_matrix.GetValue(2, 1), -1 * xsi_tfm_matrix.GetValue(2, 2));
 

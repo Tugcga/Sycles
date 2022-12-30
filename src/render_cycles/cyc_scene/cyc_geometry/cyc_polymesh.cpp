@@ -609,6 +609,7 @@ ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, Upd
 		if (geometry->geometry_type == ccl::Geometry::Type::MESH)
 		{
 			ccl::Mesh* mesh_geo = static_cast<ccl::Mesh*>(geometry);
+
 			return mesh_geo;
 		}
 	}

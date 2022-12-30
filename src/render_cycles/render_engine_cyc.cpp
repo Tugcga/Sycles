@@ -207,6 +207,7 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		is_recreate_session = true;
 	}
 
+	update_context->set_current_render_parameters(m_render_parameters);
 	update_context->set_image_size(image_full_size_width, image_full_size_height);
 	update_context->set_camera(camera);
 	update_context->set_time(eval_time);
