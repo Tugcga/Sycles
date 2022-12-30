@@ -62,12 +62,12 @@ public:
 	bool get_is_log_rendertime();
 	bool get_is_log_details();
 	
-	void set_motion(const XSI::CParameterRefArray& render_parameters, const XSI::CStringArray& output_channels, const XSI::CString& visual_channel, MotionType known_type = MotionType_Unknown);
-	void set_motion_type(MotionType value);
+	void set_motion(const XSI::CParameterRefArray& render_parameters, const XSI::CStringArray& output_channels, const XSI::CString& visual_channel, MotionSettingsType known_type = MotionType_Unknown);
+	void set_motion_type(MotionSettingsType value);
 	bool get_need_motion();
-	MotionType get_motion_type();
+	MotionSettingsType get_motion_type();
 	size_t get_motion_steps();
-	MotionPosition get_motion_position();
+	MotionSettingsPosition get_motion_position();
 	float get_motion_shutter_time();
 	bool get_motion_rolling();
 	void set_motion_rolling(bool value);
@@ -154,10 +154,10 @@ private:
 	bool log_rendertime;
 	bool log_details;
 
-	MotionType motion_type;
+	MotionSettingsType motion_type;
 	float motion_shutter_time;
 	std::vector<float> motion_times;
-	MotionPosition motion_position;
+	MotionSettingsPosition motion_position;
 	bool motion_rolling;  // false means None
 	float motion_rolling_duration;  // only for rolling true
 

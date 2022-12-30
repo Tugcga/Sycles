@@ -109,6 +109,134 @@ void get_geo_accessor_normals(const XSI::CGeometryAccessor &in_geo_acc, LONG in_
 	}
 }
 
+void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context, const XSI::X3DObject &xsi_object, bool use_subdiv, bool geo_use_angle, float geo_angle)
+{
+	// TODO: crashed for triangular mesh, find the reason
+	// may be the step should not be equal the center?
+	size_t motion_steps = update_context->get_motion_steps();
+	
+	// check we can add motion blur
+	// the number of vertices should be the same in all steps
+	bool meshes_correct = true;
+	size_t original_vertices = mesh->get_verts().size();
+
+	for (size_t i = 0; i < motion_steps; i++)
+	{
+		float time = update_context->get_motion_time(i);
+		XSI::PolygonMesh xsi_time_mesh = xsi_object.GetActivePrimitive(time).GetGeometry(time, XSI::siConstructionModeSecondaryShape);
+		XSI::CGeometryAccessor xsi_time_acc = xsi_time_mesh.GetGeometryAccessor(XSI::siConstructionModeSecondaryShape, XSI::siCatmullClark, 0, false, geo_use_angle, geo_angle);
+		size_t time_vertices = use_subdiv ? xsi_time_acc.GetVertexCount() : xsi_time_acc.GetNodeCount();  // subdiv - vertices, non-subdiv - nodes are vertices
+
+		if (time_vertices != original_vertices)
+		{
+			meshes_correct = false;
+			log_message("Mesh object " + XSI::CString(mesh->name.c_str()) + " has invalid number of vertices at frame " + XSI::CString(time) + ". Disabling motion blur for it.", XSI::siWarningMsg);
+			break;
+		}
+	}
+
+	if (meshes_correct)
+	{
+		mesh->set_motion_steps(motion_steps);
+
+		ccl::vector<ccl::float3> positions_buffer;
+		ccl::vector<ccl::float3> normals_buffer;
+		positions_buffer.resize(original_vertices);
+		normals_buffer.resize(original_vertices);
+
+		// create motion attributes
+		ccl::AttributeSet& attributes = use_subdiv ? mesh->subd_attributes : mesh->attributes;
+
+		ccl::Attribute* attr_m_positions = attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_vertex_position"));
+		ccl::Attribute* attr_m_normals = attributes.add(ccl::ATTR_STD_MOTION_VERTEX_NORMAL, ccl::ustring("std_motion_vertex_normal"));
+
+		// the number of steps is equal to toatl steps - 1
+		// does not set the step for center
+		MotionSettingsPosition motion_position = update_context->get_motion_position();
+		for (size_t mi = 0; mi < motion_steps - 1; mi++)
+		{
+			// we should skip the main step (center in most cases, but also may be start or end)
+			size_t time_motion_step = mi;
+			if (motion_position == MotionSettingsPosition::MotionPosition_Start)
+			{
+				time_motion_step++;
+			}
+			else if(motion_position == MotionSettingsPosition::MotionPosition_Center)
+			{// center
+				if (mi >= motion_steps / 2)
+				{
+					time_motion_step++;
+				}
+			}
+			// for the end point position nothing to shift
+
+			float time = update_context->get_motion_time(time_motion_step);
+
+			XSI::PolygonMesh xsi_time_mesh = xsi_object.GetActivePrimitive(time).GetGeometry(time, XSI::siConstructionModeSecondaryShape);
+			XSI::CGeometryAccessor xsi_time_acc = xsi_time_mesh.GetGeometryAccessor(XSI::siConstructionModeSecondaryShape, XSI::siCatmullClark, 0, false, geo_use_angle, geo_angle);
+			
+			XSI::CVertexRefArray vertices = xsi_time_mesh.GetVertices();
+			XSI::CPolygonNodeRefArray nodes = xsi_time_mesh.GetNodes();
+
+			size_t vertex_count = xsi_time_acc.GetVertexCount();
+			size_t nodes_count = xsi_time_acc.GetNodeCount();
+			for (size_t v_index = 0; v_index < vertex_count; v_index++)
+			{
+				XSI::Vertex vertex = vertices[v_index];
+				XSI::MATH::CVector3 vertex_position = vertex.GetPosition();
+				bool is_valid = true;
+				XSI::MATH::CVector3 vertex_normal = vertex.GetNormal(is_valid);
+				ccl::float3 position = vector3_to_float3(vertex_position);
+				ccl::float3 normal = vector3_to_float3(vertex_normal);
+				if (use_subdiv)
+				{
+					positions_buffer[vertex.GetIndex()] = position;
+					normals_buffer[vertex.GetIndex()] = normal;
+				}
+				else
+				{
+					XSI::CPolygonNodeRefArray vertex_nodes = vertex.GetNodes();
+					size_t vertex_nodes_count = vertex_nodes.GetCount();
+					for (size_t node_index = 0; node_index < vertex_nodes_count; node_index++)
+					{
+						XSI::PolygonNode node(vertex_nodes[node_index]);
+						positions_buffer[node.GetIndex()] = position;
+						// we will set normals later
+					}
+				}
+			}
+
+			// for trianglular mesh get normals
+			if (!use_subdiv)
+			{
+				XSI::CFloatArray node_normals;
+				get_geo_accessor_normals(xsi_time_acc, nodes_count, node_normals);
+				for (size_t ni = 0; ni < original_vertices; ni++)
+				{
+					normals_buffer[ni] = ccl::make_float3(node_normals[3 * ni], node_normals[3 * ni + 1], node_normals[3 * ni + 2]);
+				}
+			}
+
+			memcpy(attr_m_positions->data_float3() + mi * original_vertices, &positions_buffer[0], sizeof(float3) * original_vertices);
+			memcpy(attr_m_normals->data_float3() + mi * original_vertices, &normals_buffer[0], sizeof(float3)* original_vertices);
+		}
+
+		mesh->set_use_motion_blur(true);
+		mesh->tag_motion_steps_modified();
+		mesh->tag_use_motion_blur_modified();
+
+		// clear buffers
+		positions_buffer.clear();
+		positions_buffer.shrink_to_fit();
+		normals_buffer.clear();
+		normals_buffer.shrink_to_fit();
+	}
+	else
+	{
+		mesh->set_use_motion_blur(false);
+	}
+}
+
 void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor &xsi_geo_acc, const XSI::PolygonMesh &xsi_polymesh)
 {
 	XSI::CLongArray xsi_polygon_material_indices;
@@ -213,8 +341,6 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 		mikk_compute_tangents(mesh, uv_prop.GetName().GetAsciiString(), true);
 	}
 	sync_ice_attributes(scene, mesh, xsi_polymesh, true, vertex_count, nodes_count, xsi_node_to_vertex);
-
-	// motion deform
 }
 
 void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor& xsi_geo_acc, const XSI::PolygonMesh& xsi_polymesh, SubdivideMode subdiv_mode, ULONG subdiv_level, float subdiv_dicing_rate, const XSI::MATH::CMatrix4 &xsi_matrix)
@@ -285,7 +411,7 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 		mesh->add_subd_face(&vi[0], face_vertex_count, xsi_polygon_material_indices[face_index], false);
 	}
 
-	//creases
+	// creases
 	size_t num_creases = 0;
 	XSI::CEdgeRefArray xsi_edges_array = xsi_polymesh.GetEdges();
 	size_t xsi_edges_array_count = xsi_edges_array.GetCount();
@@ -401,7 +527,7 @@ void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, Subdiv
 	}
 }
 
-void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContext* update_context, XSI::X3DObject &xsi_object, const XSI::Primitive &xsi_primitive, const XSI::CTime &eval_time)
+void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContext* update_context, XSI::X3DObject &xsi_object, const XSI::Primitive &xsi_primitive, bool motion_deform, const XSI::CTime &eval_time)
 {
 	// geometry is new, create it
 	XSI::PolygonMesh xsi_polymesh = xsi_primitive.GetGeometry(eval_time, XSI::siConstructionModeSecondaryShape);
@@ -455,6 +581,12 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	{// create subdivide mesh
 		sync_subdivide_mesh(scene, mesh_geom, xsi_geo_acc, xsi_polymesh, subdiv_mode, geo_subdivs, subdiv_dicing_rate, xsi_object.GetKinematics().GetGlobal().GetTransform(eval_time).GetMatrix4());
 	}
+
+	mesh_geom->set_use_motion_blur(false);
+	if (update_context->get_need_motion() && motion_deform)
+	{
+		sync_polymesh_motion_deform(mesh_geom, update_context, xsi_object, subdiv_mode != SubdivideMode_None, geo_use_angle, geo_angle);
+	}
 }
 
 ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::CParameterRefArray& render_parameters)
@@ -484,7 +616,7 @@ ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, Upd
 	// create output mesh
 	ccl::Mesh* mesh_geom = scene->create_node<ccl::Mesh>();
 
-	sync_polymesh_process(scene, mesh_geom, update_context, xsi_object, xsi_primitive, eval_time);
+	sync_polymesh_process(scene, mesh_geom, update_context, xsi_object, xsi_primitive, motion_deform, eval_time);
 
 	// transform
 	sync_transform(mesh_object, update_context, xsi_object.GetKinematics().GetGlobal());
@@ -512,7 +644,7 @@ XSI::CStatus update_polymesh(ccl::Scene* scene, UpdateContext* update_context, X
 			size_t index = object_indexes[i];
 			ccl::Object* object = scene->objects[index];
 
-			sync_geometry_object_parameters(scene, object, xsi_object, lightgroup, motion_deform, "CyclesHairs", render_parameters, eval_time);
+			sync_geometry_object_parameters(scene, object, xsi_object, lightgroup, motion_deform, "CyclesMesh", render_parameters, eval_time);
 		}
 		update_context->add_lightgroup(lightgroup);
 
@@ -525,7 +657,7 @@ XSI::CStatus update_polymesh(ccl::Scene* scene, UpdateContext* update_context, X
 				ccl::Mesh* mesh_geom = static_cast<ccl::Mesh*>(geometry);
 				mesh_geom->clear(true);
 
-				sync_polymesh_process(scene, mesh_geom, update_context, xsi_object, xsi_primitive, eval_time);
+				sync_polymesh_process(scene, mesh_geom, update_context, xsi_object, xsi_primitive, motion_deform, eval_time);
 				mesh_geom->tag_update(scene, true);
 			}
 			else

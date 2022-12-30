@@ -364,7 +364,7 @@ void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CStrin
 
 // this method calls after we sync the scene, but before we setup all render passes
 // data from the object after this method is used for setting all render passes
-void OutputContext::set_output_passes(MotionType motion_type, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
+void OutputContext::set_output_passes(MotionSettingsType motion_type, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
 {
 	output_passes_count = 0;
 	output_pass_types.clear();

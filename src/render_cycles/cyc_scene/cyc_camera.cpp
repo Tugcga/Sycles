@@ -29,7 +29,7 @@ void sync_camera_motion(ccl::Scene* scene, UpdateContext* update_context, float 
 		motions.resize(update_context->get_motion_steps(), camera->get_matrix());
 
 		// setup camera motion properties
-		MotionPosition motion_position = update_context->get_motion_position();
+		MotionSettingsPosition motion_position = update_context->get_motion_position();
 		float shutter_time = update_context->get_motion_shutter_time();
 		camera->set_motion_position(motion_position == MotionPosition_Start ? ccl::MOTION_POSITION_START : (motion_position == MotionPosition_Center ? ccl::MOTION_POSITION_CENTER : ccl::MOTION_POSITION_END));
 		camera->set_shuttertime(shutter_time);

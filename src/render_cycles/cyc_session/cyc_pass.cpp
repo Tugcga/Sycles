@@ -333,7 +333,7 @@ void check_visual_aov_lightgroup_name(RenderVisualBuffer* visual_buffer, const X
     }
 }
 
-void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer, MotionType motion_type, const XSI::CStringArray &lightgroups, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
+void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer, MotionSettingsType motion_type, const XSI::CStringArray &lightgroups, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
 {
     // if visual pass is aov, then check that the name of the pass is correct
     check_visual_aov_lightgroup_name(visual_buffer, aov_color_names, aov_value_names, lightgroups);

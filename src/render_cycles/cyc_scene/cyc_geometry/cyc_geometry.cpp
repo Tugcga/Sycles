@@ -8,6 +8,7 @@
 
 #include "../../../utilities/xsi_properties.h"
 #include "../../../utilities/math.h"
+#include "../../../utilities/logs.h"
 
 ccl::uint get_ray_visibility(const XSI::CParameterRefArray &property_params, const XSI::CTime &eval_time)
 {
@@ -56,11 +57,20 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 		out_motion_deform = xsi_params.GetValue("motion_blur_deformation", eval_time);
 
 		object->set_visibility(get_ray_visibility(xsi_params, eval_time));
+
+		// TODO: sometimes, when we change shadow catcher parameter in update, the effect is not visible
 		object->set_is_shadow_catcher(xsi_params.GetValue("shadow_catcher", eval_time));
 		object->set_use_holdout(xsi_params.GetValue("is_holdout", eval_time));
 		object->set_shadow_terminator_shading_offset(xsi_params.GetValue("shadow_terminator", eval_time));
 		object->set_shadow_terminator_geometry_offset(xsi_params.GetValue("shadow_terminator_geometry", eval_time));
 		object->set_ao_distance(xsi_params.GetValue("ao_distance", eval_time));
+
+		object->tag_visibility_modified();
+		object->tag_is_shadow_catcher_modified();
+		object->tag_use_holdout_modified();
+		object->tag_shadow_terminator_shading_offset_modified();
+		object->tag_shadow_terminator_geometry_offset_modified();
+		object->tag_ao_distance_modified();
 
 		lightgroup = xsi_params.GetValue("lightgroup", eval_time);
 	}
@@ -70,6 +80,10 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 	object->set_asset_name(OIIO::ustring(get_asset_name(xsi_object)));
 	object->set_color(vector3_to_float3(get_object_color(xsi_object, eval_time)));
 	object->set_alpha(1.0);
+
+	object->tag_pass_id_modified();
+	object->tag_color_modified();
+	object->tag_alpha_modified();
 
 	object->set_random_id(ccl::hash_string(object->name.c_str()));
 }

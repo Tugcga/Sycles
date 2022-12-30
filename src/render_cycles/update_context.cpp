@@ -267,7 +267,7 @@ bool UpdateContext::get_is_log_details()
 	return log_details;
 }
 
-void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters, const XSI::CStringArray& output_channels, const XSI::CString& visual_channel, MotionType known_type)
+void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters, const XSI::CStringArray& output_channels, const XSI::CString& visual_channel, MotionSettingsType known_type)
 {
 	if (known_type == MotionType_Unknown)
 	{
@@ -319,7 +319,7 @@ void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters,
 	}
 }
 
-void UpdateContext::set_motion_type(MotionType value)
+void UpdateContext::set_motion_type(MotionSettingsType value)
 {
 	motion_type = value;
 }
@@ -329,7 +329,7 @@ bool UpdateContext::get_need_motion()
 	return !(motion_type == MotionType_None);
 }
 
-MotionType UpdateContext::get_motion_type()
+MotionSettingsType UpdateContext::get_motion_type()
 {
 	return motion_type;
 }
@@ -339,7 +339,7 @@ size_t UpdateContext::get_motion_steps()
 	return motion_times.size();
 }
 
-MotionPosition UpdateContext::get_motion_position()
+MotionSettingsPosition UpdateContext::get_motion_position()
 {
 	return motion_position;
 }

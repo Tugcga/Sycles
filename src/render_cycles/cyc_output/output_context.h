@@ -21,7 +21,7 @@ public:
 
 	void add_cryptomatte_metadata(std::string name, std::string manifest);
 	void set_render_type(RenderType type);
-	void set_output_passes(MotionType motion_type, const XSI::CStringArray &aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names);
+	void set_output_passes(MotionSettingsType motion_type, const XSI::CStringArray &aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names);
 	void set_cryptomatte_settings(bool object, bool material, bool asset, int levels);
 	RenderType get_render_type();
 	int get_output_passes_count();

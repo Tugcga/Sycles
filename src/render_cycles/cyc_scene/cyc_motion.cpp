@@ -1,7 +1,7 @@
 #include "cyc_motion.h"
 #include "../cyc_session/cyc_pass_utils.h"
 
-MotionType get_motion_type_from_parameters(const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time, const XSI::CStringArray& output_channels, const XSI::CString& visual_channel)
+MotionSettingsType get_motion_type_from_parameters(const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time, const XSI::CStringArray& output_channels, const XSI::CString& visual_channel)
 {
 	// if we have activated motion blur, then set parameter to blur and later disable output motion pass (if it exists)
 	// and also change visual pass to combined

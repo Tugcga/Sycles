@@ -270,3 +270,16 @@ XSI::CString to_string(const ccl::array<ccl::float2>& array)
 
 	return to_return;
 }
+
+XSI::CString to_string(const ccl::vector<ccl::float3>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ", " + XSI::CString(array[i].z) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
