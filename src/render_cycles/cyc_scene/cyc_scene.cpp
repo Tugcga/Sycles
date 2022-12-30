@@ -378,7 +378,7 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 			if (xsi_object_type == "polymsh")
 			{
 				ccl::Object* mesh_object = scene->create_node<ccl::Object>();
-				ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object, update_context->get_current_render_parameters());
+				ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
 
 				mesh_object->set_geometry(mesh_geom);
 				size_t object_index = scene->objects.size() - 1;
@@ -395,7 +395,7 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 			else if (xsi_object_type == "hair")
 			{
 				ccl::Object* hair_object = scene->create_node<ccl::Object>();
-				ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object, update_context->get_current_render_parameters());
+				ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object);
 
 				hair_object->set_geometry(hair_geom);
 				size_t object_index = scene->objects.size() - 1;
@@ -468,10 +468,11 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 	sync_instance_model(scene, update_context, instance_model, { XSI::MATH::CTransformation() }, {}, 0);
 }
 
-void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray &all_models_list)
+void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray &all_models_list)
 {
 	RenderType render_type = update_context->get_render_type();
 	XSI::CTime eval_time = update_context->get_time();
+	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 
 	sync_scene_materials(scene, update_context);
 
@@ -510,7 +511,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 					if (object_type == "polymsh")
 					{
 						ccl::Object* mesh_object = scene->create_node<ccl::Object>();
-						ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object, render_parameters);
+						ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
 						mesh_object->set_geometry(mesh_geom);
 
 						update_context->add_object_index(xsi_id, scene->objects.size() - 1);
@@ -520,7 +521,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 						ccl::Object* hair_object = scene->create_node<ccl::Object>();
 						// TODO: there is a strange bug
 						// if we create cycles object inside the funciotn, then the render is crash
-						ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object, render_parameters);
+						ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object);
 						hair_object->set_geometry(hair_geom);
 
 						update_context->add_object_index(xsi_id, scene->objects.size() - 1);
@@ -573,7 +574,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CPa
 
 	if (!update_context->get_use_background_light())
 	{
-		sync_background_color(scene, update_context, render_parameters);
+		sync_background_color(scene, update_context);
 	}
 
 	//sync_demo_scene(scene, update_context);

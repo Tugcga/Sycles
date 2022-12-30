@@ -517,9 +517,10 @@ XSI::MATH::CColor4f get_xsi_ambience(const XSI::CTime &eval_time)
 }
 
 // called at the scene creation process, if there are no background lights in custom lights array
-void sync_background_color(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
+void sync_background_color(ccl::Scene* scene, UpdateContext* update_context)
 {
 	XSI::CTime eval_time = update_context->get_time();
+	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 	XSI::MATH::CColor4f ambience_color = get_xsi_ambience(eval_time);
 
 	// setup shader
@@ -551,9 +552,10 @@ XSI::CStatus update_background_color(ccl::Scene* scene, UpdateContext* update_co
 }
 
 // called in post scene if we change background parameters from render settings
-XSI::CStatus update_background_parameters(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
+XSI::CStatus update_background_parameters(ccl::Scene* scene, UpdateContext* update_context)
 {
 	XSI::CTime eval_time = update_context->get_time();
+	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 
 	set_background_light(scene, scene->background, scene->default_background, update_context, render_parameters, eval_time);
 
@@ -678,7 +680,7 @@ XSI::CStatus update_custom_light_transform(ccl::Scene* scene, UpdateContext* upd
 	}
 }
 
-void update_background(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters)
+void update_background(ccl::Scene* scene, UpdateContext* update_context)
 {
 	if (update_context->get_use_background_light())
 	{
@@ -691,6 +693,6 @@ void update_background(ccl::Scene* scene, UpdateContext* update_context, const X
 		aovs[0].Clear();
 		aovs[1].Clear();
 		XSI::CStatus is_update = update_material(scene, xsi_material, shader_index, update_context->get_time(), aovs);
-		set_background_light(scene, scene->background, scene->default_background, update_context, render_parameters, update_context->get_time());
+		set_background_light(scene, scene->background, scene->default_background, update_context, update_context->get_current_render_parameters(), update_context->get_time());
 	}
 }

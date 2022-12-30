@@ -365,21 +365,25 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType_Hair)
 	{
-		is_update = update_hair(session->scene, update_context, xsi_object, m_render_parameters);
+		is_update = update_hair(session->scene, update_context, xsi_object);
 	}
 	else if (update_type == UpdateType_Mesh)
 	{
-		is_update = update_polymesh(session->scene, update_context, xsi_object, m_render_parameters);
+		is_update = update_polymesh(session->scene, update_context, xsi_object);
+	}
+	else if (update_type == UpdateType_Pointcloud)
+	{
+
 	}
 	else if (update_type == UpdateType_MeshProperty)
 	{
 		// we can change subdivide parameters, in this case we should recreate the mesh
 		// in all other cases we should simply update object properties
-		is_update = update_polymesh(session->scene, update_context, xsi_object, m_render_parameters);
+		is_update = update_polymesh(session->scene, update_context, xsi_object);
 	}
 	else if (update_type == UpdateType_HairProperty)
 	{
-
+		is_update = update_hair_property(session->scene, update_context, xsi_object);
 	}
 	else if (update_type == UpdateType_PointcloudProperty)
 	{
@@ -492,7 +496,7 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	}
 	else
 	{
-		sync_scene(session->scene, update_context, m_render_parameters, m_isolation_list, m_lights_list, XSI::Application().FindObjects(XSI::siX3DObjectID), XSI::Application().FindObjects(XSI::siModelID));
+		sync_scene(session->scene, update_context, m_isolation_list, m_lights_list, XSI::Application().FindObjects(XSI::siX3DObjectID), XSI::Application().FindObjects(XSI::siModelID));
 	}
 	is_update_camera = true;
 
@@ -528,13 +532,13 @@ XSI::CStatus RenderEngineCyc::post_scene()
 
 		if (update_context->is_change_render_parameters_background(changed_render_parameters))
 		{
-			update_background_parameters(session->scene, update_context, m_render_parameters);
+			update_background_parameters(session->scene, update_context);
 		}
 	}
 
 	if (update_context->is_need_update_background())
 	{
-		update_background(session->scene, update_context, m_render_parameters);
+		update_background(session->scene, update_context);
 	}
 
 	if (!is_update_camera && update_context->is_change_render_parameters_camera(changed_render_parameters))

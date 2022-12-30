@@ -589,9 +589,10 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	}
 }
 
-ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::CParameterRefArray& render_parameters)
+ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, UpdateContext* update_context, XSI::X3DObject& xsi_object)
 {
 	XSI::CTime eval_time = update_context->get_time();
+	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 
 	bool motion_deform = false;
 	XSI::CString lightgroup = "";
@@ -627,12 +628,13 @@ ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, Upd
 	return mesh_geom;
 }
 
-XSI::CStatus update_polymesh(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object, const XSI::CParameterRefArray& render_parameters)
+XSI::CStatus update_polymesh(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object)
 {
 	XSI::CTime eval_time = update_context->get_time();
 	ULONG xsi_object_id = xsi_object.GetObjectID();
 	XSI::Primitive xsi_primitive = xsi_object.GetActivePrimitive(eval_time);
 	ULONG xsi_polymesh_id = xsi_primitive.GetObjectID();
+	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 
 	if (xsi_primitive.IsValid() && update_context->is_object_exists(xsi_object_id))
 	{

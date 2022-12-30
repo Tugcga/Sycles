@@ -23,7 +23,7 @@ bool find_scene_shaders_displacement(ccl::Scene* scene);
 void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& scene_list, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id);
 void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model, const std::vector<XSI::MATH::CTransformation>& override_instance_tfm_array, std::vector<ULONG> master_ids, ULONG override_root_id);
 void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model);
-void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray& all_models_list);
+void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray& all_models_list);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
 // cyc_camera
@@ -35,17 +35,17 @@ XSI::MATH::CTransformation tweak_xsi_light_transform(const XSI::MATH::CTransform
 void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContext* update_context);
 void sync_custom_background(ccl::Scene* scene, const XSI::X3DObject& xsi_object, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
 void sync_custom_light(ccl::Scene* scene, const XSI::X3DObject& xsi_object, UpdateContext* update_context);
-void sync_background_color(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
+void sync_background_color(ccl::Scene* scene, UpdateContext* update_context);
 
 // this method called when we change ambience color
 // when we change background light shader, then engine calls update material
 XSI::CStatus update_background_color(ccl::Scene* scene, UpdateContext* update_context);
-XSI::CStatus update_background_parameters(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
+XSI::CStatus update_background_parameters(ccl::Scene* scene, UpdateContext* update_context);
 XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, const XSI::Light& xsi_light);
 XSI::CStatus update_custom_light(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object);
 XSI::CStatus update_xsi_light_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::Light& xsi_light);
 XSI::CStatus update_custom_light_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object);
-void update_background(ccl::Scene* scene, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters);
+void update_background(ccl::Scene* scene, UpdateContext* update_context);
 
 // cyc_materials
 // this method used only for developing

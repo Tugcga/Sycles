@@ -435,9 +435,10 @@ void sync_hair_geom_process(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateConte
 }
 
 
-ccl::Hair* sync_hair_object(ccl::Scene* scene, ccl::Object* hair_object, UpdateContext* update_context, XSI::X3DObject &xsi_object, const XSI::CParameterRefArray &render_parameters)
+ccl::Hair* sync_hair_object(ccl::Scene* scene, ccl::Object* hair_object, UpdateContext* update_context, XSI::X3DObject &xsi_object)
 {
 	XSI::CTime eval_time = update_context->get_time();
+	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 
 	// setup common object parameters
 	bool motion_deform = false;
@@ -488,9 +489,10 @@ ccl::Hair* sync_hair_object(ccl::Scene* scene, ccl::Object* hair_object, UpdateC
 	return hair_geom;
 }
 
-XSI::CStatus update_hair(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object, const XSI::CParameterRefArray &render_parameters)
+XSI::CStatus update_hair(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object)
 {
 	XSI::CTime eval_time = update_context->get_time();
+	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 	XSI::HairPrimitive xsi_prim(xsi_object.GetActivePrimitive(eval_time));
 
 	ULONG xsi_object_id = xsi_object.GetObjectID();
@@ -548,4 +550,33 @@ XSI::CStatus update_hair(ccl::Scene* scene, UpdateContext* update_context, XSI::
 	}
 
 	return XSI::CStatus::OK;
+}
+
+XSI::CStatus update_hair_property(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object)
+{
+	ULONG xsi_object_id = xsi_object.GetObjectID();
+	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
+	XSI::CTime eval_time = update_context->get_time();
+
+	if (update_context->is_object_exists(xsi_object_id))
+	{
+		bool motion_deform = false;
+		XSI::CString lightgroup = "";
+		std::vector<size_t> object_indexes = update_context->get_object_cycles_indexes(xsi_object_id);
+		for (size_t i = 0; i < object_indexes.size(); i++)
+		{
+			size_t index = object_indexes[i];
+			ccl::Object* object = scene->objects[index];
+
+			sync_geometry_object_parameters(scene, object, xsi_object, lightgroup, motion_deform, "CyclesHairs", render_parameters, eval_time);
+		}
+
+		update_context->add_lightgroup(lightgroup);
+
+		return XSI::CStatus::OK;
+	}
+	else
+	{
+		return XSI::CStatus::Abort;
+	}
 }
