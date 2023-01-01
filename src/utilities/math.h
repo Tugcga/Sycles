@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 
 #include <xsi_application.h>
 #include <xsi_time.h>
@@ -12,6 +13,7 @@
 #include "util/math_float3.h"
 #include "scene/camera.h"
 #include "util/color.h"
+#include "util/array.h"
 
 #include "../render_base/type_enums.h"
 
@@ -43,3 +45,6 @@ float get_maximum(float v1, float v2, float v3);
 
 float interpolate_float_with_middle(float a, float b, float t, float middle);
 XSI::MATH::CColor4f interpolate_color(const XSI::MATH::CColor4f& color1, const XSI::MATH::CColor4f& color2, float t, float mid = 0.5);
+
+ccl::array<int> exctract_tiles(const std::map<int, XSI::CString>& tile_to_path_map);
+std::vector<float> flip_pixels(float* input, ULONG width, ULONG height, ULONG channels);

@@ -648,6 +648,7 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 	else if (object_type == "polymsh")
 	{
 		XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
+		log_message("sync mesh tfm: " + is_update.GetDescription());
 		// here we set the same transform for all instances of the object
 		// so, we should to sync instance transforms
 

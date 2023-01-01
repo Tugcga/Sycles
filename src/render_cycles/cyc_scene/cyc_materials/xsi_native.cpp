@@ -145,7 +145,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 			//node->set_filename(OIIO::ustring(file_path.GetAsciiString()));
-			XSIImageLoader* image_loader = new XSIImageLoader(clip, eval_time);
+			XSIImageLoader* image_loader = new XSIImageLoader(clip, ccl::u_colorspace_srgb, 0, "", eval_time);
 			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
 
 			node->set_colorspace(ccl::u_colorspace_srgb);

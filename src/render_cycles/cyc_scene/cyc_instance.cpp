@@ -248,5 +248,7 @@ XSI::CStatus update_instance_transform_from_master_object(ccl::Scene* scene, Upd
 		return XSI::CStatus::OK;
 	}
 
-	return XSI::CStatus::Abort;
+	// the object does not contains in lights and geometry
+	// may be there are no isntances at all in the scene
+	return XSI::CStatus::OK;
 }

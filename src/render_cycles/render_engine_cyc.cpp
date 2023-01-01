@@ -349,6 +349,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	else if (update_type == UpdateType_Transform)
 	{
 		is_update = update_transform(session->scene, update_context, xsi_object);
+		log_message("update: " + XSI::CString(is_update.GetDescription()));
 	}
 	else if (update_type == UpdateType_XsiLight)
 	{

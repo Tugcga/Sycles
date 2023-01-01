@@ -28,3 +28,5 @@ std::vector<size_t> get_symbol_positions(const XSI::CString& string, char symbol
 
 ccl::array<int> string_to_array(const XSI::CString& string);
 std::string build_source_image_path(const XSI::CString& path, const XSI::CString& source_type, bool is_cyclic, int sequence_start, int sequence_frames, int sequence_offset, const XSI::CTime& eval_time, bool allow_tile, bool& change_to_udims);
+
+std::string replace_all_substrings(const std::string& input_string, const std::string& what_part, const std::string& replace_part);

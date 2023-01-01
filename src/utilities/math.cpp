@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <random>
+#include <map>
 
 #include <xsi_application.h>
 #include <xsi_time.h>
@@ -290,4 +291,33 @@ XSI::MATH::CColor4f interpolate_color(const XSI::MATH::CColor4f& color1, const X
 		interpolate_float_with_middle(color1.GetG(), color2.GetG(), t, mid),
 		interpolate_float_with_middle(color1.GetB(), color2.GetB(), t, mid),
 		interpolate_float_with_middle(color1.GetA(), color2.GetA(), t, mid));
+}
+
+ccl::array<int> exctract_tiles(const std::map<int, XSI::CString>& tile_to_path_map)
+{
+	ccl::array<int> to_return;
+	for (auto const& [key, val] : tile_to_path_map)
+	{
+		to_return.push_back_slow(key);
+	}
+	return to_return;
+}
+
+std::vector<float> flip_pixels(float* input, ULONG width, ULONG height, ULONG channels)
+{
+	size_t pixels_count = width * height;
+	std::vector<float> out_pixels(pixels_count * channels);
+	for (ULONG pixel = 0; pixel < pixels_count; pixel++)
+	{
+		ULONG row = pixel / width;
+		ULONG column = pixel - row * width;
+		ULONG flip_pixel = (height - row - 1) * width + column;
+		for (ULONG c = 0; c < channels; c++)
+		{
+			float v = input[channels * pixel + c];
+			out_pixels[channels * flip_pixel + c] = v;
+		}
+	}
+
+	return out_pixels;
 }

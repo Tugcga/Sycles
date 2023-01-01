@@ -21,6 +21,7 @@
 #include "../../../utilities/strings.h"
 #include "../../../utilities/xsi_shaders.h"
 #include "../../../utilities/xsi_properties.h"
+#include "../../../utilities/files_io.h"
 #include "cyc_materials.h"
 #include "names_converter.h"
 
@@ -422,7 +423,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		float projection_blend = get_float_parameter_value(xsi_parameters, "ProjectionBlend", eval_time);
 		XSI::CString extension = get_string_parameter_value(xsi_parameters, "Extension", eval_time);
 		XSI::CString image_source = get_string_parameter_value(xsi_parameters, "ImageSource", eval_time);
-		XSI::CString tiles = get_string_parameter_value(xsi_parameters, "tiles", eval_time);
+		//XSI::CString tiles = get_string_parameter_value(xsi_parameters, "tiles", eval_time);
 		int image_frames = get_int_parameter_value(xsi_parameters, "ImageFrames", eval_time);
 		int start_frame = get_int_parameter_value(xsi_parameters, "ImageStartFrame", eval_time);
 		int offset = get_int_parameter_value(xsi_parameters, "ImageOffset", eval_time);
@@ -433,39 +434,46 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			XSI::ImageClip2 clip(image_tex_source);
 			file_path = clip.GetFileName();
 
-			bool file_contains_udims = false;
-			ccl::array<int> tiles_array;
-			// check is directory with texture contains udim tiles
-			// and also recognize contained indexes
-			if (image_source == "tiled")
-			{
-				if (tiles.Length() > 0)
-				{
-					file_contains_udims = true;
-					tiles_array = string_to_array(tiles);
-				}
-			}
-			bool filename_contains_udim = false;
-			// turn on the flag, if selected filename contains udim index 1001
-			std::string filename = build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, file_contains_udims, filename_contains_udim);
-			// if folder with textures contains udims and filename was changed to <UDIM> suffics, then add tiles to the node
-			// filename_contains_udim is false if file_contains_udims is false, because no starting change process
-			if (filename_contains_udim && file_contains_udims)
-			{
-				node->set_tiles(tiles_array);
-			}
-
-			//node->set_filename(OIIO::ustring(filename));
 			ULONG xsi_clip_id = clip.GetObjectID();
+			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
 
 			// we add each clip separately (without caching in update context)
 			// because one clip in different materials can have different effects (crop, blur and so on)
 			// so, we should use different images
-			// TODO: make proper load of tiled images
-			XSIImageLoader* image_loader = new XSIImageLoader(clip, eval_time);
-			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
+			// get tiles
+			std::map<int, XSI::CString> tile_to_path_map = sync_image_tiles(file_path);
+			ccl::array<int> tiles = exctract_tiles(tile_to_path_map);
 
-			node->set_colorspace(color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw);
+			if(image_source == "tiled")
+			{
+				// we should create array of loaders
+				ccl::vector<ccl::ImageLoader*> loaders;
+				loaders.reserve(tiles.size());
+				for (size_t i = 0; i < tiles.size(); i++)
+				{
+					int tile_value = tiles[i];
+					XSI::CString tile_path = tile_to_path_map[tile_value];
+					if (tile_path != file_path)
+					{
+						loaders.push_back(new XSIImageLoader(clip, selected_colorscape, tile_value, tile_path, eval_time));
+					}
+					else
+					{
+						loaders.push_back(new XSIImageLoader(clip, selected_colorscape, tile_value, "", eval_time));
+					}
+				}
+
+				node->handle = scene->image_manager->add_image(loaders, node->image_params());
+			}
+			else
+			{
+				XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
+				node->handle = scene->image_manager->add_image(image_loader, node->image_params());
+			}
+
+			node->set_tiles(tiles);
+
+			node->set_colorspace(selected_colorscape);
 			node->set_projection(projection == "flat" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT : (projection == "box" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_BOX : (projection == "sphere" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_SPHERE : (projection == "tube" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_TUBE : ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT))));
 			node->set_projection_blend(projection_blend);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
@@ -508,11 +516,11 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 			bool temp_flag = false;
 			std::string filename = build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, false, temp_flag);
-			//node->set_filename(OIIO::ustring(filename)));
+			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
 
-			XSIImageLoader* image_loader = new XSIImageLoader(clip, eval_time);
+			XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
 			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
-			node->set_colorspace(color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw);
+			node->set_colorspace(selected_colorscape);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));
 

@@ -324,3 +324,21 @@ std::string build_source_image_path(const XSI::CString &path, const XSI::CString
 		}
 	}
 }
+
+std::string replace_all_substrings(const std::string& input_string, const std::string &what_part, const std::string& replace_part)
+{
+	std::string to_return(input_string);
+
+	size_t pos = 0;
+	while (pos += replace_part.length())
+	{
+		pos = to_return.find(what_part, pos);
+		if (pos == std::string::npos) {
+			break;
+		}
+
+		to_return.replace(pos, what_part.length(), replace_part);
+	}
+
+	return to_return;
+}

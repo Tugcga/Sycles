@@ -316,6 +316,10 @@ image_mode_enum = [
     "Image Sequence", "image_sequence",
     "Tiled", "tiled"]
 
+environment_image_mode_enum = [
+    "Single Image", "single_image",
+    "Image Sequence", "image_sequence"]
+
 dimensions_type_enum = [
     "1D", "1d",
     "2D", "2d",
@@ -1639,45 +1643,16 @@ def update_ui(prop):
         prop.Parameters("ImageOffset").ReadOnly = False
         prop.Parameters("ImageCyclic").ReadOnly = False
 
-def update_tiles(prop):
-    image_param = prop.Parameters("image")
-    image_source = image_param.Source
-    if image_source is not None:
-        file_path = image_source.GetFileName()
-        source_value = prop.Parameters("ImageSource").Value
-        if len(file_path) > 0 and source_value == "tiled":
-            file_name = os.path.basename(file_path)  # selected file (not full path)
-            start_index = file_name.rfind("1001")
-            tiles = []
-            if start_index > -1:
-                prefix_name = file_name[0: start_index]
-                postfix_name = file_name[start_index + 4:]
-                dir_path = os.path.dirname(file_path)  # directory with selected file
-                files_list = os.listdir(dir_path)  # all files in the directory
-                for f_name in files_list:
-                    potential_tile = f_name[start_index:start_index + 4]
-                    potential_prefix = f_name[0: start_index]
-                    potential_postfix = f_name[start_index + 4:]
-                    if potential_prefix == prefix_name and potential_postfix == postfix_name and potential_tile.isnumeric():
-                        if potential_tile not in tiles:
-                            tiles.append(potential_tile)
-            if len(tiles) == 0:
-                pass
-            prop.Parameters("tiles").Value = " ".join(tiles)
-
 def OnInit():
     prop = PPG.Inspected(0)
     update_ui(prop)
-    update_tiles(prop)
 
 def image_OnChanged():
     prop = PPG.Inspected(0)
-    update_tiles(prop)
 
 def ImageSource_OnChanged():
     prop = PPG.Inspected(0)
     update_ui(prop)
-    update_tiles(prop)
 
 def Projection_OnChanged():
     prop = PPG.Inspected(0)
@@ -1728,7 +1703,7 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
     ppg_layout.AddEnumControl("Projection", env_projection_enum, "Projection")
     ppg_layout.EndGroup()
     ppg_layout.AddGroup("Source")
-    ppg_layout.AddEnumControl("ImageSource", image_mode_enum, "Image Source")
+    ppg_layout.AddEnumControl("ImageSource", environment_image_mode_enum, "Image Source")
     ppg_layout.AddItem("ImageFrames", "Frames")
     ppg_layout.AddItem("ImageStartFrame", "Start Frame")
     ppg_layout.AddItem("ImageOffset", "Offset")

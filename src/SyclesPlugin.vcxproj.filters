@@ -141,6 +141,9 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_strands.cpp">
       <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
     </ClCompile>
+    <ClCompile Include="utilities\io_exr.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -304,6 +307,12 @@
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_scene\cyc_geometry\cyc_tangent_attribute.h">
       <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\stb_image.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\io_exr.h">
+      <Filter>utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
