@@ -271,6 +271,9 @@ def CyclesMesh_Define(in_ctxt):
     oProp.AddParameter3("motion_blur_deformation", c.siBool, 0)
 
     oProp.AddParameter2("subdiv_dicing_rate", c.siFloat, 1.0, 0.1, 1024.0, 0.5, 16.0, False, True)
+
+    oProp.AddParameter3("caustics_cast", c.siBool, False)
+    oProp.AddParameter3("caustics_receive", c.siBool, False)
     return true
 
 
@@ -299,6 +302,8 @@ def CyclesHairs_Define(in_ctxt):
 
     oProp.AddParameter3("motion_blur_deformation", c.siBool, 0)
 
+    oProp.AddParameter3("caustics_cast", c.siBool, False)
+    oProp.AddParameter3("caustics_receive", c.siBool, False)
     return true
 
 
@@ -308,7 +313,6 @@ def CyclesVolume_Define(in_ctxt):
     oProp.AddParameter3("volume_object_space", c.siInt2, 0, 0, 1)
     oProp.AddParameter2("volume_step_size", c.siFloat, 0.0, 0.0, 100.0, 0.0, 1.0, 32768, 1)
     oProp.AddParameter3("volume_clipping", c.siFloat, 0.001, 0.0, 1.0)
-
     return true
 
 
@@ -337,6 +341,8 @@ def CyclesPointcloud_Define(in_ctxt):
 
     oProp.AddParameter3("motion_blur_deformation", c.siBool, 0)
 
+    oProp.AddParameter3("caustics_cast", c.siBool, False)
+    oProp.AddParameter3("caustics_receive", c.siBool, False)
     return true
 
 
@@ -563,6 +569,11 @@ def MeshPropertyBuildUI():
     oLayout.AddItem("ao_distance", "AO Distance")
     oLayout.EndGroup()
 
+    oLayout.AddGroup("Caustics")
+    oLayout.AddItem("caustics_cast", "Cast Shadow Caustics")
+    oLayout.AddItem("caustics_receive", "Receive Shadow Caustics")
+    oLayout.EndGroup()
+
     oLayout.AddTab("Pass")
     oLayout.AddGroup("Properties")
     oLayout.AddItem("pass_id", "Pass ID")
@@ -618,6 +629,10 @@ def CyclesHairsPropertyBuildUI():
     oLayout.EndGroup()
     oLayout.AddGroup("Fast GI Approximation")
     oLayout.AddItem("ao_distance", "AO Distance")
+    oLayout.EndGroup()
+    oLayout.AddGroup("Caustics")
+    oLayout.AddItem("caustics_cast", "Cast Shadow Caustics")
+    oLayout.AddItem("caustics_receive", "Receive Shadow Caustics")
     oLayout.EndGroup()
 
     oLayout.AddTab("Pass")
@@ -686,6 +701,12 @@ def CyclesPointcloudPropertyBuildUI():
         oLayout.AddGroup("Strands")
         oLayout.AddItem("tip_prop", "Tip Proportion")
         oLayout.EndGroup()
+    oLayout.EndGroup()
+
+    oLayout.AddTab("Shading")
+    oLayout.AddGroup("Caustics")
+    oLayout.AddItem("caustics_cast", "Cast Shadow Caustics")
+    oLayout.AddItem("caustics_receive", "Receive Shadow Caustics")
     oLayout.EndGroup()
 
     oLayout.AddTab("Pass")

@@ -65,6 +65,9 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 		object->set_shadow_terminator_geometry_offset(xsi_params.GetValue("shadow_terminator_geometry", eval_time));
 		object->set_ao_distance(xsi_params.GetValue("ao_distance", eval_time));
 
+		object->set_is_caustics_caster(xsi_params.GetValue("caustics_cast", eval_time));
+		object->set_is_caustics_receiver(xsi_params.GetValue("caustics_receive", eval_time));
+
 		object->tag_visibility_modified();
 		object->tag_is_shadow_catcher_modified();
 		object->tag_use_holdout_modified();
