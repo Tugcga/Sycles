@@ -68,14 +68,15 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 		object->set_is_caustics_caster(xsi_params.GetValue("caustics_cast", eval_time));
 		object->set_is_caustics_receiver(xsi_params.GetValue("caustics_receive", eval_time));
 
+		lightgroup = xsi_params.GetValue("lightgroup", eval_time);
+		object->set_lightgroup(ccl::ustring(lightgroup.GetAsciiString()));
+
 		object->tag_visibility_modified();
 		object->tag_is_shadow_catcher_modified();
 		object->tag_use_holdout_modified();
 		object->tag_shadow_terminator_shading_offset_modified();
 		object->tag_shadow_terminator_geometry_offset_modified();
 		object->tag_ao_distance_modified();
-
-		lightgroup = xsi_params.GetValue("lightgroup", eval_time);
 	}
 
 	// next object settings
