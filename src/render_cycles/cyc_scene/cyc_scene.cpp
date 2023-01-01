@@ -5,6 +5,7 @@
 #include "scene/shader_nodes.h"
 #include "scene/background.h"
 #include "scene/camera.h"
+#include "scene/pointcloud.h"
 
 #include <xsi_renderercontext.h>
 #include <xsi_primitive.h>
@@ -410,7 +411,7 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 			}
 			else if (xsi_object_type == "pointcloud")
 			{
-				PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
+				PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 				if (pointcloud_type == PointcloudType::PointcloudType_Strands)
 				{
 					ccl::Object* strands_object = scene->create_node<ccl::Object>();
@@ -421,6 +422,22 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 					update_context->add_object_index(xsi_id, object_index);
 
 					sync_transforms(strands_object, instance_object_tfm_array, main_motion_step);
+
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master.GetObjectID());
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
+				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Points)
+				{
+					ccl::Object* points_object = scene->create_node<ccl::Object>();
+					ccl::PointCloud* point_geom = sync_points_object(scene, points_object, update_context, xsi_object);
+
+					points_object->set_geometry(point_geom);
+					size_t object_index = scene->objects.size() - 1;
+					update_context->add_object_index(xsi_id, object_index);
+
+					sync_transforms(points_object, instance_object_tfm_array, main_motion_step);
 
 					std::vector<ULONG> m_ids(master_ids);
 					m_ids.push_back(xsi_master.GetObjectID());
@@ -547,12 +564,20 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 					}
 					else if (object_type == "pointcloud")
 					{
-						PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
+						PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 						if (pointcloud_type == PointcloudType::PointcloudType_Strands)
 						{
 							ccl::Object* strands_object = scene->create_node<ccl::Object>();
 							ccl::Hair* strands_geom = sync_strands_object(scene, strands_object, update_context, xsi_object);
 							strands_object->set_geometry(strands_geom);
+
+							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+						}
+						else if(pointcloud_type == PointcloudType::PointcloudType_Points)
+						{
+							ccl::Object* points_object = scene->create_node<ccl::Object>();
+							ccl::PointCloud* points_geom = sync_points_object(scene, points_object, update_context, xsi_object);
+							points_object->set_geometry(points_geom);
 
 							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 						}
@@ -614,6 +639,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object)
 {
 	XSI::CString object_type = xsi_object.GetType();
+	XSI::CTime eval_time = update_context->get_time();
 
 	if (object_type == "light")
 	{// default Softimage light
@@ -648,7 +674,6 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 	else if (object_type == "polymsh")
 	{
 		XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
-		log_message("sync mesh tfm: " + is_update.GetDescription());
 		// here we set the same transform for all instances of the object
 		// so, we should to sync instance transforms
 
@@ -670,8 +695,8 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 	}
 	else if (object_type == "pointcloud")
 	{
-		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
-		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
+		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
+		if (pointcloud_type == PointcloudType::PointcloudType_Strands || pointcloud_type == PointcloudType::PointcloudType_Points)
 		{
 			XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
 			if (is_update == XSI::CStatus::OK)

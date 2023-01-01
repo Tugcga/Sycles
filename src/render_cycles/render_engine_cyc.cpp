@@ -349,7 +349,6 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	else if (update_type == UpdateType_Transform)
 	{
 		is_update = update_transform(session->scene, update_context, xsi_object);
-		log_message("update: " + XSI::CString(is_update.GetDescription()));
 	}
 	else if (update_type == UpdateType_XsiLight)
 	{
@@ -374,10 +373,14 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType_Pointcloud)
 	{
-		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
+		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
 		{
 			is_update = update_strands(session->scene, update_context, xsi_object);
+		}
+		else if (pointcloud_type == PointcloudType::PointcloudType_Points)
+		{
+			is_update = update_points(session->scene, update_context, xsi_object);
 		}
 		else
 		{
@@ -397,12 +400,22 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType_PointcloudProperty)
 	{
-		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
+		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
 		{
 			// we can change tip parameter, so, recreate the strands from scratch
 			is_update = update_strands(session->scene, update_context, xsi_object);
 		}
+		else if (pointcloud_type == PointcloudType::PointcloudType_Points)
+		{
+			// if we change property for points, then simply update object properies
+			// even if we activate or deactivate mmotion blur
+			// for actual changes user should force update the scene
+			is_update = update_points_property(session->scene, update_context, xsi_object);
+		}
+
+		// TODO: if we change property for pointcloud with instances, then recreate the scene from scratch
+		// because it is hard to find objects for particle
 	}
 	else if (update_type == UpdateType_VolumeProperty)
 	{

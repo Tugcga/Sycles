@@ -136,7 +136,7 @@ void update_instance_geometry_transform(ccl::Scene* scene, UpdateContext* update
 			}
 			else if (master_object_type == "pointcloud")
 			{
-				PointcloudType pointcloud_type = get_pointcloud_type(master_object);
+				PointcloudType pointcloud_type = get_pointcloud_type(master_object, eval_time);
 				if (pointcloud_type == PointcloudType::PointcloudType_Strands)
 				{
 					ccl::Transform tfm = xsi_matrix_to_transform(xsi_tfm.GetMatrix4());

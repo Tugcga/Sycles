@@ -2,6 +2,7 @@
 #include <xsi_property.h>
 #include <xsi_arrayparameter.h>
 #include <xsi_time.h>
+#include <xsi_x3dobject.h>
 
 #include "scene/mesh.h"
 #include "scene/scene.h"
@@ -26,9 +27,15 @@ XSI::CStatus update_hair(ccl::Scene* scene, UpdateContext* update_context, XSI::
 XSI::CStatus update_hair_property(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
 // cyc_pointlocud
-PointcloudType get_pointcloud_type(const XSI::X3DObject& xsi_object);
+PointcloudType get_pointcloud_type(XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
 
 // cycs_strands
 bool is_pointcloud_strands(const XSI::X3DObject& xsi_object);
 ccl::Hair* sync_strands_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_strands(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+
+// cyc_points
+bool is_pointcloud_points(XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
+ccl::PointCloud* sync_points_object(ccl::Scene* scene, ccl::Object* points_object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+XSI::CStatus update_points(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+XSI::CStatus update_points_property(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);

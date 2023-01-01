@@ -326,8 +326,9 @@ def CyclesPointcloud_Define(in_ctxt):
     oProp.AddParameter3("is_holdout", c.siBool, 0)
     oProp.AddParameter3("lightgroup", c.siString, "")
     oProp.AddParameter3("primitive_pc", c.siBool, 0)
-    oProp.AddParameter3("use_pc_attributes", c.siBool, 0)
-    oProp.AddParameter3("use_color_pc", c.siBool, 1)
+
+    oProp.AddParameter2("shadow_terminator", c.siFloat, 0.0, 0.0, 1.0, 0.0, 1.0, False, True)
+    oProp.AddParameter2("shadow_terminator_geometry", c.siFloat, 0.1, 0.0, 1.0, 0.0, 1.0, False, True)
 
     oProp.AddParameter3("ray_visibility_camera", c.siBool, 1)
     oProp.AddParameter3("ray_visibility_diffuse", c.siBool, 1)
@@ -684,6 +685,14 @@ def CyclesVolumePropertyBuildUI():
     PPG.Refresh()
 
 
+def pointcloud_ui_update(prop):
+    primitive_pc = prop.Parameters("primitive_pc").Value
+    if primitive_pc:
+        prop.Parameters("tip_prop").ReadOnly = True
+    else:
+        prop.Parameters("tip_prop").ReadOnly = False
+
+
 def CyclesPointcloudPropertyBuildUI():
     oProp = PPG.Inspected(0)
     oLayout = PPG.PPGLayout
@@ -694,16 +703,17 @@ def CyclesPointcloudPropertyBuildUI():
     oLayout.AddTab("Particles")
     oLayout.AddGroup("Particles")
     oLayout.AddItem("primitive_pc", "Native Cycles Pointcloud")
-    primitive_pc = oProp.Parameters("primitive_pc").Value
-    if not primitive_pc:
-        oLayout.AddItem("use_color_pc", "Copy Pointcloud Color To Instances")
-        oLayout.AddItem("use_pc_attributes", "Use Pointcloud Attributes for Instances")  # may be this name should be something like "Break instance reference"
-        oLayout.AddGroup("Strands")
-        oLayout.AddItem("tip_prop", "Tip Proportion")
-        oLayout.EndGroup()
+    oLayout.EndGroup()
+    oLayout.AddGroup("Strands")
+    oLayout.AddItem("tip_prop", "Tip Proportion")
     oLayout.EndGroup()
 
     oLayout.AddTab("Shading")
+    oLayout.AddGroup("Shadow Terminator")
+    oLayout.AddItem("shadow_terminator_geometry", "Geometry Offset")
+    oLayout.AddItem("shadow_terminator", "Shading Offset")
+    oLayout.EndGroup()
+
     oLayout.AddGroup("Caustics")
     oLayout.AddItem("caustics_cast", "Cast Shadow Caustics")
     oLayout.AddItem("caustics_receive", "Receive Shadow Caustics")
@@ -726,12 +736,11 @@ def CyclesPointcloudPropertyBuildUI():
     oLayout.AddItem("motion_blur_deformation", "Deformation")
     oLayout.EndGroup()
 
-    if not primitive_pc:
-        oLayout.AddTab("Simplify")
-        oLayout.AddGroup("Properties")
-        oLayout.AddItem("simplify_camera_cull", "Use Camera Cull")
-        oLayout.AddItem("simplify_distance_cull", "Use Distance Cull")
-        oLayout.EndGroup()
+    oLayout.AddTab("Simplify")
+    oLayout.AddGroup("Properties")
+    oLayout.AddItem("simplify_camera_cull", "Use Camera Cull")
+    oLayout.AddItem("simplify_distance_cull", "Use Distance Cull")
+    oLayout.EndGroup()
 
     oLayout.AddTab("Visibility")
     oLayout.AddGroup("Ray Visibility")
@@ -744,9 +753,12 @@ def CyclesPointcloudPropertyBuildUI():
     oLayout.EndGroup()
     PPG.Refresh()
 
+    pointcloud_ui_update(oProp)
+
 
 def CyclesPointcloud_primitive_pc_OnChanged():
-    CyclesPointcloudPropertyBuildUI()
+    prop = PPG.Inspected(0)
+    pointcloud_ui_update(prop)
     return
 
 

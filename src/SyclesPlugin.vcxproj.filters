@@ -144,6 +144,9 @@
     <ClCompile Include="utilities\io_exr.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_points.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
