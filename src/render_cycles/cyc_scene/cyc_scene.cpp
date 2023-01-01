@@ -403,11 +403,30 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 
 				sync_transforms(hair_object, instance_object_tfm_array, main_motion_step);
 
-				// add data to update context about indices of masters and cycles objects
 				std::vector<ULONG> m_ids(master_ids);
 				m_ids.push_back(xsi_master.GetObjectID());
 				m_ids.push_back(xsi_object.GetObjectID());
 				update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
+			}
+			else if (xsi_object_type == "pointcloud")
+			{
+				PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
+				if (pointcloud_type == PointcloudType::PointcloudType_Strands)
+				{
+					ccl::Object* strands_object = scene->create_node<ccl::Object>();
+					ccl::Hair* strands_geom = sync_strands_object(scene, strands_object, update_context, xsi_object);
+
+					strands_object->set_geometry(strands_geom);
+					size_t object_index = scene->objects.size() - 1;
+					update_context->add_object_index(xsi_id, object_index);
+
+					sync_transforms(strands_object, instance_object_tfm_array, main_motion_step);
+
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master.GetObjectID());
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
+				}
 			}
 			else if (xsi_object_type == "light")
 			{
@@ -528,7 +547,19 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 					}
 					else if (object_type == "pointcloud")
 					{
+						PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
+						if (pointcloud_type == PointcloudType::PointcloudType_Strands)
+						{
+							ccl::Object* strands_object = scene->create_node<ccl::Object>();
+							ccl::Hair* strands_geom = sync_strands_object(scene, strands_object, update_context, xsi_object);
+							strands_object->set_geometry(strands_geom);
 
+							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+						}
+						else
+						{
+
+						}
 					}
 					else if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea")
 					{
@@ -635,6 +666,20 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 		}
 
 		return is_update;
+	}
+	else if (object_type == "pointcloud")
+	{
+		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
+		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
+		{
+			XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
+			if (is_update == XSI::CStatus::OK)
+			{
+				is_update = update_instance_transform_from_master_object(scene, update_context, xsi_object);
+			}
+
+			return is_update;
+		}
 	}
 	else
 	{// unknown object type

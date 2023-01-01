@@ -327,7 +327,7 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 	weight_data.shrink_to_fit();
 }
 
-void sync_hair_motion_deform(ccl::Hair* hair, UpdateContext* update_context, XSI::X3DObject &xsi_object, LONG num_keys, ccl::vector<ccl::float4> &original_positions)
+void sync_hair_motion_deform(ccl::Hair* hair, UpdateContext* update_context, const XSI::X3DObject &xsi_object, LONG num_keys, const ccl::vector<ccl::float4> &original_positions)
 {
 	size_t motion_steps = update_context->get_motion_steps();
 	hair->set_motion_steps(motion_steps);
@@ -523,12 +523,6 @@ XSI::CStatus update_hair(ccl::Scene* scene, UpdateContext* update_context, XSI::
 				ccl::Hair* hair_geom = static_cast<ccl::Hair*>(geometry);
 				hair_geom->clear(true);
 
-				XSI::Property xsi_hair_property;
-				bool use_property = get_xsi_object_property(xsi_object, "CyclesHairs", xsi_hair_property);
-				if (use_property)
-				{
-					motion_deform = xsi_object.GetParameterValue("motion_blur_deformation", eval_time);
-				}
 				sync_hair_geom_process(scene, hair_geom, update_context, xsi_prim, xsi_object, motion_deform);
 
 				bool rebuild = hair_geom->curve_keys_is_modified() || hair_geom->curve_radius_is_modified();

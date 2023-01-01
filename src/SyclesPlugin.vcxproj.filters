@@ -135,6 +135,12 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_tangent_attribute.cpp">
       <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_pointcloud.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_strands.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">

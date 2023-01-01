@@ -7,6 +7,9 @@
 #include "scene/scene.h"
 #include "scene/object.h"
 
+#include "../../update_context.h"
+#include "../../../render_base/type_enums.h"
+
 // cyc_geometry
 ccl::uint get_ray_visibility(const XSI::CParameterRefArray& property_params, const XSI::CTime& eval_time);
 // common object parameters for hair and meshes
@@ -21,3 +24,11 @@ XSI::CStatus update_polymesh(ccl::Scene* scene, UpdateContext* update_context, X
 ccl::Hair* sync_hair_object(ccl::Scene* scene, ccl::Object* hair_object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_hair(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_hair_property(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+
+// cyc_pointlocud
+PointcloudType get_pointcloud_type(const XSI::X3DObject& xsi_object);
+
+// cycs_strands
+bool is_pointcloud_strands(const XSI::X3DObject& xsi_object);
+ccl::Hair* sync_strands_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+XSI::CStatus update_strands(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);

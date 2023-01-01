@@ -575,7 +575,7 @@ def MeshPropertyBuildUI():
     item.SetAttribute(c.siUINoLabel, True)
     oLayout.EndGroup()
 
-    oLayout.AddTAb("Motion")
+    oLayout.AddTab("Motion")
     oLayout.AddGroup("Motion Blur")
     oLayout.AddItem("motion_blur_deformation", "Deformation")
     oLayout.EndGroup()
@@ -698,6 +698,11 @@ def CyclesPointcloudPropertyBuildUI():
     oLayout.AddGroup("Light Group")
     item = oLayout.AddItem("lightgroup", "Lightgroup")
     item.SetAttribute(c.siUINoLabel, True)
+    oLayout.EndGroup()
+
+    oLayout.AddTab("Motion")
+    oLayout.AddGroup("Motion Blur")
+    oLayout.AddItem("motion_blur_deformation", "Deformation")
     oLayout.EndGroup()
 
     if not primitive_pc:

@@ -134,6 +134,18 @@ void update_instance_geometry_transform(ccl::Scene* scene, UpdateContext* update
 
 				object->tag_update(scene);
 			}
+			else if (master_object_type == "pointcloud")
+			{
+				PointcloudType pointcloud_type = get_pointcloud_type(master_object);
+				if (pointcloud_type == PointcloudType::PointcloudType_Strands)
+				{
+					ccl::Transform tfm = xsi_matrix_to_transform(xsi_tfm.GetMatrix4());
+					object->set_tfm(tfm);
+					object->tag_tfm_modified();
+
+					object->tag_update(scene);
+				}
+			}
 		}
 	}
 }

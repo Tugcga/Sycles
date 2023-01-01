@@ -35,4 +35,5 @@ XSI::CString to_string(const std::vector<size_t>& array);
 XSI::CString to_string(const XSI::MATH::CMatrix4& matrix);
 XSI::CString to_string(const ccl::array<ccl::float2> &array);
 XSI::CString to_string(const ccl::vector<ccl::float3>& array);
+XSI::CString to_string(const ccl::vector<ccl::float4>& array);
 XSI::CString to_string_flot4(const ccl::float4 &value);  // to_string name exists in ccl namespace

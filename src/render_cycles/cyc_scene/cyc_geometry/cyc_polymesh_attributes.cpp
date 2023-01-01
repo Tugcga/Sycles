@@ -675,7 +675,6 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 						}
 					}
 				}
-				
 			}
 		}
 	}

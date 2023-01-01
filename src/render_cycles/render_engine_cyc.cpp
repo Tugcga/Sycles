@@ -373,7 +373,15 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType_Pointcloud)
 	{
+		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
+		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
+		{
+			is_update = update_strands(session->scene, update_context, xsi_object);
+		}
+		else
+		{
 
+		}
 	}
 	else if (update_type == UpdateType_MeshProperty)
 	{
@@ -383,11 +391,17 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType_HairProperty)
 	{
+		// update only object properties
 		is_update = update_hair_property(session->scene, update_context, xsi_object);
 	}
 	else if (update_type == UpdateType_PointcloudProperty)
 	{
-
+		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object);
+		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
+		{
+			// we can change tip parameter, so, recreate the strands from scratch
+			is_update = update_strands(session->scene, update_context, xsi_object);
+		}
 	}
 	else if (update_type == UpdateType_VolumeProperty)
 	{

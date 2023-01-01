@@ -73,3 +73,13 @@ enum SubdivideMode
 	SubdivideMode_Linear,
 	SubdivideMode_CatmulClark
 };
+
+enum PointcloudType
+{
+	PointcloudType_Strands,
+	PointcloudType_Explosia,
+	PointcloudType_Points,
+	PointcloudType_Volume,
+	PointcloudType_Instances,
+	PointcloudType_Unknown
+};
