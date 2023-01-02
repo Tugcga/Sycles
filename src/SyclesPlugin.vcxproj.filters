@@ -147,6 +147,12 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_points.cpp">
       <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_volume.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_ice_volume_loader.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_loaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">

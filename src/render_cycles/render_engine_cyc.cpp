@@ -382,6 +382,10 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 		{
 			is_update = update_points(session->scene, update_context, xsi_object);
 		}
+		else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
+		{
+			is_update = update_volume(session->scene, update_context, xsi_object);
+		}
 		else
 		{
 
@@ -406,7 +410,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 			// we can change tip parameter, so, recreate the strands from scratch
 			is_update = update_strands(session->scene, update_context, xsi_object);
 		}
-		else if (pointcloud_type == PointcloudType::PointcloudType_Points)
+		else if (pointcloud_type == PointcloudType::PointcloudType_Points || pointcloud_type == PointcloudType::PointcloudType_Volume)
 		{
 			// if we change property for points, then simply update object properies
 			// even if we activate or deactivate mmotion blur
@@ -419,7 +423,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType_VolumeProperty)
 	{
-
+		is_update = update_volume_property(session->scene, update_context, xsi_object);
 	}
 
 	update_context->set_is_update_scene(true);

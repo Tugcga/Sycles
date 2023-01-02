@@ -13,6 +13,10 @@ PointcloudType get_pointcloud_type(XSI::X3DObject &xsi_object, const XSI::CTime&
 	{
 		return PointcloudType::PointcloudType_Strands;
 	}
+	else if (is_pointcloud_volume(xsi_object, eval_time))
+	{
+		return PointcloudType::PointcloudType_Volume;
+	}
 	else
 	{
 		return PointcloudType::PointcloudType_Unknown;

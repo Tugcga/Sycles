@@ -444,6 +444,22 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 					m_ids.push_back(xsi_object.GetObjectID());
 					update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
 				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
+				{
+					ccl::Object* volume_object = scene->create_node<ccl::Object>();
+					ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
+
+					volume_object->set_geometry(volume_geom);
+					size_t object_index = scene->objects.size() - 1;
+					update_context->add_object_index(xsi_id, object_index);
+
+					sync_transforms(volume_object, instance_object_tfm_array, main_motion_step);
+
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master.GetObjectID());
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
+				}
 			}
 			else if (xsi_object_type == "light")
 			{
@@ -581,6 +597,14 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 
 							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 						}
+						else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
+						{
+							ccl::Object* volume_object = scene->create_node<ccl::Object>();
+							ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
+							volume_object->set_geometry(volume_geom);
+
+							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+						}
 						else
 						{
 
@@ -696,7 +720,7 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 	else if (object_type == "pointcloud")
 	{
 		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
-		if (pointcloud_type == PointcloudType::PointcloudType_Strands || pointcloud_type == PointcloudType::PointcloudType_Points)
+		if (pointcloud_type == PointcloudType::PointcloudType_Strands || pointcloud_type == PointcloudType::PointcloudType_Points || pointcloud_type == PointcloudType::PointcloudType_Volume)
 		{
 			XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
 			if (is_update == XSI::CStatus::OK)

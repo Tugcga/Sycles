@@ -7,6 +7,8 @@
 #include "scene/mesh.h"
 #include "scene/scene.h"
 #include "scene/object.h"
+#include "scene/volume.h"
+#include "scene/pointcloud.h"
 
 #include "../../update_context.h"
 #include "../../../render_base/type_enums.h"
@@ -39,3 +41,9 @@ bool is_pointcloud_points(XSI::X3DObject& xsi_object, const XSI::CTime& eval_tim
 ccl::PointCloud* sync_points_object(ccl::Scene* scene, ccl::Object* points_object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_points(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_points_property(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+
+// cyc_volume
+bool is_pointcloud_volume(const XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
+ccl::Volume* sync_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+XSI::CStatus update_volume(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+XSI::CStatus update_volume_property(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);

@@ -220,6 +220,13 @@ bool XSIImageLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixel
 
 	return false;
 }
+
+void XSIImageLoader::cleanup()
+{
+	m_image_pixels.clear();
+	m_image_pixels.shrink_to_fit();
+}
+
 std::string XSIImageLoader::name() const
 {
 	return m_xsi_clip_name.GetAsciiString();

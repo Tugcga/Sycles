@@ -83,3 +83,10 @@ enum PointcloudType
 	PointcloudType_Instances,
 	PointcloudType_Unknown
 };
+
+enum VolumeAttributeType
+{
+	VolumeAttributeType_Float,
+	VolumeAttributeType_Vector,
+	VolumeAttributeType_Color
+};
