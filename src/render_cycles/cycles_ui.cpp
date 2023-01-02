@@ -149,7 +149,9 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("performance_curves_subdivs", "Curve Subdivisions");
 	layout.EndGroup();
 
-	layout.AddGroup("Culling");
+	// does not should culling parameters
+	// because there are no sufficient effect when use these settings
+	/*layout.AddGroup("Culling");
 	XSI::CValueArray culling_mode_combo(4);
 	culling_mode_combo[0] = "Camera or Distance"; culling_mode_combo[1] = 0;
 	culling_mode_combo[2] = "Camera and Distance"; culling_mode_combo[3] = 1;
@@ -158,7 +160,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("performance_simplify_cull_distance", "Use Distance Cull");
 	layout.AddItem("performance_simplify_cull_camera_margin", "Camera Cull Margin");
 	layout.AddItem("performance_simplify_cull_distance_margin", "Distance");
-	layout.EndGroup();
+	layout.EndGroup();*/
 
 	layout.AddTab("Color Managements");
 	layout.AddGroup("Color Management");

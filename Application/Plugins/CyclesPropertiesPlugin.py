@@ -246,65 +246,46 @@ def AddCyclesBake_Execute():
     return True
 
 
+def setup_common_properties(prop):
+    prop.AddParameter3("shadow_catcher", c.siBool, 0)
+    prop.AddParameter2("shadow_terminator", c.siFloat, 0.0, 0.0, 1.0, 0.0, 1.0, False, True)
+    prop.AddParameter2("shadow_terminator_geometry", c.siFloat, 0.1, 0.0, 1.0, 0.0, 1.0, False, True)
+    prop.AddParameter2("ao_distance", c.siFloat, 0.0, 0.0, 1000.0, 0.0, 1.0, False, True)
+
+    prop.AddParameter2("pass_id", c.siInt2, 0, 0, 10000, 0, 10, False, False)
+    prop.AddParameter3("is_holdout", c.siBool, 0)
+    prop.AddParameter3("lightgroup", c.siString, "")
+
+    prop.AddParameter3("ray_visibility_camera", c.siBool, 1)
+    prop.AddParameter3("ray_visibility_diffuse", c.siBool, 1)
+    prop.AddParameter3("ray_visibility_glossy", c.siBool, 1)
+    prop.AddParameter3("ray_visibility_transmission", c.siBool, 1)
+    prop.AddParameter3("ray_visibility_volume_scatter", c.siBool, 1)
+    prop.AddParameter3("ray_visibility_shadow", c.siBool, 1)
+
+    prop.AddParameter3("simplify_camera_cull", c.siBool, 1)
+    prop.AddParameter3("simplify_distance_cull", c.siBool, 1)
+
+    prop.AddParameter3("motion_blur_deformation", c.siBool, 0)
+
+    prop.AddParameter3("caustics_cast", c.siBool, False)
+    prop.AddParameter3("caustics_receive", c.siBool, False)
+
+
 def CyclesMesh_Define(in_ctxt):
-    oCustomProperty = in_ctxt.Source
-    oProp = in_ctxt.Source
-    oProp.AddParameter2("pass_id", c.siInt2, 0, 0, 10000, 0, 10, False, False)
-    oProp.AddParameter3("subdiv_type", c.siInt2, 0)
-    oProp.AddParameter2("subdiv_max_level", c.siInt2, 1, 0, 64, 0, 8, False, True)
-    oProp.AddParameter3("shadow_catcher", c.siBool, 0)
-    oProp.AddParameter2("shadow_terminator", c.siFloat, 0.0, 0.0, 1.0, 0.0, 1.0, False, True)
-    oProp.AddParameter2("shadow_terminator_geometry", c.siFloat, 0.1, 0.0, 1.0, 0.0, 1.0, False, True)
-    oProp.AddParameter2("ao_distance", c.siFloat, 0.0, 0.0, 1000.0, 0.0, 1.0, False, True)
-    oProp.AddParameter3("is_holdout", c.siBool, 0)
-    oProp.AddParameter3("lightgroup", c.siString, "")
-    oProp.AddParameter3("ray_visibility_camera", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_diffuse", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_glossy", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_transmission", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_volume_scatter", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_shadow", c.siBool, 1)
+    prop = in_ctxt.Source
+    prop.AddParameter3("subdiv_type", c.siInt2, 0)
+    prop.AddParameter2("subdiv_max_level", c.siInt2, 1, 0, 64, 0, 8, False, True)
+    prop.AddParameter2("subdiv_dicing_rate", c.siFloat, 1.0, 0.1, 1024.0, 0.5, 16.0, False, True)
+    setup_common_properties(prop)
 
-    oProp.AddParameter3("simplify_camera_cull", c.siBool, 1)
-    oProp.AddParameter3("simplify_distance_cull", c.siBool, 1)
-
-    oProp.AddParameter3("motion_blur_deformation", c.siBool, 0)
-
-    oProp.AddParameter2("subdiv_dicing_rate", c.siFloat, 1.0, 0.1, 1024.0, 0.5, 16.0, False, True)
-
-    oProp.AddParameter3("caustics_cast", c.siBool, False)
-    oProp.AddParameter3("caustics_receive", c.siBool, False)
-    return true
+    return True
 
 
 def CyclesHairs_Define(in_ctxt):
-    oCustomProperty = in_ctxt.Source
-    oProp = in_ctxt.Source
-    oProp.AddParameter3("tip_prop", c.siFloat, 0.0, 0, 1)
-    oProp.AddParameter2("pass_id", c.siInt2, 0, 0, 10000, 0, 10, False, False)
-
-    oProp.AddParameter3("shadow_catcher", c.siBool, 0)
-    oProp.AddParameter2("shadow_terminator", c.siFloat, 0.0, 0.0, 1.0, 0.0, 1.0, False, True)
-    oProp.AddParameter2("shadow_terminator_geometry", c.siFloat, 0.1, 0.0, 1.0, 0.0, 1.0, False, True)
-    oProp.AddParameter2("ao_distance", c.siFloat, 0.0, 0.0, 1000.0, 0.0, 1.0, False, True)
-    oProp.AddParameter3("is_holdout", c.siBool, 0)
-    oProp.AddParameter3("lightgroup", c.siString, "")
-
-    oProp.AddParameter3("ray_visibility_camera", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_diffuse", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_glossy", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_transmission", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_volume_scatter", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_shadow", c.siBool, 1)
-
-    oProp.AddParameter3("simplify_camera_cull", c.siBool, 1)
-    oProp.AddParameter3("simplify_distance_cull", c.siBool, 1)
-
-    oProp.AddParameter3("motion_blur_deformation", c.siBool, 0)
-
-    oProp.AddParameter3("caustics_cast", c.siBool, False)
-    oProp.AddParameter3("caustics_receive", c.siBool, False)
-    return true
+    prop = in_ctxt.Source
+    setup_common_properties(prop)
+    return True
 
 
 def CyclesVolume_Define(in_ctxt):
@@ -312,43 +293,20 @@ def CyclesVolume_Define(in_ctxt):
     oProp = in_ctxt.Source
     oProp.AddParameter3("volume_object_space", c.siInt2, 0, 0, 1)
     oProp.AddParameter2("volume_step_size", c.siFloat, 0.0, 0.0, 100.0, 0.0, 1.0, 32768, 1)
-    oProp.AddParameter3("volume_clipping", c.siFloat, 0.001, 0.0, 1.0)
-    return true
+    oProp.AddParameter2("volume_clipping", c.siFloat, 0.001, 0.0, 1.0, 0.0, 0.01)
+    return True
 
 
 def CyclesPointcloud_Define(in_ctxt):
-    oCustomProperty = in_ctxt.Source
-    oProp = in_ctxt.Source
-    oProp.AddParameter3("tip_prop", c.siFloat, 0.0, 0, 1)
-    oProp.AddParameter2("pass_id", c.siInt2, 0, 0, 10000, 0, 10, False, False)
+    prop = in_ctxt.Source
+    prop.AddParameter3("tip_prop", c.siFloat, 0.0, 0, 1)
+    prop.AddParameter3("primitive_pc", c.siBool, 0)
+    setup_common_properties(prop)
 
-    oProp.AddParameter3("shadow_catcher", c.siBool, 0)
-    oProp.AddParameter3("is_holdout", c.siBool, 0)
-    oProp.AddParameter3("lightgroup", c.siString, "")
-    oProp.AddParameter3("primitive_pc", c.siBool, 0)
-
-    oProp.AddParameter2("shadow_terminator", c.siFloat, 0.0, 0.0, 1.0, 0.0, 1.0, False, True)
-    oProp.AddParameter2("shadow_terminator_geometry", c.siFloat, 0.1, 0.0, 1.0, 0.0, 1.0, False, True)
-
-    oProp.AddParameter3("ray_visibility_camera", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_diffuse", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_glossy", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_transmission", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_volume_scatter", c.siBool, 1)
-    oProp.AddParameter3("ray_visibility_shadow", c.siBool, 1)
-
-    oProp.AddParameter3("simplify_camera_cull", c.siBool, 1)
-    oProp.AddParameter3("simplify_distance_cull", c.siBool, 1)
-
-    oProp.AddParameter3("motion_blur_deformation", c.siBool, 0)
-
-    oProp.AddParameter3("caustics_cast", c.siBool, False)
-    oProp.AddParameter3("caustics_receive", c.siBool, False)
-    return true
+    return True
 
 
 def CyclesBake_Define(in_ctxt):
-    oCustomProperty = in_ctxt.Source
     oProp = in_ctxt.Source
     oProp.AddParameter3("uv_index", c.siInt2, 0, 0, 1024, False, False)
     oProp.AddParameter3("uv_names", c.siString, "")  # does not show this parameter
@@ -370,21 +328,19 @@ def CyclesBake_Define(in_ctxt):
 
 
 def CyclesMesh_DefineLayout(in_ctxt):
-    # oLayout = in_ctxt.Source
-    # oLayout.Clear()
-    return true
+    return True
 
 
 def CyclesHairs_DefineLayout(in_ctxt):
-    return true
+    return True
 
 
 def CyclesVolume_DefineLayout(in_ctxt):
-    return true
+    return True
 
 
 def CyclesPointcloud_DefineLayout(in_ctxt):
-    return true
+    return True
 
 
 def get_object_uvs(prop):
@@ -547,66 +503,71 @@ def mesh_ui_update(prop):
         prop.Parameters("subdiv_dicing_rate").ReadOnly = False
 
 
-def MeshPropertyBuildUI():
-    prop = PPG.Inspected(0)
-    oLayout = PPG.PPGLayout
-    oLayout.Clear()
-
-    oLayout.AddTab("Subdivision")
-    oLayout.AddGroup("Properties")
-    oLayout.AddEnumControl("subdiv_type", subdivTypes, "Subdivision Type")
-    oLayout.AddItem("subdiv_max_level", "Subdivision Level")
-    oLayout.AddItem("subdiv_dicing_rate", "Dicing Rate")  # implemented in built-in osd
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Shading")
-    oLayout.AddGroup("Shadow Terminator")
-    oLayout.AddItem("shadow_terminator_geometry", "Geometry Offset")
-    oLayout.AddItem("shadow_terminator", "Shading Offset")
-    oLayout.EndGroup()
+def build_common_property_ui(layout):
+    layout.AddTab("Shading")
+    layout.AddGroup("Shadow Terminator")
+    layout.AddItem("shadow_terminator_geometry", "Geometry Offset")
+    layout.AddItem("shadow_terminator", "Shading Offset")
+    layout.EndGroup()
     # ignore this parameter, because there are no any visible effect
     # here for Mesh and also for Hairs
-    oLayout.AddGroup("Fast GI Approximation")
-    oLayout.AddItem("ao_distance", "AO Distance")
-    oLayout.EndGroup()
+    layout.AddGroup("Fast GI Approximation")
+    layout.AddItem("ao_distance", "AO Distance")
+    layout.EndGroup()
 
-    oLayout.AddGroup("Caustics")
-    oLayout.AddItem("caustics_cast", "Cast Shadow Caustics")
-    oLayout.AddItem("caustics_receive", "Receive Shadow Caustics")
-    oLayout.EndGroup()
+    layout.AddGroup("Caustics")
+    layout.AddItem("caustics_cast", "Cast Shadow Caustics")
+    layout.AddItem("caustics_receive", "Receive Shadow Caustics")
+    layout.EndGroup()
 
-    oLayout.AddTab("Pass")
-    oLayout.AddGroup("Properties")
-    oLayout.AddItem("pass_id", "Pass ID")
-    oLayout.AddItem("shadow_catcher", "Shadow Catcher")
-    oLayout.AddItem("is_holdout", "Holdout")
-    oLayout.EndGroup()
+    layout.AddTab("Pass")
+    layout.AddGroup("Properties")
+    layout.AddItem("pass_id", "Pass ID")
+    layout.AddItem("shadow_catcher", "Shadow Catcher")
+    layout.AddItem("is_holdout", "Holdout")
+    layout.EndGroup()
 
-    oLayout.AddGroup("Light Group")
-    item = oLayout.AddItem("lightgroup", "Lightgroup")
+    layout.AddGroup("Light Group")
+    item = layout.AddItem("lightgroup", "Lightgroup")
     item.SetAttribute(c.siUINoLabel, True)
-    oLayout.EndGroup()
+    layout.EndGroup()
 
-    oLayout.AddTab("Motion")
-    oLayout.AddGroup("Motion Blur")
-    oLayout.AddItem("motion_blur_deformation", "Deformation")
-    oLayout.EndGroup()
+    layout.AddTab("Motion")
+    layout.AddGroup("Motion Blur")
+    layout.AddItem("motion_blur_deformation", "Deformation")
+    layout.EndGroup()
 
-    oLayout.AddTab("Simplify")
-    oLayout.AddGroup("Properties")
-    oLayout.AddItem("simplify_camera_cull", "Use Camera Cull")
-    oLayout.AddItem("simplify_distance_cull", "Use Distance Cull")
-    oLayout.EndGroup()
+    # disable culling properties
+    # there are no any sufficient effect when use it
+    # layout.AddTab("Simplify")
+    # layout.AddGroup("Properties")
+    # layout.AddItem("simplify_camera_cull", "Use Camera Cull")
+    # layout.AddItem("simplify_distance_cull", "Use Distance Cull")
+    # layout.EndGroup()
 
-    oLayout.AddTab("Visibility")
-    oLayout.AddGroup("Ray Visibility")
-    oLayout.AddItem("ray_visibility_camera", "Camera")
-    oLayout.AddItem("ray_visibility_diffuse", "Diffuse")
-    oLayout.AddItem("ray_visibility_glossy", "Glossy")
-    oLayout.AddItem("ray_visibility_transmission", "Transmission")
-    oLayout.AddItem("ray_visibility_volume_scatter", "Volume Scatter")
-    oLayout.AddItem("ray_visibility_shadow", "Shadow")
-    oLayout.EndGroup()
+    layout.AddTab("Visibility")
+    layout.AddGroup("Ray Visibility")
+    layout.AddItem("ray_visibility_camera", "Camera")
+    layout.AddItem("ray_visibility_diffuse", "Diffuse")
+    layout.AddItem("ray_visibility_glossy", "Glossy")
+    layout.AddItem("ray_visibility_transmission", "Transmission")
+    layout.AddItem("ray_visibility_volume_scatter", "Volume Scatter")
+    layout.AddItem("ray_visibility_shadow", "Shadow")
+    layout.EndGroup()
+
+
+def MeshPropertyBuildUI():
+    prop = PPG.Inspected(0)
+    layout = PPG.PPGLayout
+    layout.Clear()
+
+    layout.AddTab("Subdivision")
+    layout.AddGroup("Properties")
+    layout.AddEnumControl("subdiv_type", subdivTypes, "Subdivision Type")
+    layout.AddItem("subdiv_max_level", "Subdivision Level")
+    layout.AddItem("subdiv_dicing_rate", "Dicing Rate")  # implemented in built-in osd
+    layout.EndGroup()
+    build_common_property_ui(layout)
     PPG.Refresh()
 
     mesh_ui_update(prop)
@@ -618,56 +579,9 @@ def CyclesMesh_subdiv_type_OnChanged():
 
 
 def CyclesHairsPropertyBuildUI():
-    oProp = PPG.Inspected(0)
-    oLayout = PPG.PPGLayout
-    oLayout.Clear()
-
-    parent = oProp.Parent
-    oLayout.AddTab("Shading")
-    oLayout.AddGroup("Shadow Terminator")
-    oLayout.AddItem("shadow_terminator_geometry", "Geometry Offset")
-    oLayout.AddItem("shadow_terminator", "Shading Offset")
-    oLayout.EndGroup()
-    oLayout.AddGroup("Fast GI Approximation")
-    oLayout.AddItem("ao_distance", "AO Distance")
-    oLayout.EndGroup()
-    oLayout.AddGroup("Caustics")
-    oLayout.AddItem("caustics_cast", "Cast Shadow Caustics")
-    oLayout.AddItem("caustics_receive", "Receive Shadow Caustics")
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Pass")
-    oLayout.AddGroup("Properties")
-    oLayout.AddItem("pass_id", "Pass ID")
-    oLayout.AddItem("shadow_catcher", "Shadow Catcher")
-    oLayout.AddItem("is_holdout", "Holdout")
-    oLayout.EndGroup()
-
-    oLayout.AddGroup("Light Group")
-    item = oLayout.AddItem("lightgroup", "Lightgroup")
-    item.SetAttribute(c.siUINoLabel, True)
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Motion")
-    oLayout.AddGroup("Motion Blur")
-    oLayout.AddItem("motion_blur_deformation", "Deformation")
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Simplify")
-    oLayout.AddGroup("Properties")
-    oLayout.AddItem("simplify_camera_cull", "Use Camera Cull")
-    oLayout.AddItem("simplify_distance_cull", "Use Distance Cull")
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Visibility")
-    oLayout.AddGroup("Ray Visibility")
-    oLayout.AddItem("ray_visibility_camera", "Camera")
-    oLayout.AddItem("ray_visibility_diffuse", "Diffuse")
-    oLayout.AddItem("ray_visibility_glossy", "Glossy")
-    oLayout.AddItem("ray_visibility_transmission", "Transmission")
-    oLayout.AddItem("ray_visibility_volume_scatter", "Volume Scatter")
-    oLayout.AddItem("ray_visibility_shadow", "Shadow")
-    oLayout.EndGroup()
+    layout = PPG.PPGLayout
+    layout.Clear()
+    build_common_property_ui(layout)
     PPG.Refresh()
 
 
@@ -694,66 +608,22 @@ def pointcloud_ui_update(prop):
 
 
 def CyclesPointcloudPropertyBuildUI():
-    oProp = PPG.Inspected(0)
-    oLayout = PPG.PPGLayout
-    oLayout.Clear()
+    prop = PPG.Inspected(0)
+    layout = PPG.PPGLayout
+    layout.Clear()
 
-    parent = oProp.Parent
+    layout.AddTab("Particles")
+    layout.AddGroup("Particles")
+    layout.AddItem("primitive_pc", "Native Cycles Pointcloud")
+    layout.EndGroup()
+    layout.AddGroup("Strands")
+    layout.AddItem("tip_prop", "Tip Proportion")
+    layout.EndGroup()
 
-    oLayout.AddTab("Particles")
-    oLayout.AddGroup("Particles")
-    oLayout.AddItem("primitive_pc", "Native Cycles Pointcloud")
-    oLayout.EndGroup()
-    oLayout.AddGroup("Strands")
-    oLayout.AddItem("tip_prop", "Tip Proportion")
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Shading")
-    oLayout.AddGroup("Shadow Terminator")
-    oLayout.AddItem("shadow_terminator_geometry", "Geometry Offset")
-    oLayout.AddItem("shadow_terminator", "Shading Offset")
-    oLayout.EndGroup()
-
-    oLayout.AddGroup("Caustics")
-    oLayout.AddItem("caustics_cast", "Cast Shadow Caustics")
-    oLayout.AddItem("caustics_receive", "Receive Shadow Caustics")
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Pass")
-    oLayout.AddGroup("Properties")
-    oLayout.AddItem("pass_id", "Pass ID")
-    oLayout.AddItem("shadow_catcher", "Shadow Catcher")
-    oLayout.AddItem("is_holdout", "Holdout")
-    oLayout.EndGroup()
-
-    oLayout.AddGroup("Light Group")
-    item = oLayout.AddItem("lightgroup", "Lightgroup")
-    item.SetAttribute(c.siUINoLabel, True)
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Motion")
-    oLayout.AddGroup("Motion Blur")
-    oLayout.AddItem("motion_blur_deformation", "Deformation")
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Simplify")
-    oLayout.AddGroup("Properties")
-    oLayout.AddItem("simplify_camera_cull", "Use Camera Cull")
-    oLayout.AddItem("simplify_distance_cull", "Use Distance Cull")
-    oLayout.EndGroup()
-
-    oLayout.AddTab("Visibility")
-    oLayout.AddGroup("Ray Visibility")
-    oLayout.AddItem("ray_visibility_camera", "Camera")
-    oLayout.AddItem("ray_visibility_diffuse", "Diffuse")
-    oLayout.AddItem("ray_visibility_glossy", "Glossy")
-    oLayout.AddItem("ray_visibility_transmission", "Transmission")
-    oLayout.AddItem("ray_visibility_volume_scatter", "Volume Scatter")
-    oLayout.AddItem("ray_visibility_shadow", "Shadow")
-    oLayout.EndGroup()
+    build_common_property_ui(layout)
     PPG.Refresh()
 
-    pointcloud_ui_update(oProp)
+    pointcloud_ui_update(prop)
 
 
 def CyclesPointcloud_primitive_pc_OnChanged():
