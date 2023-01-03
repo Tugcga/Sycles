@@ -227,7 +227,19 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	//camera
 	XSI::Primitive camera_prim(m_render_context.GetAttribute("Camera"));
 	XSI::X3DObject camera_obj = camera_prim.GetOwners()[0];
+
+	ULONG prev_camera_id = 0;
+	if (camera.IsValid())
+	{
+		prev_camera_id = camera.GetObjectID();
+	}
+
 	camera = camera_obj;
+
+	if (camera.GetObjectID() != prev_camera_id)
+	{
+		activate_force_recreate_scene();
+	}
 
 	//get pathes to save images
 	output_paths.Clear();
