@@ -13,3 +13,4 @@ bool get_xsi_object_property(XSI::X3DObject& xsi_object, const XSI::CString& pro
 bool obtain_subsub_directions(const XSI::Shader& xsi_shader, float& sun_x, float& sun_y, float& sun_z, const XSI::CTime& eval_time);
 std::string get_asset_name(const XSI::X3DObject& xsi_object);
 XSI::MATH::CVector3 get_object_color(XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
+bool is_light(const XSI::CRef& object_ref);

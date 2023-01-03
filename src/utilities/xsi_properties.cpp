@@ -127,3 +127,24 @@ XSI::MATH::CVector3 get_object_color(XSI::X3DObject& xsi_object, const XSI::CTim
 		return XSI::MATH::CVector3(0.0f, 0.0f, 0.0f);
 	}
 }
+
+bool is_light(const XSI::CRef &object_ref)
+{
+	bool is_light = false;
+	XSI::siClassID object_class = object_ref.GetClassID();
+	if (object_class == XSI::siLightID)
+	{
+		is_light = true;
+	}
+	else if (object_class == XSI::siX3DObjectID)
+	{
+		XSI::X3DObject xsi_object(object_ref);
+		XSI::CString object_type = xsi_object.GetType();
+		if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea" || object_type == "cyclesBackground")
+		{
+			is_light = true;
+		}
+	}
+
+	return is_light;
+}

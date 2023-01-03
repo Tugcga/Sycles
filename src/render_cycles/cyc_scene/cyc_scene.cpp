@@ -8,6 +8,8 @@
 #include "scene/pointcloud.h"
 #include "util/hash.h"
 
+#include <unordered_set>
+
 #include <xsi_renderercontext.h>
 #include <xsi_primitive.h>
 #include <xsi_camera.h>
@@ -726,6 +728,122 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 	update_context->add_abort_update_transform_id(xsi_id);
 }
 
+void sync_scene_object(ccl::Scene* scene,UpdateContext* update_context, const XSI::CRef &object_ref, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
+{
+	XSI::siClassID object_class = object_ref.GetClassID();
+	if (object_class == XSI::siLightID)
+	{// built-in light
+		XSI::X3DObject xsi_object(object_ref);
+		if (is_render_visible(xsi_object, eval_time))
+		{
+			XSI::Light xsi_light(xsi_object);
+			sync_xsi_light(scene, xsi_light, update_context);
+		}
+	}
+	else if (object_class == XSI::siX3DObjectID)
+	{
+		XSI::X3DObject xsi_object(object_ref);
+		ULONG xsi_id = xsi_object.GetObjectID();
+		XSI::CString object_type = xsi_object.GetType();
+
+		if (is_render_visible(xsi_object, eval_time))
+		{
+			if (object_type == "polymsh")
+			{
+				ccl::Object* mesh_object = scene->create_node<ccl::Object>();
+				ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
+				mesh_object->set_geometry(mesh_geom);
+
+				update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+				sync_transform(mesh_object, update_context, xsi_object.GetKinematics().GetGlobal());
+			}
+			else if (object_type == "hair")
+			{
+				ccl::Object* hair_object = scene->create_node<ccl::Object>();
+				// WARNING: there is a strange bug
+				// if we create cycles object inside the funciotn, then the render is crash
+				ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object);
+				hair_object->set_geometry(hair_geom);
+
+				update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+				sync_transform(hair_object, update_context, xsi_object.GetKinematics().GetGlobal());
+			}
+			else if (object_type == "pointcloud")
+			{
+				PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
+				if (pointcloud_type == PointcloudType::PointcloudType_Strands)
+				{
+					ccl::Object* strands_object = scene->create_node<ccl::Object>();
+					ccl::Hair* strands_geom = sync_strands_object(scene, strands_object, update_context, xsi_object);
+					strands_object->set_geometry(strands_geom);
+
+					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+					sync_transform(strands_object, update_context, xsi_object.GetKinematics().GetGlobal());
+				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Points)
+				{
+					ccl::Object* points_object = scene->create_node<ccl::Object>();
+					ccl::PointCloud* points_geom = sync_points_object(scene, points_object, update_context, xsi_object);
+					points_object->set_geometry(points_geom);
+
+					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+					sync_transform(points_object, update_context, xsi_object.GetKinematics().GetGlobal());
+				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
+				{
+					ccl::Object* volume_object = scene->create_node<ccl::Object>();
+					ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
+					volume_object->set_geometry(volume_geom);
+
+					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+					sync_transform(volume_object, update_context, xsi_object.GetKinematics().GetGlobal());
+				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
+				{
+					sync_poitcloud_instances(scene, update_context, xsi_object);
+				}
+				else
+				{
+
+				}
+			}
+			else if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea")
+			{
+				sync_custom_light(scene, xsi_object, update_context);
+			}
+			else if (object_type == "cyclesBackground")
+			{
+				sync_custom_background(scene, xsi_object, update_context, render_parameters, eval_time);
+			}
+			else
+			{
+				log_message("unknown x3dobject " + object_type);
+			}
+		}
+	}
+	else if (object_class == XSI::siModelID)
+	{
+		XSI::Model xsi_model(object_ref);
+		if (xsi_model.IsValid() && is_render_visible(xsi_model, eval_time))
+		{
+			XSI::siModelKind model_kind = xsi_model.GetModelKind();
+			if (model_kind == XSI::siModelKind_Instance)
+			{// this is instance model
+				// we should implement the function here, because in ohter file it produce the crash
+				sync_instance_model(scene, update_context, xsi_model);
+			}
+		}
+	}
+	else if (object_class == XSI::siCameraID || object_class == XSI::siNullID || object_class == XSI::siCameraRigID)
+	{
+		// ignore nothing to do
+	}
+	else
+	{
+		log_message("unknown object class " + XSI::CString(object_class));
+	}
+}
+
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray &all_models_list)
 {
 	RenderType render_type = update_context->get_render_type();
@@ -739,7 +857,38 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 	if (isolation_list.GetCount() > 0)
 	{// render isolation view
 		// we should use all objects from isolation list and all light objects (build-in and custom) from all objects list
+		size_t isolation_objects_count = isolation_list.GetCount();
 
+		std::unordered_set<ULONG> exported_ids;
+		for (size_t i = 0; i < isolation_objects_count; i++)
+		{
+			XSI::CRef object_ref = isolation_list[i];
+			XSI::X3DObject xsi_object(object_ref);
+			if (xsi_object.IsValid()) { exported_ids.insert(xsi_object.GetObjectID()); }
+			sync_scene_object(scene, update_context, object_ref, render_parameters, eval_time);
+		}
+
+		// but also we should add all lights from scene, if one of them is not already exported
+		// for this we should enumerate all scene objects and select only lights
+		size_t objects_count = all_x3dobjects_list.GetCount();
+		for (size_t i = 0; i < objects_count; i++)
+		{
+			XSI::CRef object_ref = all_x3dobjects_list[i];
+			bool is_ref_light = is_light(object_ref);
+			if (is_ref_light)
+			{
+				XSI::X3DObject xsi_object(object_ref);
+				ULONG xsi_id = xsi_object.GetObjectID();
+				if (!exported_ids.contains(xsi_id))
+				{
+					exported_ids.insert(xsi_id);
+					// this light object is not exported, do it now
+					sync_scene_object(scene, update_context, object_ref, render_parameters, eval_time);
+				}
+			}
+		}
+
+		exported_ids.clear();
 	}
 	else
 	{// render general scene view
@@ -748,105 +897,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 		for (size_t i = 0; i < objects_count; i++)
 		{
 			XSI::CRef object_ref = all_x3dobjects_list[i];
-			XSI::siClassID object_class = object_ref.GetClassID();
-			if (object_class == XSI::siLightID)
-			{// built-in light
-				XSI::X3DObject xsi_object(object_ref);
-				if (is_render_visible(xsi_object, eval_time))
-				{
-					XSI::Light xsi_light(xsi_object);
-					sync_xsi_light(scene, xsi_light, update_context);
-				}
-			}
-			else if (object_class == XSI::siX3DObjectID)
-			{
-				XSI::X3DObject xsi_object(object_ref);
-				ULONG xsi_id = xsi_object.GetObjectID();
-				XSI::CString object_type = xsi_object.GetType();
-
-				if (is_render_visible(xsi_object, eval_time))
-				{
-					if (object_type == "polymsh")
-					{
-						ccl::Object* mesh_object = scene->create_node<ccl::Object>();
-						ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
-						mesh_object->set_geometry(mesh_geom);
-
-						update_context->add_object_index(xsi_id, scene->objects.size() - 1);
-						sync_transform(mesh_object, update_context, xsi_object.GetKinematics().GetGlobal());
-					}
-					else if (object_type == "hair")
-					{
-						ccl::Object* hair_object = scene->create_node<ccl::Object>();
-						// WARNING: there is a strange bug
-						// if we create cycles object inside the funciotn, then the render is crash
-						ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object);
-						hair_object->set_geometry(hair_geom);
-
-						update_context->add_object_index(xsi_id, scene->objects.size() - 1);
-						sync_transform(hair_object, update_context, xsi_object.GetKinematics().GetGlobal());
-					}
-					else if (object_type == "pointcloud")
-					{
-						PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
-						if (pointcloud_type == PointcloudType::PointcloudType_Strands)
-						{
-							ccl::Object* strands_object = scene->create_node<ccl::Object>();
-							ccl::Hair* strands_geom = sync_strands_object(scene, strands_object, update_context, xsi_object);
-							strands_object->set_geometry(strands_geom);
-
-							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
-							sync_transform(strands_object, update_context, xsi_object.GetKinematics().GetGlobal());
-						}
-						else if(pointcloud_type == PointcloudType::PointcloudType_Points)
-						{
-							ccl::Object* points_object = scene->create_node<ccl::Object>();
-							ccl::PointCloud* points_geom = sync_points_object(scene, points_object, update_context, xsi_object);
-							points_object->set_geometry(points_geom);
-
-							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
-							sync_transform(points_object, update_context, xsi_object.GetKinematics().GetGlobal());
-						}
-						else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
-						{
-							ccl::Object* volume_object = scene->create_node<ccl::Object>();
-							ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
-							volume_object->set_geometry(volume_geom);
-
-							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
-							sync_transform(volume_object, update_context, xsi_object.GetKinematics().GetGlobal());
-						}
-						else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
-						{
-							sync_poitcloud_instances(scene, update_context, xsi_object);
-						}
-						else
-						{
-
-						}
-					}
-					else if (object_type == "cyclesPoint" || object_type == "cyclesSun" || object_type == "cyclesSpot" || object_type == "cyclesArea")
-					{
-						sync_custom_light(scene, xsi_object, update_context);
-					}
-					else if (object_type == "cyclesBackground")
-					{
-						sync_custom_background(scene, xsi_object, update_context, render_parameters, eval_time);
-					}
-					else
-					{
-						log_message("unknown x3dobject " + object_type);
-					}
-				}
-			}
-			else if (object_class == XSI::siCameraID || object_class == XSI::siNullID || object_class == XSI::siCameraRigID)
-			{
-				// ignore nothing to do
-			}
-			else
-			{
-				log_message("unknown object class " + XSI::CString(object_class));
-			}
+			sync_scene_object(scene, update_context, object_ref, render_parameters, eval_time);
 		}
 
 		// next iterate models
@@ -854,16 +905,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 		for (size_t i = 0; i < models_count; i++)
 		{
 			XSI::CRef xsi_model_ref = all_models_list[i];
-			XSI::Model xsi_model(xsi_model_ref);
-			if (xsi_model.IsValid() && is_render_visible(xsi_model, eval_time))
-			{
-				XSI::siModelKind model_kind = xsi_model.GetModelKind();
-				if (model_kind == XSI::siModelKind_Instance)
-				{// this is instance model
-					// we should implement the function here, because in ohter file it produce the crash
-					sync_instance_model(scene, update_context, xsi_model);
-				}
-			}
+			sync_scene_object(scene, update_context, xsi_model_ref, render_parameters, eval_time);
 		}
 	}
 
@@ -936,6 +978,8 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 	else if (object_type == "pointcloud")
 	{
 		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
+		// for pointcloud instances we does not need to update transforms
+		// because in this case we recreate the scene from scratch
 		if (pointcloud_type == PointcloudType::PointcloudType_Strands || pointcloud_type == PointcloudType::PointcloudType_Points || pointcloud_type == PointcloudType::PointcloudType_Volume)
 		{
 			XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
