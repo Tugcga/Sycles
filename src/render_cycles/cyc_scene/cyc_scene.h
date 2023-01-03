@@ -63,6 +63,7 @@ XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_materia
 XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, const XSI::CTime& eval_time);
 
 // cyc_shadeerball
+void sync_shaderball_background_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object, ShaderballType shaderball_type);
 void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject& xsi_object, int shader_index, ShaderballType shaderball_type);
 void sync_shaderball_light(ccl::Scene* scene, ShaderballType shaderball_type);
 void sync_shaderball_camera(ccl::Scene* scene, UpdateContext* update_context, ShaderballType shaderball_type);

@@ -194,18 +194,18 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 	// dof
 	if (is_camera_extension)
 	{
-		scene->camera->set_aperture_ratio(camera_property.GetParameterValue("aperture_ratio", eval_time));
+		camera->set_aperture_ratio(camera_property.GetParameterValue("aperture_ratio", eval_time));
 		XSI::X3DObject camera_interest = xsi_camera.GetInterest();
 		XSI::MATH::CVector3 interest_pos = camera_interest.GetKinematics().GetGlobal().GetTransform().GetTranslation();
 		XSI::MATH::CVector3 camera_pos = xsi_camera.GetKinematics().GetGlobal().GetTransform(eval_time).GetTranslation();
 		float focal_distance = interest_pos.SubInPlace(camera_pos).GetLength();
-		scene->camera->set_focaldistance(focal_distance);
-		scene->camera->set_aperturesize(camera_property.GetParameterValue("aperture_size", eval_time));
-		scene->camera->set_blades((int)camera_property.GetParameterValue("blades", eval_time));
-		scene->camera->set_bladesrotation(DEG2RADF((float)camera_property.GetParameterValue("blades_rotation", eval_time)));
+		camera->set_focaldistance(focal_distance);
+		camera->set_aperturesize(camera_property.GetParameterValue("aperture_size", eval_time));
+		camera->set_blades((int)camera_property.GetParameterValue("blades", eval_time));
+		camera->set_bladesrotation(DEG2RADF((float)camera_property.GetParameterValue("blades_rotation", eval_time)));
 
-		scene->camera->set_sensorwidth(camera_property.GetParameterValue("sensor_width", eval_time));
-		scene->camera->set_sensorheight(camera_property.GetParameterValue("sensor_height", eval_time));
+		camera->set_sensorwidth(camera_property.GetParameterValue("sensor_width", eval_time));
+		camera->set_sensorheight(camera_property.GetParameterValue("sensor_height", eval_time));
 	}
 
 	// transforms

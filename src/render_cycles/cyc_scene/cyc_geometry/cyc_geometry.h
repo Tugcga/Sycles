@@ -3,6 +3,8 @@
 #include <xsi_arrayparameter.h>
 #include <xsi_time.h>
 #include <xsi_x3dobject.h>
+#include <xsi_geometryaccessor.h>
+#include <xsi_polygonmesh.h>
 
 #include "scene/mesh.h"
 #include "scene/scene.h"
@@ -21,6 +23,7 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 // cyc_polymesh
 ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes, bool smooth = false);
 ccl::Mesh* build_primitive(ccl::Scene* scene, XSI::siICEShapeType shape_type);
+void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor& xsi_geo_acc, const XSI::PolygonMesh& xsi_polymesh);
 ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_polymesh(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 

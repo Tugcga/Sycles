@@ -23,6 +23,9 @@
 
 void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject &xsi_object, int shader_index, ShaderballType shaderball_type)
 {
+	// WARNING: if shaderball_type is Shader, then default hero object can be plane for some shader nodes
+	// for textures we force to use plane
+
 	ccl::Mesh* mesh = NULL;
 	if (shaderball_type == ShaderballType_Texture)
 	{// for texture use plain in xy plane
@@ -52,9 +55,11 @@ void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject &xsi_object, i
 	}
 	else
 	{// for material or shader use xsi_object
-		// use the cube
-		// mesh = build_primitive(scene, cube_vertex_count, cube_vertices, cube_faces_count, cube_face_sizes, cube_face_indexes);
-		mesh = build_primitive(scene, sphere_vertex_count, sphere_vertices, sphere_faces_count, sphere_face_sizes, sphere_face_indexes);
+		mesh = scene->create_node<ccl::Mesh>();
+		XSI::Primitive xsi_primitive = xsi_object.GetActivePrimitive();
+		XSI::PolygonMesh xsi_polymesh = xsi_primitive.GetGeometry();
+		XSI::CGeometryAccessor xsi_geo_acc = xsi_polymesh.GetGeometryAccessor();
+		sync_triangle_mesh(scene, mesh, xsi_geo_acc, xsi_polymesh);
 	}
 
 	ccl::array<ccl::Node*> used_shaders;
@@ -67,12 +72,61 @@ void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject &xsi_object, i
 	object->set_asset_name(ccl::ustring("shaderball"));
 	ccl::Transform object_tfm = ccl::transform_identity();
 
-	if (shaderball_type == ShaderballType_Material || shaderball_type == ShaderballType_SurfaceShader || shaderball_type == ShaderballType_VolumeShader)
-	{
-		object_tfm = object_tfm * ccl::transform_scale(6.0, 6.0, 6.0);
-	}
 	object->set_tfm(object_tfm);
 	scene->objects.push_back(object);
+}
+
+void sync_shaderball_background_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object, ShaderballType shaderball_type)
+{
+	if (shaderball_type != ShaderballType::ShaderballType_Texture && shaderball_type != ShaderballType::ShaderballType_Unknown)
+	{
+		// add background object only for non-txture shaderball
+		// at first get all materials
+		XSI::Primitive xsi_primitive = xsi_object.GetActivePrimitive();
+		XSI::PolygonMesh xsi_polymesh = xsi_primitive.GetGeometry();
+		XSI::CGeometryAccessor xsi_geo_acc = xsi_polymesh.GetGeometryAccessor();
+
+		XSI::CRefArray xsi_geo_materials = xsi_geo_acc.GetMaterials();
+
+		XSI::CTime eval_time = update_context->get_time();
+		std::vector<XSI::CStringArray> aovs(2);
+		aovs[0].Clear();
+		aovs[1].Clear();
+
+		ccl::array<ccl::Node*> used_shaders;
+
+		for (size_t i = 0; i < xsi_geo_materials.GetCount(); i++)
+		{
+			XSI::Material xsi_material = xsi_geo_materials[i];
+			ULONG xsi_material_id = xsi_material.GetObjectID();
+			if (!update_context->is_material_exists(xsi_material_id))
+			{
+				// sync this material
+				int shader_index = sync_material(scene, xsi_material, eval_time, aovs);
+				if (shader_index >= 0)
+				{
+					update_context->add_material_index(xsi_material_id, shader_index, ShaderballType_Unknown);
+					used_shaders.push_back_slow(scene->shaders[shader_index]);
+				}
+			}
+		}
+
+		// next create the mesh
+		ccl::Mesh* mesh = scene->create_node<ccl::Mesh>();
+
+		// does not use more general method sync_polymesh_process, because it done not necessary job
+		sync_triangle_mesh(scene, mesh, xsi_geo_acc, xsi_polymesh);
+		mesh->set_used_shaders(used_shaders);
+
+		ccl::Object* object = new ccl::Object();
+		object->set_geometry(mesh);
+		object->name = "shaderball_background";
+		object->set_asset_name(ccl::ustring("shaderball"));
+		ccl::Transform object_tfm = ccl::transform_identity();
+
+		object->set_tfm(object_tfm);
+		scene->objects.push_back(object);
+	}
 }
 
 void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, ccl::float2 area_size, ccl::float4 color, bool visible_glossy)
@@ -128,21 +182,21 @@ void sync_shaderball_light(ccl::Scene* scene, ShaderballType shaderball_type)
 	if (shaderball_type == ShaderballType_Material || shaderball_type == ShaderballType_SurfaceShader || shaderball_type == ShaderballType_VolumeShader)
 	{
 		// for materials use three are lights with hardcoded positions
-		XSI::MATH::CVector3 light_01_position(3.02, 7.71, 11.39);  // left
-		XSI::MATH::CVector3 light_02_position(3.25, 5.79, -12.79);  // right
-		XSI::MATH::CVector3 light_03_position(15.63, 2.48, -0.11);  // center
+		XSI::MATH::CVector3 light_01_position(4.681608649, 2.37621171135, 1.09074195703);  // left
+		XSI::MATH::CVector3 light_02_position(-0.900347601501, 1.80086294527, -4.24738890937);  // right
+		XSI::MATH::CVector3 light_03_position(3.80472730759, 4.11287476589, -3.82204509725);  // center
 
-		XSI::MATH::CMatrix4 light_01_matrix(0.91, 0.28, -0.29, 0.0, -0.39, 0.83, -0.39, 0.0, 0.13, 0.47, 0.87, 0.0, light_01_position.GetX(), light_01_position.GetY(), light_01_position.GetZ(), 1.0);
-		XSI::MATH::CMatrix4 light_02_matrix(-0.41, 0.86, 0.28, 0.0, 0.89, 0.33, 0.3, 0.0, 0.16, 0.37, -0.91, 0.0, light_02_position.GetX(), light_02_position.GetY(), light_02_position.GetZ(), 1.0);
-		XSI::MATH::CMatrix4 light_03_matrix(-0.31, 0.17, -0.93, 0.0, -0.1, 0.97, 0.21, 0.0, 0.94, 0.16, -0.27, 0.0, light_03_position.GetX(), light_03_position.GetY(), light_03_position.GetZ(), 1.0);
+		XSI::MATH::CMatrix4 light_01_matrix(0.285109869921, 0.138573015478, -0.948424947719, 0.0, -0.293566369241, 0.954565501039, 0.0512200261283, 0.0, 0.91243144889, 0.263822333413, 0.312836422861, 0.0, light_01_position.GetX(), light_01_position.GetY(), light_01_position.GetZ(), 1.0);
+		XSI::MATH::CMatrix4 light_02_matrix(-0.973217037833, -0.177618927199, 0.145945585655, 0.0, -0.144414184675, 0.966315765653, 0.213022027769, 0.0, -0.178866264388, 0.186240054099, - 0.966085659615, 0.0, light_02_position.GetX(), light_02_position.GetY(), light_02_position.GetZ(), 1.0);
+		XSI::MATH::CMatrix4 light_03_matrix(-0.389445327417, 0.7982058482, 0.459564751534, 0.0, 0.729921350278, -0.0368398548379, 0.68253765281, 0.0, 0.561735844825, 0.601257223653, -0.568280381189, 0.0, light_03_position.GetX(), light_03_position.GetY(), light_03_position.GetZ(), 1.0);
 
-		ccl::float2 light_01_area_size = ccl::make_float2(5.8, 20.6);
-		ccl::float2 light_02_area_size = ccl::make_float2(12.0, 4.13);
-		ccl::float2 light_03_area_size = ccl::make_float2(6.5, 1.0);
+		ccl::float2 light_01_area_size = ccl::make_float2(1.25, 7.0);
+		ccl::float2 light_02_area_size = ccl::make_float2(1.0, 7.0);
+		ccl::float2 light_03_area_size = ccl::make_float2(3.0, 4.0);
 
-		ccl::float4 light_01_color = ccl::make_float4(0.95, 1.0, 1.0, 1800);  // w - intensity for the sahder
-		ccl::float4 light_02_color = ccl::make_float4(1.0, 1.0, 0.94, 800);
-		ccl::float4 light_03_color = ccl::make_float4(1.0, 1.0, 1.0, 440);
+		ccl::float4 light_01_color = ccl::make_float4(1.0, 1.0, 1.0, 71.5);  // w - intensity for the sahder
+		ccl::float4 light_02_color = ccl::make_float4(1.0, 1.0, 1.0, 70);
+		ccl::float4 light_03_color = ccl::make_float4(1.0, 1.0, 1.0, 140);
 
 		sync_one_light(scene, light_01_matrix, light_01_area_size, light_01_color, true);
 		sync_one_light(scene, light_02_matrix, light_02_area_size, light_02_color, true);
@@ -177,12 +231,14 @@ void sync_shaderball_camera(ccl::Scene* scene, UpdateContext* update_context, Sh
 	}
 	else
 	{
-		xsi_camera_tfm = { 
-			0.0, 0.0, -1.0, 0.0,
-			-0.34, 0.94, 0.0, 0.0,
-			-0.94, -0.34, 0.0, 0.0,
-			15.68, 5.89, 0.0, 1.0
-		};
+		fov_rad = DEG2RADF(56.0);
+		
+		XSI::MATH::CTransformation camera_tfm;
+		camera_tfm.SetIdentity();
+		camera_tfm.SetTranslationFromValues(5.044413951743427, 5.510346057834283, -5.108205571845123);
+		camera_tfm.SetRotationFromXYZAnglesValues(-0.6065696235148601, 2.3624776818468876, -1.4689623295538468e-08);
+
+		xsi_matrix_to_cycles_array(xsi_camera_tfm, camera_tfm.GetMatrix4(), true);
 	}
 
 	camera->set_matrix(tweak_camera_matrix(get_transform(xsi_camera_tfm), scene->camera->get_camera_type(), scene->camera->get_panorama_type()));

@@ -321,7 +321,8 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 		}
 	}
 
-	if (shader_index >= 0) {
+	if (shader_index >= 0) 
+	{
 		update_context->add_material_index(shaderball_material_id, shader_index, shaderball_type);
 
 		// setup shaderball polymesh
@@ -349,7 +350,7 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 						else
 						{
 							// mesh is background object
-							// TODO: sync polymeshes
+							sync_shaderball_background_object(scene, update_context, xsi_object, shaderball_type);
 						}
 					}
 				}
