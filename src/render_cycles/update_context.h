@@ -6,9 +6,11 @@
 #include <xsi_light.h>
 
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "../render_cycles/cyc_session/cyc_pass_utils.h"
 #include "../render_cycles/cyc_scene/cyc_motion.h"
@@ -77,7 +79,7 @@ public:
 	void set_motion_rolling_duration(float value);
 	float get_motion_fisrt_time();
 	float get_motion_last_time();
-	const std::vector<float>& get_motion_times();
+	std::vector<float> get_motion_times();
 	float get_motion_time(size_t step);
 	size_t get_main_motion_step();  // retun index with respect to selected position (0 if at start, last if at end and middle if at center), 0 if there is no motion
 
@@ -133,6 +135,16 @@ public:
 	void add_geometry_nested_instance_data(ULONG nested_id, ULONG host_id);
 	bool is_geometry_id_to_instance_contains_id(ULONG id);
 	std::vector<ULONG> get_geometry_id_to_instance_ids(ULONG id);
+
+	void add_abort_update_transform_id(ULONG id);
+	void add_abort_update_transform_id(const XSI::CRefArray &ref_array);
+	bool is_abort_update_transform_id_exist(ULONG id);
+	void add_pointcloud_instance_id(ULONG id);
+	bool is_pointcloud_instance_exist(ULONG id);
+
+	void add_primitive_shape(XSI::siICEShapeType shape_type, size_t shader_index, size_t mesh_index);
+	bool is_primitive_shape_exists(XSI::siICEShapeType shape_type, size_t shader_index);
+	size_t get_primitive_shape(XSI::siICEShapeType shape_type, size_t shader_index);
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -223,4 +235,20 @@ private:
 	std::unordered_map<ULONG, size_t> material_xsi_to_cyc;
 	
 	std::unordered_map<ULONG, ULONG> shaderball_material_to_node;  // store map from parent material id to shader node id inside this material (only for shaderball session)
+
+	// store here ids of xsi objects
+	// if during update we should change transforms of any of these objects, then abort update and create scene from scratch
+	// use this set for update transforms of the pointcloud instances
+	// because there are problems with finding correct transform when change transform of instance root
+	std::unordered_set<ULONG> abort_update_transforms_ids;
+
+	// store here ids of pointcloud with instances
+	// if we change any parameter for this object, then recreate the scene
+	std::unordered_set<ULONG> pointcloud_instance_ids;
+
+	// key - shape type and material shader index
+	// if the same shape has another material, then create another shape
+	// value - index in the meshes array
+	// used for primitive shapes of point clouds
+	std::map<std::pair<size_t, size_t>, size_t> primitive_shape_map;
 };

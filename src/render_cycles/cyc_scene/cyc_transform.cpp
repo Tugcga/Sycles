@@ -79,7 +79,7 @@ XSI::CStatus sync_geometry_transform(ccl::Scene* scene, UpdateContext* update_co
 	}
 	else
 	{
-		//return XSI::CStatus::Abort;
+		
 	}
 
 	return XSI::CStatus::OK;

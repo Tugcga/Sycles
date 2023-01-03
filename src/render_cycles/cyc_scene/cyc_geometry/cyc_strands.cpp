@@ -368,8 +368,6 @@ ccl::Hair* sync_strands_object(ccl::Scene* scene, ccl::Object* object, UpdateCon
 
 	sync_strands_geom_process(scene, hair_geom, update_context, xsi_primitive, xsi_object, motion_deform);
 
-	sync_transform(object, update_context, xsi_object.GetKinematics().GetGlobal());
-
 	update_context->add_geometry_index(xsi_primitive_id, scene->geometry.size() - 1);
 
 	return hair_geom;

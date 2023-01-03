@@ -21,8 +21,10 @@
 void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const ULONG shaderball_displacement, const XSI::CTime& eval_time);
 bool find_scene_shaders_displacement(ccl::Scene* scene);
 void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& scene_list, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id);
+void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& children, const XSI::KinematicState& master_kine, ULONG xsi_master_object_id, const std::vector<XSI::MATH::CTransformation>& tfms_array, const std::vector<ULONG>& master_ids, ULONG object_id, bool need_motion, const std::vector<float>& motion_times, size_t main_motion_step, const XSI::CTime& eval_time);
 void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model, const std::vector<XSI::MATH::CTransformation>& override_instance_tfm_array, std::vector<ULONG> master_ids, ULONG override_root_id);
 void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model);
+void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object, const std::vector<XSI::MATH::CTransformation>& root_tfms = {});
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray& all_models_list);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 

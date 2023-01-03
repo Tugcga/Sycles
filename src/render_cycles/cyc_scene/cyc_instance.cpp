@@ -219,10 +219,12 @@ XSI::CStatus update_instance_transform_from_master_object(ccl::Scene* scene, Upd
 
 	if (update_context->is_light_id_to_instance_contains_id(xsi_master_object_id))
 	{
-		std::vector instance_ids = update_context->get_light_id_to_instance_ids(xsi_master_object_id);
+		std::vector<ULONG> instance_ids = update_context->get_light_id_to_instance_ids(xsi_master_object_id);
 		for (size_t i = 0; i < instance_ids.size(); i++)
 		{
 			ULONG xsi_instance_id = instance_ids[i];
+			if (update_context->is_abort_update_transform_id_exist(xsi_instance_id)) { return XSI::CStatus::Abort; }
+
 			XSI::ProjectItem xsi_instance_item = XSI::Application().GetObjectFromID(xsi_instance_id);
 			XSI::Model xsi_instance_model(xsi_instance_item);
 			XSI::KinematicState xsi_instance_kine = xsi_instance_model.GetKinematics().GetGlobal();
@@ -234,10 +236,12 @@ XSI::CStatus update_instance_transform_from_master_object(ccl::Scene* scene, Upd
 	}
 	else if (update_context->is_geometry_id_to_instance_contains_id(xsi_master_object_id))
 	{
-		std::vector instance_ids = update_context->get_geometry_id_to_instance_ids(xsi_master_object_id);
+		std::vector<ULONG> instance_ids = update_context->get_geometry_id_to_instance_ids(xsi_master_object_id);
 		for (size_t i = 0; i < instance_ids.size(); i++)
 		{
 			ULONG xsi_instance_id = instance_ids[i];
+			if (update_context->is_abort_update_transform_id_exist(xsi_instance_id)) { return XSI::CStatus::Abort; }
+
 			XSI::ProjectItem xsi_instance_item = XSI::Application().GetObjectFromID(xsi_instance_id);
 			XSI::Model xsi_instance_model(xsi_instance_item);
 			XSI::KinematicState xsi_instance_kine = xsi_instance_model.GetKinematics().GetGlobal();

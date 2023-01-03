@@ -299,8 +299,9 @@ def CyclesVolume_Define(in_ctxt):
 
 def CyclesPointcloud_Define(in_ctxt):
     prop = in_ctxt.Source
-    prop.AddParameter3("tip_prop", c.siFloat, 0.0, 0, 1)
-    prop.AddParameter3("primitive_pc", c.siBool, 0)
+    prop.AddParameter3("tip_prop", c.siFloat, 0.0, 0.0, 1.0)
+    prop.AddParameter3("primitive_pc", c.siBool, False)
+    prop.AddParameter3("use_pc_color", c.siBool, True)
     setup_common_properties(prop)
 
     return True
@@ -603,8 +604,10 @@ def pointcloud_ui_update(prop):
     primitive_pc = prop.Parameters("primitive_pc").Value
     if primitive_pc:
         prop.Parameters("tip_prop").ReadOnly = True
+        prop.Parameters("use_pc_color").ReadOnly = True
     else:
         prop.Parameters("tip_prop").ReadOnly = False
+        prop.Parameters("use_pc_color").ReadOnly = False
 
 
 def CyclesPointcloudPropertyBuildUI():
@@ -618,6 +621,9 @@ def CyclesPointcloudPropertyBuildUI():
     layout.EndGroup()
     layout.AddGroup("Strands")
     layout.AddItem("tip_prop", "Tip Proportion")
+    layout.EndGroup()
+    layout.AddGroup("Pointcloud")
+    layout.AddItem("use_pc_color", "Override Pointcloud Color")
     layout.EndGroup()
 
     build_common_property_ui(layout)

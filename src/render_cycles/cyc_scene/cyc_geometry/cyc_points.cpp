@@ -281,8 +281,6 @@ ccl::PointCloud* sync_points_object(ccl::Scene* scene, ccl::Object* object, Upda
 
 	sync_points_geom_process(scene, points_geom, update_context, xsi_primitive, xsi_object, motion_deform);
 
-	sync_transform(object, update_context, xsi_object.GetKinematics().GetGlobal());
-
 	update_context->add_geometry_index(xsi_primitive_id, scene->geometry.size() - 1);
 
 	return points_geom;

@@ -322,6 +322,8 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 // return OK, if object successfully updates, Abort in other cases
 XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const UpdateType update_type)
 {
+	// NOTICE: change mesh geometry force recreate the scene
+	// because the callback OnNestedObjectsChange is fired
 	log_message("update x3dobject " + xsi_object.GetFullName() + " " + XSI::CString(update_type));
 	if (!is_session)
 	{
@@ -386,6 +388,10 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 		{
 			is_update = update_volume(session->scene, update_context, xsi_object);
 		}
+		else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
+		{
+			return XSI::CStatus::Abort;
+		}
 		else
 		{
 
@@ -417,9 +423,10 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 			// for actual changes user should force update the scene
 			is_update = update_points_property(session->scene, update_context, xsi_object);
 		}
-
-		// TODO: if we change property for pointcloud with instances, then recreate the scene from scratch
-		// because it is hard to find objects for particle
+		else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
+		{
+			return XSI::CStatus::Abort;
+		}
 	}
 	else if (update_type == UpdateType_VolumeProperty)
 	{

@@ -62,6 +62,11 @@ void UpdateContext::reset()
 	xsi_geometry_id_to_instance_map.clear();
 	geometry_xsi_to_cyc.clear();
 	object_xsi_to_cyc.clear();
+
+	abort_update_transforms_ids.clear();
+	pointcloud_instance_ids.clear();
+
+	primitive_shape_map.clear();
 }
 
 void UpdateContext::set_is_update_scene(bool value)
@@ -391,7 +396,7 @@ float UpdateContext::get_motion_last_time()
 	return motion_times[motion_times.size() - 1];
 }
 
-const std::vector<float>& UpdateContext::get_motion_times()
+std::vector<float> UpdateContext::get_motion_times()
 {
 	if (get_need_motion())
 	{
@@ -399,8 +404,7 @@ const std::vector<float>& UpdateContext::get_motion_times()
 	}
 	else
 	{
-		std::vector<float> to_return = { (float)eval_time.GetTime() };
-		return to_return;
+		return  { (float)eval_time.GetTime() };
 	}
 }
 
@@ -784,4 +788,52 @@ bool UpdateContext::is_geometry_id_to_instance_contains_id(ULONG id)
 std::vector<ULONG> UpdateContext::get_geometry_id_to_instance_ids(ULONG id)
 {
 	return xsi_geometry_id_to_instance_map[id];
+}
+
+void UpdateContext::add_abort_update_transform_id(ULONG id)
+{
+	abort_update_transforms_ids.insert(id);
+}
+
+void UpdateContext::add_abort_update_transform_id(const XSI::CRefArray& ref_array)
+{
+	ULONG objects_count = ref_array.GetCount();
+	for (ULONG i = 0; i < objects_count; i++)
+	{
+		XSI::X3DObject object(ref_array[i]);
+		if (object.IsValid())
+		{
+			add_abort_update_transform_id(object.GetObjectID());
+		}
+	}
+}
+
+bool UpdateContext::is_abort_update_transform_id_exist(ULONG id)
+{
+	return abort_update_transforms_ids.contains(id);
+}
+
+void UpdateContext::add_pointcloud_instance_id(ULONG id)
+{
+	pointcloud_instance_ids.insert(id);
+}
+
+bool UpdateContext::is_pointcloud_instance_exist(ULONG id)
+{
+	return pointcloud_instance_ids.contains(id);
+}
+
+void UpdateContext::add_primitive_shape(XSI::siICEShapeType shape_type, size_t shader_index, size_t mesh_index)
+{
+	primitive_shape_map[std::make_pair(shape_type, shader_index)] = mesh_index;
+}
+
+bool UpdateContext::is_primitive_shape_exists(XSI::siICEShapeType shape_type, size_t shader_index)
+{
+	return primitive_shape_map.contains(std::make_pair(shape_type, shader_index));
+}
+
+size_t UpdateContext::get_primitive_shape(XSI::siICEShapeType shape_type, size_t shader_index)
+{
+	return primitive_shape_map[std::make_pair(shape_type, shader_index)];
 }

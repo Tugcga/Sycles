@@ -89,5 +89,6 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 	object->tag_color_modified();
 	object->tag_alpha_modified();
 
-	object->set_random_id(ccl::hash_string(object->name.c_str()));
+	XSI::CString to_hash = XSI::CString(object->name.c_str()) + "_" + XSI::CString(scene->objects.size());
+	object->set_random_id(ccl::hash_uint2(ccl::hash_string(to_hash.GetAsciiString()), 0));
 }

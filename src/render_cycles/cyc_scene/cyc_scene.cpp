@@ -6,6 +6,7 @@
 #include "scene/background.h"
 #include "scene/camera.h"
 #include "scene/pointcloud.h"
+#include "util/hash.h"
 
 #include <xsi_renderercontext.h>
 #include <xsi_primitive.h>
@@ -253,11 +254,35 @@ XSI::CRefArray gather_all_subobjects(const XSI::Model& root)
 // find all children, not only at first level
 XSI::CRefArray get_model_children(const XSI::X3DObject& xsi_object)
 {
-	XSI::CRefArray children;
 	XSI::CStringArray str_families_subobject;
-	children = xsi_object.FindChildren2("", "", str_families_subobject);
+	return xsi_object.FindChildren2("", "", str_families_subobject);
+}
 
-	return children;
+XSI::CRefArray get_instance_children(XSI::X3DObject& xsi_root, bool is_branch_selected)
+{
+	if (is_branch_selected)
+	{
+		XSI::CString xsi_object_type = xsi_root.GetType();
+		if (xsi_object_type == "#model")
+		{
+			XSI::Model xsi_model(xsi_root);
+			XSI::siModelKind model_kind = xsi_model.GetModelKind();
+			if (model_kind == XSI::siModelKind_Instance)
+			{
+				XSI::CRefArray to_return;
+				to_return.Add(xsi_root);
+				return to_return;
+			}
+		}
+
+		return get_model_children(xsi_root);
+	}
+	else
+	{
+		XSI::CRefArray to_return;
+		to_return.Add(xsi_root);
+		return to_return;
+	}
 }
 
 void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& scene_list, const XSI::CRef& shaderball_material, ShaderballType shaderball_type, ULONG shaderball_material_id)
@@ -339,6 +364,166 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 	}
 }
 
+void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& children, const XSI::KinematicState &master_kine, ULONG xsi_master_object_id, const std::vector<XSI::MATH::CTransformation> &tfms_array, const std::vector<ULONG> &master_ids, ULONG object_id, bool need_motion, const std::vector<float>& motion_times, size_t main_motion_step, const XSI::CTime& eval_time)
+{
+	for (size_t i = 0; i < children.GetCount(); i++)
+	{
+		XSI::X3DObject xsi_object(children[i]);
+		ULONG xsi_id = xsi_object.GetObjectID();
+		XSI::CString xsi_object_type = xsi_object.GetType();
+
+		std::vector<XSI::MATH::CTransformation> instance_object_tfm_array =
+			calc_instance_object_tfm(
+				master_kine,
+				xsi_object.GetKinematics().GetGlobal(),
+				tfms_array,
+				need_motion, motion_times, eval_time);
+
+		if (is_render_visible(xsi_object, eval_time))
+		{
+			if (xsi_object_type == "polymsh")
+			{
+				ccl::Object* mesh_object = scene->create_node<ccl::Object>();
+				ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
+
+				mesh_object->set_geometry(mesh_geom);
+				size_t object_index = scene->objects.size() - 1;
+				update_context->add_object_index(xsi_id, object_index);
+
+				sync_transforms(mesh_object, instance_object_tfm_array, main_motion_step);
+
+				// add data to update context about indices of masters and cycles objects
+				std::vector<ULONG> m_ids(master_ids);
+				m_ids.push_back(xsi_master_object_id);
+				m_ids.push_back(xsi_object.GetObjectID());
+				update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+			}
+			else if (xsi_object_type == "hair")
+			{
+				ccl::Object* hair_object = scene->create_node<ccl::Object>();
+				ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object);
+
+				hair_object->set_geometry(hair_geom);
+				size_t object_index = scene->objects.size() - 1;
+				update_context->add_object_index(xsi_id, object_index);
+
+				sync_transforms(hair_object, instance_object_tfm_array, main_motion_step);
+
+				std::vector<ULONG> m_ids(master_ids);
+				m_ids.push_back(xsi_master_object_id);
+				m_ids.push_back(xsi_object.GetObjectID());
+				update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+			}
+			else if (xsi_object_type == "pointcloud")
+			{
+				PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
+				if (pointcloud_type == PointcloudType::PointcloudType_Strands)
+				{
+					ccl::Object* strands_object = scene->create_node<ccl::Object>();
+					ccl::Hair* strands_geom = sync_strands_object(scene, strands_object, update_context, xsi_object);
+
+					strands_object->set_geometry(strands_geom);
+					size_t object_index = scene->objects.size() - 1;
+					update_context->add_object_index(xsi_id, object_index);
+
+					sync_transforms(strands_object, instance_object_tfm_array, main_motion_step);
+
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master_object_id);
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Points)
+				{
+					ccl::Object* points_object = scene->create_node<ccl::Object>();
+					ccl::PointCloud* point_geom = sync_points_object(scene, points_object, update_context, xsi_object);
+
+					points_object->set_geometry(point_geom);
+					size_t object_index = scene->objects.size() - 1;
+					update_context->add_object_index(xsi_id, object_index);
+
+					sync_transforms(points_object, instance_object_tfm_array, main_motion_step);
+
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master_object_id);
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
+				{
+					ccl::Object* volume_object = scene->create_node<ccl::Object>();
+					ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
+
+					volume_object->set_geometry(volume_geom);
+					size_t object_index = scene->objects.size() - 1;
+					update_context->add_object_index(xsi_id, object_index);
+
+					sync_transforms(volume_object, instance_object_tfm_array, main_motion_step);
+
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master_object_id);
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
+				{
+					sync_poitcloud_instances(scene, update_context, xsi_object, instance_object_tfm_array);
+				}
+			}
+			else if (xsi_object_type == "light")
+			{
+				// create copy of the light
+				XSI::Light xsi_light(xsi_object);
+
+				// in this method we set master object transform
+				sync_xsi_light(scene, xsi_light, update_context);
+				size_t light_index = scene->lights.size() - 1;
+				ccl::Light* light = scene->lights[light_index];
+				sync_light_tfm(light, tweak_xsi_light_transform(instance_object_tfm_array[main_motion_step], xsi_light, eval_time).GetMatrix4());
+
+				// add data to update context about indices of masters and cycles objects
+				std::vector<ULONG> m_ids(master_ids);
+				m_ids.push_back(xsi_master_object_id);
+				m_ids.push_back(xsi_object.GetObjectID());
+				update_context->add_light_instance_data(object_id, light_index, m_ids);
+			}
+			else if (xsi_object_type == "cyclesPoint" || xsi_object_type == "cyclesSun" || xsi_object_type == "cyclesSpot" || xsi_object_type == "cyclesArea")  // does not consider background, because it should be unique
+			{
+				sync_custom_light(scene, xsi_object, update_context);
+
+				size_t light_index = scene->lights.size() - 1;
+				ccl::Light* light = scene->lights[light_index];
+				sync_light_tfm(light, instance_object_tfm_array[main_motion_step].GetMatrix4());
+
+				std::vector<ULONG> m_ids(master_ids);
+				m_ids.push_back(xsi_master_object_id);
+				m_ids.push_back(xsi_object.GetObjectID());
+				update_context->add_light_instance_data(object_id, light_index, m_ids);
+			}
+			else if (xsi_object_type == "#model")
+			{
+				XSI::Model xsi_model(xsi_object);
+				XSI::siModelKind model_kind = xsi_model.GetModelKind();
+				if (model_kind == XSI::siModelKind_Instance)
+				{// this is instance inside the instance
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master_object_id);
+					m_ids.push_back(xsi_object.GetObjectID());
+					// and pass it to the sync method as real global transform fo the instanciated root object
+					sync_instance_model(scene, update_context, xsi_model, instance_object_tfm_array, m_ids, object_id);
+
+					// we should write to the update context the data about nested instance
+					update_context->add_nested_instance_data(xsi_model.GetObjectID(), object_id);
+				}
+			}
+			else
+			{
+				log_message("unknown object in instance master " + xsi_object.GetName() + " type: " + xsi_object_type);
+			}
+		}
+	}
+}
+
 // this function has three optional arguments: override_instance_tfm, master_ids and override_root_id
 // these arguments used when the instance contains nested instance
 // in this case we process this nested instance, but pass as these arguments data from the top level
@@ -361,163 +546,183 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 	// if motion is disabled, then this array contains only one transform
 	std::vector<XSI::MATH::CTransformation> instance_tfms_array = build_transforms_array(instance_model.GetKinematics().GetGlobal(), need_motion, motion_times, eval_time);
 
-	for (size_t i = 0; i < children.GetCount(); i++)
-	{
-		XSI::X3DObject xsi_object(children[i]);
-		ULONG xsi_id = xsi_object.GetObjectID();
-		XSI::CString xsi_object_type = xsi_object.GetType();
-		
-		std::vector<XSI::MATH::CTransformation> instance_object_tfm_array =
-			calc_instance_object_tfm(
-				xsi_master.GetKinematics().GetGlobal(),
-				xsi_object.GetKinematics().GetGlobal(),
-				use_override ? override_instance_tfm_array : instance_tfms_array,
-				need_motion, motion_times, eval_time);
-
-		if (is_render_visible(xsi_object, eval_time))
-		{
-			if (xsi_object_type == "polymsh")
-			{
-				ccl::Object* mesh_object = scene->create_node<ccl::Object>();
-				ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
-
-				mesh_object->set_geometry(mesh_geom);
-				size_t object_index = scene->objects.size() - 1;
-				update_context->add_object_index(xsi_id, object_index);
-
-				sync_transforms(mesh_object, instance_object_tfm_array, main_motion_step);
-
-				// add data to update context about indices of masters and cycles objects
-				std::vector<ULONG> m_ids(master_ids);
-				m_ids.push_back(xsi_master.GetObjectID());
-				m_ids.push_back(xsi_object.GetObjectID());
-				update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
-			}
-			else if (xsi_object_type == "hair")
-			{
-				ccl::Object* hair_object = scene->create_node<ccl::Object>();
-				ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object);
-
-				hair_object->set_geometry(hair_geom);
-				size_t object_index = scene->objects.size() - 1;
-				update_context->add_object_index(xsi_id, object_index);
-
-				sync_transforms(hair_object, instance_object_tfm_array, main_motion_step);
-
-				std::vector<ULONG> m_ids(master_ids);
-				m_ids.push_back(xsi_master.GetObjectID());
-				m_ids.push_back(xsi_object.GetObjectID());
-				update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
-			}
-			else if (xsi_object_type == "pointcloud")
-			{
-				PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
-				if (pointcloud_type == PointcloudType::PointcloudType_Strands)
-				{
-					ccl::Object* strands_object = scene->create_node<ccl::Object>();
-					ccl::Hair* strands_geom = sync_strands_object(scene, strands_object, update_context, xsi_object);
-
-					strands_object->set_geometry(strands_geom);
-					size_t object_index = scene->objects.size() - 1;
-					update_context->add_object_index(xsi_id, object_index);
-
-					sync_transforms(strands_object, instance_object_tfm_array, main_motion_step);
-
-					std::vector<ULONG> m_ids(master_ids);
-					m_ids.push_back(xsi_master.GetObjectID());
-					m_ids.push_back(xsi_object.GetObjectID());
-					update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
-				}
-				else if (pointcloud_type == PointcloudType::PointcloudType_Points)
-				{
-					ccl::Object* points_object = scene->create_node<ccl::Object>();
-					ccl::PointCloud* point_geom = sync_points_object(scene, points_object, update_context, xsi_object);
-
-					points_object->set_geometry(point_geom);
-					size_t object_index = scene->objects.size() - 1;
-					update_context->add_object_index(xsi_id, object_index);
-
-					sync_transforms(points_object, instance_object_tfm_array, main_motion_step);
-
-					std::vector<ULONG> m_ids(master_ids);
-					m_ids.push_back(xsi_master.GetObjectID());
-					m_ids.push_back(xsi_object.GetObjectID());
-					update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
-				}
-				else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
-				{
-					ccl::Object* volume_object = scene->create_node<ccl::Object>();
-					ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
-
-					volume_object->set_geometry(volume_geom);
-					size_t object_index = scene->objects.size() - 1;
-					update_context->add_object_index(xsi_id, object_index);
-
-					sync_transforms(volume_object, instance_object_tfm_array, main_motion_step);
-
-					std::vector<ULONG> m_ids(master_ids);
-					m_ids.push_back(xsi_master.GetObjectID());
-					m_ids.push_back(xsi_object.GetObjectID());
-					update_context->add_geometry_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), object_index, m_ids);
-				}
-			}
-			else if (xsi_object_type == "light")
-			{
-				// create copy of the light
-				XSI::Light xsi_light(xsi_object);
-
-				// in this method we set master object transform
-				sync_xsi_light(scene, xsi_light, update_context);
-				size_t light_index = scene->lights.size() - 1;
-				ccl::Light* light = scene->lights[light_index];
-				sync_light_tfm(light, tweak_xsi_light_transform(instance_object_tfm_array[main_motion_step], xsi_light, eval_time).GetMatrix4());
-
-				// add data to update context about indices of masters and cycles objects
-				std::vector<ULONG> m_ids(master_ids);
-				m_ids.push_back(xsi_master.GetObjectID());
-				m_ids.push_back(xsi_object.GetObjectID());
-				update_context->add_light_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), light_index, m_ids);
-			}
-			else if (xsi_object_type == "cyclesPoint" || xsi_object_type == "cyclesSun" || xsi_object_type == "cyclesSpot" || xsi_object_type == "cyclesArea")  // does not consider background, because it should be unique
-			{
-				sync_custom_light(scene, xsi_object, update_context);
-
-				size_t light_index = scene->lights.size() - 1;
-				ccl::Light* light = scene->lights[light_index];
-				sync_light_tfm(light, instance_object_tfm_array[main_motion_step].GetMatrix4());
-
-				std::vector<ULONG> m_ids(master_ids);
-				m_ids.push_back(xsi_master.GetObjectID());
-				m_ids.push_back(xsi_object.GetObjectID());
-				update_context->add_light_instance_data(use_override ? override_root_id : instance_model.GetObjectID(), light_index, m_ids);
-			}
-			else if (xsi_object_type == "#model")
-			{
-				XSI::Model xsi_model(xsi_object);
-				XSI::siModelKind model_kind = xsi_model.GetModelKind();
-				if (model_kind == XSI::siModelKind_Instance)
-				{// this is instance inside the instance
-					std::vector<ULONG> m_ids(master_ids);
-					m_ids.push_back(xsi_master.GetObjectID());
-					m_ids.push_back(xsi_object.GetObjectID());
-					// and pass it to the sync method as real global transform fo the instanciated root object
-					sync_instance_model(scene, update_context, xsi_model, instance_object_tfm_array, m_ids, use_override ? override_root_id : instance_model.GetObjectID());
-
-					// we should write to the update context the data about nested instance
-					update_context->add_nested_instance_data(xsi_model.GetObjectID(), use_override ? override_root_id : instance_model.GetObjectID());
-				}
-			}
-			else
-			{
-				log_message("unknown object in instance master " + xsi_object.GetName() + " type: " + xsi_object_type);
-			}
-		}
-	}
+	sync_instance_children(scene,
+		update_context, 
+		children, 
+		xsi_master.GetKinematics().GetGlobal(), 
+		xsi_master.GetObjectID(), 
+		use_override ? override_instance_tfm_array : instance_tfms_array,
+		master_ids, 
+		use_override ? override_root_id : instance_model.GetObjectID(), 
+		need_motion,
+		motion_times, 
+		main_motion_step, 
+		eval_time);
 }
 
 void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& instance_model)
 {
 	sync_instance_model(scene, update_context, instance_model, { XSI::MATH::CTransformation() }, {}, 0);
+}
+
+void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object, const std::vector<XSI::MATH::CTransformation>& root_tfms)
+{
+	XSI::CTime eval_time = update_context->get_time();
+	std::vector<float> motion_times = update_context->get_motion_times();
+	size_t motion_times_count = motion_times.size();
+
+	bool override_color = true;
+	XSI::Property pc_property;
+	bool is_property = get_xsi_object_property(xsi_object, "CyclesPointcloud", pc_property);
+	if (is_property)
+	{
+		XSI::CParameterRefArray prop_params = pc_property.GetParameters();
+		override_color = prop_params.GetValue("use_pc_color", eval_time);
+	}
+
+	// current time
+	XSI::Primitive xsi_primitive = xsi_object.GetActivePrimitive(eval_time);
+	XSI::Geometry xsi_geometry = xsi_primitive.GetGeometry(eval_time);
+
+	XSI::ICEAttribute shape_attribute = xsi_geometry.GetICEAttributeFromName("Shape");
+	XSI::CICEAttributeDataArrayShape shape_data;
+	shape_attribute.GetDataArray(shape_data);
+
+	XSI::ICEAttribute position_attribute = xsi_geometry.GetICEAttributeFromName("PointPosition");
+	XSI::CICEAttributeDataArrayVector3f position_data;
+	position_attribute.GetDataArray(position_data);
+
+	XSI::ICEAttribute orientation_attribute = xsi_geometry.GetICEAttributeFromName("Orientation");
+	XSI::CICEAttributeDataArrayRotationf rotation_data;
+	orientation_attribute.GetDataArray(rotation_data);
+
+	XSI::ICEAttribute size_attribute = xsi_geometry.GetICEAttributeFromName("Size");
+	XSI::CICEAttributeDataArrayFloat size_data;
+	size_attribute.GetDataArray(size_data);
+
+	XSI::ICEAttribute scale_attribute = xsi_geometry.GetICEAttributeFromName("Scale");
+	XSI::CICEAttributeDataArrayVector3f scale_data;
+	scale_attribute.GetDataArray(scale_data);
+
+	XSI::ICEAttribute color_attribute = xsi_geometry.GetICEAttributeFromName("Color");
+	XSI::CICEAttributeDataArrayColor4f color_data;
+	color_attribute.GetDataArray(color_data);
+
+	size_t shape_data_count = shape_data.GetCount();
+	int scale_count = scale_attribute.GetElementCount();
+	bool is_scale_define = scale_attribute.IsDefined();
+
+	std::vector<std::vector<XSI::MATH::CTransformation>> time_points_tfms = build_time_points_transforms(xsi_object, motion_times);
+
+	XSI::KinematicState pointcloud_kine = xsi_object.GetKinematics().GetGlobal();
+	bool use_root_tfm = root_tfms.size() > 0;
+	if (use_root_tfm)
+	{
+		use_root_tfm = root_tfms.size() == motion_times_count;
+	}
+	size_t export_point_index = 0;
+	for (size_t i = 0; i < shape_data_count; i++)
+	{
+		XSI::siICEShapeType shape_type = shape_data[i].GetType();
+		if (is_valid_shape(shape_type))
+		{
+			// if time_points_tfms contains only one array, then elements of this array are actual transforms for all points
+			// if it contains several arrays, then these arrays are transforms for all valid points in different times
+			// index i is index of the point in pointcloud, but it can be invalid
+			// so, we should check with export_point_index index value in predefined transforms array
+			// time_points_tfms contains array of times, each time contains array of point transforms
+			XSI::MATH::CTransformation current_point_tfm = build_point_transform(position_data[i], rotation_data[i], size_data[i], i < scale_count ? scale_data[i] : XSI::MATH::CVector3f(1.0f, 1.0f, 1.0f), is_scale_define);
+
+			std::vector<XSI::MATH::CTransformation> point_tfms(motion_times_count);
+			for (size_t t = 0; t < motion_times_count; t++)
+			{
+				// use array of transforms at time t
+				if (time_points_tfms[t].size() > export_point_index)
+				{
+					point_tfms[t] = time_points_tfms[t][export_point_index];
+				}
+				else
+				{
+					// there is no point transform at time t
+					// at time t the number of valid points less then current index export_point_index
+					// use current transform
+					// WARNING: this produce incorrect result when there are different number of particels during the time
+					// all particles rendered at the end position without motion blur
+					point_tfms[t] = current_point_tfm;
+				}
+				
+				if (use_root_tfm)
+				{
+					// if root transforms are not empty, then use it instead of real pointcloud root transfrom
+					// because it contains particles transforms
+					point_tfms[t].MulInPlace(root_tfms[t]);
+				}
+				else
+				{
+					// apply pointcloud root transform to each time transform
+					point_tfms[t].MulInPlace(xsi_object.GetKinematics().GetGlobal().GetTransform(motion_times[t]));
+				}
+			}
+
+			XSI::MATH::CColor4f point_color = color_data[i];
+
+			// increase index of exported point
+			export_point_index++;
+
+			if (shape_type == XSI::siICEShapeReference)
+			{
+				XSI::MATH::CShape shape = shape_data[i];
+				bool is_branch_selected = shape.IsBranchSelected();  // if true, then we should export the whole hierarchy, if false - then only the root object
+				ULONG shape_ref_id = shape.GetReferenceID();
+				XSI::X3DObject master_root = (XSI::X3DObject)XSI::Application().GetObjectFromID(shape_ref_id);
+
+				// now we are ready to create instance of the root object
+				XSI::CRefArray children = get_instance_children(master_root, is_branch_selected);
+				// add all children ids to abort update transforms inside update context
+				update_context->add_abort_update_transform_id(children);
+
+				size_t start_objects_index = scene->objects.size();
+				sync_instance_children(scene,  // scene
+					update_context,  // update context
+					children,  // children array
+					master_root.GetKinematics().GetGlobal(),  // masster object kine
+					master_root.GetObjectID(),  // master object id
+					point_tfms,  // array with global transforms of the instance root
+					{},  // path for nested instances, contains master ids
+					xsi_object.GetObjectID(),  // instance root object id
+					// here is a problem, because one pointcloud play the role of several root instances
+					// there are no actual instance root, because this is a point in the cloud
+					// this id used to construct the path for update instance transforms
+					update_context->get_need_motion(),  // use motion
+					update_context->get_motion_times(),  // motion times
+					update_context->get_main_motion_step(),  // main motion step
+					eval_time);
+
+				if (override_color)
+				{
+					size_t objects_count = scene->objects.size();
+					// override object colors by color from the point
+					for (size_t object_index = start_objects_index; object_index < objects_count; object_index++)
+					{
+						ccl::Object* new_object = scene->objects[object_index];
+						new_object->set_color(color4_to_float3(point_color));
+						new_object->set_alpha(point_color.GetA());
+
+						new_object->tag_color_modified();
+						new_object->tag_alpha_modified();
+					}
+				}
+			}
+			else
+			{
+				ccl::Object* point_object = scene->create_node<ccl::Object>();
+				sync_point_primitive_shape(scene, point_object, update_context, shape_type, point_color, point_tfms, xsi_object, eval_time);
+			}
+		}
+	}
+	ULONG xsi_id = xsi_object.GetObjectID();
+	update_context->add_pointcloud_instance_id(xsi_id);
+	update_context->add_abort_update_transform_id(xsi_id);
 }
 
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray &all_models_list)
@@ -567,16 +772,18 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 						mesh_object->set_geometry(mesh_geom);
 
 						update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+						sync_transform(mesh_object, update_context, xsi_object.GetKinematics().GetGlobal());
 					}
 					else if (object_type == "hair")
 					{
 						ccl::Object* hair_object = scene->create_node<ccl::Object>();
-						// TODO: there is a strange bug
+						// WARNING: there is a strange bug
 						// if we create cycles object inside the funciotn, then the render is crash
 						ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object);
 						hair_object->set_geometry(hair_geom);
 
 						update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+						sync_transform(hair_object, update_context, xsi_object.GetKinematics().GetGlobal());
 					}
 					else if (object_type == "pointcloud")
 					{
@@ -588,6 +795,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 							strands_object->set_geometry(strands_geom);
 
 							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+							sync_transform(strands_object, update_context, xsi_object.GetKinematics().GetGlobal());
 						}
 						else if(pointcloud_type == PointcloudType::PointcloudType_Points)
 						{
@@ -596,6 +804,7 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 							points_object->set_geometry(points_geom);
 
 							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+							sync_transform(points_object, update_context, xsi_object.GetKinematics().GetGlobal());
 						}
 						else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
 						{
@@ -604,6 +813,11 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 							volume_object->set_geometry(volume_geom);
 
 							update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+							sync_transform(volume_object, update_context, xsi_object.GetKinematics().GetGlobal());
+						}
+						else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
+						{
+							sync_poitcloud_instances(scene, update_context, xsi_object);
 						}
 						else
 						{
@@ -656,14 +870,15 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 	{
 		sync_background_color(scene, update_context);
 	}
-
-	//sync_demo_scene(scene, update_context);
 }
 
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object)
 {
 	XSI::CString object_type = xsi_object.GetType();
 	XSI::CTime eval_time = update_context->get_time();
+	ULONG xsi_id = xsi_object.GetObjectID();
+
+	if (update_context->is_abort_update_transform_id_exist(xsi_id)) { return XSI::CStatus::Abort; }
 
 	if (object_type == "light")
 	{// default Softimage light

@@ -31,8 +31,9 @@
 #include "../../../utilities/math.h"
 #include "../../../utilities/strings.h"
 #include "../../../render_base/type_enums.h"
+#include "../primitives_geometry.h"
 
-ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes)
+ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes, bool smooth)
 {
 	ccl::Mesh* mesh = scene->create_node<ccl::Mesh>();
 
@@ -60,13 +61,41 @@ ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices,
 			int v0 = face_indexes[index_offset];
 			int v1 = face_indexes[index_offset + j + 1];
 			int v2 = face_indexes[index_offset + j + 2];
-			mesh->add_triangle(v0, v1, v2, 0, false);
+			mesh->add_triangle(v0, v1, v2, 0, smooth);
 		}
 
 		index_offset += face_sizes[i];
 	}
 
 	return mesh;
+}
+
+ccl::Mesh* build_primitive(ccl::Scene* scene, XSI::siICEShapeType shape_type)
+{
+	if (shape_type == XSI::siICEShapeDisc)
+	{
+		return build_primitive(scene, disc_vertex_count, disc_vertices, disc_faces_count, disc_face_sizes, disc_face_indexes);
+	}
+	else if (shape_type == XSI::siICEShapeRectangle)
+	{
+		return build_primitive(scene, plane_vertex_count, plane_vertices, plane_faces_count, plane_face_sizes, plane_face_indexes);
+	}
+	else if (shape_type == XSI::siICEShapeBox)
+	{
+		return build_primitive(scene, cube_vertex_count, cube_vertices, cube_faces_count, cube_face_sizes, cube_face_indexes);
+	}
+	else if (shape_type == XSI::siICEShapeCylinder)
+	{
+		return build_primitive(scene, cylinder_vertex_count, cylinder_vertices, cylinder_faces_count, cylinder_face_sizes, cylinder_face_indexes);
+	}
+	else if (shape_type == XSI::siICEShapeCone)
+	{
+		return build_primitive(scene, cone_vertex_count, cone_vertices, cone_faces_count, cone_face_sizes, cone_face_indexes);
+	}
+	else
+	{// sphere for all other shapes
+		return build_primitive(scene, sphere_vertex_count, sphere_vertices, sphere_faces_count, sphere_face_sizes, sphere_face_indexes, true);
+	}
 }
 
 // get from SItoA
@@ -602,6 +631,7 @@ ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, Upd
 
 	XSI::Primitive xsi_primitive = xsi_object.GetActivePrimitive(eval_time);
 	ULONG xsi_polymesh_id = xsi_primitive.GetObjectID();
+	
 	if (update_context->is_geometry_exists(xsi_polymesh_id))
 	{
 		size_t geometry_index = update_context->get_geometry_index(xsi_polymesh_id);
@@ -609,9 +639,8 @@ ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, Upd
 
 		if (geometry->geometry_type == ccl::Geometry::Type::MESH)
 		{
-			ccl::Mesh* mesh_geo = static_cast<ccl::Mesh*>(geometry);
-
-			return mesh_geo;
+			ccl::Mesh* mesh_geom = static_cast<ccl::Mesh*>(geometry);
+			return mesh_geom;
 		}
 	}
 
@@ -619,9 +648,6 @@ ccl::Mesh* sync_polymesh_object(ccl::Scene* scene, ccl::Object* mesh_object, Upd
 	ccl::Mesh* mesh_geom = scene->create_node<ccl::Mesh>();
 
 	sync_polymesh_process(scene, mesh_geom, update_context, xsi_object, xsi_primitive, motion_deform, eval_time);
-
-	// transform
-	sync_transform(mesh_object, update_context, xsi_object.GetKinematics().GetGlobal());
 
 	update_context->add_geometry_index(xsi_polymesh_id, scene->geometry.size() - 1);
 

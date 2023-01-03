@@ -285,8 +285,6 @@ ccl::Volume* sync_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateCo
 
 	sync_volume_geom_process(scene, volume_geom, update_context, xsi_primitive, xsi_object);
 
-	sync_transform(object, update_context, xsi_object.GetKinematics().GetGlobal());
-
 	update_context->add_geometry_index(xsi_primitive_id, scene->geometry.size() - 1);
 
 	return volume_geom;
