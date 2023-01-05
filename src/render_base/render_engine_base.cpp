@@ -6,6 +6,9 @@
 #include <xsi_renderchannel.h>
 #include <xsi_texture.h>
 #include <xsi_shaderdef.h>
+#include <xsi_polygonmesh.h>
+#include <xsi_geometry.h>
+#include <xsi_geometryaccessor.h>
 
 #include <ctime>
 
@@ -287,7 +290,7 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 			output_channels.Add("Main");  // what actual channel we should use should be selected on the render implementation
 			output_bits.push_back(params.GetValue("imagebitdepth"));
 		}
-		//if we call rendermap with empty objects list, then nothing to do
+		// if we call rendermap with empty objects list, then nothing to do
 	}
 	else
 	{
@@ -411,6 +414,7 @@ XSI::CStatus RenderEngineBase::scene_process()
 	{
 		//get map size from the property
 		XSI::CRefArray rendermap_list = m_render_context.GetAttribute("RenderMapList");
+		bool baking_valid = true;
 		if (rendermap_list.GetCount() > 0)
 		{
 			XSI::Property rendermap_prop(rendermap_list[0]);
@@ -426,8 +430,30 @@ XSI::CStatus RenderEngineBase::scene_process()
 			image_corner_y = 0;
 			image_size_width = image_full_size_width;
 			image_size_height = image_full_size_height;
+
+			// get object for bakng
+			baking_object = rendermap_prop.GetParent3DObject();
+
+			// get uv for baking
+			XSI::Primitive primitive = baking_object.GetActivePrimitive(eval_time);
+			XSI::PolygonMesh polygonmesh = primitive.GetGeometry(XSI::siConstructionModeSecondaryShape);
+			XSI::CGeometryAccessor object_acc = polygonmesh.GetGeometryAccessor();
+			XSI::CRefArray uv_refs = object_acc.GetUVs();
+			if (baking_object.GetType() == "polymsh" && uv_refs.GetCount() > 0)
+			{
+				baking_uv = params.GetValue("uvprop");
+			}
+			else
+			{
+				baking_valid = false;
+			}
 		}
 		else
+		{
+			baking_valid = false;
+		}
+
+		if(!baking_valid)
 		{
 			image_full_size_width = 0;
 			image_full_size_height = 0;
@@ -435,6 +461,8 @@ XSI::CStatus RenderEngineBase::scene_process()
 			image_corner_y = 0;
 			image_size_width = 0;
 			image_size_height = 0;
+			baking_uv = "";
+			baking_object = XSI::X3DObject();
 		}
 	}
 	else

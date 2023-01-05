@@ -10,6 +10,7 @@
 #include "cyc_scene/cyc_labels.h"
 #include "cyc_output/color_transform_context.h"
 #include "update_context.h"
+#include "cyc_session/cyc_baking.h"
 
 class RenderEngineCyc : public RenderEngineBase 
 {
@@ -40,8 +41,10 @@ public:
 	void clear_engine();
 
 	void update_render_tile(const ccl::OutputDriver::Tile& tile);
+	void read_render_tile(const ccl::OutputDriver::Tile& tile);
 
 	void path_init(const XSI::CString &plugin_path);
+	void pre_bake();
 
 private:
 	// internal variables
@@ -55,6 +58,7 @@ private:
 	LabelsContext* labels_context;
 	ColorTransformContext* color_transform_context;
 	UpdateContext* update_context;
+	BakingContext* baking_context;
 	bool make_render;
 	bool is_recreate_session;  // if true, then we should create new session (and scene, even if the scene is not changed or properly updated)
 	XSI::CString display_pass_name;

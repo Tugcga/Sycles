@@ -21,38 +21,28 @@ options_triangle = ["Catmark Weights", 0, "Smooth Triangle Weights", 1]
 hairsType = ["Ribbon", 0, "Segments", 1, "Line Segments", 2]
 volume_space_types = ["Object", 0, "World", 1]
 
-baking_shaders = ["Position", "POSITION",
-                  "Normal", "NORMAL",
-                  "UV", "UV",
-                  "Roughness", "ROUGHNESS",
-                  # "Diffuse Color", "DIFFUSE_COLOR",
-                  # "Glossy Color", "GLOSSY_COLOR",
-                  # "Transmission Color", "TRANSMISSION_COLOR",
-                  "Emit", "EMIT",
-                  "AO", "AO",
-                  "Combined", "COMBINED",
-                  "Shadow", "SHADOW",
-                  "Diffuse", "DIFFUSE",
-                  "Glossy", "GLOSSY",
-                  "Transmission", "TRANSMISSION",
-                  "Environment", "ENVIRONMENT"]
+baking_shaders = ["Position", "Sycles Position",
+                  "Normal", "Sycles Normal",
+                  "UV", "Sycles UV",
+                  "Roughness", "Sycles Roughness",
+                  "Emit", "Sycles Emission",
+                  "AO", "Sycles AO",
+                  "Combined", "Sycles Combined",
+                  "Shadow", "Sycles Shadow",
+                  "Diffuse", "Sycles Diffuse",
+                  "Glossy", "Sycles Glossy",
+                  "Transmission", "Sycles Transmission",
+                  "Environment", "Sycles Background"]
 
 baking_extensions = ["PNG - Portable Network Graphics", "png",
-                     "TIFF - Tagged Image File Format", "tiff",
-                     "EXR - OpenEXR", "exr",
                      "BMP - Bitmap Picture", "bmp",
+                     "TGA - Truevision", "tga",
                      "JPEG - Joint Photographic Experts Group", "jpg",
-                     # "JPEG 2000", "jp2",
-                     # "Truevision TGA", "tga",
-                     # "SGI - Silicon Graphics Image", "sgi",
-                     # "IFF - Interchange File Format", "iff",
-                     # "DPX - Digital Picture Exchange", "dpx",
-                     # "FITS - Flexible Image Transport System", "fits",
+                     "PPM - Portable PixMap", "ppm",
+                     "EXR - OpenEXR", "exr",
                      "HDR - High Dynamic Range", "hdr",
-                     # "RLA - Run-Length Encoded Version A", "rla",
-                     # "PPM - Portable PixMap", "ppm",
-                     # "PFM - Portable Float Map Image", "pfm"
-                     ]
+                     "PFM - Portable Float Map Image", "pfm"
+                    ]
 
 baking_sizes = ["32x32", 0,
                 "64x64", 1,
@@ -65,6 +55,9 @@ baking_sizes = ["32x32", 0,
                 "8192x8192", 8,
                 "16384x16384", 9,
                 "32768x32768", 10]
+
+baking_view_enum = ["Above Surface", 0,
+                    "Active Camera", 1]
 
 
 def XSILoadPlugin(in_reg):
@@ -311,7 +304,7 @@ def CyclesBake_Define(in_ctxt):
     oProp = in_ctxt.Source
     oProp.AddParameter3("uv_index", c.siInt2, 0, 0, 1024, False, False)
     oProp.AddParameter3("uv_names", c.siString, "")  # does not show this parameter
-    oProp.AddParameter3("baking_shader", c.siString, "COMBINED")
+    oProp.AddParameter3("baking_shader", c.siString, "Sycles Combined")
     oProp.AddParameter3("baking_filter_direct", c.siBool, 1, 0, 1, False, False)
     oProp.AddParameter3("baking_filter_indirect", c.siBool, 1, 0, 1, False, False)
     oProp.AddParameter3("baking_filter_color", c.siBool, 1, 0, 1, False, False)
@@ -319,11 +312,13 @@ def CyclesBake_Define(in_ctxt):
     oProp.AddParameter3("baking_filter_glossy", c.siBool, 1, 0, 1, False, False)
     oProp.AddParameter3("baking_filter_transmission", c.siBool, 1, 0, 1, False, False)
     oProp.AddParameter3("baking_filter_emission", c.siBool, 1, 0, 1, False, False)
-    # oProp.AddParameter3("baking_filter_ao", c.siBool, 1, 0, 1, False, False)
+    
     oProp.AddParameter3("output_folder", c.siString, "")
     oProp.AddParameter3("output_name", c.siString, "rendermap")
     oProp.AddParameter3("output_extension", c.siString, "png")
     oProp.AddParameter3("texture_size", c.siInt2, 4, 0, 10, False, False)
+
+    oProp.AddParameter3("baking_view", c.siInt2, 0, 0, 1, False, False)
 
     return true
 
@@ -362,15 +357,56 @@ def get_object_uvs(prop):
     return baking_uvs
 
 
-def CyclesBakePropertyBuildUI():
-    prop = PPG.Inspected(0)
-    oLayout = PPG.PPGLayout
-    oLayout.Clear()
-
+def update_baking_ui(prop):
     project_path = Application.ActiveProject3()
     folder_path = prop.Parameters("output_folder").Value
     if len(folder_path) == 0:
         prop.Parameters("output_folder").Value = project_path + "\\Render_Pictures"
+
+    shader_value = prop.Parameters("baking_shader").Value
+    if shader_value in ["Sycles Background", "Sycles Roughness", "Sycles UV", "Sycles Normal", "Sycles Position", "Sycles AO"]:
+        prop.Parameters("baking_view").ReadOnly = True
+    else:
+        prop.Parameters("baking_view").ReadOnly = False
+
+    if shader_value in ["Sycles AO", "Sycles Shadow", "Sycles Normal", "Sycles Position", "Sycles UV", "Sycles Roughness", "Sycles Emission", "Sycles Background"]:
+        # no filters for these shaders
+        prop.Parameters("baking_filter_direct").ReadOnly = True
+        prop.Parameters("baking_filter_indirect").ReadOnly = True
+        prop.Parameters("baking_filter_color").ReadOnly = True
+
+        prop.Parameters("baking_filter_diffuse").ReadOnly = True
+        prop.Parameters("baking_filter_glossy").ReadOnly = True
+        prop.Parameters("baking_filter_transmission").ReadOnly = True
+        prop.Parameters("baking_filter_emission").ReadOnly = True
+    else:
+        if shader_value in ["Sycles Diffuse", "Sycles Glossy", "Sycles Transmission"]:
+            # show direct, indirect and color filters
+            prop.Parameters("baking_filter_direct").ReadOnly = False
+            prop.Parameters("baking_filter_indirect").ReadOnly = False
+            prop.Parameters("baking_filter_color").ReadOnly = False
+
+            prop.Parameters("baking_filter_diffuse").ReadOnly = True
+            prop.Parameters("baking_filter_glossy").ReadOnly = True
+            prop.Parameters("baking_filter_transmission").ReadOnly = True
+            prop.Parameters("baking_filter_emission").ReadOnly = True
+
+        else:
+            # this is combined pass, show all filters (exept color)
+            prop.Parameters("baking_filter_direct").ReadOnly = False
+            prop.Parameters("baking_filter_indirect").ReadOnly = False
+            prop.Parameters("baking_filter_color").ReadOnly = True
+
+            prop.Parameters("baking_filter_diffuse").ReadOnly = False
+            prop.Parameters("baking_filter_glossy").ReadOnly = False
+            prop.Parameters("baking_filter_transmission").ReadOnly = False
+            prop.Parameters("baking_filter_emission").ReadOnly = False
+
+
+def CyclesBakePropertyBuildUI():
+    prop = PPG.Inspected(0)
+    oLayout = PPG.PPGLayout
+    oLayout.Clear()
 
     oLayout.AddGroup("Output")
     item = oLayout.AddItem("output_folder", "Folder", c.siControlFolder)
@@ -390,33 +426,21 @@ def CyclesBakePropertyBuildUI():
     prop.Parameters("uv_names").Value = str([object_uvs[i] for i in range(0, len(object_uvs), 2)])
     oLayout.AddEnumControl("uv_index", object_uvs, "Baking UV")
     oLayout.AddEnumControl("baking_shader", baking_shaders, "Bake Type")
-    shader_value = prop.Parameters("baking_shader").Value
-    if shader_value in ["AO", "SHADOW", "NORMAL", "POSITION", "UV", "ROUGHNESS", "EMIT", "ENVIRONMENT"]:
-        # no filters for these shaders
-        pass
-    else:
-        if shader_value in ["DIFFUSE", "GLOSSY", "TRANSMISSION"]:
-            # show direct, indirect and color filters
-            oLayout.AddRow()
-            oLayout.AddItem("baking_filter_direct", "Direct")
-            oLayout.AddItem("baking_filter_indirect", "Indirect")
-            oLayout.EndRow()
-            oLayout.AddItem("baking_filter_color", "Color")
-        else:
-            # this is combined pass, show all filters (exept color)
-            oLayout.AddRow()
-            oLayout.AddItem("baking_filter_direct", "Direct")
-            oLayout.AddItem("baking_filter_indirect", "Indirect")
-            oLayout.EndRow()
-            oLayout.AddRow()
-            oLayout.AddItem("baking_filter_diffuse", "Diffuse")
-            oLayout.AddItem("baking_filter_glossy", "Glossy")
-            oLayout.EndRow()
-            oLayout.AddRow()
-            oLayout.AddItem("baking_filter_transmission", "Transmission")
-            oLayout.AddItem("baking_filter_emission", "Emission")
-            oLayout.EndRow()
-            # oLayout.AddItem("baking_filter_ao", "AO")
+    oLayout.AddEnumControl("baking_view", baking_view_enum, "View From")
+    
+    oLayout.AddItem("baking_filter_color", "Color")
+    oLayout.AddRow()
+    oLayout.AddItem("baking_filter_direct", "Direct")
+    oLayout.AddItem("baking_filter_indirect", "Indirect")
+    oLayout.EndRow()
+    oLayout.AddRow()
+    oLayout.AddItem("baking_filter_diffuse", "Diffuse")
+    oLayout.AddItem("baking_filter_glossy", "Glossy")
+    oLayout.EndRow()
+    oLayout.AddRow()
+    oLayout.AddItem("baking_filter_transmission", "Transmission")
+    oLayout.AddItem("baking_filter_emission", "Emission")
+    oLayout.EndRow()
     oLayout.EndGroup()
 
     oItem = oLayout.AddButton("bake", "Bake")
@@ -425,6 +449,7 @@ def CyclesBakePropertyBuildUI():
     oItem.SetAttribute(c.siUICY, 30)
 
     PPG.Refresh()
+    update_baking_ui(prop)
 
 
 def update_baking(prop):
@@ -445,7 +470,6 @@ def update_baking(prop):
     uv_names = eval(prop.Parameters("uv_names").Value)
     if uv_index < len(uv_names):
         Application.SetInstanceDataValue("", rendermap.FullName + ".uvprop", uv_names[uv_index])
-    # rendermap.Parameters("imageformat").Value = out_ext
     rendermap.Parameters("imagefilepath").Value = out_folder + "\\" + out_file + "." + out_ext
 
 
@@ -491,7 +515,8 @@ def CyclesBake_uv_index_OnChanged():
 
 
 def CyclesBake_baking_shader_OnChanged():
-    CyclesBakePropertyBuildUI()
+    prop = PPG.Inspected(0)
+    update_baking_ui(prop)
 
 
 def mesh_ui_update(prop):

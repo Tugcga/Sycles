@@ -13,3 +13,5 @@ void remove_temp_path(const XSI::CString& temp_path);
 std::map<int, XSI::CString> sync_image_tiles(const XSI::CString& image_path);
 
 std::vector<float> load_image(const XSI::CString& file_path, ULONG& out_width, ULONG& out_height, ULONG& out_channels, bool &out_sucess);
+bool is_ext_ldr(std::string ext);
+bool is_output_extension_supported(const XSI::CString &extension);

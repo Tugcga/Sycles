@@ -21,6 +21,8 @@
 #include "../output/write_image.h"
 #include "../utilities/arrays.h"
 #include "../utilities/files_io.h"
+#include "../utilities/math.h"
+#include "../utilities/xsi_properties.h"
 
 using namespace std::chrono_literals;
 
@@ -32,6 +34,7 @@ RenderEngineCyc::RenderEngineCyc()
 	labels_context = new LabelsContext();
 	color_transform_context = new ColorTransformContext();
 	update_context = new UpdateContext();
+	baking_context = new BakingContext();
 
 	make_render = true;
 	is_recreate_session = true;
@@ -48,6 +51,7 @@ RenderEngineCyc::~RenderEngineCyc()
 	delete labels_context;
 	delete color_transform_context;
 	delete update_context;
+	delete baking_context;
 }
 
 void RenderEngineCyc::path_init(const XSI::CString& plugin_path)
@@ -82,31 +86,35 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	// create pixel buffer
 	// we will use it for all passes
 	std::vector<float> pixels((size_t)tile_width * tile_height * 4, 0.0f);
-
 	// we should get from tile pixels for each pass and save pixels into buffers (visual or output)
-	// get at first pixels for visual
-	int visual_components = visual_buffer->get_components();
-	bool is_get = tile.get_pass_pixels(visual_buffer->get_pass_name(), visual_components, &pixels[0]);
-	if (is_get)
+	bool is_get = false;
+	if (render_type != RenderType::RenderType_Rendermap)
 	{
-		visual_buffer->add_pixels(tile_roi, pixels);
-
-		// next we should create new fragment to visualize it at the screen
-		// we does not need piszels anymore, so, we can apply color correction to this array
-		// apply color correction only to combined pass
-		if (render_type != RenderType_Shaderball && visual_buffer->get_pass_type() == ccl::PASS_COMBINED && visual_components == 4)  // actual Combined has 4 components, but lightgroups only 3
+		// use visual only for non baking render
+		// get at first pixels for visual
+		int visual_components = visual_buffer->get_components();
+		is_get = tile.get_pass_pixels(visual_buffer->get_pass_name(), visual_components, &pixels[0]);
+		if (is_get)
 		{
-			color_transform_context->apply(tile_width, tile_height, visual_components, &pixels[0]);
+			visual_buffer->add_pixels(tile_roi, pixels);
+
+			// next we should create new fragment to visualize it at the screen
+			// we does not need piszels anymore, so, we can apply color correction to this array
+			// apply color correction only to combined pass
+			if (render_type != RenderType_Shaderball && visual_buffer->get_pass_type() == ccl::PASS_COMBINED && visual_components == 4)  // actual Combined has 4 components, but lightgroups only 3
+			{
+				color_transform_context->apply(tile_width, tile_height, visual_components, &pixels[0]);
+			}
+
+			// for shaderball rendering apply simple sRGB
+			// for all other cases use OCIO
+			m_render_context.NewFragment(RenderTile(offset_x + image_corner_x, offset_y + image_corner_y, tile_width, tile_height, pixels, render_type == RenderType_Shaderball, visual_components));
+
 		}
-
-		// for shaderball rendering apply simple sRGB
-		// for all other cases use OCIO
-		m_render_context.NewFragment(RenderTile(offset_x + image_corner_x, offset_y + image_corner_y, tile_width, tile_height, pixels, render_type == RenderType_Shaderball, visual_components));
-
-	}
-	else
-	{
-		log_message("Fails to get pixels for input render tile", XSI::siErrorMsg);
+		else
+		{
+			log_message("Fails to get pixels for input render tile", XSI::siErrorMsg);
+		}
 	}
 
 	// and next for each output pass
@@ -125,6 +133,30 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 			log_message("Fails to get pixels of the pass " + XSI::CString(pass_name.c_str()) + " for input render tile", XSI::siErrorMsg);
 		}
 	}
+}
+
+// called in baking process by the Cycles engine
+// when the scene is prepare for render
+void RenderEngineCyc::read_render_tile(const ccl::OutputDriver::Tile& tile)
+{
+	int x = tile.offset.x;
+	int y = tile.offset.y;
+	int w = tile.size.x;
+	int h = tile.size.y;
+
+	ccl::vector<float> pixels(static_cast<size_t>(w) * h * 4);
+	OIIO::ROI rect = OIIO::ROI(x, x + w, y, y + h);
+
+	// PASS_BAKE_PRIMITIVE
+	baking_context->get_buffer_primitive_id()->get_pixels(rect, OIIO::TypeDesc::FLOAT, &pixels[0]);
+	bool is_primitive = tile.set_pass_pixels("BakePrimitive", 4, &pixels[0]);
+
+	// PASS_BAKE_DIFFERENTIAL
+	baking_context->get_buffer_differencial()->get_pixels(rect, OIIO::TypeDesc::FLOAT, &pixels[0]);
+	bool is_differential = tile.set_pass_pixels("BakeDifferential", 4, &pixels[0]);
+
+	pixels.clear();
+	pixels.shrink_to_fit();
 }
 
 void RenderEngineCyc::postrender_visual_output()
@@ -186,6 +218,100 @@ void RenderEngineCyc::progress_cancel_callback()
 	}
 }
 
+void RenderEngineCyc::pre_bake()
+{
+	// here we should only set output paths and formats
+	if (baking_object.IsValid() && baking_uv.Length() > 0)
+	{
+		baking_context->make_valid();
+		baking_context->set_use_camera(false);
+		XSI::Property bake_prop;
+		bool is_bake_prop = get_xsi_object_property(baking_object, "CyclesBake", bake_prop);
+		if (is_bake_prop)
+		{
+			XSI::CParameterRefArray prop_params = bake_prop.GetParameters();
+			// there is a baking custom property
+			image_full_size_width = powi(2, 5 + (int)(prop_params.GetValue("texture_size", eval_time)));
+			image_full_size_height = image_full_size_width;
+			image_size_width = image_full_size_width;
+			image_size_height = image_full_size_width;
+
+			baking_context->set_use_camera(((int)prop_params.GetValue("baking_view", eval_time)) == 1);
+
+			XSI::CString out_file = prop_params.GetValue("output_name", eval_time);
+			XSI::CString out_folder = prop_params.GetValue("output_folder", eval_time);
+			XSI::CString out_ext = prop_params.GetValue("output_extension", eval_time);
+
+			output_paths.Clear();
+			output_paths.Add(out_folder + "\\" + out_file + "." + out_ext);
+			output_formats.Clear();
+			output_formats.Add(out_ext);
+
+			// we support pfm(3, hdr), ppm(3, ldr), exr(3-4, hdr), png(3-4, ldr), bmp(3, ldr), tga(3, ldr), jpg(3, ldr), hdr(3, hdr)
+			output_bits.clear();
+			if (out_ext == "pfm" || out_ext == "exr" || out_ext == "hdr")
+			{
+				output_bits.push_back(21);
+			}
+			else
+			{
+				output_bits.push_back(3);
+			}
+			output_data_types.Clear();
+			if (out_ext == "png" || out_ext == "exr")
+			{
+				output_data_types.Add("RGBA");
+			}
+			else
+			{
+				output_data_types.Add("RGB");
+			}
+
+			output_channels.Clear();
+			output_channels.Add(prop_params.GetValue("baking_shader", eval_time));
+
+			// also setup bake pass keys
+			baking_context->set_keys(prop_params.GetValue("baking_filter_direct", eval_time),
+				prop_params.GetValue("baking_filter_indirect", eval_time),
+				prop_params.GetValue("baking_filter_color", eval_time),
+				prop_params.GetValue("baking_filter_diffuse", eval_time),
+				prop_params.GetValue("baking_filter_glossy", eval_time),
+				prop_params.GetValue("baking_filter_transmission", eval_time),
+				prop_params.GetValue("baking_filter_emission", eval_time));
+		}
+		else
+		{
+			// no custom property
+			// check output extension
+			for (ULONG i = 0; i < output_paths.GetCount(); i++)
+			{
+				XSI::CString format = output_formats[i];
+				XSI::CString output_path = output_paths[i];
+				if (!is_output_extension_supported(format))
+				{
+					// change output format to exr
+					log_message("Invalid image extension " + format + " for output rendermap. Change it to exr.", XSI::siWarningMsg);
+					ULONG dot_index = output_path.ReverseFindString(".");
+					output_paths[i] = output_path.GetSubString(0, dot_index) + ".exr";
+					output_formats[i] = "exr";
+					output_bits[i] = 21;
+					output_data_types[i] = "RGBA";
+				}
+
+				output_channels[i] = "Main";
+			}
+
+			baking_context->set_keys(true, true, true, true, true, true, true);
+		}
+	}
+	else
+	{
+		// bake object is invalid
+		// so, nothing to bake
+		baking_context->make_invalid();
+	}
+}
+
 // nothing to do here
 XSI::CStatus RenderEngineCyc::pre_render_engine()
 {
@@ -207,6 +333,17 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		is_recreate_session = true;
 	}
 
+	// create baking context at the start
+	// the scene will be create from scratch, this is the rule of the base implementation
+	baking_context->reset();
+
+	if (render_type == RenderType::RenderType_Rendermap)
+	{
+		// in base implementation we get several parameters from default rendermap property
+		// here we can upgrade it by using custom property and setup additional parameters for cycles rendering
+		pre_bake();
+	}
+
 	update_context->set_current_render_parameters(m_render_parameters);
 	update_context->set_image_size(image_full_size_width, image_full_size_height);
 	update_context->set_camera(camera);
@@ -220,10 +357,13 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	output_context->set_render_type(render_type);
 	output_context->set_output_size((ULONG)image_size_width, (ULONG)image_size_height);
 	output_context->set_output_formats(output_paths, output_formats, output_data_types, output_channels, output_bits, eval_time);
-	output_context->set_cryptomatte_settings((bool)m_render_parameters.GetValue("output_crypto_object", eval_time),
-		(bool)m_render_parameters.GetValue("output_crypto_material", eval_time),
-		(bool)m_render_parameters.GetValue("output_crypto_asset", eval_time),
-		(int)m_render_parameters.GetValue("output_crypto_levels", eval_time));
+	if (render_type == RenderType::RenderType_Pass)
+	{
+		output_context->set_cryptomatte_settings((bool)m_render_parameters.GetValue("output_crypto_object", eval_time),
+			(bool)m_render_parameters.GetValue("output_crypto_material", eval_time),
+			(bool)m_render_parameters.GetValue("output_crypto_asset", eval_time),
+			(int)m_render_parameters.GetValue("output_crypto_levels", eval_time));
+	}
 	// actual passes will be setup after scene sync
 
 	color_transform_context->update(m_render_parameters, eval_time);
@@ -536,6 +676,11 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	else
 	{
 		sync_scene(session->scene, update_context, m_isolation_list, m_lights_list, XSI::Application().FindObjects(XSI::siX3DObjectID), XSI::Application().FindObjects(XSI::siModelID));
+		if (render_type == RenderType::RenderType_Rendermap && baking_context->get_is_valid())
+		{
+			sync_baking(session->scene, update_context, baking_context, baking_object, baking_uv, image_full_size_width, image_full_size_height);
+		}
+
 	}
 	is_update_camera = true;
 
@@ -618,7 +763,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			m_render_parameters, eval_time);
 
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
-		sync_passes(session->scene, output_context, visual_buffer, update_context->get_motion_type(), update_context->get_lightgropus(), update_context->get_color_aovs(), update_context->get_value_aovs());
+		sync_passes(session->scene, output_context, baking_context, visual_buffer, update_context->get_motion_type(), update_context->get_lightgropus(), update_context->get_color_aovs(), update_context->get_value_aovs());
 
 		if (update_context->is_changed_render_paramters_film(changed_render_parameters))
 		{
@@ -628,7 +773,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 
 		if (update_context->is_changed_render_paramters_integrator(changed_render_parameters))
 		{
-			sync_integrator(session, update_context, m_render_parameters, render_type, get_input_config());
+			sync_integrator(session, update_context, baking_context, m_render_parameters, render_type, get_input_config());
 		}
 
 		if (render_type == RenderType_Shaderball || update_context->is_change_render_parameters_shaders(changed_render_parameters))
@@ -726,6 +871,19 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 
 	// clear output context object
 	output_context->reset();
+
+	// reset baking, and also clear the scene
+	// next render will be from scratch
+	// WARNING: there is ono-critical bag here
+	// if we use baking, then it does not properly unload addon dll from the memory when we manually request it
+	// but after close Softimage, it unload it properly
+	bool is_clear = baking_context->get_is_valid();
+	if (is_clear)
+	{
+		clear_session();
+	}
+	baking_context->reset();
+
 
 	return XSI::CStatus::OK;
 }

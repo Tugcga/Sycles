@@ -3,6 +3,8 @@
 
 #include "scene/pass.h"
 
+#include "cyc_baking.h"
+
 // implemented in cyc_pass
 XSI::CString get_name_for_motion_display_channel();
 XSI::CString get_name_for_motion_output_channel();
@@ -17,3 +19,4 @@ ccl::PassType channel_to_pass_type(const XSI::CString& channel_name);
 XSI::CString pass_to_name(ccl::PassType pass_type);
 // return the number of components in the output for given pass type
 int get_pass_components(ccl::PassType pass_type, bool is_lightgroup);
+ccl::PassType convert_baking_pass(ccl::PassType input_pass, BakingContext* baking_context);

@@ -46,6 +46,9 @@ public:
 	int image_full_size_width;
 	int image_full_size_height;
 
+	XSI::X3DObject baking_object;
+	XSI::CString baking_uv;  // the name of uv for baking
+
 	double start_prepare_render_time;
 	double start_render_time;
 	double finish_render_time;

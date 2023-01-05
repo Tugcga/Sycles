@@ -64,7 +64,6 @@ void UpdateContext::reset()
 	object_xsi_to_cyc.clear();
 
 	abort_update_transforms_ids.clear();
-	pointcloud_instance_ids.clear();
 
 	primitive_shape_map.clear();
 }
@@ -811,16 +810,6 @@ void UpdateContext::add_abort_update_transform_id(const XSI::CRefArray& ref_arra
 bool UpdateContext::is_abort_update_transform_id_exist(ULONG id)
 {
 	return abort_update_transforms_ids.contains(id);
-}
-
-void UpdateContext::add_pointcloud_instance_id(ULONG id)
-{
-	pointcloud_instance_ids.insert(id);
-}
-
-bool UpdateContext::is_pointcloud_instance_exist(ULONG id)
-{
-	return pointcloud_instance_ids.contains(id);
 }
 
 void UpdateContext::add_primitive_shape(XSI::siICEShapeType shape_type, size_t shader_index, size_t mesh_index)

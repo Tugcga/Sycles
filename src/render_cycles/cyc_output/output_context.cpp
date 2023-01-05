@@ -8,6 +8,7 @@
 #include "../../utilities/strings.h"
 #include "../../utilities/math.h"
 #include "../../output/write_image.h"
+#include "../cyc_session/cyc_baking.h"
 
 OutputContext::OutputContext()
 {
@@ -364,7 +365,7 @@ void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CStrin
 
 // this method calls after we sync the scene, but before we setup all render passes
 // data from the object after this method is used for setting all render passes
-void OutputContext::set_output_passes(MotionSettingsType motion_type, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
+void OutputContext::set_output_passes(BakingContext* baking_context, MotionSettingsType motion_type, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
 {
 	output_passes_count = 0;
 	output_pass_types.clear();
@@ -395,6 +396,13 @@ void OutputContext::set_output_passes(MotionSettingsType motion_type, const XSI:
 		XSI::CString output_channel_name = replace_symbols(output_channels[i], "_", " ");
 		bool is_lightgroup = output_channel_name == "Sycles Lightgroup";
 		ccl::PassType pass_type = channel_to_pass_type(output_channel_name);  // convert from XSI channel name to Cycles pass type
+		if (baking_context->get_is_valid())  // valid means that the rendr type is rendermap
+		{
+			// we add the pass in the baking rendering
+			// we should convert the pass with respect to selected keys
+			pass_type = convert_baking_pass(pass_type, baking_context);
+		}
+
 		// for lightgroups pass type is Combined
 		if (motion_type == MotionType_Blur && pass_type == ccl::PASS_MOTION)
 		{
@@ -404,7 +412,7 @@ void OutputContext::set_output_passes(MotionSettingsType motion_type, const XSI:
 
 		if (pass_type != ccl::PASS_NONE && output_paths[i].Length() > 0)
 		{
-			XSI::CString pass_name = pass_to_name(pass_type);  // cover from Cycles pass type to the standart name (PASS_COMBINED -> Combined, for example)
+			XSI::CString pass_name = pass_to_name(pass_type);  // convert from Cycles pass type to the standart name (PASS_COMBINED -> Combined, for example)
 			int pass_components = get_pass_components(pass_type, is_lightgroup);
 			total_components += pass_components;
 

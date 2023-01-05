@@ -724,7 +724,6 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 		}
 	}
 	ULONG xsi_id = xsi_object.GetObjectID();
-	update_context->add_pointcloud_instance_id(xsi_id);
 	update_context->add_abort_update_transform_id(xsi_id);
 }
 

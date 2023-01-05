@@ -25,5 +25,6 @@ void XSIOutputDriver::write_render_tile(const Tile& tile)
 
 bool XSIOutputDriver::read_render_tile(const Tile& tile)
 {
+    m_cycles_render->read_render_tile(tile);
     return true;
 }

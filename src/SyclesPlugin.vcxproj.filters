@@ -153,6 +153,9 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_ice_volume_loader.cpp">
       <Filter>render_cycles\cyc_scene\cyc_loaders</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_session\cyc_baking.cpp">
+      <Filter>render_cycles\cyc_session</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -322,6 +325,9 @@
     </ClInclude>
     <ClInclude Include="utilities\io_exr.h">
       <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_session\cyc_baking.h">
+      <Filter>render_cycles\cyc_session</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

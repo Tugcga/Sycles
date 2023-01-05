@@ -99,6 +99,7 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_scene.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_shaderball.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_transform.cpp" />
+    <ClCompile Include="render_cycles\cyc_session\cyc_baking.cpp" />
     <ClCompile Include="render_cycles\cyc_session\cyc_film.cpp" />
     <ClCompile Include="render_cycles\cyc_session\cyc_integrator.cpp" />
     <ClCompile Include="render_cycles\cyc_session\cyc_pass.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="render_cycles\cyc_scene\cyc_motion.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_scene.h" />
     <ClInclude Include="render_cycles\cyc_scene\primitives_geometry.h" />
+    <ClInclude Include="render_cycles\cyc_session\cyc_baking.h" />
     <ClInclude Include="render_cycles\cyc_session\cyc_pass_utils.h" />
     <ClInclude Include="render_cycles\cyc_session\cyc_session.h" />
     <ClInclude Include="render_cycles\render_engine_cyc.h" />

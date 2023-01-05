@@ -48,3 +48,4 @@ XSI::MATH::CColor4f interpolate_color(const XSI::MATH::CColor4f& color1, const X
 
 ccl::array<int> exctract_tiles(const std::map<int, XSI::CString>& tile_to_path_map);
 std::vector<float> flip_pixels(float* input, ULONG width, ULONG height, ULONG channels);
+int powi(int base, unsigned int exp);

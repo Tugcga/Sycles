@@ -28,20 +28,6 @@ OIIO::TypeDesc xsi_key_to_data_type(int key)
 	else { return OIIO::TypeDesc::UINT8; }
 }
 
-// return true if extension corresponds to the ldr image format,
-// flase if it hdr
-bool is_ext_ldr(std::string ext)
-{
-	if (ext == "png" || ext == "bmp" || ext == "tga" || ext == "jpg" || ext == "ppm")
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 void write_output_ppm(size_t width, size_t height, size_t components, const std::string &file_path, float* output_pixels)
 {
 	std::ofstream file(file_path);

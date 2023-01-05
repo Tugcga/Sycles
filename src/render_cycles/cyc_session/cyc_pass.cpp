@@ -8,6 +8,7 @@
 #include "../../utilities/logs.h"
 #include "../cyc_output/output_context.h"
 #include "../../render_base/render_visual_buffer.h"
+#include "cyc_baking.h"
 
 XSI::CString add_prefix_to_aov_name(const XSI::CString &name, bool is_color)
 {
@@ -104,13 +105,17 @@ ccl::PassType channel_to_pass_type(const XSI::CString &channel_name)
 {
     if (channel_name == "Sycles Combined" || channel_name == "Main") { return ccl::PASS_COMBINED; }
     else if (channel_name == "Sycles Depth") { return ccl::PASS_DEPTH; }
+    else if (channel_name == "Sycles Roughness") { return ccl::PASS_ROUGHNESS; }
     else if (channel_name == "Sycles Position") { return ccl::PASS_POSITION; }
     else if (channel_name == "Sycles Normal") { return ccl::PASS_NORMAL; }
     else if (channel_name == "Sycles UV") { return ccl::PASS_UV; }
     else if (channel_name == "Sycles Object ID") { return ccl::PASS_OBJECT_ID; }
     else if (channel_name == "Sycles Material ID") { return ccl::PASS_MATERIAL_ID; }
+    else if (channel_name == "Sycles Diffuse") { return ccl::PASS_DIFFUSE; }
     else if (channel_name == "Sycles Diffuse Color") { return ccl::PASS_DIFFUSE_COLOR; }
+    else if (channel_name == "Sycles Glossy") { return ccl::PASS_GLOSSY; }
     else if (channel_name == "Sycles Glossy Color") { return ccl::PASS_GLOSSY_COLOR; }
+    else if (channel_name == "Sycles Transmission") { return ccl::PASS_TRANSMISSION; }
     else if (channel_name == "Sycles Transmission Color") { return ccl::PASS_TRANSMISSION_COLOR; }
     else if (channel_name == "Sycles Diffuse Indirect") { return ccl::PASS_DIFFUSE_INDIRECT; }
     else if (channel_name == "Sycles Glossy Indirect") { return ccl::PASS_GLOSSY_INDIRECT; }
@@ -258,6 +263,36 @@ XSI::CString pass_to_name(ccl::PassType pass_type)
     return "Unknown";
 }
 
+ccl::PassType convert_baking_pass(ccl::PassType input_pass, BakingContext* baking_context)
+{
+    bool is_direct = baking_context->get_key_is_direct();
+    bool is_indirect = baking_context->get_key_is_indirect();
+    if (input_pass == ccl::PASS_DIFFUSE)
+    {
+        if (is_direct && is_indirect) { return ccl::PASS_DIFFUSE; }
+        else if (is_direct) { return ccl::PASS_DIFFUSE_DIRECT; }
+        else if (is_indirect) { return ccl::PASS_DIFFUSE_INDIRECT; }
+        else { return ccl::PASS_DIFFUSE_COLOR; }
+    }
+    else if (input_pass == ccl::PASS_GLOSSY)
+    {
+        if (is_direct && is_indirect) { return ccl::PASS_GLOSSY; }
+        else if (is_direct) { return ccl::PASS_GLOSSY_DIRECT; }
+        else if (is_indirect) { return ccl::PASS_GLOSSY_INDIRECT; } else { return ccl::PASS_GLOSSY_COLOR; }
+    }
+    else if (input_pass == ccl::PASS_TRANSMISSION)
+    {
+        if (is_direct && is_indirect) { return ccl::PASS_TRANSMISSION; }
+        else if (is_direct) { return ccl::PASS_TRANSMISSION_DIRECT; }
+        else if (is_indirect) { return ccl::PASS_TRANSMISSION_INDIRECT; }
+        else { return ccl::PASS_TRANSMISSION_COLOR; }
+    }
+    else
+    {
+        return input_pass;
+    }
+}
+
 bool is_aov_name_correct(const XSI::CString& pass_name, const XSI::CStringArray& aovs)
 {
     for (size_t i = 0; i < aovs.GetCount(); i++)
@@ -333,14 +368,14 @@ void check_visual_aov_lightgroup_name(RenderVisualBuffer* visual_buffer, const X
     }
 }
 
-void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualBuffer *visual_buffer, MotionSettingsType motion_type, const XSI::CStringArray &lightgroups, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
+void sync_passes(ccl::Scene* scene, OutputContext* output_context, BakingContext* baking_context, RenderVisualBuffer *visual_buffer, MotionSettingsType motion_type, const XSI::CStringArray &lightgroups, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
 {
     // if visual pass is aov, then check that the name of the pass is correct
     check_visual_aov_lightgroup_name(visual_buffer, aov_color_names, aov_value_names, lightgroups);
 
     // here we call the main method in output contex
     // and setup all output passes, buffers, pixels and so on
-    output_context->set_output_passes(motion_type, aov_color_names, aov_value_names, lightgroups);
+    output_context->set_output_passes(baking_context, motion_type, aov_color_names, aov_value_names, lightgroups);
 
     // sync passes
     bool use_shadow_catcher = false;
@@ -375,7 +410,12 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, RenderVisualB
         {
             exported_names.insert(output_name);
             ccl::PassType new_pass_type = output_context->get_output_pass_type(i);
-            pass_add(scene, new_pass_type, output_name);
+            ccl::Pass* pass = pass_add(scene, new_pass_type, output_name);
+            if (baking_context->get_is_valid())  // use valid baking context as identifier of the rendermap render process
+            {
+                pass->set_include_albedo(baking_context->get_key_is_color());
+                baking_context->set_pass_type(new_pass_type);  // will use it later in sync integrator
+            }
             if (new_pass_type == ccl::PASS_SHADOW_CATCHER)
             {
                 use_shadow_catcher = true;

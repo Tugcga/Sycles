@@ -8,8 +8,9 @@
 #include "../../utilities/math.h"
 #include "../../utilities/logs.h"
 #include "../../input/input.h"
+#include "cyc_baking.h"
 
-void sync_integrator(ccl::Session* session, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const InputConfig &input_config)
+void sync_integrator(ccl::Session* session, UpdateContext* update_context, BakingContext* baking_context, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const InputConfig &input_config)
 {
 	ccl::Integrator* integrator = session->scene->integrator;
 	XSI::CTime eval_time = update_context->get_time();
@@ -117,6 +118,19 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, const
 		integrator->set_use_surface_guiding(render_parameters.GetValue("sampling_path_guiding_surface", eval_time));
 		integrator->set_use_volume_guiding(render_parameters.GetValue("sampling_path_guiding_volume", eval_time));
 		integrator->set_guiding_training_samples(render_parameters.GetValue("sampling_path_guiding_training_samples", eval_time));
+	}
+
+	if (render_type == RenderType::RenderType_Rendermap && baking_context->get_is_valid())
+	{
+		if (baking_context->get_pass_type() == ccl::PASS_COMBINED)
+		{
+			integrator->set_use_direct_light(baking_context->get_key_is_direct());
+			integrator->set_use_indirect_light(baking_context->get_key_is_indirect());
+			integrator->set_use_diffuse(baking_context->get_key_is_diffuse());
+			integrator->set_use_glossy(baking_context->get_key_is_glossy());
+			integrator->set_use_transmission(baking_context->get_key_is_transmission());
+			integrator->set_use_emission(baking_context->get_key_is_emit());
+		}
 	}
 
 	integrator->tag_update(session->scene, ccl::Integrator::UPDATE_ALL);

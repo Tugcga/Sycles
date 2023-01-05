@@ -12,7 +12,6 @@
 #include <vector>
 #include <tuple>
 
-#include "../render_cycles/cyc_session/cyc_pass_utils.h"
 #include "../render_cycles/cyc_scene/cyc_motion.h"
 #include "../render_base/type_enums.h"
 #include "cyc_scene/cyc_loaders/cyc_loaders.h"
@@ -139,8 +138,6 @@ public:
 	void add_abort_update_transform_id(ULONG id);
 	void add_abort_update_transform_id(const XSI::CRefArray &ref_array);
 	bool is_abort_update_transform_id_exist(ULONG id);
-	void add_pointcloud_instance_id(ULONG id);
-	bool is_pointcloud_instance_exist(ULONG id);
 
 	void add_primitive_shape(XSI::siICEShapeType shape_type, size_t shader_index, size_t mesh_index);
 	bool is_primitive_shape_exists(XSI::siICEShapeType shape_type, size_t shader_index);
@@ -241,10 +238,6 @@ private:
 	// use this set for update transforms of the pointcloud instances
 	// because there are problems with finding correct transform when change transform of instance root
 	std::unordered_set<ULONG> abort_update_transforms_ids;
-
-	// store here ids of pointcloud with instances
-	// if we change any parameter for this object, then recreate the scene
-	std::unordered_set<ULONG> pointcloud_instance_ids;
 
 	// key - shape type and material shader index
 	// if the same shape has another material, then create another shape

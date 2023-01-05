@@ -193,3 +193,29 @@ std::vector<float> load_image(const XSI::CString &file_path, ULONG&out_width, UL
 
 	return std::vector<float>(0);
 }
+
+// return true if extension corresponds to the ldr image format,
+// flase if it hdr
+bool is_ext_ldr(std::string ext)
+{
+	if (ext == "png" || ext == "bmp" || ext == "tga" || ext == "jpg" || ext == "ppm")
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool is_output_extension_supported(const XSI::CString& extension)
+{
+	if (extension == "pfm" || extension == "ppm" || extension == "exr" || extension == "png" || extension == "bmp" || extension == "tga" || extension == "jpg" || extension == "hdr")
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}

@@ -321,3 +321,18 @@ std::vector<float> flip_pixels(float* input, ULONG width, ULONG height, ULONG ch
 
 	return out_pixels;
 }
+
+int powi(int base, unsigned int exp)
+{
+	int res = 1;
+	while (exp) 
+	{
+		if (exp & 1)
+		{
+			res *= base;
+		}
+		exp >>= 1;
+		base *= base;
+	}
+	return res;
+}
