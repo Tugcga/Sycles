@@ -50,6 +50,8 @@ public:
 	std::vector<std::string> get_crypto_keys();
 	std::vector<std::string> get_crypto_values();
 
+	XSI::CString get_first_nonempty_path();
+
 	bool add_output_pixels(ccl::ROI roi, int index, std::vector<float> &pixels);
 
 	void set_output_size(ULONG width, ULONG height);

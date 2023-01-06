@@ -156,6 +156,9 @@
     <ClCompile Include="render_cycles\cyc_session\cyc_baking.cpp">
       <Filter>render_cycles\cyc_session</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_output\series_context.cpp">
+      <Filter>render_cycles\cyc_output</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -328,6 +331,9 @@
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_session\cyc_baking.h">
       <Filter>render_cycles\cyc_session</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_output\series_context.h">
+      <Filter>render_cycles\cyc_output</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

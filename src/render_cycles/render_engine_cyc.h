@@ -11,6 +11,7 @@
 #include "cyc_output/color_transform_context.h"
 #include "update_context.h"
 #include "cyc_session/cyc_baking.h"
+#include "cyc_output/series_context.h"
 
 class RenderEngineCyc : public RenderEngineBase 
 {
@@ -59,6 +60,8 @@ private:
 	ColorTransformContext* color_transform_context;
 	UpdateContext* update_context;
 	BakingContext* baking_context;
+	SeriesContext* series_context;
+	int rendered_samples;
 	bool make_render;
 	bool is_recreate_session;  // if true, then we should create new session (and scene, even if the scene is not changed or properly updated)
 	XSI::CString display_pass_name;

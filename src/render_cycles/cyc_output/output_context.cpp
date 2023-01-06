@@ -321,6 +321,20 @@ std::vector<std::string> OutputContext::get_crypto_values()
 	return crypto_values;
 }
 
+XSI::CString OutputContext::get_first_nonempty_path()
+{
+	for (size_t i = 0; i < output_paths.GetCount(); i++)
+	{
+		XSI::CString p = output_paths[i];
+		if (p.Length() > 0)
+		{
+			return p;
+		}
+	}
+
+	return "";
+}
+
 void OutputContext::add_cryptomatte_metadata(std::string name, std::string manifest)
 {
 	std::string identifier = ccl::string_printf("%08x", ccl::util_murmur_hash3(name.c_str(), name.length(), 0));

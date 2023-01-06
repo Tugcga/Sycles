@@ -9,6 +9,7 @@
 #include "../cyc_output/output_context.h"
 #include "../../render_base/render_visual_buffer.h"
 #include "cyc_baking.h"
+#include "../cyc_output/series_context.h"
 
 XSI::CString add_prefix_to_aov_name(const XSI::CString &name, bool is_color)
 {
@@ -368,7 +369,7 @@ void check_visual_aov_lightgroup_name(RenderVisualBuffer* visual_buffer, const X
     }
 }
 
-void sync_passes(ccl::Scene* scene, OutputContext* output_context, BakingContext* baking_context, RenderVisualBuffer *visual_buffer, MotionSettingsType motion_type, const XSI::CStringArray &lightgroups, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
+void sync_passes(ccl::Scene* scene, OutputContext* output_context, SeriesContext* series_context, BakingContext* baking_context, RenderVisualBuffer *visual_buffer, MotionSettingsType motion_type, const XSI::CStringArray &lightgroups, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
 {
     // if visual pass is aov, then check that the name of the pass is correct
     check_visual_aov_lightgroup_name(visual_buffer, aov_color_names, aov_value_names, lightgroups);
@@ -441,6 +442,30 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, BakingContext
         if (scene->film->get_cryptomatte_passes() & ccl::CRYPT_ASSET)
         {
             output_context->add_cryptomatte_metadata("CryptoAsset", scene->object_manager->get_cryptomatte_assets(scene));
+        }
+    }
+
+    // add passes for series rendering
+    // only to the Cycles
+    // combined already added with default name
+    if (series_context->need_albedo())
+    {
+        ccl::PassType albedo_type = ccl::PASS_DIFFUSE_COLOR;
+        ccl::ustring albedo_name = ccl::ustring(pass_to_name(albedo_type).GetAsciiString());
+        if (!exported_names.contains(albedo_name))
+        {
+            exported_names.insert(albedo_name);
+            pass_add(scene, albedo_type, albedo_name);
+        }
+    }
+    if (series_context->need_normal())
+    {
+        ccl::PassType normal_type = ccl::PASS_NORMAL;
+        ccl::ustring normal_name = ccl::ustring(pass_to_name(normal_type).GetAsciiString());
+        if (!exported_names.contains(normal_name))
+        {
+            exported_names.insert(normal_name);
+            pass_add(scene, normal_type, normal_name);
         }
     }
 

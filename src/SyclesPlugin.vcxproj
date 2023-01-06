@@ -74,6 +74,7 @@
     <ClCompile Include="render_cycles\cyc_output\color_transform_context.cpp" />
     <ClCompile Include="render_cycles\cyc_output\output_context.cpp" />
     <ClCompile Include="render_cycles\cyc_output\output_drivers.cpp" />
+    <ClCompile Include="render_cycles\cyc_output\series_context.cpp" />
     <ClCompile Include="render_cycles\cyc_primitives\prim_lights.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_camera.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_geometry.cpp" />
@@ -132,6 +133,7 @@
     <ClInclude Include="render_cycles\cyc_output\color_transform_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_drivers.h" />
+    <ClInclude Include="render_cycles\cyc_output\series_context.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_geometry\cyc_geometry.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_geometry\cyc_polymesh_attributes.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_geometry\cyc_tangent_attribute.h" />

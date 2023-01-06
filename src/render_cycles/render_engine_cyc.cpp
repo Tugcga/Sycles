@@ -21,6 +21,7 @@
 #include "../output/write_image.h"
 #include "../utilities/arrays.h"
 #include "../utilities/files_io.h"
+#include "../utilities/io_exr.h"
 #include "../utilities/math.h"
 #include "../utilities/xsi_properties.h"
 
@@ -35,6 +36,7 @@ RenderEngineCyc::RenderEngineCyc()
 	color_transform_context = new ColorTransformContext();
 	update_context = new UpdateContext();
 	baking_context = new BakingContext();
+	series_context = new SeriesContext();
 
 	make_render = true;
 	is_recreate_session = true;
@@ -52,12 +54,20 @@ RenderEngineCyc::~RenderEngineCyc()
 	delete color_transform_context;
 	delete update_context;
 	delete baking_context;
+	delete series_context;
 }
 
 void RenderEngineCyc::path_init(const XSI::CString& plugin_path)
 {
 	XSI::CString folder_path = XSI::CUtils::BuildPath(plugin_path, "..", "..");
 	ccl::path_init(folder_path.GetAsciiString());
+
+	// here we also can setup series rendering
+	InputConfig input_config = get_input_config();
+	if (input_config.is_init)
+	{
+		series_context->setup(input_config.series);
+	}
 }
 
 void RenderEngineCyc::clear_session()
@@ -131,6 +141,43 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		else
 		{
 			log_message("Fails to get pixels of the pass " + XSI::CString(pass_name.c_str()) + " for input render tile", XSI::siErrorMsg);
+		}
+	}
+
+	rendered_samples = session->progress.get_current_sample();
+
+	if (render_type == RenderType::RenderType_Pass && series_context->get_is_active())
+	{
+		if (rendered_samples - series_context->get_last_sample() > series_context->get_sampling_step())
+		{
+			series_context->set_last_sample(rendered_samples);
+			if (series_context->need_beauty())
+			{
+				is_get = tile.get_pass_pixels(pass_to_name(ccl::PassType::PASS_COMBINED).GetAsciiString(), 4, &pixels[0]);
+				if (is_get)
+				{
+					// we assume that tile contains the whole image
+					write_output_exr(tile_width, tile_height, 4, series_context->build_output_path(ccl::PassType::PASS_COMBINED, eval_time).GetAsciiString(), &pixels[0]);
+				}
+			}
+
+			if (series_context->need_albedo())
+			{
+				is_get = tile.get_pass_pixels(pass_to_name(ccl::PassType::PASS_DIFFUSE_COLOR).GetAsciiString(), 3, &pixels[0]);
+				if (is_get)
+				{
+					write_output_exr(tile_width, tile_height, 3, series_context->build_output_path(ccl::PassType::PASS_DIFFUSE_COLOR, eval_time).GetAsciiString(), &pixels[0]);
+				}
+			}
+
+			if (series_context->need_normal())
+			{
+				is_get = tile.get_pass_pixels(pass_to_name(ccl::PassType::PASS_NORMAL).GetAsciiString(), 3, &pixels[0]);
+				if (is_get)
+				{
+					write_output_exr(tile_width, tile_height, 3, series_context->build_output_path(ccl::PassType::PASS_NORMAL, eval_time).GetAsciiString(), &pixels[0]);
+				}
+			}
 		}
 	}
 }
@@ -336,12 +383,17 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	// create baking context at the start
 	// the scene will be create from scratch, this is the rule of the base implementation
 	baking_context->reset();
+	series_context->reset();
 
 	if (render_type == RenderType::RenderType_Rendermap)
 	{
 		// in base implementation we get several parameters from default rendermap property
 		// here we can upgrade it by using custom property and setup additional parameters for cycles rendering
 		pre_bake();
+	}
+	else if(render_type == RenderType::RenderType_Pass)
+	{
+		series_context->activate();
 	}
 
 	update_context->set_current_render_parameters(m_render_parameters);
@@ -763,7 +815,8 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			m_render_parameters, eval_time);
 
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
-		sync_passes(session->scene, output_context, baking_context, visual_buffer, update_context->get_motion_type(), update_context->get_lightgropus(), update_context->get_color_aovs(), update_context->get_value_aovs());
+		sync_passes(session->scene, output_context, series_context, baking_context, visual_buffer, update_context->get_motion_type(), update_context->get_lightgropus(), update_context->get_color_aovs(), update_context->get_value_aovs());
+		series_context->set_common_path(output_context);
 
 		if (update_context->is_changed_render_paramters_film(changed_render_parameters))
 		{
@@ -814,6 +867,7 @@ void RenderEngineCyc::render()
 {
 	if (make_render)
 	{
+		rendered_samples = 0;
 		ccl::BufferParams buffer_params = get_buffer_params(image_full_size_width, image_full_size_height, image_corner_x, image_corner_y, image_size_width, image_size_height);
 		session->reset(session->params, buffer_params);
 		session->scene->enable_update_stats();
@@ -833,10 +887,9 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	if (make_render)
 	{
 		labels_context->set_render_time(render_time);
-		// this value is coorect only when the render use one tile
-		// now we always use one-tile render (withou tiles with small size)
-		// TODO: when the render has the time limit, then return 0 samples, try to obtain actual samples count
-		labels_context->set_render_samples(session->progress.get_current_sample());
+		// when the render has the time limit, then return 0 samples, try to obtain actual samples count
+		int current_samples = session->progress.get_current_sample();
+		labels_context->set_render_samples(current_samples == 0 ? rendered_samples : session->progress.get_current_sample());
 	}
 
 	// the render is done, add labels to the output (if we need it)
