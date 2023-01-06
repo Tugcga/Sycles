@@ -547,7 +547,11 @@ XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material &xsi_materia
 	ccl::ShaderGraph* shader_graph = material_to_graph(scene, xsi_material, eval_time, aovs);
 	ccl::Shader* shader = scene->shaders[shader_index];
 
+	// TODO: there is a bug
+	// when change background sahder node intensity to zero with connected sky texture node, and then back to normal value,
+	// then the sun intensity is disabled (even if it enebled in the node)
 	shader->set_graph(shader_graph);
+	shader->tag_modified();
 	shader->tag_update(scene);
 
 	return XSI::CStatus::OK;

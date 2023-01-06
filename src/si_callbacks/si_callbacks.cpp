@@ -8,7 +8,7 @@ RenderEngineCyc g_render;
 RenderEngineCyc* render;
 RenderEngineCyc* get_render_instance() { return render; }
 
-SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
+SICALLBACK CyclesRenderer_Init(XSI::CRef &in_ctxt)
 {
 	XSI::Context ctxt(in_ctxt);
 	XSI::Renderer renderer = ctxt.GetSource();
@@ -18,8 +18,8 @@ SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
 	process.Add(XSI::siRenderProcessGenerateRenderMap);
 	renderer.PutProcessTypes(process);
 
-	XSI::CString options_name = "Cycles Render Options";
-	renderer.AddProperty(XSI::siRenderPropertyOptions, "Cycles Render." + options_name);
+	XSI::CString options_name = "Cycles Renderer Options";
+	renderer.AddProperty(XSI::siRenderPropertyOptions, "Cycles Renderer." + options_name);
 
 	// setup output formats
 	// ldr formats
@@ -66,37 +66,35 @@ SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
 	renderer.AddOutputImageFormatSubType(XSI::siRenderChannelNormalVectorType, "XYZ", XSI::siImageBitDepthFloat32);
 
 	// render channels
-	// for development purposes we use name Sycles...
-	// but then it should be renamed into Cycles...
-	renderer.AddDefaultChannel("Sycles Combined", XSI::siRenderChannelColorType);  // 3 for lightgroups, 4 for others
-	renderer.AddDefaultChannel("Sycles Depth", XSI::siRenderChannelDepthType);  // 1
-	renderer.AddDefaultChannel("Sycles Position", XSI::siRenderChannelVectorType);  // 3
-	renderer.AddDefaultChannel("Sycles Normal", XSI::siRenderChannelNormalVectorType);  // 3
-	renderer.AddDefaultChannel("Sycles UV", XSI::siRenderChannelVectorType);  // 3
-	renderer.AddDefaultChannel("Sycles Object ID", XSI::siRenderChannelGrayscaleType);  // 1
-	renderer.AddDefaultChannel("Sycles Material ID", XSI::siRenderChannelColorType);  // 1
-	renderer.AddDefaultChannel("Sycles Diffuse Color", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Glossy Color", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Transmission Color", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Diffuse Indirect", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Glossy Indirect", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Transmission Indirect", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Diffuse Direct", XSI::siRenderChannelColorType);  // 
-	renderer.AddDefaultChannel("Sycles Glossy Direct", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Transmission Direct", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Emission", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Background", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles AO", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Shadow Catcher", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Shadow", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Motion", XSI::siRenderChannelColorType);  // 4
-	renderer.AddDefaultChannel("Sycles Mist", XSI::siRenderChannelGrayscaleType);  // 1
-	renderer.AddDefaultChannel("Sycles Volume Direct", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Volume Indirect", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Sycles Sample Count", XSI::siRenderChannelGrayscaleType);  // 1
-	renderer.AddDefaultChannel("Sycles AOV Color", XSI::siRenderChannelColorType);  // 4
-	renderer.AddDefaultChannel("Sycles AOV Value", XSI::siRenderChannelGrayscaleType);  // 1
-	renderer.AddDefaultChannel("Sycles Lightgroup", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Combined", XSI::siRenderChannelColorType);  // 3 for lightgroups, 4 for others
+	renderer.AddDefaultChannel("Cycles Depth", XSI::siRenderChannelDepthType);  // 1
+	renderer.AddDefaultChannel("Cycles Position", XSI::siRenderChannelVectorType);  // 3
+	renderer.AddDefaultChannel("Cycles Normal", XSI::siRenderChannelNormalVectorType);  // 3
+	renderer.AddDefaultChannel("Cycles UV", XSI::siRenderChannelVectorType);  // 3
+	renderer.AddDefaultChannel("Cycles Object ID", XSI::siRenderChannelGrayscaleType);  // 1
+	renderer.AddDefaultChannel("Cycles Material ID", XSI::siRenderChannelColorType);  // 1
+	renderer.AddDefaultChannel("Cycles Diffuse Color", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Glossy Color", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Transmission Color", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Diffuse Indirect", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Glossy Indirect", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Transmission Indirect", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Diffuse Direct", XSI::siRenderChannelColorType);  // 
+	renderer.AddDefaultChannel("Cycles Glossy Direct", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Transmission Direct", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Emission", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Background", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles AO", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Shadow Catcher", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Shadow", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Motion", XSI::siRenderChannelColorType);  // 4
+	renderer.AddDefaultChannel("Cycles Mist", XSI::siRenderChannelGrayscaleType);  // 1
+	renderer.AddDefaultChannel("Cycles Volume Direct", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Volume Indirect", XSI::siRenderChannelColorType);  // 3
+	renderer.AddDefaultChannel("Cycles Sample Count", XSI::siRenderChannelGrayscaleType);  // 1
+	renderer.AddDefaultChannel("Cycles AOV Color", XSI::siRenderChannelColorType);  // 4
+	renderer.AddDefaultChannel("Cycles AOV Value", XSI::siRenderChannelGrayscaleType);  // 1
+	renderer.AddDefaultChannel("Cycles Lightgroup", XSI::siRenderChannelColorType);  // 3
 
 	render = &g_render;
 	render->set_render_options_name(options_name);
@@ -121,7 +119,7 @@ SICALLBACK CyclesRender_Init(XSI::CRef &in_ctxt)
 	return XSI::CStatus::OK;
 }
 
-SICALLBACK CyclesRender_Term(XSI::CRef &in_ctxt)
+SICALLBACK CyclesRenderer_Term(XSI::CRef &in_ctxt)
 {
 	::DeleteObject(g_hAbort);
 	::DeleteCriticalSection(&g_barrierAbort);
@@ -132,13 +130,13 @@ SICALLBACK CyclesRender_Term(XSI::CRef &in_ctxt)
 	return(XSI::CStatus::OK);
 }
 
-SICALLBACK CyclesRender_Cleanup(XSI::CRef &in_ctxt)
+SICALLBACK CyclesRenderer_Cleanup(XSI::CRef &in_ctxt)
 {
 	render->clear();
 	return(XSI::CStatus::OK);
 }
 
-SICALLBACK CyclesRender_Abort(XSI::CRef &in_ctxt)
+SICALLBACK CyclesRenderer_Abort(XSI::CRef &in_ctxt)
 {
 	render->abort_render();
 	set_abort(true);
@@ -146,12 +144,12 @@ SICALLBACK CyclesRender_Abort(XSI::CRef &in_ctxt)
 	return(XSI::CStatus::OK);
 }
 
-SICALLBACK CyclesRender_Quality(XSI::CRef &in_ctxt)
+SICALLBACK CyclesRenderer_Quality(XSI::CRef &in_ctxt)
 {
 	return XSI::CStatus::OK;
 }
 
-SICALLBACK CyclesRender_Query(XSI::CRef &in_ctxt)
+SICALLBACK CyclesRenderer_Query(XSI::CRef &in_ctxt)
 {
 	XSI::RendererContext ctxt(in_ctxt);
 	const int type = ctxt.GetAttribute("QueryType");
@@ -260,9 +258,8 @@ XSI::CStatus end_render_event(XSI::RendererContext& ctxt, XSI::CStringArray& out
 // remove when it will be not necessary
 size_t process_counter = 0;
 
-SICALLBACK CyclesRender_Process(XSI::CRef &in_ctxt)
+SICALLBACK CyclesRenderer_Process(XSI::CRef &in_ctxt)
 {
-	log_message("process call " + XSI::CString(process_counter++));
 	set_abort(false);
 	XSI::CStatus status;
 
@@ -314,7 +311,7 @@ SICALLBACK CyclesRender_Process(XSI::CRef &in_ctxt)
 	return status;
 }
 
-SICALLBACK CyclesRenderOptions_Define(XSI::CRef& in_ctxt)
+SICALLBACK CyclesRendererOptions_Define(XSI::CRef& in_ctxt)
 {
 	XSI::Context ctxt(in_ctxt);
 	XSI::CustomProperty prop = ctxt.GetSource();
@@ -322,13 +319,13 @@ SICALLBACK CyclesRenderOptions_Define(XSI::CRef& in_ctxt)
 	return render->render_option_define(prop);
 }
 
-SICALLBACK CyclesRenderOptions_DefineLayout(XSI::CRef& in_ctxt)
+SICALLBACK CyclesRendererOptions_DefineLayout(XSI::CRef& in_ctxt)
 {
 	XSI::Context ctxt(in_ctxt);
 	return render->render_option_define_layout(ctxt);
 }
 
-SICALLBACK CyclesRenderOptions_PPGEvent(const XSI::CRef& in_ctxt)
+SICALLBACK CyclesRendererOptions_PPGEvent(const XSI::CRef& in_ctxt)
 {
 	XSI::PPGEventContext ctx(in_ctxt);
 	return render->render_options_update(ctx);

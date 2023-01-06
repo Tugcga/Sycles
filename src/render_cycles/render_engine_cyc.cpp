@@ -430,7 +430,7 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		log_message("It's impossible to render Motion Pass with activated motion blur, output is invalid", XSI::siWarningMsg);
 	}
 
-	// m_display_channel_name contains general name of the cisual pass (Sycles AOV Color, for example)
+	// m_display_channel_name contains general name of the cisual pass (Cycles AOV Color, for example)
 	// here we should check actual visual pass (modified if it was aov)
 	display_pass_name = channel_name_to_pass_name(m_render_parameters, m_display_channel_name, eval_time);
 	if (visual_pass_type == ccl::PASS_AOV_COLOR || visual_pass_type == ccl::PASS_AOV_VALUE)
@@ -516,7 +516,6 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 {
 	// NOTICE: change mesh geometry force recreate the scene
 	// because the callback OnNestedObjectsChange is fired
-	log_message("update x3dobject " + xsi_object.GetFullName() + " " + XSI::CString(update_type));
 	if (!is_session)
 	{
 		return XSI::CStatus::Abort;
@@ -705,7 +704,6 @@ XSI::CStatus RenderEngineCyc::update_scene_render()
 // here we create the scene for rendering from scratch
 XSI::CStatus RenderEngineCyc::create_scene()
 {
-	log_message("---create session---");
 	clear_session();
 
 	session = create_session(session_params, scene_params);

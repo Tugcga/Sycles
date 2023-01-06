@@ -13,26 +13,20 @@ false = 0
 true = 1
 
 subdivTypes = ["None", 0, "Linear", 1, "Catmull-Clark", 2]
-options_crease = ["Catmark Rule", 0, "Chaikin Rule", 1]
-# options_boundary = ["Do not Interpolate Boundaries", 0, "Sharpen Edges", 1, "Sharpen Edges and Corners", 2]
-options_boundary = ["Sharpen Edges", 1, "Sharpen Edges and Corners", 2]
-options_fvar = ["Smooth Everywhere", 0, "Sharpen Corners Only", 1, "Edge Corner", 2, "Edge and Corner + Propagate Corner", 3, "Sharpen All Boundaries", 4, "Bilinear Interpolation", 5]
-options_triangle = ["Catmark Weights", 0, "Smooth Triangle Weights", 1]
-hairsType = ["Ribbon", 0, "Segments", 1, "Line Segments", 2]
 volume_space_types = ["Object", 0, "World", 1]
 
-baking_shaders = ["Position", "Sycles Position",
-                  "Normal", "Sycles Normal",
-                  "UV", "Sycles UV",
-                  "Roughness", "Sycles Roughness",
-                  "Emit", "Sycles Emission",
-                  "AO", "Sycles AO",
-                  "Combined", "Sycles Combined",
-                  "Shadow", "Sycles Shadow",
-                  "Diffuse", "Sycles Diffuse",
-                  "Glossy", "Sycles Glossy",
-                  "Transmission", "Sycles Transmission",
-                  "Environment", "Sycles Background"]
+baking_shaders = ["Position", "Cycles Position",
+                  "Normal", "Cycles Normal",
+                  "UV", "Cycles UV",
+                  "Roughness", "Cycles Roughness",
+                  "Emit", "Cycles Emission",
+                  "AO", "Cycles AO",
+                  "Combined", "Cycles Combined",
+                  "Shadow", "Cycles Shadow",
+                  "Diffuse", "Cycles Diffuse",
+                  "Glossy", "Cycles Glossy",
+                  "Transmission", "Cycles Transmission",
+                  "Environment", "Cycles Background"]
 
 baking_extensions = ["PNG - Portable Network Graphics", "png",
                      "BMP - Bitmap Picture", "bmp",
@@ -304,7 +298,7 @@ def CyclesBake_Define(in_ctxt):
     oProp = in_ctxt.Source
     oProp.AddParameter3("uv_index", c.siInt2, 0, 0, 1024, False, False)
     oProp.AddParameter3("uv_names", c.siString, "")  # does not show this parameter
-    oProp.AddParameter3("baking_shader", c.siString, "Sycles Combined")
+    oProp.AddParameter3("baking_shader", c.siString, "Cycles Combined")
     oProp.AddParameter3("baking_filter_direct", c.siBool, 1, 0, 1, False, False)
     oProp.AddParameter3("baking_filter_indirect", c.siBool, 1, 0, 1, False, False)
     oProp.AddParameter3("baking_filter_color", c.siBool, 1, 0, 1, False, False)
@@ -364,12 +358,12 @@ def update_baking_ui(prop):
         prop.Parameters("output_folder").Value = project_path + "\\Render_Pictures"
 
     shader_value = prop.Parameters("baking_shader").Value
-    if shader_value in ["Sycles Background", "Sycles Roughness", "Sycles UV", "Sycles Normal", "Sycles Position", "Sycles AO"]:
+    if shader_value in ["Cycles Background", "Cycles Roughness", "Cycles UV", "Cycles Normal", "Cycles Position", "Cycles AO"]:
         prop.Parameters("baking_view").ReadOnly = True
     else:
         prop.Parameters("baking_view").ReadOnly = False
 
-    if shader_value in ["Sycles AO", "Sycles Shadow", "Sycles Normal", "Sycles Position", "Sycles UV", "Sycles Roughness", "Sycles Emission", "Sycles Background"]:
+    if shader_value in ["Cycles AO", "Cycles Shadow", "Cycles Normal", "Cycles Position", "Cycles UV", "Cycles Roughness", "Cycles Emission", "Cycles Background"]:
         # no filters for these shaders
         prop.Parameters("baking_filter_direct").ReadOnly = True
         prop.Parameters("baking_filter_indirect").ReadOnly = True
@@ -380,7 +374,7 @@ def update_baking_ui(prop):
         prop.Parameters("baking_filter_transmission").ReadOnly = True
         prop.Parameters("baking_filter_emission").ReadOnly = True
     else:
-        if shader_value in ["Sycles Diffuse", "Sycles Glossy", "Sycles Transmission"]:
+        if shader_value in ["Cycles Diffuse", "Cycles Glossy", "Cycles Transmission"]:
             # show direct, indirect and color filters
             prop.Parameters("baking_filter_direct").ReadOnly = False
             prop.Parameters("baking_filter_indirect").ReadOnly = False
@@ -403,7 +397,7 @@ def update_baking_ui(prop):
             prop.Parameters("baking_filter_emission").ReadOnly = False
 
 
-def CyclesBakePropertyBuildUI():
+def cycles_bake_property_build_ui():
     prop = PPG.Inspected(0)
     oLayout = PPG.PPGLayout
     oLayout.Clear()
@@ -582,7 +576,7 @@ def build_common_property_ui(layout):
     layout.EndGroup()
 
 
-def MeshPropertyBuildUI():
+def mesh_property_build_ui():
     prop = PPG.Inspected(0)
     layout = PPG.PPGLayout
     layout.Clear()
@@ -604,14 +598,14 @@ def CyclesMesh_subdiv_type_OnChanged():
     mesh_ui_update(prop)
 
 
-def CyclesHairsPropertyBuildUI():
+def cycles_hairs_property_build_ui():
     layout = PPG.PPGLayout
     layout.Clear()
     build_common_property_ui(layout)
     PPG.Refresh()
 
 
-def CyclesVolumePropertyBuildUI():
+def cycles_volume_property_build_ui():
     oProp = PPG.Inspected(0)
     oLayout = PPG.PPGLayout
     oLayout.Clear()
@@ -635,7 +629,7 @@ def pointcloud_ui_update(prop):
         prop.Parameters("use_pc_color").ReadOnly = False
 
 
-def CyclesPointcloudPropertyBuildUI():
+def cycles_pointcloud_property_build_ui():
     prop = PPG.Inspected(0)
     layout = PPG.PPGLayout
     layout.Clear()
@@ -664,27 +658,27 @@ def CyclesPointcloud_primitive_pc_OnChanged():
 
 
 def CyclesMesh_OnInit():
-    MeshPropertyBuildUI()
+    mesh_property_build_ui()
     return True
 
 
 def CyclesHairs_OnInit():
-    CyclesHairsPropertyBuildUI()
+    cycles_hairs_property_build_ui()
     return True
 
 
 def CyclesVolume_OnInit():
-    CyclesVolumePropertyBuildUI()
+    cycles_volume_property_build_ui()
     return True
 
 
 def CyclesPointcloud_OnInit():
-    CyclesPointcloudPropertyBuildUI()
+    cycles_pointcloud_property_build_ui()
     return True
 
 
 def CyclesBake_OnInit():
-    CyclesBakePropertyBuildUI()
+    cycles_bake_property_build_ui()
     return True
 
 

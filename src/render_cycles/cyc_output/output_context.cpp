@@ -404,11 +404,11 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 	int total_components = 0;
 	for (size_t i = 0; i < output_channels.GetCount(); i++)
 	{
-		// channel for visual pass has proper name (Sycles Depth, for example)
+		// channel for visual pass has proper name (Cycles Depth, for example)
 		// but name from FrameBuffer name of the render context contains names with _ instead of spaces
 		// so, we should replace _ to spaces for all names
 		XSI::CString output_channel_name = replace_symbols(output_channels[i], "_", " ");
-		bool is_lightgroup = output_channel_name == "Sycles Lightgroup";
+		bool is_lightgroup = output_channel_name == "Cycles Lightgroup";
 		ccl::PassType pass_type = channel_to_pass_type(output_channel_name);  // convert from XSI channel name to Cycles pass type
 		if (baking_context->get_is_valid())  // valid means that the rendr type is rendermap
 		{

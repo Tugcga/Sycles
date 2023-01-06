@@ -55,11 +55,11 @@ SICALLBACK XSILoadPlugin(XSI::PluginRegistrar& in_reg)
 	}
 #endif
 	in_reg.PutAuthor("Shekn");
-	in_reg.PutName("Cycles Render");
+	in_reg.PutName("Cycles Renderer");
 	in_reg.PutVersion(get_major_version(), get_minor_version());
 	//RegistrationInsertionPoint - do not remove this line
-	in_reg.RegisterRenderer("Cycles Render");           // The renderer
-	in_reg.RegisterProperty("Cycles Render Options");   // Render options
+	in_reg.RegisterRenderer("Cycles Renderer");           // The renderer
+	in_reg.RegisterProperty("Cycles Renderer Options");   // Render options
 
 	in_reg.RegisterEvent("Cyc_OnObjectAdded", XSI::siOnObjectAdded);
 	in_reg.RegisterEvent("Cyc_OnObjectRemoved", XSI::siOnObjectRemoved);

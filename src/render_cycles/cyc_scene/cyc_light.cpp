@@ -404,6 +404,12 @@ void set_background_light_params(ccl::Scene* scene, ccl::Light* light, ccl::Shad
 
 	light->set_use_mis(true);
 	light->set_shader(bg_shader);
+
+	light->tag_shader_modified();
+	light->tag_map_resolution_modified();
+	light->tag_max_bounces_modified();
+	light->tag_use_caustics_modified();
+
 	light->tag_update(scene);
 }
 

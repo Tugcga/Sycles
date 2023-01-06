@@ -41,7 +41,7 @@ public:
 			pass_type = ccl::PASS_COMBINED;
 		}
 		pass_name = ccl::ustring(display_pass_name.GetAsciiString());
-		components = get_pass_components(pass_type, channel_name == "Sycles Lightgroup");
+		components = get_pass_components(pass_type, channel_name == "Cycles Lightgroup");
 
 		full_width = image_width;
 		full_height = image_height;

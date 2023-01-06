@@ -308,6 +308,8 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 				frame_buffer.insert("Labels.A", Imf::Slice(Imf::FLOAT, (char*)&a_pixels[0], sizeof(float), sizeof(float) * width));
 			}
 
+			std::unordered_map<std::string, size_t> pass_name_counter;
+
 			for (int i = 0; i < passes_count; i++)
 			{
 				ccl::PassType pass_type = output_context->get_output_pass_type(i);
@@ -327,6 +329,27 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 				else if (pass_type == ccl::PASS_COMBINED && pass_name.size() >= 9)
 				{
 					pass_name = remove_prefix_from_lightgroup_name(pass_name.c_str()).GetAsciiString();
+				}
+
+				// check if this pass name alredy used
+				// if yes, then add numeric identifier
+				if (pass_name_counter.contains(pass_name))
+				{
+					pass_name_counter[pass_name] += 1;
+					pass_name += "#" + std::to_string(pass_name_counter[pass_name]);
+					// also add this new name
+					if (pass_name_counter.contains(pass_name))
+					{
+						pass_name_counter[pass_name] += 1;
+					}
+					else
+					{
+						pass_name_counter[pass_name] = 1;
+					}
+				}
+				else
+				{
+					pass_name_counter[pass_name] = 1;
 				}
 
 				if (components_count >= 1)

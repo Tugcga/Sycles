@@ -519,10 +519,6 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 					update_context->add_nested_instance_data(xsi_model.GetObjectID(), object_id);
 				}
 			}
-			else
-			{
-				log_message("unknown object in instance master " + xsi_object.GetName() + " type: " + xsi_object_type);
-			}
 		}
 	}
 }
@@ -574,6 +570,12 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 	std::vector<float> motion_times = update_context->get_motion_times();
 	size_t motion_times_count = motion_times.size();
 
+	bool use_root_tfm = root_tfms.size() > 0;
+	if (use_root_tfm)
+	{
+		use_root_tfm = root_tfms.size() == motion_times_count;
+	}
+
 	bool override_color = true;
 	XSI::Property pc_property;
 	bool is_property = get_xsi_object_property(xsi_object, "CyclesPointcloud", pc_property);
@@ -618,11 +620,7 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 	std::vector<std::vector<XSI::MATH::CTransformation>> time_points_tfms = build_time_points_transforms(xsi_object, motion_times);
 
 	XSI::KinematicState pointcloud_kine = xsi_object.GetKinematics().GetGlobal();
-	bool use_root_tfm = root_tfms.size() > 0;
-	if (use_root_tfm)
-	{
-		use_root_tfm = root_tfms.size() == motion_times_count;
-	}
+	
 	size_t export_point_index = 0;
 	for (size_t i = 0; i < shape_data_count; i++)
 	{
@@ -701,6 +699,8 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 					update_context->get_main_motion_step(),  // main motion step
 					eval_time);
 
+				// if we would like not override colors for child pointclouds, then use custom property
+				// it's hard properly define when override should be by default
 				if (override_color)
 				{
 					size_t objects_count = scene->objects.size();
@@ -814,10 +814,6 @@ void sync_scene_object(ccl::Scene* scene,UpdateContext* update_context, const XS
 			{
 				sync_custom_background(scene, xsi_object, update_context, render_parameters, eval_time);
 			}
-			else
-			{
-				log_message("unknown x3dobject " + object_type);
-			}
 		}
 	}
 	else if (object_class == XSI::siModelID)
@@ -836,10 +832,6 @@ void sync_scene_object(ccl::Scene* scene,UpdateContext* update_context, const XS
 	else if (object_class == XSI::siCameraID || object_class == XSI::siNullID || object_class == XSI::siCameraRigID)
 	{
 		// ignore nothing to do
-	}
-	else
-	{
-		log_message("unknown object class " + XSI::CString(object_class));
 	}
 }
 
@@ -992,7 +984,6 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 	}
 	else
 	{// unknown object type
-		log_message("update transform for unknown " + object_type);
 		return XSI::CStatus::Abort;
 	}
 
