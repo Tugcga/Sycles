@@ -160,7 +160,6 @@ bool UpdateContext::is_changed_render_parameters_only_cm(const std::unordered_se
 
 bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_set<std::string>& parameters)
 {
-	// TODO: if we switch motion or change motion blur params, then we should recreate the session, because all objects from the scene should be updated
 	std::vector<std::string> integrator_parameters{
 		"sampling_render_samples",
 		"film_motion_use", 

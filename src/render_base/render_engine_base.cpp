@@ -521,9 +521,7 @@ XSI::CStatus RenderEngineBase::scene_process()
 	{
 		//WARNING: in this case, when we have active material preview and render view, then it recreate the scene from scratch twise - for material render and scene render
 		//and each update in recreate the scene, because it at first executes scene render, then switch context and update material render (with new geometry)
-		//then again switch context to the scene and so on.
-		//TODO: try to solve it
-		//use different render instances for different subjects
+		//then again switch context to the scene and so on
 		//now we have one render singleton and use it for all rendering tasks
 		//it seems that Softimage use one render object (it share userdata) for different tasks
 		status = XSI::CStatus::Abort;

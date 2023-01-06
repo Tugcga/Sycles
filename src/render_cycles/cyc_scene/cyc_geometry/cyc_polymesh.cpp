@@ -140,8 +140,6 @@ void get_geo_accessor_normals(const XSI::CGeometryAccessor &in_geo_acc, LONG in_
 
 void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context, const XSI::X3DObject &xsi_object, bool use_subdiv, bool geo_use_angle, float geo_angle)
 {
-	// TODO: crashed for triangular mesh, find the reason
-	// may be the step should not be equal the center?
 	size_t motion_steps = update_context->get_motion_steps();
 	
 	// check we can add motion blur

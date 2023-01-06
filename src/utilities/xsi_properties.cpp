@@ -98,17 +98,31 @@ bool obtain_subsub_directions(const XSI::Shader &xsi_shader, float &sun_x, float
 std::string get_asset_name(const XSI::X3DObject& xsi_object)
 {
 	XSI::Model root = XSI::Application().GetActiveSceneRoot();
-	if (xsi_object.IsEqualTo(root))
+	// we shuld get parent unil obtain model or root model
+	// we we obtain root model, then return current object name
+	// if obtain non-root model, then return the name of this model
+
+	XSI::X3DObject current_object = xsi_object;
+	bool is_model = current_object.GetType() == "#model";
+	while(!is_model)
+	{
+		ULONG prev_id = current_object.GetObjectID();
+		current_object = current_object.GetParent();
+		is_model = current_object.GetType() == "#model";
+		if (!is_model && current_object.GetObjectID() == prev_id)
+		{// something wrong
+			return xsi_object.GetName().GetAsciiString();
+		}
+	}
+
+	if (current_object.GetObjectID() == root.GetObjectID())
 	{
 		return xsi_object.GetName().GetAsciiString();
 	}
-
-	XSI::X3DObject current = xsi_object;
-	while (!current.GetParent3DObject().IsEqualTo(root) && !current.GetParent3DObject().IsEqualTo(current))
+	else
 	{
-		current = current.GetParent3DObject();
+		return current_object.GetName().GetAsciiString();
 	}
-	return current.GetName().GetAsciiString();
 }
 
 XSI::MATH::CVector3 get_object_color(XSI::X3DObject& xsi_object, const XSI::CTime& eval_time)
