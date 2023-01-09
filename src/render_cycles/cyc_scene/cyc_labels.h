@@ -143,24 +143,8 @@ public:
 		}
 
 		is_label_triangles_count = render_parameters.GetValue("output_label_triangles_count");
-		if (is_label_triangles_count)
-		{
-			size_t triangles_accum = 0;
-			for (size_t i = 0; i < scene->objects.size(); i++)
-			{
-				ccl::Geometry* geo = scene->objects[i]->get_geometry();
-				if (geo->geometry_type == ccl::Geometry::MESH)
-				{
-					ccl::Mesh* mesh = static_cast<ccl::Mesh*>(geo);
-					triangles_accum += mesh->get_triangles().size();
-				}
-			}
-			triangles_count_value = triangles_accum / 3;
-		}
-		else
-		{
-			triangles_count_value = 0;
-		}
+		
+		triangles_count_value = 0;
 
 		is_label_curves_count = render_parameters.GetValue("output_label_curves_count");
 		curves_count_value = 0;
@@ -187,6 +171,25 @@ public:
 	void set_render_samples(int value)
 	{
 		samples_value = value;
+	}
+
+	// calculate triangles after render process (because it properly update mesh triangles for subdivided meshes)
+	void set_render_triangles(ccl::Scene* scene)
+	{
+		if (is_label_triangles_count)
+		{
+			size_t triangles_accum = 0;
+			for (size_t i = 0; i < scene->objects.size(); i++)
+			{
+				ccl::Geometry* geo = scene->objects[i]->get_geometry();
+				if (geo->geometry_type == ccl::Geometry::MESH)
+				{
+					ccl::Mesh* mesh = static_cast<ccl::Mesh*>(geo);
+					triangles_accum += mesh->get_triangles().size();
+				}
+			}
+			triangles_count_value = triangles_accum / 3;
+		}
 	}
 
 	XSI::CString get_string()

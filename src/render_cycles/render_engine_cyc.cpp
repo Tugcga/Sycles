@@ -899,6 +899,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 		// when the render has the time limit, then return 0 samples, try to obtain actual samples count
 		int current_samples = session->progress.get_current_sample();
 		labels_context->set_render_samples(current_samples == 0 ? rendered_samples : session->progress.get_current_sample());
+		labels_context->set_render_triangles(session->scene);
 	}
 
 	// the render is done, add labels to the output (if we need it)
