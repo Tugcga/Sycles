@@ -91,7 +91,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	unsigned int tile_height = tile.size.y;
 	unsigned int offset_x = tile.offset.x;  // this parameter defines offset inside the render buffer, not on the whole screen
 	unsigned int offset_y = tile.offset.y;  // so, we should add it to image_corner to obtain actual in-screen offset
-	OIIO::ROI tile_roi = OIIO::ROI(offset_x, offset_x + tile_width, offset_y, offset_y + tile_height);
+	ImageRectangle tile_roi = ImageRectangle(offset_x, offset_x + tile_width, offset_y, offset_y + tile_height);
 
 	// create pixel buffer
 	// we will use it for all passes
@@ -192,14 +192,14 @@ void RenderEngineCyc::read_render_tile(const ccl::OutputDriver::Tile& tile)
 	int h = tile.size.y;
 
 	ccl::vector<float> pixels(static_cast<size_t>(w) * h * 4);
-	OIIO::ROI rect = OIIO::ROI(x, x + w, y, y + h);
+	ImageRectangle rect = ImageRectangle(x, x + w, y, y + h);
 
 	// PASS_BAKE_PRIMITIVE
-	baking_context->get_buffer_primitive_id()->get_pixels(rect, OIIO::TypeDesc::FLOAT, &pixels[0]);
+	baking_context->get_buffer_primitive_id()->get_pixels(rect, &pixels[0]);
 	bool is_primitive = tile.set_pass_pixels("BakePrimitive", 4, &pixels[0]);
 
 	// PASS_BAKE_DIFFERENTIAL
-	baking_context->get_buffer_differencial()->get_pixels(rect, OIIO::TypeDesc::FLOAT, &pixels[0]);
+	baking_context->get_buffer_differencial()->get_pixels(rect, &pixels[0]);
 	bool is_differential = tile.set_pass_pixels("BakeDifferential", 4, &pixels[0]);
 
 	pixels.clear();

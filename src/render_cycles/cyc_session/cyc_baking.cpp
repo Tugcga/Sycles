@@ -12,9 +12,14 @@
 #include "../cyc_scene/cyc_scene.h"
 #include "../cyc_scene/cyc_geometry/cyc_geometry.h"
 #include "../../utilities/logs.h"
+#include "../../render_base/image_buffer.h"
 
 BakingContext::BakingContext()
 {
+	buffer_primitive_id = new ImageBuffer();
+	buffer_differencial = new ImageBuffer();
+	buffer_uv = new ImageBuffer();
+
 	reset();
 }
 
@@ -22,29 +27,18 @@ BakingContext::~BakingContext()
 {
 	buffer_primitive_id->reset();
 	delete buffer_primitive_id;
-	primitive_id_pixels.clear();
-	primitive_id_pixels.shrink_to_fit();
 
 	buffer_differencial->reset();
 	delete buffer_differencial;
-	differential_pixels.clear();
-	differential_pixels.shrink_to_fit();
 
 	buffer_uv->reset();
 	delete buffer_uv;
-	uv_pixels.clear();
-	uv_pixels.shrink_to_fit();
 }
 void BakingContext::reset()
 {
-	buffer_primitive_id = new OIIO::ImageBuf();
-	primitive_id_pixels.resize(0);
-
-	buffer_differencial = new OIIO::ImageBuf();
-	differential_pixels.resize(0);
-
-	buffer_uv = new OIIO::ImageBuf();
-	uv_pixels.resize(0);
+	buffer_primitive_id->reset();
+	buffer_differencial->reset();
+	buffer_uv->reset();
 
 	is_valid = false;
 	key_is_direct = false;
@@ -65,35 +59,31 @@ void BakingContext::setup(ULONG in_width, ULONG in_height)
 	height = in_height;
 	size_t pixles_count = in_width * in_height;
 
-	OIIO::ImageSpec input_spec = OIIO::ImageSpec(width, height, 4, OIIO::TypeDesc(OIIO::TypeDesc::FLOAT));
-	OIIO::ImageSpec uv_spec = OIIO::ImageSpec(width, height, 2, OIIO::TypeDesc(OIIO::TypeDesc::FLOAT));
+	//OIIO::ImageSpec input_spec = OIIO::ImageSpec(width, height, 4, OIIO::TypeDesc(OIIO::TypeDesc::FLOAT));
+	//OIIO::ImageSpec uv_spec = OIIO::ImageSpec(width, height, 2, OIIO::TypeDesc(OIIO::TypeDesc::FLOAT));
 
-	primitive_id_pixels.resize(pixles_count * 4);
-	differential_pixels.resize(pixles_count * 4);
-	uv_pixels.resize(pixles_count * 2);
-
-	buffer_primitive_id = new OIIO::ImageBuf(input_spec, &primitive_id_pixels[0]);
-	buffer_differencial = new OIIO::ImageBuf(input_spec, &differential_pixels[0]);
-	buffer_uv = new OIIO::ImageBuf(uv_spec, &uv_pixels[0]);
+	buffer_primitive_id = new ImageBuffer(width, height, 4);
+	buffer_differencial = new ImageBuffer(width, height, 4);
+	buffer_uv = new ImageBuffer(width, height, 2);
 }
 
 void BakingContext::set(int x, int y, int seed, int primitive_id, ccl::float2 uv, float du_dx, float du_dy, float dv_dx, float dv_dy)
 {
 	float prim[4] = { ccl::__int_as_float(seed), ccl::__int_as_float(primitive_id), uv.x, uv.y };
-	buffer_primitive_id->setpixel(x, y, prim);
+	buffer_primitive_id->set_pixel(x, y, prim, 4);
 
 	float diff[4] = { du_dx, du_dy, dv_dx, dv_dy };
-	buffer_differencial->setpixel(x, y, diff);
+	buffer_differencial->set_pixel(x, y, diff, 4);
 
-	buffer_uv->setpixel(x, y, &uv.x);
+	buffer_uv->set_pixel(x, y, &uv.x, 2);
 }
 
-OIIO::ImageBuf* BakingContext::get_buffer_primitive_id()
+ImageBuffer* BakingContext::get_buffer_primitive_id()
 {
 	return buffer_primitive_id;
 }
 
-OIIO::ImageBuf* BakingContext::get_buffer_differencial()
+ImageBuffer* BakingContext::get_buffer_differencial()
 {
 	return buffer_differencial;
 }

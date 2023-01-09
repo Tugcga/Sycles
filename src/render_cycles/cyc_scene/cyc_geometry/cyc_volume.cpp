@@ -169,7 +169,7 @@ void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_
 {
 	ccl::Attribute* attribute = is_std_atribute ? 
 		volume_geom->attributes.add(std_attribute) :
-		volume_geom->attributes.add(ccl::ustring(attribute_name), attribute_data_type == VolumeAttributeType::VolumeAttributeType_Float ? ccl::TypeDesc::TypeFloat : (attribute_data_type == VolumeAttributeType::VolumeAttributeType_Vector ? ccl::TypeDesc::TypeVector : ccl::TypeDesc::TypeColor), ccl::ATTR_ELEMENT_VOXEL);
+		volume_geom->attributes.add(ccl::ustring(attribute_name), attribute_data_type == VolumeAttributeType::VolumeAttributeType_Float ? ccl::TypeFloat : (attribute_data_type == VolumeAttributeType::VolumeAttributeType_Vector ? ccl::TypeVector : ccl::TypeColor), ccl::ATTR_ELEMENT_VOXEL);
 
 	ICEVolumeLoader* ice_loader = new ICEVolumeLoader(attribute_data_type, xsi_primitive, attribute_name, eval_time);
 

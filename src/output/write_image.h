@@ -4,10 +4,9 @@
 
 #include <vector>
 
-#include "OpenImageIO/imagebuf.h"
-
 #include "../render_cycles/cyc_output/output_context.h"
 #include "../render_cycles/cyc_output/color_transform_context.h"
+#include "../render_base/image_buffer.h"
 
 // write_image
 //clamp value betwen given min and max values
@@ -31,7 +30,7 @@ void extract_channel(size_t image_width, size_t image_height, size_t channel, si
 void overlay_pixels(size_t width, size_t height, float* over_pixels, float* back_pixels);
 
 // labels_buffer
-void build_labels_buffer(OIIO::ImageBuf& buffer,
+void build_labels_buffer(ImageBuffer* buffer,
 	const XSI::CString& text_string,
 	size_t image_width, size_t image_height,
 	size_t horisontal_shift,

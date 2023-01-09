@@ -1,7 +1,5 @@
 #include <vector>
 
-#include "OpenImageIO/imagebuf.h"
-
 #include "../utilities/logs.h"
 
 void convert_with_components(size_t width, size_t height, int input_components, int output_components, bool flip_verticaly, float* input_pixels, float* output_pixels)

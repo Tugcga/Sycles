@@ -6,19 +6,16 @@
 
 #include <vector>
 
-#include "OpenImageIO/imageio.h"
-#include "OpenImageIO/imagebuf.h"
-
 #include "../utilities/logs.h"
 #include "../render_cycles/cyc_session/cyc_pass_utils.h"
+#include "../render_base/image_buffer.h"
 
 class RenderVisualBuffer
 {
 public:
 	RenderVisualBuffer() 
-	{ 
-		buffer = new ccl::ImageBuf(); 
-		buffer_pixels.resize(0);
+	{
+		buffer = new ImageBuffer(); 
 		is_create = false;
 	};
 
@@ -50,10 +47,7 @@ public:
 		width = crop_width;
 		height = crop_height;
 
-		ccl::ImageSpec buffer_spec = ccl::ImageSpec(crop_width, crop_height, components, ccl::TypeDesc::FLOAT);
-		buffer_pixels.resize((size_t)crop_width * crop_height * components);
-		buffer = new ccl::ImageBuf(buffer_spec, &buffer_pixels[0]);
-
+		buffer->recreate(crop_width, crop_height, components);
 		is_create = true;
 	}
 
@@ -62,41 +56,36 @@ public:
 		is_create = false;
 		buffer->reset();
 		delete buffer;
-		buffer_pixels.clear();
-		buffer_pixels.shrink_to_fit();
 	};
 
 	void clear()
 	{
 		buffer->reset();
-		buffer = new ccl::ImageBuf();
-		buffer_pixels.clear();
-		buffer_pixels.shrink_to_fit();
 		is_create = false;
 	};
 
-	void add_pixels(OIIO::ROI roi, std::vector<float>& pixels)
+	void add_pixels(const ImageRectangle &roi, std::vector<float>& pixels)
 	{
-		if (is_create && buffer_pixels.size() >= pixels.size())
+		if (is_create && buffer->get_buffer_size() >= pixels.size())
 		{
-			buffer->set_pixels(roi, OIIO::TypeDesc::FLOAT, &pixels[0]);
+			buffer->set_pixels(roi, &pixels[0]);
 		}
 	}
 
 	void add_pixels(ULONG corner_x, ULONG corner_y, ULONG width, ULONG height, int components, std::vector<float> &pixels)
 	{
-		OIIO::ROI target_roi = OIIO::ROI(corner_x, corner_x + width, corner_y, corner_y + height);
+		ImageRectangle target_roi = ImageRectangle(corner_x, corner_x + width, corner_y, corner_y + height);
 		add_pixels(target_roi, pixels);
 	}
 
-	std::vector<float> get_buffer_pixels(OIIO::ROI roi)
+	std::vector<float> get_buffer_pixels(ImageRectangle &roi)
 	{
-		int roi_widhth = roi.xend - roi.xbegin;
-		int roi_height = roi.yend - roi.ybegin;
-		std::vector<float> to_return((size_t)roi_widhth * roi_height * components, 0.0f);
-		if (buffer_pixels.size() >= to_return.size())
+		size_t roi_widhth = roi.get_width();
+		size_t roi_height = roi.get_height();
+		std::vector<float> to_return(roi_widhth * roi_height * components, 0.0f);
+		if (buffer->get_buffer_size() >= to_return.size())
 		{
-			buffer->get_pixels(roi, OIIO::TypeDesc::FLOAT, &to_return[0]);
+			buffer->get_pixels(roi, &to_return[0]);
 		}
 		
 		return to_return;
@@ -104,7 +93,7 @@ public:
 
 	std::vector<float> get_buffer_pixels()
 	{
-		return buffer_pixels;
+		return buffer->get_pixels();
 	}
 
 	ULONG get_width()
@@ -162,8 +151,7 @@ private:
 	unsigned int corner_x, corner_y;  // coordinates of the left bottom corner
 	unsigned int width, height;  // actual render size
 	size_t components;
-	ccl::ImageBuf* buffer;
-	std::vector<float> buffer_pixels;
+	ImageBuffer* buffer;
 	bool is_create;
 
 	ccl::PassType pass_type;  // what pass should be visualised into the screen

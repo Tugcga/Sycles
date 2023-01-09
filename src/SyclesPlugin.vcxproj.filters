@@ -159,6 +159,9 @@
     <ClCompile Include="render_cycles\cyc_output\series_context.cpp">
       <Filter>render_cycles\cyc_output</Filter>
     </ClCompile>
+    <ClCompile Include="render_base\image_buffer.cpp">
+      <Filter>render_base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -334,6 +337,9 @@
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_output\series_context.h">
       <Filter>render_cycles\cyc_output</Filter>
+    </ClInclude>
+    <ClInclude Include="render_base\image_buffer.h">
+      <Filter>render_base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

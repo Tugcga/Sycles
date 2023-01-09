@@ -1,3 +1,5 @@
+#include <xsi_customproperty.h>
+
 #include "../input/input.h"
 #include "si_locker.h"
 #include "../utilities/logs.h"

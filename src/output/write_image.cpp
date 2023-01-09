@@ -128,15 +128,15 @@ void write_output_oiio(size_t width, size_t height, ccl::ustring output_path, st
 {
 	// create output
 	//std::unique_ptr<OIIO::ImageOutput> out = OIIO::ImageOutput::create(output_path);
-	OIIO::ImageOutput::unique_ptr out = OIIO::ImageOutput::create(output_path);
+	//OIIO::ImageOutput::unique_ptr out = OIIO::ImageOutput::create(output_path);
 
 	// create spec
-	OIIO::ImageSpec out_spec = OIIO::ImageSpec(width, height, write_components, out_type);
+	//OIIO::ImageSpec out_spec = OIIO::ImageSpec(width, height, write_components, out_type);
 
 	// open to write
-	out->open(std::string(output_path), out_spec);
-	out->write_image(OIIO::TypeDesc::FLOAT, &output_pixels[0]);
-	out->close();
+	//out->open(std::string(output_path), out_spec);
+	//out->write_image(OIIO::TypeDesc::FLOAT, &output_pixels[0]);
+	//out->close();
 }
 
 void write_outputs_separate_passes(OutputContext* output_context, ColorTransformContext* color_transform_context, size_t width, size_t height)

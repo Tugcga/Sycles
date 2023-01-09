@@ -281,7 +281,7 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 		ccl::ustring attr_name = ccl::ustring(weight_data[weight_index].data_name.GetAsciiString());
 		if (hair_geom->need_attribute(scene, attr_name))
 		{
-			ccl::Attribute* weight_attr = hair_geom->attributes.add(attr_name, OIIO::TypeDesc::TypeFloat, ccl::ATTR_ELEMENT_CURVE);
+			ccl::Attribute* weight_attr = hair_geom->attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_CURVE);
 			float* attr_data = weight_attr->data_float();
 			for (size_t d_index = 0; d_index < weight_data[weight_index].data.size(); d_index++)
 			{
