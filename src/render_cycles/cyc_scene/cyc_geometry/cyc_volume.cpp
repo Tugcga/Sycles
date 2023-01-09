@@ -254,7 +254,6 @@ ccl::Volume* sync_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateCo
 	bool motion_deform = false;
 	XSI::CString lightgroup = "";
 	sync_geometry_object_parameters(scene, object, xsi_object, lightgroup, motion_deform, "CyclesPointcloud", render_parameters, eval_time);
-
 	update_context->add_lightgroup(lightgroup);
 
 	XSI::Primitive xsi_primitive(xsi_object.GetActivePrimitive(eval_time));

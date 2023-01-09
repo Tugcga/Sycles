@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsi_file type="CompoundNode" name="Integer Size To Vector" category="Sycles" formatversion="1.4" compoundversion="1.0" backgroundcolor="10468505">
+	<definition>
+		<nodes>
+			<node type="ScalarTo3DVectorNode" index="0">
+				<param name="x" type="4" value="0.000000"></param>
+				<param name="y" type="4" value="0.000000"></param>
+				<param name="z" type="4" value="0.000000"></param>
+				<portdef name="x" type="4" structure="1" group="0" instance="0" port="0"></portdef>
+				<portdef name="y" type="4" structure="1" group="0" instance="0" port="1"></portdef>
+				<portdef name="z" type="4" structure="1" group="0" instance="0" port="2"></portdef>
+				<datablob category="ui_infos">
+					<prop name="posx">151</prop>
+					<prop name="posy">-43</prop>
+					<prop name="state">Normal</prop>
+				</datablob>
+			</node>
+			<node type="IntegerToScalarNode" index="1">
+				<param name="integer" type="3" value="0"></param>
+				<portdef name="integer" type="2" structure="1" group="0" instance="0" port="0"></portdef>
+				<datablob category="ui_infos">
+					<prop name="posx">-50</prop>
+					<prop name="posy">-69</prop>
+					<prop name="state">Normal</prop>
+				</datablob>
+			</node>
+			<node type="IntegerToScalarNode" index="2">
+				<param name="integer" type="3" value="0"></param>
+				<portdef name="integer" type="2" structure="1" group="0" instance="0" port="0"></portdef>
+				<datablob category="ui_infos">
+					<prop name="posx">-59</prop>
+					<prop name="posy">73</prop>
+					<prop name="state">Normal</prop>
+				</datablob>
+			</node>
+			<node type="IntegerToScalarNode" index="3">
+				<param name="integer" type="3" value="0"></param>
+				<portdef name="integer" type="2" structure="1" group="0" instance="0" port="0"></portdef>
+				<datablob category="ui_infos">
+					<prop name="posx">-49</prop>
+					<prop name="posy">0</prop>
+					<prop name="state">Normal</prop>
+				</datablob>
+			</node>
+		</nodes>
+		<exposed_ports>
+			<port index="0" portname="vector" username="Vector_Size" basename="Vector Size" portlabel="Vector Size" exposetype="single"> </port>
+			<port index="1" portname="integer" username="X_Size" basename="X Size" portlabel="X Size" exposetype="single"> </port>
+			<port index="2" portname="integer" username="Z_Size" basename="Z Size" portlabel="Z Size" exposetype="single"> </port>
+			<port index="3" portname="integer" username="Y_Size" basename="Y Size" portlabel="Y Size" exposetype="single"> </port>
+		</exposed_ports>
+		<connections>
+			<cnx from_node="1" from_port="scalar" to_node="0" to_port="x"> </cnx>
+			<cnx from_node="2" from_port="scalar" to_node="0" to_port="z"> </cnx>
+			<cnx from_node="3" from_port="scalar" to_node="0" to_port="y"> </cnx>
+		</connections>
+		<layout>
+			<item type="input" name="X_Size"> </item>
+			<item type="input" name="Y_Size"> </item>
+			<item type="input" name="Z_Size"> </item>
+			<item type="output" name="Vector_Size"> </item>
+		</layout>
+	</definition>
+</xsi_file>
