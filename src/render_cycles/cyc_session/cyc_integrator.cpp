@@ -10,6 +10,34 @@
 #include "../../input/input.h"
 #include "cyc_baking.h"
 
+ccl::DenoiseParams get_denoise_params(const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
+{
+	ccl::DenoiseParams denoising;
+
+	int denoise_mode = render_parameters.GetValue("denoise_mode", eval_time);
+	denoising.use = denoise_mode != 0;
+	denoising.type = denoise_mode == 2 ? ccl::DenoiserType::DENOISER_OPTIX : ccl::DenoiserType::DENOISER_OPENIMAGEDENOISE;
+	denoising.use_pass_albedo = false;
+	denoising.use_pass_normal = false;
+
+	int denoise_channels = render_parameters.GetValue("denoise_channels", eval_time);
+	if (denoise_channels == 1)
+	{
+		denoising.use_pass_albedo = true;
+	}
+	else if (denoise_channels == 2)
+	{
+		denoising.use_pass_albedo = true;
+		denoising.use_pass_normal = true;
+	}
+
+	int denoise_prefilter = render_parameters.GetValue("denoise_prefilter", eval_time);
+	denoising.prefilter = denoise_prefilter == 2 ? ccl::DENOISER_PREFILTER_ACCURATE :
+		(denoise_prefilter == 1 ? ccl::DENOISER_PREFILTER_FAST : ccl::DENOISER_PREFILTER_NONE);
+
+	return denoising;
+}
+
 void sync_integrator(ccl::Session* session, UpdateContext* update_context, BakingContext* baking_context, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const InputConfig &input_config)
 {
 	ccl::Integrator* integrator = session->scene->integrator;
@@ -73,8 +101,16 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		int patttern = render_parameters.GetValue("sampling_advanced_pattern", eval_time);
 		integrator->set_sampling_pattern(patttern == 1 ? ccl::SamplingPattern::SAMPLING_PATTERN_TABULATED_SOBOL: ccl::SamplingPattern::SAMPLING_PATTERN_SOBOL_BURLEY);
 
-		// TODO: make denoising support
-		integrator->set_use_denoise(false);
+		ccl::DenoiseParams denoise_params = get_denoise_params(render_parameters, eval_time);
+		integrator->set_use_denoise(denoise_params.use);
+		if (denoise_params.use)
+		{
+			integrator->set_denoiser_type(denoise_params.type);
+			integrator->set_denoise_start_sample(denoise_params.start_sample);
+			integrator->set_use_denoise_pass_albedo(denoise_params.use_pass_albedo);
+			integrator->set_use_denoise_pass_normal(denoise_params.use_pass_normal);
+			integrator->set_denoiser_prefilter(denoise_params.prefilter);
+		}
 
 		float scrambling_distance = render_parameters.GetValue("sampling_advanced_scrambling_multiplier", eval_time);
 		bool auto_scrambling_distance = render_parameters.GetValue("sampling_advanced_scrambling_distance", eval_time);

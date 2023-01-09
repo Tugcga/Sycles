@@ -64,6 +64,13 @@ void find_devices()
 	{
 		available_devices.push_back(device);
 	}
+
+	// one api devices
+	ccl::vector<ccl::DeviceInfo> oneapi_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_ONEAPI);
+	foreach(ccl::DeviceInfo& device, oneapi_devices)
+	{
+		available_devices.push_back(device);
+	}
 }
 
 ccl::vector<ccl::DeviceInfo> get_available_devices()
@@ -76,10 +83,25 @@ XSI::CStringArray get_available_devices_names()
 	XSI::CStringArray names_array(available_devices.size());
 	for (size_t i = 0; i < available_devices.size(); i++)
 	{
-		names_array[i] = available_devices[i].description.c_str();
+		ccl::DeviceInfo device_info = available_devices[i];
+		names_array[i] = XSI::CString(device_info.description.c_str()) + (device_info.type == ccl::DeviceType::DEVICE_OPTIX ? " OptiX" : "");
 	}
 
 	return names_array;
+}
+
+bool is_optix_available()
+{
+	for (size_t i = 0; i < available_devices.size(); i++)
+	{
+		ccl::DeviceInfo device_info = available_devices[i];
+		if (device_info.type == ccl::DeviceType::DEVICE_OPTIX)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 InputConfig input_config;

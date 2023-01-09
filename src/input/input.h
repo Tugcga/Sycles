@@ -11,6 +11,7 @@ XSI::CString get_plugin_path();
 // call find devices command when the plugin is initialized (nd render instance is created)
 void find_devices();
 XSI::CStringArray get_available_devices_names();
+bool is_optix_available();
 
 void read_config_ini();
 InputConfig get_input_config();

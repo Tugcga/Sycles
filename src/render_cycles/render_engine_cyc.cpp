@@ -481,6 +481,18 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		}
 	}
 
+	// recreate the scene if we change denoising
+	int denoise_mode = m_render_parameters.GetValue("denoise_mode", eval_time);
+	bool use_denoising = denoise_mode != 0;
+	if (!is_recreate_session)
+	{
+		if (update_context->get_use_denoising() != use_denoising)
+		{
+			is_recreate_session = true;
+		}
+	}
+	update_context->set_use_denoising(use_denoising);
+
 	// set actual motoin type
 	// this value used in integrator
 	// even if we does not update other motion parameters but motion blur is disabled, then in will not be rendered
@@ -801,7 +813,6 @@ XSI::CStatus RenderEngineCyc::post_scene()
 
 	if(make_render)
 	{
-		// RenderVisualBuffer store pixels in OIIO::ImageBuf
 		visual_buffer->setup((ULONG)image_full_size_width,
 			(ULONG)image_full_size_height,
 			(ULONG)image_corner_x,
@@ -813,7 +824,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			m_render_parameters, eval_time);
 
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
-		sync_passes(session->scene, output_context, series_context, baking_context, visual_buffer, update_context->get_motion_type(), update_context->get_lightgropus(), update_context->get_color_aovs(), update_context->get_value_aovs());
+		sync_passes(session->scene, update_context, output_context, series_context, baking_context, visual_buffer);
 		series_context->set_common_path(output_context);
 
 		if (update_context->is_changed_render_paramters_film(changed_render_parameters))

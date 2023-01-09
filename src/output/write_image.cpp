@@ -124,21 +124,6 @@ bool write_output_ldr_stb(size_t width, size_t height, size_t components, float*
 	return out > 0;
 }
 
-void write_output_oiio(size_t width, size_t height, ccl::ustring output_path, std::vector<float>& output_pixels, int write_components, ccl::TypeDesc out_type)
-{
-	// create output
-	//std::unique_ptr<OIIO::ImageOutput> out = OIIO::ImageOutput::create(output_path);
-	//OIIO::ImageOutput::unique_ptr out = OIIO::ImageOutput::create(output_path);
-
-	// create spec
-	//OIIO::ImageSpec out_spec = OIIO::ImageSpec(width, height, write_components, out_type);
-
-	// open to write
-	//out->open(std::string(output_path), out_spec);
-	//out->write_image(OIIO::TypeDesc::FLOAT, &output_pixels[0]);
-	//out->close();
-}
-
 void write_outputs_separate_passes(OutputContext* output_context, ColorTransformContext* color_transform_context, size_t width, size_t height)
 {
 	for (size_t i = 0; i < output_context->get_output_passes_count(); i++)
@@ -146,7 +131,8 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 		ccl::PassType pass_type = output_context->get_output_pass_type(i);
 		// does not save cryptomatte passes here, we will save it separately
 		// also these passes does not contain proper extension and file path
-		if (pass_type == ccl::PASS_CRYPTOMATTE)
+		// also skip denoising data passes
+		if (pass_type == ccl::PASS_CRYPTOMATTE || pass_type == ccl::PASS_DENOISING_NORMAL || pass_type == ccl::PASS_DENOISING_ALBEDO || pass_type == ccl::PASS_DENOISING_DEPTH)
 		{
 			continue;
 		}
@@ -208,11 +194,6 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 			{
 				log_message("Unknown output format: " + XSI::CString(output_ext.c_str()), XSI::siWarningMsg);
 			}
-			// there are some bags in writing image by OIIO
-			// the memory is not clear after write process
-			// there is an error when Softimage is closed
-			// so, use manual outputs instead one universal with OpenImageIO
-			// write_output_oiio(width, height, output_path, output_pixels, write_components, out_type);
 		}
 		else
 		{

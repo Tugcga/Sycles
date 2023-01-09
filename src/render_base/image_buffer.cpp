@@ -57,6 +57,7 @@ void ImageBuffer::recreate(size_t in_width, size_t in_height, size_t in_channels
 
 	pixels_count = width * height;
 
+	pixels.clear();
 	pixels.resize(pixels_count * channels, 0.0f);
 }
 

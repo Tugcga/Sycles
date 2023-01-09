@@ -253,7 +253,6 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 	layout.AddGroup("Multilayer EXR");
 	layout.AddItem("output_exr_combine_passes", "Combine Render Passes To Single EXR");
-	layout.AddItem("output_exr_noisy_passes", "Include Noisy Combined Color");
 	layout.AddItem("output_exr_denoising_data", "Include Denoising Data");
 	layout.AddItem("output_exr_render_separate_passes", "Save Separate Passes");
 	layout.EndGroup();
@@ -322,10 +321,15 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 	layout.AddTab("Denoise");
 	layout.AddGroup("Denoise");
-	XSI::CValueArray denoise_mode_enum(6);
+	bool is_optix = is_optix_available();
+	XSI::CValueArray denoise_mode_enum(is_optix ? 6 : 4);
+	// we set universal oidn as first denoiser, optix as the second (because optix is not allowed everywhere)
 	denoise_mode_enum[0] = "Disable"; denoise_mode_enum[1] = 0;
-	denoise_mode_enum[2] = "OptiX"; denoise_mode_enum[3] = 1;
-	denoise_mode_enum[4] = "OpenImageDenoise"; denoise_mode_enum[5] = 2;
+	denoise_mode_enum[2] = "OpenImageDenoise"; denoise_mode_enum[3] = 1;
+	if (is_optix)
+	{
+		denoise_mode_enum[4] = "OptiX"; denoise_mode_enum[5] = 2;
+	}
 	layout.AddEnumControl("denoise_mode", denoise_mode_enum, "Denoise Mode", XSI::siControlCombo);
 	XSI::CValueArray denoise_channels_enum(6);
 	denoise_channels_enum[0] = "None"; denoise_channels_enum[1] = 0;
@@ -568,9 +572,6 @@ void set_multilayer_exr(XSI::CustomProperty& prop)
 	XSI::Parameter output_exr_render_separate_passes = prop_array.GetItem("output_exr_render_separate_passes");
 	output_exr_render_separate_passes.PutCapabilityFlag(block_mode, !is_multilayer);
 
-	XSI::Parameter output_exr_noisy_passes = prop_array.GetItem("output_exr_noisy_passes");
-	output_exr_noisy_passes.PutCapabilityFlag(block_mode, !is_multilayer);
-
 	XSI::Parameter output_exr_denoising_data = prop_array.GetItem("output_exr_denoising_data");
 	output_exr_denoising_data.PutCapabilityFlag(block_mode, !is_multilayer);
 }
@@ -628,7 +629,7 @@ void set_denoising(XSI::CustomProperty& prop)
 	denoise_channels.PutCapabilityFlag(block_mode, mode == 0);
 
 	XSI::Parameter denoise_prefilter = prop_array.GetItem("denoise_prefilter");
-	denoise_prefilter.PutCapabilityFlag(block_mode, mode != 2);
+	denoise_prefilter.PutCapabilityFlag(block_mode, mode != 1);
 }
 
 void set_colormanagement(XSI::CustomProperty& prop)
@@ -926,7 +927,6 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	// multilayer exr
 	property.AddParameter("output_exr_combine_passes", XSI::CValue::siBool, caps, "", "", false, param);
 	property.AddParameter("output_exr_render_separate_passes", XSI::CValue::siBool, caps, "", "", true, param);
-	property.AddParameter("output_exr_noisy_passes", XSI::CValue::siBool, caps, "", "", false, param);
 	property.AddParameter("output_exr_denoising_data", XSI::CValue::siBool, caps, "", "", false, param);
 
 	// cryptomatte

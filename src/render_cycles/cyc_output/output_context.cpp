@@ -370,7 +370,9 @@ void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CStrin
 
 // this method calls after we sync the scene, but before we setup all render passes
 // data from the object after this method is used for setting all render passes
-void OutputContext::set_output_passes(BakingContext* baking_context, MotionSettingsType motion_type, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
+// if store_denoising is true, then we should add all passes, used for denoising (without path)
+// these passes will be saved into combined exr
+void OutputContext::set_output_passes(BakingContext* baking_context, MotionSettingsType motion_type, bool store_denoising, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
 {
 	output_passes_count = 0;
 	output_pass_types.clear();
@@ -390,7 +392,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 	// in most cases one output channel corresponds to one output pass
 	// but it's possible to select one channel several times and save it with different names
 	// also aovs correspond to several different passes
-	int total_components = 0;
 	for (size_t i = 0; i < output_channels.GetCount(); i++)
 	{
 		// channel for visual pass has proper name (Cycles Depth, for example)
@@ -417,7 +418,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 		{
 			XSI::CString pass_name = pass_to_name(pass_type);  // convert from Cycles pass type to the standart name (PASS_COMBINED -> Combined, for example)
 			int pass_components = get_pass_components(pass_type, is_lightgroup);
-			total_components += pass_components;
 
 			if (pass_type == ccl::PASS_AOV_COLOR || pass_type == ccl::PASS_AOV_VALUE)
 			{// we should add several output passes, for each name in the input array
@@ -430,7 +430,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 					// we assume that input arrays contains aov names without repetitions
 
 					int pass_components = get_pass_components(pass_type, false);
-					total_components += pass_components;
 
 					// we should modify output pass, add at the end the name of the pass (original name, not modified)
 					add_one_pass_data(pass_type, aov_name, pass_components, i, add_aov_name_to_path(output_paths[i], aov_names[aov_index]));
@@ -442,7 +441,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 				{
 					XSI::CString lg_name = add_prefix_to_lightgroup_name(lightgroup_names[lg_index]);
 					int pass_components = get_pass_components(pass_type, true);
-					total_components += pass_components;
 
 					add_one_pass_data(pass_type, lg_name, pass_components, i, add_aov_name_to_path(output_paths[i], lightgroup_names[lg_index]));
 				}
@@ -467,6 +465,18 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 		}
 	}
 
+	if (store_denoising)
+	{
+		ccl::PassType denoising_normal = ccl::PASS_DENOISING_NORMAL;
+		add_one_pass_data(denoising_normal, pass_to_name(denoising_normal), get_pass_components(denoising_normal, false), -1, "");
+
+		ccl::PassType denoising_albedo = ccl::PASS_DENOISING_ALBEDO;
+		add_one_pass_data(denoising_albedo, pass_to_name(denoising_albedo), get_pass_components(denoising_albedo, false), -1, "");
+
+		ccl::PassType denoising_depth = ccl::PASS_DENOISING_DEPTH;
+		add_one_pass_data(denoising_depth, pass_to_name(denoising_depth), get_pass_components(denoising_depth, false), -1, "");
+	}
+
 	// next add cryptomatte passes
 	crypto_passes = ccl::CRYPT_NONE;
 	const char* cryptomatte_prefix = "Crypto";
@@ -482,7 +492,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Object%02d", i)).c_str());
 				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
 				crypto_buffer_indices.push_back(output_passes_count - 1);
-				total_components += crypto_components;
 			}
 			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_OBJECT);
 		}
@@ -494,7 +503,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Material%02d", i)).c_str());
 				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
 				crypto_buffer_indices.push_back(output_passes_count - 1);
-				total_components += crypto_components;
 			}
 			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_MATERIAL);
 		}
@@ -506,19 +514,16 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Asset%02d", i)).c_str());
 				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
 				crypto_buffer_indices.push_back(output_passes_count - 1);
-				total_components += crypto_components;
 			}
 			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_ASSET);
 		}
 	}
 
 	// next wraps all buffers
-	total_components = 0;  // use this variable as components shift for buffer pixels
 	for (size_t i = 0; i < output_passes_count; i++)
 	{
 		int pass_components = output_pass_components[i];
 		ImageBuffer* new_buffer = new ImageBuffer(image_width, image_height, pass_components);
-		total_components += pass_components;
 
 		output_buffers.push_back(new_buffer);
 	}

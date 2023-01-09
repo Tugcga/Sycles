@@ -51,6 +51,8 @@ void UpdateContext::reset()
 	need_update_background = false;
 	use_background_light = false;
 
+	use_denoising = false;
+
 	lightgroups.clear();
 	color_aovs.clear();
 	value_aovs.clear();
@@ -76,6 +78,16 @@ void UpdateContext::set_is_update_scene(bool value)
 bool UpdateContext::get_is_update_scene()
 {
 	return is_update_scene;
+}
+
+void UpdateContext::set_use_denoising(bool value)
+{
+	use_denoising = value;
+}
+
+bool UpdateContext::get_use_denoising()
+{
+	return use_denoising;
 }
 
 void UpdateContext::set_current_render_parameters(const XSI::CParameterRefArray& render_parameters)
@@ -174,7 +186,8 @@ bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_
 		"sampling_advanced_pattern",
 		"sampling_advanced_scrambling_distance", "sampling_advanced_scrambling_multiplier"
 		"paths_fastgi_use", "paths_fastgi_ao_factor", "paths_fastgi_ao_distance", "paths_fastgi_method", "paths_fastgi_ao_bounces",
-		"sampling_path_guiding_use", "sampling_path_guiding_surface", "sampling_path_guiding_volume", "sampling_path_guiding_training_samples"
+		"sampling_path_guiding_use", "sampling_path_guiding_surface", "sampling_path_guiding_volume", "sampling_path_guiding_training_samples",
+		"denoise_mode", "denoise_channels", "denoise_prefilter"
 	};
 
 	return is_set_contains_from_array(parameters, integrator_parameters);

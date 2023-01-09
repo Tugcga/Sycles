@@ -5,6 +5,7 @@
 #include <string>
 
 #include "util/array.h"
+#include "OpenImageIO/ustring.h"
 
 XSI::CString remove_digits(const XSI::CString& orignal_str)
 {
@@ -341,4 +342,26 @@ std::string replace_all_substrings(const std::string& input_string, const std::s
 	}
 
 	return to_return;
+}
+
+bool is_ends_with(const OIIO::ustring& input_string, const XSI::CString& end_fragment)
+{
+	size_t input_size = input_string.size();
+	size_t ending_size = end_fragment.Length();
+	if (input_size < ending_size)
+	{
+		return false;
+	}
+
+	
+	for (size_t i = 0; i < ending_size; i++)
+	{
+		char v = end_fragment[ending_size - i - 1];
+		if (input_string[input_size - 1 - i] != v)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
