@@ -71,7 +71,7 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		integrator->set_adaptive_min_samples(render_parameters.GetValue("sampling_render_adaptive_min_samples", eval_time));
 
 		int patttern = render_parameters.GetValue("sampling_advanced_pattern", eval_time);
-		integrator->set_sampling_pattern(patttern == 0 ? ccl::SamplingPattern::SAMPLING_PATTERN_SOBOL_BURLEY : ccl::SamplingPattern::SAMPLING_PATTERN_PMJ);
+		integrator->set_sampling_pattern(patttern == 1 ? ccl::SamplingPattern::SAMPLING_PATTERN_TABULATED_SOBOL: ccl::SamplingPattern::SAMPLING_PATTERN_SOBOL_BURLEY);
 
 		// TODO: make denoising support
 		integrator->set_use_denoise(false);

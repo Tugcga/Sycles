@@ -169,7 +169,7 @@ bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_
 		"paths_caustics_filter_glossy", "paths_caustics_reflective", "paths_caustics_refractive",
 		"sampling_advanced_seed", "sampling_advanced_animate_seed",
 		"paths_clamp_direct", "paths_clamp_indirect",
-		"sampling_advanced_light_threshold",
+		"sampling_advanced_light_tree", "sampling_advanced_light_threshold",
 		"sampling_render_use_adaptive", "sampling_render_adaptive_threshold", "sampling_render_adaptive_min_samples",
 		"sampling_advanced_pattern",
 		"sampling_advanced_scrambling_distance", "sampling_advanced_scrambling_multiplier"
@@ -215,7 +215,7 @@ bool UpdateContext::is_change_render_parameters_background(const std::unordered_
 bool UpdateContext::is_change_render_parameters_shaders(const std::unordered_set<std::string>& parameters)
 {
 	std::vector<std::string> background_parameters = {
-		"options_shaders_use_mis", "options_shaders_transparent_shadows", "options_displacement_method"
+		"options_shaders_emission_sampling", "options_shaders_transparent_shadows", "options_displacement_method"
 	};
 	return is_set_contains_from_array(parameters, background_parameters);
 }

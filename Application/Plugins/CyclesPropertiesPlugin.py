@@ -22,7 +22,6 @@ baking_shaders = ["Position", "Cycles Position",
                   "Emit", "Cycles Emission",
                   "AO", "Cycles AO",
                   "Combined", "Cycles Combined",
-                  "Shadow", "Cycles Shadow",
                   "Diffuse", "Cycles Diffuse",
                   "Glossy", "Cycles Glossy",
                   "Transmission", "Cycles Transmission",
@@ -363,7 +362,7 @@ def update_baking_ui(prop):
     else:
         prop.Parameters("baking_view").ReadOnly = False
 
-    if shader_value in ["Cycles AO", "Cycles Shadow", "Cycles Normal", "Cycles Position", "Cycles UV", "Cycles Roughness", "Cycles Emission", "Cycles Background"]:
+    if shader_value in ["Cycles AO", "Cycles Normal", "Cycles Position", "Cycles UV", "Cycles Roughness", "Cycles Emission", "Cycles Background"]:
         # no filters for these shaders
         prop.Parameters("baking_filter_direct").ReadOnly = True
         prop.Parameters("baking_filter_indirect").ReadOnly = True

@@ -202,18 +202,21 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const ULONG shaderball_displacement, const XSI::CTime& eval_time)
 {
 	// set common shader parameters for all shaders
-	bool use_mis = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_use_mis", eval_time);
+	int emission_sampling = render_type == RenderType_Shaderball ? 1 /*Auto*/ : (int)render_parameters.GetValue("options_shaders_emission_sampling", eval_time);
 	bool transparent_shadows = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_transparent_shadows", eval_time);
 	int disp_method = render_type == RenderType_Shaderball ? shaderball_displacement : (int)render_parameters.GetValue("options_displacement_method", eval_time);
 
 	for (size_t i = 0; i < scene->shaders.size(); i++)
 	{
 		ccl::Shader* shader = scene->shaders[i];
-		shader->set_use_mis(use_mis);
+		shader->set_emission_sampling_method(emission_sampling == 0 ? ccl::EmissionSampling::EMISSION_SAMPLING_NONE :
+			(emission_sampling == 1 ? ccl::EmissionSampling::EMISSION_SAMPLING_AUTO : 
+			(emission_sampling == 2 ? ccl::EmissionSampling::EMISSION_SAMPLING_FRONT : 
+			(emission_sampling == 3 ? ccl::EmissionSampling::EMISSION_SAMPLING_BACK : ccl::EmissionSampling::EMISSION_SAMPLING_FRONT_BACK))));
 		shader->set_use_transparent_shadow(transparent_shadows);
 		shader->set_displacement_method(disp_method == 0 ? ccl::DisplacementMethod::DISPLACE_BUMP : (disp_method == 1 ? ccl::DisplacementMethod::DISPLACE_TRUE : ccl::DisplacementMethod::DISPLACE_BOTH));
 
-		shader->tag_use_mis_modified();
+		shader->tag_emission_sampling_method_modified();
 		shader->tag_use_transparent_shadow_modified();
 		shader->tag_displacement_method_modified();
 	}

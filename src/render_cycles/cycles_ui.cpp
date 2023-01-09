@@ -33,19 +33,24 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("sampling_path_guiding_training_samples", "Training Samples");
 	layout.EndGroup();
 
+	layout.AddGroup("Lights");
+	layout.AddItem("sampling_advanced_light_tree", "Light Tree");
+	layout.AddItem("sampling_advanced_light_threshold", "Light Threshold");
+	layout.EndGroup();
+
 	layout.AddGroup("Advanced");
 	layout.AddItem("sampling_advanced_seed", "Seed");
 	layout.AddItem("sampling_advanced_animate_seed", "Animate Seed");
-	XSI::CValueArray pattern_combo(4);
-	pattern_combo[0] = "Sobol Burley"; pattern_combo[1] = LONG(0);
-	pattern_combo[2] = "Progressive Multi-Jitter"; pattern_combo[3] = LONG(1);
-	layout.AddEnumControl("sampling_advanced_pattern", pattern_combo, "Pattern", XSI::siControlCombo);
+	// does not show pattern, always use tabulated sobol ( = 1)
+	// XSI::CValueArray pattern_combo(4);
+	// pattern_combo[0] = "Sobol Burley"; pattern_combo[1] = LONG(0);
+	// pattern_combo[2] = "Tabulated Sobo"; pattern_combo[3] = LONG(1);
+	// layout.AddEnumControl("sampling_advanced_pattern", pattern_combo, "Pattern", XSI::siControlCombo);
 	layout.AddItem("sampling_advanced_offset", "Sample Offset");
 	layout.AddItem("sampling_advanced_scrambling_distance", "Auto Scrambling Distance");
 	layout.AddItem("sampling_advanced_scrambling_multiplier", "Scrambling Distance Multiplier");
 	layout.AddItem("sampling_advanced_min_light_bounces", "Min Light Bounces");
 	layout.AddItem("sampling_advanced_min_transparent_bounces", "Min Transparent Bounces");
-	layout.AddItem("sampling_advanced_light_threshold", "Light Threshold");
 	layout.EndGroup();
 
 	layout.AddTab("Light Paths");
@@ -336,7 +341,13 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 	layout.AddTab("Options");
 	layout.AddGroup("Shaders");
-	layout.AddItem("options_shaders_use_mis", "Multiple Importance");
+	XSI::CValueArray emission_sampling_combo(10);
+	emission_sampling_combo[0] = "None"; emission_sampling_combo[1] = 0;
+	emission_sampling_combo[2] = "Auto"; emission_sampling_combo[3] = 1;
+	emission_sampling_combo[4] = "Front"; emission_sampling_combo[5] = 2;
+	emission_sampling_combo[6] = "Back"; emission_sampling_combo[7] = 3;
+	emission_sampling_combo[8] = "Front and Back"; emission_sampling_combo[9] = 4;
+	layout.AddEnumControl("options_shaders_emission_sampling", emission_sampling_combo, "Emission Sampling", XSI::siControlCombo);
 	layout.AddItem("options_shaders_transparent_shadows", "Transparent Shadows");
 	XSI::CValueArray shader_system_combo(4);
 	shader_system_combo[0] = "SVM"; shader_system_combo[1] = 0;
@@ -410,6 +421,17 @@ void set_advances_sampling(XSI::CustomProperty& prop)
 
 	XSI::Parameter sampling_advanced_scrambling_multiplier = prop_array.GetItem("sampling_advanced_scrambling_multiplier");
 	sampling_advanced_scrambling_multiplier.PutCapabilityFlag(block_mode, pattern == 0);
+}
+
+void set_lights(XSI::CustomProperty& prop)
+{
+	XSI::CParameterRefArray prop_array = prop.GetParameters();
+
+	XSI::Parameter sampling_advanced_light_tree = prop_array.GetItem("sampling_advanced_light_tree");
+	bool use_tree = sampling_advanced_light_tree.GetValue();
+
+	XSI::Parameter sampling_advanced_light_threshold = prop_array.GetItem("sampling_advanced_light_threshold");
+	sampling_advanced_light_threshold.PutCapabilityFlag(block_mode, !use_tree);
 }
 
 void set_fastgi(XSI::CustomProperty& prop)
@@ -658,6 +680,7 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		set_sampling(cp_source);
 		set_path_guiding(cp_source);
 		set_advances_sampling(cp_source);
+		set_lights(cp_source);
 		set_fastgi(cp_source);
 		set_curves(cp_source);
 		set_film_filter(cp_source);
@@ -691,6 +714,10 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		else if (param_name == "sampling_advanced_pattern")
 		{
 			set_advances_sampling(prop);
+		}
+		else if (param_name == "sampling_advanced_light_tree")
+		{
+			set_lights(prop);
 		}
 		else if (param_name == "paths_fastgi_use" || param_name == "paths_fastgi_method")
 		{
@@ -805,6 +832,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("sampling_advanced_scrambling_multiplier", XSI::CValue::siFloat, caps, "", "", 1.0, 0.0, 1.0, 0.0, 1.0, param);
 	property.AddParameter("sampling_advanced_min_light_bounces", XSI::CValue::siInt4, caps, "", "", 0, 0, 1024, 1, 32, param);
 	property.AddParameter("sampling_advanced_min_transparent_bounces", XSI::CValue::siInt4, caps, "", "", 0, 0, 1024, 1, 32, param);
+	property.AddParameter("sampling_advanced_light_tree", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("sampling_advanced_light_threshold", XSI::CValue::siFloat, caps, "", "", 0.01, 0.0, 1.0, 0.0, 0.05, param);
 	
 	// light paths tab
@@ -952,7 +980,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 
 	// options tab
 	// shaders
-	property.AddParameter("options_shaders_use_mis", XSI::CValue::siBool, caps, "", "", true, param);
+	property.AddParameter("options_shaders_emission_sampling", XSI::CValue::siInt4, caps, "", "", 1, param);
 	property.AddParameter("options_shaders_transparent_shadows", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("options_shaders_system", XSI::CValue::siInt4, caps, "", "", 0, param);
 

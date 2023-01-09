@@ -8,7 +8,7 @@ false = 0
 true = 1
 
 camera_types = ["Native XSI Camera", 0, "Panorama", 1]
-panorama_types = ["Equirectangular", 0, "Fisheye Equidistant", 1, "Fisheye Equisolid", 2, "Mirrorball", 3, "Fisheye Lens Polynomial", 4]
+panorama_types = ["Equirectangular", 0, "Fisheye Equidistant", 1, "Fisheye Equisolid", 2, "Mirrorball", 3, "Fisheye Lens Polynomial", 4, "Equiangular Cubemap Face", 5]
 
 
 def XSILoadPlugin(in_reg):
@@ -123,7 +123,7 @@ def update(prop):
             set_readonly(prop, panorama_eq, True)
             set_readonly(prop, panorama_fisheye, False)
             set_readonly(prop, panorama_polynomial, True)
-        elif panorama_type == 3:
+        elif panorama_type == 3 or panorama_type == 5:
             set_readonly(prop, panorama_general, False)
             set_readonly(prop, ["fisheye_fov"], True)
             set_readonly(prop, panorama_eq, True)

@@ -156,7 +156,11 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 		ccl::BoundBox2D cam_box;
 		camera->viewplane = cam_box;
 		int panorama_type = camera_property.GetParameterValue("panorama_type", eval_time);
-		camera->set_panorama_type(panorama_type == 0 ? ccl::PANORAMA_EQUIRECTANGULAR : (panorama_type == 1 ? ccl::PANORAMA_FISHEYE_EQUIDISTANT : (panorama_type == 2 ? ccl::PANORAMA_FISHEYE_EQUISOLID : (panorama_type == 3 ? ccl::PANORAMA_MIRRORBALL : ccl::PANORAMA_FISHEYE_LENS_POLYNOMIAL))));
+		camera->set_panorama_type(panorama_type == 0 ? ccl::PanoramaType::PANORAMA_EQUIRECTANGULAR :
+			(panorama_type == 1 ? ccl::PanoramaType::PANORAMA_FISHEYE_EQUIDISTANT :
+			(panorama_type == 2 ? ccl::PanoramaType::PANORAMA_FISHEYE_EQUISOLID :
+			(panorama_type == 3 ? ccl::PanoramaType::PANORAMA_MIRRORBALL :
+			(panorama_type == 4 ? ccl::PanoramaType::PANORAMA_FISHEYE_LENS_POLYNOMIAL : ccl::PanoramaType::PANORAMA_EQUIANGULAR_CUBEMAP_FACE)))));
 		camera->set_fisheye_fov(DEG2RADF((float)camera_property.GetParameterValue("fisheye_fov", eval_time)));
 		camera->set_fisheye_lens(camera_property.GetParameterValue("fisheye_lens", eval_time));
 		camera->set_latitude_min(DEG2RADF((float)camera_property.GetParameterValue("equ_latitude_min", eval_time)));

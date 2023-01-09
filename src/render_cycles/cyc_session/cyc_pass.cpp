@@ -128,7 +128,6 @@ ccl::PassType channel_to_pass_type(const XSI::CString &channel_name)
     else if (channel_name == "Cycles Background") { return ccl::PASS_BACKGROUND; }
     else if (channel_name == "Cycles AO") { return ccl::PASS_AO; }
     else if (channel_name == "Cycles Shadow Catcher") { return ccl::PASS_SHADOW_CATCHER; }
-    else if (channel_name == "Cycles Shadow") { return ccl::PASS_SHADOW; }
     else if (channel_name == "Cycles Motion") { return ccl::PASS_MOTION; }
     else if (channel_name == "Cycles Mist") { return ccl::PASS_MIST; }
     else if (channel_name == "Cycles Volume Direct") { return ccl::PASS_VOLUME_DIRECT; }
@@ -185,8 +184,6 @@ XSI::CString pass_to_name(ccl::PassType pass_type)
         return "Background";
     case ccl::PASS_AO:
         return "Ambient Occlusion";
-    case ccl::PASS_SHADOW:
-        return "Shadow";
     case ccl::PASS_DIFFUSE_COLOR:
         return "Diffuse Color";
     case ccl::PASS_GLOSSY_COLOR:
