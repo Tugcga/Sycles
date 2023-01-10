@@ -370,6 +370,23 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 	}
 }
 
+void sync_instance_children_pointcloud_volume(ccl::Scene* scene, UpdateContext* update_context, ULONG xsi_id, XSI::X3DObject &xsi_object, ULONG xsi_master_object_id, const std::vector<ULONG>& master_ids, ULONG object_id, const std::vector<XSI::MATH::CTransformation> &instance_object_tfm_array, size_t main_motion_step)
+{
+	ccl::Object* volume_object = scene->create_node<ccl::Object>();
+	ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
+
+	volume_object->set_geometry(volume_geom);
+	size_t object_index = scene->objects.size() - 1;
+	update_context->add_object_index(xsi_id, object_index);
+
+	sync_transforms(volume_object, instance_object_tfm_array, main_motion_step);
+
+	std::vector<ULONG> m_ids(master_ids);
+	m_ids.push_back(xsi_master_object_id);
+	m_ids.push_back(xsi_object.GetObjectID());
+	update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+}
+
 void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& children, const XSI::KinematicState &master_kine, ULONG xsi_master_object_id, const std::vector<XSI::MATH::CTransformation> &tfms_array, const std::vector<ULONG> &master_ids, ULONG object_id, bool need_motion, const std::vector<float>& motion_times, size_t main_motion_step, const XSI::CTime& eval_time)
 {
 	for (size_t i = 0; i < children.GetCount(); i++)
@@ -389,20 +406,35 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 		{
 			if (xsi_object_type == "polymsh")
 			{
-				ccl::Object* mesh_object = scene->create_node<ccl::Object>();
-				ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
+				bool is_contains_explosia = is_explosia(xsi_object, eval_time);
+				bool export_as_volume = false;
+				if (is_contains_explosia)
+				{
+					PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
+					if (pointcloud_type == PointcloudType::PointcloudType_Volume)
+					{
+						sync_instance_children_pointcloud_volume(scene, update_context, xsi_id, xsi_object, xsi_master_object_id, master_ids, object_id, instance_object_tfm_array, main_motion_step);
+						export_as_volume = true;
+					}
+				}
 
-				mesh_object->set_geometry(mesh_geom);
-				size_t object_index = scene->objects.size() - 1;
-				update_context->add_object_index(xsi_id, object_index);
+				if (!export_as_volume)
+				{
+					ccl::Object* mesh_object = scene->create_node<ccl::Object>();
+					ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
 
-				sync_transforms(mesh_object, instance_object_tfm_array, main_motion_step);
+					mesh_object->set_geometry(mesh_geom);
+					size_t object_index = scene->objects.size() - 1;
+					update_context->add_object_index(xsi_id, object_index);
 
-				// add data to update context about indices of masters and cycles objects
-				std::vector<ULONG> m_ids(master_ids);
-				m_ids.push_back(xsi_master_object_id);
-				m_ids.push_back(xsi_object.GetObjectID());
-				update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+					sync_transforms(mesh_object, instance_object_tfm_array, main_motion_step);
+
+					// add data to update context about indices of masters and cycles objects
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master_object_id);
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+				}
 			}
 			else if (xsi_object_type == "hair")
 			{
@@ -457,19 +489,7 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 				}
 				else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
 				{
-					ccl::Object* volume_object = scene->create_node<ccl::Object>();
-					ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
-
-					volume_object->set_geometry(volume_geom);
-					size_t object_index = scene->objects.size() - 1;
-					update_context->add_object_index(xsi_id, object_index);
-
-					sync_transforms(volume_object, instance_object_tfm_array, main_motion_step);
-
-					std::vector<ULONG> m_ids(master_ids);
-					m_ids.push_back(xsi_master_object_id);
-					m_ids.push_back(xsi_object.GetObjectID());
-					update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+					sync_instance_children_pointcloud_volume(scene, update_context, xsi_id, xsi_object, xsi_master_object_id, master_ids, object_id, instance_object_tfm_array, main_motion_step);
 				}
 				else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
 				{
@@ -730,7 +750,17 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 	update_context->add_abort_update_transform_id(xsi_id);
 }
 
-void sync_scene_object(ccl::Scene* scene,UpdateContext* update_context, const XSI::CRef &object_ref, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
+void sync_xsi_pointcloud_volume(ccl::Scene* scene, UpdateContext* update_context, ULONG xsi_id, XSI::X3DObject& xsi_object)
+{
+	ccl::Object* volume_object = scene->create_node<ccl::Object>();
+	ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
+	volume_object->set_geometry(volume_geom);
+
+	update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+	sync_transform(volume_object, update_context, xsi_object.GetKinematics().GetGlobal());
+}
+
+void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRef &object_ref, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
 {
 	XSI::siClassID object_class = object_ref.GetClassID();
 	if (object_class == XSI::siLightID)
@@ -752,12 +782,30 @@ void sync_scene_object(ccl::Scene* scene,UpdateContext* update_context, const XS
 		{
 			if (object_type == "polymsh")
 			{
-				ccl::Object* mesh_object = scene->create_node<ccl::Object>();
-				ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
-				mesh_object->set_geometry(mesh_geom);
+				bool export_as_volume = false;
+				if (is_explosia(xsi_object, eval_time))
+				{
+					// may be this is pointcloud
+					PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
+					if (pointcloud_type == PointcloudType::PointcloudType_Volume)
+					{
+						// use the same process as for ice volumes
+						sync_xsi_pointcloud_volume(scene, update_context, xsi_id, xsi_object);
 
-				update_context->add_object_index(xsi_id, scene->objects.size() - 1);
-				sync_transform(mesh_object, update_context, xsi_object.GetKinematics().GetGlobal());
+						export_as_volume = true;
+					}
+					// if this mesh does not contains volume attributes, export it as polymesh
+				}
+				if(!export_as_volume)
+				{
+					ccl::Object* mesh_object = scene->create_node<ccl::Object>();
+					ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
+					mesh_object->set_geometry(mesh_geom);
+
+					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+					sync_transform(mesh_object, update_context, xsi_object.GetKinematics().GetGlobal());
+				}
+				
 			}
 			else if (object_type == "hair")
 			{
@@ -793,12 +841,8 @@ void sync_scene_object(ccl::Scene* scene,UpdateContext* update_context, const XS
 				}
 				else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
 				{
-					ccl::Object* volume_object = scene->create_node<ccl::Object>();
-					ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
-					volume_object->set_geometry(volume_geom);
-
-					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
-					sync_transform(volume_object, update_context, xsi_object.GetKinematics().GetGlobal());
+					// use separate function, because it is the same for mesh with explosia attributes
+					sync_xsi_pointcloud_volume(scene, update_context, xsi_id, xsi_object);
 				}
 				else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
 				{

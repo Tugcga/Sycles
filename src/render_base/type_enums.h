@@ -77,7 +77,6 @@ enum SubdivideMode
 enum PointcloudType
 {
 	PointcloudType_Strands,
-	PointcloudType_Explosia,
 	PointcloudType_Points,
 	PointcloudType_Volume,
 	PointcloudType_Instances,

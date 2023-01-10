@@ -34,6 +34,7 @@ XSI::CStatus update_hair_property(ccl::Scene* scene, UpdateContext* update_conte
 
 // cyc_pointcloud
 PointcloudType get_pointcloud_type(XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
+bool is_explosia(const XSI::X3DObject& xsi_object, const XSI::CTime &eval_time);  // return true if mesh contains explosia ice-attributes
 bool is_pointcloud_instances(const XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
 bool is_valid_shape(XSI::siICEShapeType shape_type);
 XSI::MATH::CTransformation build_point_transform(const XSI::MATH::CVector3f& position, const XSI::MATH::CRotationf& rotation, float size, const XSI::MATH::CVector3f& scale, bool is_scale_define);

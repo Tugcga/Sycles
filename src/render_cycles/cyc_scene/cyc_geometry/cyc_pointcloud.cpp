@@ -12,27 +12,63 @@
 #include "../../../utilities/logs.h"
 #include "../../../utilities/math.h"
 
+bool is_em_fluid(const XSI::X3DObject &xsi_object, const XSI::CTime &eval_time)
+{
+	XSI::Primitive xsi_primitive = xsi_object.GetActivePrimitive(eval_time);
+	XSI::Geometry xsi_geometry = xsi_primitive.GetGeometry(eval_time);
+	
+	XSI::ICEAttribute emfluid_attribute = xsi_geometry.GetICEAttributeFromName("__emFluid5_Enable");
+	return emfluid_attribute.IsValid();
+}
+
+bool is_explosia(const XSI::X3DObject& xsi_object, const XSI::CTime& eval_time)
+{
+	XSI::Primitive xsi_primitive = xsi_object.GetActivePrimitive(eval_time);
+	XSI::Geometry xsi_geometry = xsi_primitive.GetGeometry(eval_time);
+
+	XSI::ICEAttribute efx_attribute = xsi_geometry.GetICEAttributeFromName("efx_vxsz");
+	return efx_attribute.IsValid();
+}
+
 PointcloudType get_pointcloud_type(XSI::X3DObject &xsi_object, const XSI::CTime& eval_time)
 {
 	if (is_pointcloud_points(xsi_object, eval_time))
 	{
 		return PointcloudType::PointcloudType_Points;
 	}
-	else if (is_pointcloud_strands(xsi_object))
-	{
-		return PointcloudType::PointcloudType_Strands;
-	}
-	else if (is_pointcloud_instances(xsi_object, eval_time))
-	{
-		return PointcloudType::PointcloudType_Instances;
-	}
-	else if (is_pointcloud_volume(xsi_object, eval_time))
-	{
-		return PointcloudType::PointcloudType_Volume;
-	}
 	else
 	{
-		return PointcloudType::PointcloudType_Unknown;
+		bool is_emf = is_em_fluid(xsi_object, eval_time);
+		if (!is_emf)
+		{
+			if (is_pointcloud_strands(xsi_object))
+			{
+				return PointcloudType::PointcloudType_Strands;
+			}
+			else if (is_pointcloud_instances(xsi_object, eval_time))
+			{
+				return PointcloudType::PointcloudType_Instances;
+			}
+			else if (is_pointcloud_volume(xsi_object, eval_time))
+			{
+				return PointcloudType::PointcloudType_Volume;
+			}
+			else
+			{
+				return PointcloudType::PointcloudType_Unknown;
+			}
+		}
+		else
+		{
+			if (is_pointcloud_volume(xsi_object, eval_time))
+			{
+				return PointcloudType::PointcloudType_Volume;
+			}
+			else
+			{
+				return PointcloudType::PointcloudType_Unknown;
+			}
+		}
 	}
 }
 

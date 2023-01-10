@@ -86,6 +86,11 @@ void RenderEngineCyc::clear_session()
 // we should read pixels for all passes and save it into output array
 void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 {
+	// for test only
+	// to obtain update times
+	double rt = (clock() - start_render_time) / CLOCKS_PER_SEC;
+	log_message("update tile, time: " + XSI::CString(rt));
+
 	// read tile size and offset
 	unsigned int tile_width = tile.size.x;
 	unsigned int tile_height = tile.size.y;
