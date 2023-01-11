@@ -5,7 +5,6 @@
 #include "util/math.h"
 #include "scene/bake.h"
 #include "scene/object.h"
-#include "util/foreach.h"
 
 #include "cyc_baking.h"
 #include "../update_context.h"

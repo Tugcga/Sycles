@@ -1,11 +1,16 @@
 #include <xsi_application.h>
 #include <xsi_time.h>
+#include <xsi_arrayparameter.h>
+#include <xsi_utils.h>
 
 #include <vector>
 #include <string>
+#include <iomanip>
 
 #include "util/array.h"
 #include "OpenImageIO/ustring.h"
+
+#include "../input/input.h"
 
 XSI::CString remove_digits(const XSI::CString& orignal_str)
 {
@@ -364,4 +369,61 @@ bool is_ends_with(const OIIO::ustring& input_string, const XSI::CString& end_fra
 	}
 
 	return true;
+}
+
+// get from OpenVDB for Softimage sources (VDB_GridIO.cpp:37)
+inline std::string parse_file_name(const std::string& in_filename, int frame)
+{
+	std::string retVal;
+	std::string filename = in_filename;
+
+	size_t resPos = filename.find("$F");
+	if (resPos == std::string::npos)
+	{
+		retVal.append(filename);
+
+	}
+	else
+	{
+		std::ostringstream oss;
+
+		if (filename.size() - 2 > resPos && filename[resPos + 2] >= 48 && filename[resPos + 2] <= 57) // check for digits 0...9
+		{
+			int numWidth = filename[resPos + 2] - 48;
+			oss << std::setfill('0') << std::setw(numWidth) << frame;
+			filename.erase(resPos, 3);
+		}
+		else
+		{
+			filename.erase(resPos, 2);
+			oss << frame;
+		}
+
+		retVal.append(filename);
+		retVal.append(oss.str());
+	}
+
+	return retVal;
+};
+
+XSI::CString vdbprimitive_inputs_to_path(const XSI::CParameterRefArray& params, const XSI::CTime& eval_time)
+{
+	XSI::CString full_path = XSI::CUtils::ResolveTokenString(XSI::CString(params.GetValue("folder", eval_time)), eval_time, false);
+	if (full_path[full_path.Length() - 1] != '//')
+	{
+		full_path += XSI::CUtils::Slash();
+	}
+
+	std::string file_name = parse_file_name(std::string(XSI::CString(params.GetValue("file", eval_time)).GetAsciiString()), (int)(params.GetValue("frame", eval_time)) + (int)(params.GetValue("offset", eval_time)));
+	full_path += file_name.c_str();
+	full_path += ".vdb";
+
+	if (full_path.Length() > 0 && !XSI::CUtils::IsAbsolutePath(full_path))
+	{
+		
+		XSI::CString project_path = get_project_path();
+		full_path = XSI::CUtils::ResolvePath(XSI::CUtils::BuildPath(project_path, full_path));
+	}
+
+	return full_path;
 }

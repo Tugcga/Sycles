@@ -9,10 +9,12 @@
 #include <xsi_primitive.h>
 
 #include "scene/image.h"
+#include "scene/image_vdb.h"
 
 #include <string>
 
 #include "../../../render_base/type_enums.h"
+#include "../../../utilities/logs.h"
 
 class XSIImageLoader : public ccl::ImageLoader
 {
@@ -97,4 +99,25 @@ private:
 	XSI::ICEAttribute m_xsi_attribute;  // contains pixels data
 
 	bool m_is_empty;
+};
+
+class XSIVDBLoader : public ccl::VDBImageLoader
+{
+public:
+	XSIVDBLoader(openvdb::GridBase::ConstPtr vdb_grid, const ULONG id, const XSI::CString& file, const ULONG& index, const std::string& grid_name) : VDBImageLoader(grid_name), primitive_id(id), grid_index(index), file_name(file)
+	{
+		grid = vdb_grid;
+	}
+
+	bool equals(const ImageLoader& other) const override
+	{
+		const XSIVDBLoader& other_loader = (const XSIVDBLoader&)other;
+		return primitive_id == other_loader.primitive_id &&
+			grid_index == other_loader.grid_index &&
+			file_name == other_loader.file_name;
+	}
+
+	ULONG primitive_id;
+	ULONG grid_index;
+	XSI::CString file_name;
 };

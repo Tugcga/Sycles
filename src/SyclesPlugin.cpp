@@ -71,6 +71,12 @@ SICALLBACK XSILoadPlugin(XSI::PluginRegistrar& in_reg)
 	in_reg.RegisterPrimitive("cyclesArea");
 	in_reg.RegisterPrimitive("cyclesBackground");
 
+	in_reg.RegisterPrimitive("VDBPrimitive");
+	in_reg.RegisterEvent("VDBPrimitiveObjectRemoved", XSI::siOnObjectRemoved);
+	in_reg.RegisterEvent("VDBPrimitiveSceneOpen", XSI::siOnBeginSceneOpen);
+	in_reg.RegisterEvent("VDBPrimitiveSceneClose", XSI::siOnCloseScene);
+	in_reg.RegisterMenu(XSI::siMenuTbGetPrimitiveID, "VDBPrimitiveMenu", false, true);
+
 	if (g_quadric != NULL)
 	{
 		::gluDeleteQuadric(g_quadric);

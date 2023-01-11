@@ -40,7 +40,6 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 		object->set_pass_id(0);
 	}
 
-	// try to set custom hair property
 	XSI::Property xsi_property;
 	bool use_property = get_xsi_object_property(xsi_object, property_name, xsi_property);
 	out_motion_deform = false;
@@ -78,6 +77,48 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 		object->tag_shadow_terminator_geometry_offset_modified();
 		object->tag_ao_distance_modified();
 	}
+
+	// next object settings
+	object->name = xsi_object.GetName().GetAsciiString();
+	object->set_asset_name(OIIO::ustring(get_asset_name(xsi_object)));
+	object->set_color(vector3_to_float3(get_object_color(xsi_object, eval_time)));
+	object->set_alpha(1.0);
+
+	object->tag_pass_id_modified();
+	object->tag_color_modified();
+	object->tag_alpha_modified();
+
+	XSI::CString to_hash = XSI::CString(object->name.c_str()) + "_" + XSI::CString(scene->objects.size());
+	object->set_random_id(ccl::hash_uint2(ccl::hash_string(to_hash.GetAsciiString()), 0));
+}
+
+void sync_vdb_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject& xsi_object, XSI::CString& lightgroup, const XSI::CParameterRefArray& primitive_parameters, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
+{
+	// set unique pass id
+	bool output_pass_assign_unique_pass_id = render_parameters.GetValue("output_pass_assign_unique_pass_id", eval_time);
+	if (output_pass_assign_unique_pass_id)
+	{
+		object->set_pass_id(scene->objects.size());
+	}
+	else
+	{
+		object->set_pass_id(0);
+	}
+
+	if (!output_pass_assign_unique_pass_id)
+	{
+		object->set_pass_id(primitive_parameters.GetValue("pass_id", eval_time));
+	}
+
+	object->set_visibility(get_ray_visibility(primitive_parameters, eval_time));
+
+	object->set_is_shadow_catcher(primitive_parameters.GetValue("shadow_catcher", eval_time));
+
+	lightgroup = primitive_parameters.GetValue("lightgroup", eval_time);
+	object->set_lightgroup(ccl::ustring(lightgroup.GetAsciiString()));
+
+	object->tag_visibility_modified();
+	object->tag_is_shadow_catcher_modified();
 
 	// next object settings
 	object->name = xsi_object.GetName().GetAsciiString();

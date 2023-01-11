@@ -68,6 +68,9 @@ void RenderEngineCyc::path_init(const XSI::CString& plugin_path)
 	{
 		series_context->setup(input_config.series);
 	}
+
+	// init openvdb
+	openvdb::initialize();
 }
 
 void RenderEngineCyc::clear_session()
@@ -86,10 +89,7 @@ void RenderEngineCyc::clear_session()
 // we should read pixels for all passes and save it into output array
 void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 {
-	// for test only
-	// to obtain update times
-	double rt = (clock() - start_render_time) / CLOCKS_PER_SEC;
-	log_message("update tile, time: " + XSI::CString(rt));
+	rendered_samples = session->progress.get_current_sample();
 
 	// read tile size and offset
 	unsigned int tile_width = tile.size.x;
@@ -148,8 +148,6 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 			log_message("Fails to get pixels of the pass " + XSI::CString(pass_name.c_str()) + " for input render tile", XSI::siErrorMsg);
 		}
 	}
-
-	rendered_samples = session->progress.get_current_sample();
 
 	if (render_type == RenderType::RenderType_Pass && series_context->get_is_active())
 	{
@@ -540,27 +538,27 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 
 	// when change visibility of any object, recreate the scene
 	// this is similar to create a new object or delete it
-	if (update_type == UpdateType_Visibility)
+	if (update_type == UpdateType::UpdateType_Visibility)
 	{
 		return XSI::CStatus::Abort;
 	}
 
 	XSI::CStatus is_update = XSI::CStatus::OK;
 
-	if (update_type == UpdateType_Camera)
+	if (update_type == UpdateType::UpdateType_Camera)
 	{
 		is_update = sync_camera(session->scene, update_context);
 		is_update_camera = true;
 	}
-	else if (update_type == UpdateType_GlobalAmbient)
+	else if (update_type == UpdateType::UpdateType_GlobalAmbient)
 	{
 		is_update = update_background_color(session->scene, update_context);
 	}
-	else if (update_type == UpdateType_Transform)
+	else if (update_type == UpdateType::UpdateType_Transform)
 	{
 		is_update = update_transform(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_XsiLight)
+	else if (update_type == UpdateType::UpdateType_XsiLight)
 	{
 		XSI::Light xsi_light(xsi_object);
 		is_update = update_xsi_light(session->scene, update_context, xsi_light);
@@ -569,19 +567,19 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 			is_update = update_transform(session->scene, update_context, xsi_object);
 		}
 	}
-	else if (update_type == UpdateType_LightPrimitive)
+	else if (update_type == UpdateType::UpdateType_LightPrimitive)
 	{
 		is_update = update_custom_light(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_Hair)
+	else if (update_type == UpdateType::UpdateType_Hair)
 	{
 		is_update = update_hair(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_Mesh)
+	else if (update_type == UpdateType::UpdateType_Mesh)
 	{
 		is_update = update_polymesh(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_Pointcloud)
+	else if (update_type == UpdateType::UpdateType_Pointcloud)
 	{
 		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
@@ -605,18 +603,22 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 
 		}
 	}
-	else if (update_type == UpdateType_MeshProperty)
+	else if (update_type == UpdateType::UpdateType_VDBPrimitive)
+	{
+		is_update = update_vdb(session->scene, update_context, xsi_object);
+	}
+	else if (update_type == UpdateType::UpdateType_MeshProperty)
 	{
 		// we can change subdivide parameters, in this case we should recreate the mesh
 		// in all other cases we should simply update object properties
 		is_update = update_polymesh(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_HairProperty)
+	else if (update_type == UpdateType::UpdateType_HairProperty)
 	{
 		// update only object properties
 		is_update = update_hair_property(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_PointcloudProperty)
+	else if (update_type == UpdateType::UpdateType_PointcloudProperty)
 	{
 		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
@@ -636,7 +638,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 			return XSI::CStatus::Abort;
 		}
 	}
-	else if (update_type == UpdateType_VolumeProperty)
+	else if (update_type == UpdateType::UpdateType_VolumeProperty)
 	{
 		is_update = update_volume_property(session->scene, update_context, xsi_object);
 	}

@@ -124,7 +124,10 @@ SICALLBACK cyclesPoint_DefineLayout(CRef& in_ctxt)
 	oLayout.AddItem("cast_shadow", "Cast Shadow");
 	oLayout.AddItem("multiple_importance", "Multiple Importance");
 	oLayout.AddItem("shadow_caustics", "Shadow Caustics");
-	oLayout.AddItem("lightgroup", "Light Group");
+	oLayout.AddGroup("Light Group");
+	XSI::PPGItem item = oLayout.AddItem("lightgroup", "Light Group");
+	item.PutAttribute(XSI::siUINoLabel, true);
+	oLayout.EndGroup();
 	oLayout.EndGroup();
 
 	oLayout.AddGroup("Mask");

@@ -496,6 +496,22 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 					sync_poitcloud_instances(scene, update_context, xsi_object, instance_object_tfm_array);
 				}
 			}
+			else if (xsi_object_type == "VDBPrimitive")
+			{
+				ccl::Object* vdb_object = scene->create_node<ccl::Object>();
+				XSI::CustomPrimitive xsi_prim(xsi_object.GetActivePrimitive(eval_time));
+				ccl::Volume* vdb_geom = sync_vdb_volume_object(scene, vdb_object, update_context, xsi_object, get_vdb_data(xsi_prim));
+				vdb_object->set_geometry(vdb_geom);
+
+				size_t object_index = scene->objects.size() - 1;
+				update_context->add_object_index(xsi_id, object_index);
+				sync_transform(vdb_object, update_context, xsi_object.GetKinematics().GetGlobal());
+
+				std::vector<ULONG> m_ids(master_ids);
+				m_ids.push_back(xsi_master_object_id);
+				m_ids.push_back(xsi_object.GetObjectID());
+				update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+			}
 			else if (xsi_object_type == "light")
 			{
 				// create copy of the light
@@ -861,6 +877,16 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 			{
 				sync_custom_background(scene, xsi_object, update_context, render_parameters, eval_time);
 			}
+			else if (object_type == "VDBPrimitive")
+			{
+				ccl::Object* vdb_object = scene->create_node<ccl::Object>();
+				XSI::CustomPrimitive xsi_prim(xsi_object.GetActivePrimitive(eval_time));
+				ccl::Volume* vdb_geom = sync_vdb_volume_object(scene, vdb_object, update_context, xsi_object, get_vdb_data(xsi_prim));
+				vdb_object->set_geometry(vdb_geom);
+
+				update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+				sync_transform(vdb_object, update_context, xsi_object.GetKinematics().GetGlobal());
+			}
 		}
 	}
 	else if (object_class == XSI::siModelID)
@@ -991,7 +1017,7 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 			return update_instance_transform(scene, update_context, xsi_model);
 		}
 	}
-	else if (object_type == "polymsh")
+	else if (object_type == "polymsh" || object_type == "hair" || object_type == "VDBPrimitive")
 	{
 		XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
 		// here we set the same transform for all instances of the object
@@ -1001,16 +1027,6 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 		{
 			is_update = update_instance_transform_from_master_object(scene, update_context, xsi_object);
 		}
-		return is_update;
-	}
-	else if (object_type == "hair")
-	{
-		XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
-		if (is_update == XSI::CStatus::OK)
-		{
-			is_update = update_instance_transform_from_master_object(scene, update_context, xsi_object);
-		}
-
 		return is_update;
 	}
 	else if (object_type == "pointcloud")
