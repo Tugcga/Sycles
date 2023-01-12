@@ -20,9 +20,13 @@ ccl::uint get_ray_visibility(const XSI::CParameterRefArray &property_params, con
 	flag |= bool(property_params.GetValue("ray_visibility_shadow", eval_time)) ? ccl::PATH_RAY_SHADOW : 0;
 	flag |= bool(property_params.GetValue("ray_visibility_volume_scatter", eval_time)) ? ccl::PATH_RAY_VOLUME_SCATTER : 0;
 
-	if (bool(property_params.GetValue("is_holdout", eval_time)))
+	XSI::Parameter is_holdout_param = property_params.GetItem("is_holdout");
+	if (is_holdout_param.IsValid())
 	{
-		flag &= ~(ccl::PATH_RAY_ALL_VISIBILITY - ccl::PATH_RAY_CAMERA);
+		if (bool(is_holdout_param.GetValue(eval_time)))
+		{
+			flag &= ~(ccl::PATH_RAY_ALL_VISIBILITY - ccl::PATH_RAY_CAMERA);
+		}
 	}
 	return flag;
 }
@@ -107,16 +111,42 @@ void sync_vdb_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3D
 
 	if (!output_pass_assign_unique_pass_id)
 	{
-		object->set_pass_id(primitive_parameters.GetValue("pass_id", eval_time));
+		XSI::Parameter pass_id_param = primitive_parameters.GetItem("pass_id");
+		if (pass_id_param.IsValid())
+		{
+			object->set_pass_id(pass_id_param.GetValue(eval_time));
+		}
 	}
 
-	object->set_visibility(get_ray_visibility(primitive_parameters, eval_time));
+	XSI::Parameter ray_visibility_camera_param = primitive_parameters.GetItem("ray_visibility_camera");
+	XSI::Parameter ray_visibility_diffuse_param = primitive_parameters.GetItem("ray_visibility_diffuse");
+	XSI::Parameter ray_visibility_glossy_param = primitive_parameters.GetItem("ray_visibility_glossy");
+	XSI::Parameter ray_visibility_transmission_param = primitive_parameters.GetItem("ray_visibility_transmission");
+	XSI::Parameter ray_visibility_shadow_param = primitive_parameters.GetItem("ray_visibility_shadow");
+	XSI::Parameter ray_visibility_volume_scatter_param = primitive_parameters.GetItem("ray_visibility_volume_scatter");
+	if (ray_visibility_camera_param.IsValid() &&
+		ray_visibility_diffuse_param.IsValid() &&
+		ray_visibility_glossy_param.IsValid() &&
+		ray_visibility_transmission_param.IsValid() &&
+		ray_visibility_shadow_param.IsValid() &&
+		ray_visibility_volume_scatter_param.IsValid())
+	{
+		object->set_visibility(get_ray_visibility(primitive_parameters, eval_time));
+	}
 
-	object->set_is_shadow_catcher(primitive_parameters.GetValue("shadow_catcher", eval_time));
+	XSI::Parameter shadow_catcher_param = primitive_parameters.GetItem("shadow_catcher");
+	if (shadow_catcher_param.IsValid())
+	{
+		object->set_is_shadow_catcher(shadow_catcher_param.GetValue(eval_time));
+	}
 
-	lightgroup = primitive_parameters.GetValue("lightgroup", eval_time);
-	object->set_lightgroup(ccl::ustring(lightgroup.GetAsciiString()));
-
+	XSI::Parameter lightgroup_param = primitive_parameters.GetItem("lightgroup");
+	if (lightgroup_param.IsValid())
+	{
+		lightgroup = lightgroup_param.GetValue(eval_time);
+		object->set_lightgroup(ccl::ustring(lightgroup.GetAsciiString()));
+	}
+	
 	object->tag_visibility_modified();
 	object->tag_is_shadow_catcher_modified();
 
