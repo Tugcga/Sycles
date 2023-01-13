@@ -168,6 +168,9 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_vdb_volume.cpp">
       <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_gltf_shaders.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">

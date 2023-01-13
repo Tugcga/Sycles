@@ -64,6 +64,7 @@ enum ShadernodeType
 	ShadernodeType_CyclesAOV,
 	ShadernodeType_OSL,
 	ShadernodeType_NativeXSI,
+	ShadernodeType_GLTF,
 	ShadernodeType_Unknown
 };
 

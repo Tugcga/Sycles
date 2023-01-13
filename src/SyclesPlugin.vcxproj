@@ -93,6 +93,7 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_light.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_ice_volume_loader.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_image_loader.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_gltf_shaders.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_materials.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_osl.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_shaders.cpp" />
