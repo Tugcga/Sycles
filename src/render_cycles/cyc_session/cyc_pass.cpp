@@ -6,6 +6,7 @@
 #include <xsi_application.h>
 
 #include "../../utilities/logs.h"
+#include "../../utilities/strings.h"
 #include "../cyc_output/output_context.h"
 #include "../../render_base/render_visual_buffer.h"
 #include "cyc_baking.h"
@@ -80,17 +81,22 @@ XSI::CString channel_name_to_pass_name(const XSI::CParameterRefArray& render_par
     return local_pass_name;
 }
 
-ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name, ccl::PassMode mode = ccl::PassMode::DENOISED)
+ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name)
 {
 	ccl::Pass* pass = scene->create_node<ccl::Pass>();
 
 	pass->set_type(type);
 	pass->set_name(name);
-	pass->set_mode(mode);
-
+	
+    // lightgroups are always noisy (like in Blender)
     if (type == ccl::PASS_COMBINED && name.size() >= 9)
     {
+        pass->set_mode(ccl::PassMode::NOISY);
         pass->set_lightgroup(ccl::ustring(remove_prefix_from_lightgroup_name(XSI::CString(name.c_str())).GetAsciiString()));
+    }
+    else
+    {
+        pass->set_mode(ccl::PassMode::DENOISED);
     }
 
 	return pass;
@@ -128,7 +134,6 @@ ccl::PassType channel_to_pass_type(const XSI::CString &channel_name)
     else if (channel_name == "Cycles Background") { return ccl::PASS_BACKGROUND; }
     else if (channel_name == "Cycles AO") { return ccl::PASS_AO; }
     else if (channel_name == "Cycles Shadow Catcher") { return ccl::PASS_SHADOW_CATCHER; }
-    else if (channel_name == "Cycles Shadow") { return ccl::PASS_SHADOW; }
     else if (channel_name == "Cycles Motion") { return ccl::PASS_MOTION; }
     else if (channel_name == "Cycles Mist") { return ccl::PASS_MIST; }
     else if (channel_name == "Cycles Volume Direct") { return ccl::PASS_VOLUME_DIRECT; }
@@ -185,8 +190,6 @@ XSI::CString pass_to_name(ccl::PassType pass_type)
         return "Background";
     case ccl::PASS_AO:
         return "Ambient Occlusion";
-    case ccl::PASS_SHADOW:
-        return "Shadow";
     case ccl::PASS_DIFFUSE_COLOR:
         return "Diffuse Color";
     case ccl::PASS_GLOSSY_COLOR:
@@ -369,14 +372,30 @@ void check_visual_aov_lightgroup_name(RenderVisualBuffer* visual_buffer, const X
     }
 }
 
-void sync_passes(ccl::Scene* scene, OutputContext* output_context, SeriesContext* series_context, BakingContext* baking_context, RenderVisualBuffer *visual_buffer, MotionSettingsType motion_type, const XSI::CStringArray &lightgroups, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names)
+void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext* output_context, SeriesContext* series_context, BakingContext* baking_context, RenderVisualBuffer *visual_buffer)
 {
+    MotionSettingsType motion_type = update_context->get_motion_type();
+    XSI::CStringArray lightgroups = update_context->get_lightgropus();
+    XSI::CStringArray aov_color_names = update_context->get_color_aovs();
+    XSI::CStringArray aov_value_names = update_context->get_value_aovs();
+
     // if visual pass is aov, then check that the name of the pass is correct
     check_visual_aov_lightgroup_name(visual_buffer, aov_color_names, aov_value_names, lightgroups);
 
+    XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
+    XSI::CTime eval_time = update_context->get_time();
+
+    bool store_denoising = false;
+    bool use_denoising = update_context->get_use_denoising();
+
+    if (update_context->get_render_type() == RenderType::RenderType_Pass && (bool)render_parameters.GetValue("output_exr_combine_passes", eval_time))
+    {
+        store_denoising = render_parameters.GetValue("output_exr_denoising_data", eval_time);
+    }
+
     // here we call the main method in output contex
     // and setup all output passes, buffers, pixels and so on
-    output_context->set_output_passes(baking_context, motion_type, aov_color_names, aov_value_names, lightgroups);
+    output_context->set_output_passes(baking_context, motion_type, store_denoising, aov_color_names, aov_value_names, lightgroups);
 
     // sync passes
     bool use_shadow_catcher = false;
@@ -396,7 +415,23 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, SeriesContext
         // add visual pass
         exported_names.insert(visual_name);
         ccl::PassType visual_pass_type = visual_buffer->get_pass_type();
-        pass_add(scene, visual_pass_type, visual_name);
+        if (!(use_denoising && visual_pass_type == ccl::PassType::PASS_COMBINED && visual_name != "Combined"))
+        {
+            pass_add(scene, visual_pass_type, visual_name);
+        }
+        else
+        {
+            // WARNING: visual buffer was setup for lightgroup
+            // it contains only 3 components
+            // this is ok, because at update tile callback we get 3 components from the tile
+            // but we does not apply color correction, because it requires 4 components
+            // so, render result is not perfect, but it's enough for warning message
+            pass_add(scene, ccl::PassType::PASS_COMBINED, ccl::ustring(pass_to_name(ccl::PassType::PASS_COMBINED).GetAsciiString()));
+            visual_buffer->set_pass_name("Combined");
+
+            log_message("There is a bug with rendering denoising lightgroups. Switch visual channel to 3-channels raw combined pass.", XSI::siWarningMsg);
+        }
+
         if (visual_pass_type == ccl::PASS_SHADOW_CATCHER)
         {
             use_shadow_catcher = true;
@@ -411,15 +446,28 @@ void sync_passes(ccl::Scene* scene, OutputContext* output_context, SeriesContext
         {
             exported_names.insert(output_name);
             ccl::PassType new_pass_type = output_context->get_output_pass_type(i);
-            ccl::Pass* pass = pass_add(scene, new_pass_type, output_name);
-            if (baking_context->get_is_valid())  // use valid baking context as identifier of the rendermap render process
+
+            // WARNING: there is a strange bug (Blender does not have it)
+            // if we setup lightgroups and use denoising, then after render the Softimage is crash
+            // withoud denoising or without lightgroups all works fine
+            // crash happens when delete the session
+            // so, if denoising is active, does not render lightgroups
+            if (!(use_denoising && new_pass_type == ccl::PassType::PASS_COMBINED && output_name != "Combined"))
             {
-                pass->set_include_albedo(baking_context->get_key_is_color());
-                baking_context->set_pass_type(new_pass_type);  // will use it later in sync integrator
+                ccl::Pass* pass = pass_add(scene, new_pass_type, output_name);
+                if (baking_context->get_is_valid())  // use valid baking context as identifier of the rendermap render process
+                {
+                    pass->set_include_albedo(baking_context->get_key_is_color());
+                    baking_context->set_pass_type(new_pass_type);  // will use it later in sync integrator
+                }
+                if (new_pass_type == ccl::PASS_SHADOW_CATCHER)
+                {
+                    use_shadow_catcher = true;
+                }
             }
-            if (new_pass_type == ccl::PASS_SHADOW_CATCHER)
+            else
             {
-                use_shadow_catcher = true;
+                log_message("There is a bug with rendering denoised lightgroups. Skip lightgroup pass with name " + XSI::CString(output_name.c_str()) + ".", XSI::siWarningMsg);
             }
         }
     }

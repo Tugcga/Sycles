@@ -14,11 +14,13 @@
 
 #include "../../update_context.h"
 #include "../../../render_base/type_enums.h"
+#include "../../../render_cycles/cyc_primitives/vdb_primitive.h"
 
 // cyc_geometry
 ccl::uint get_ray_visibility(const XSI::CParameterRefArray& property_params, const XSI::CTime& eval_time);
 // common object parameters for hair and meshes
 void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject& xsi_object, XSI::CString& lightgroup, bool& out_motion_deform, const XSI::CString& property_name, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
+void sync_vdb_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject& xsi_object, XSI::CString& lightgroup, const XSI::CParameterRefArray& primitive_parameters, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
 
 // cyc_polymesh
 ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes, bool smooth = false);
@@ -34,6 +36,7 @@ XSI::CStatus update_hair_property(ccl::Scene* scene, UpdateContext* update_conte
 
 // cyc_pointcloud
 PointcloudType get_pointcloud_type(XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
+bool is_explosia(const XSI::X3DObject& xsi_object, const XSI::CTime &eval_time);  // return true if mesh contains explosia ice-attributes
 bool is_pointcloud_instances(const XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
 bool is_valid_shape(XSI::siICEShapeType shape_type);
 XSI::MATH::CTransformation build_point_transform(const XSI::MATH::CVector3f& position, const XSI::MATH::CRotationf& rotation, float size, const XSI::MATH::CVector3f& scale, bool is_scale_define);
@@ -53,6 +56,11 @@ XSI::CStatus update_points_property(ccl::Scene* scene, UpdateContext* update_con
 
 // cyc_volume
 bool is_pointcloud_volume(const XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
+void sync_volume_parameters(ccl::Volume* volume, XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
 ccl::Volume* sync_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_volume(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_volume_property(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+
+// cyc_vdb_volume
+ccl::Volume* sync_vdb_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const VDBData& vdb_data);
+XSI::CStatus update_vdb(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);

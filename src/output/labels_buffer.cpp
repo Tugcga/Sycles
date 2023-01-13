@@ -1,36 +1,30 @@
 #include <xsi_application.h>
 
-#include "OpenImageIO/imagebuf.h"
-
 #include "labels_symbols.h"
+#include "../render_base/image_buffer.h"
 
-void add_symbol(OIIO::ImageBuf& buffer, size_t bottom_row, const float* array, size_t height, size_t width, size_t shift, const float* color)
+void add_symbol(ImageBuffer* buffer, size_t bottom_row, const float* array, size_t height, size_t width, size_t shift, const float* color)
 {
-	int comp_count = buffer.nchannels();
-	OIIO::ROI symbol_zone = OIIO::ROI(4 + shift, 4 + shift + width, 4 + bottom_row, height + 4 + bottom_row);
-	size_t column_index = 0;
-	size_t row_index = 0;
-	for (OIIO::ImageBuf::Iterator<float> it(buffer, symbol_zone); !it.done(); ++it)
+	size_t channels = buffer->get_channels_count();
+	float* buffer_pixels = buffer->get_pixels_pointer();
+	size_t label_point_iterator = 0;
+	for (size_t y = 4 + bottom_row; y < height + 4 + bottom_row; y++)
 	{
-		if (it.exists())
+		for (size_t x = 4 + shift; x < 4 + shift + width; x++)
 		{
-			size_t p = (height - row_index - 1) * width + column_index;
-			for (size_t i = 0; i < comp_count; i++)
+			size_t p = buffer->get_pixel_index(x, y);
+			size_t label_p = (height - y + 4 + bottom_row - 1) * width + x - 4 - shift;
+			for (size_t c = 0; c < channels; c++)
 			{
-				it[i] = (color[i] * array[p]) * (1 - it[i]) + it[i];
+				float v = buffer_pixels[p * channels + c];  // curent value of the pixel channel
+				buffer_pixels[p * channels + c] = (color[c] * array[label_p]) * (1 - v) + v;
 			}
-		}
-
-		column_index++;
-		if (column_index >= width)
-		{
-			row_index++;
-			column_index = 0;
+			label_point_iterator++;
 		}
 	}
 }
 
-void build_labels_buffer(OIIO::ImageBuf &buffer, 
+void build_labels_buffer(ImageBuffer* buffer, 
 	const XSI::CString &text_string, 
 	size_t image_width, size_t image_height, 
 	size_t horisontal_shift,
@@ -39,31 +33,16 @@ void build_labels_buffer(OIIO::ImageBuf &buffer,
 	size_t bottom_row)
 {
 	float text_color[4] = { 0.8, 0.8, 0.8, 1 };
-	OIIO::ROI fill_rect = OIIO::ROI(0, image_width, 0, image_height);
-	size_t row = 0;
-	size_t column = 0;
-	for (OIIO::ImageBuf::Iterator<float> it(buffer, fill_rect); !it.done(); ++it)
+	float* buffer_pixels = buffer->get_pixels_pointer();
+	for (size_t y = bottom_row; y < box_height + bottom_row; y++)
 	{
-		if (row >= bottom_row && row < box_height + bottom_row)
+		for (size_t x = 0; x < image_width; x++)
 		{
-			it[0] = back_r;
-			it[1] = back_g;
-			it[2] = back_b;
-			it[3] = back_a;
-		}
-		else
-		{
-			for (size_t i = 0; i < 4; i++)
-			{
-				it[i] = 0.0;
-			}
-		}
-
-		column++;
-		if (column >= image_width)
-		{
-			column = 0;
-			row++;
+			size_t p = buffer->get_pixel_index(x, y);
+			buffer_pixels[p * 4] = back_r;
+			buffer_pixels[p * 4 + 1] = back_g;
+			buffer_pixels[p * 4 + 2] = back_b;
+			buffer_pixels[p * 4 + 3] = back_a;
 		}
 	}
 

@@ -100,14 +100,9 @@ bool ICEVolumeLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixe
 		if (read_status == XSI::CStatus::OK && floats_count == pixels_size)
 		{
 			float* fpixels = (float*)pixels;
-			float max_value = -1.0f;
 			for (size_t i = 0; i < floats_count; i++)
 			{
 				*fpixels = float_data[i];
-				if (float_data[i] > max_value)
-				{
-					max_value = float_data[i];
-				}
 				fpixels++;
 			}
 

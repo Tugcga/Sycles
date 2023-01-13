@@ -85,6 +85,9 @@ public:
 	void set_render_type(RenderType value);
 	RenderType get_render_type();
 
+	void set_use_denoising(bool value);
+	bool get_use_denoising();
+
 	void reset_need_update_background();
 	void activate_need_update_background();
 	bool is_need_update_background();
@@ -174,6 +177,7 @@ private:
 	bool log_rendertime;
 	bool log_details;
 
+	bool use_denoising;
 	MotionSettingsType motion_type;
 	float motion_shutter_time;
 	std::vector<float> motion_times;

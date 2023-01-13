@@ -160,7 +160,7 @@ void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, cc
 	light->set_spread(M_PI);
 
 	light->set_strength(ccl::one_float3());
-	light->set_round(false);
+	light->set_ellipse(false);
 	light->set_sizeu(area_size.x);
 	light->set_sizev(area_size.y);
 	light->set_cast_shadow(true);

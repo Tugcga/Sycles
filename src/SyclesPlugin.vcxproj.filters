@@ -159,6 +159,18 @@
     <ClCompile Include="render_cycles\cyc_output\series_context.cpp">
       <Filter>render_cycles\cyc_output</Filter>
     </ClCompile>
+    <ClCompile Include="render_base\image_buffer.cpp">
+      <Filter>render_base</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_primitives\vdb_primitive.cpp">
+      <Filter>render_cycles\cyc_primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_vdb_volume.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_gltf_shaders.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -334,6 +346,12 @@
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_output\series_context.h">
       <Filter>render_cycles\cyc_output</Filter>
+    </ClInclude>
+    <ClInclude Include="render_base\image_buffer.h">
+      <Filter>render_base</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_primitives\vdb_primitive.h">
+      <Filter>render_cycles\cyc_primitives</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

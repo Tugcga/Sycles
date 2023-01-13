@@ -1,11 +1,13 @@
 #pragma once
 #include <xsi_application.h>
 #include <xsi_time.h>
+#include <xsi_arrayparameter.h>
 
 #include <vector>
 #include <string>
 
 #include "util/array.h"
+#include "OpenImageIO/ustring.h"
 
 // remove digits from the given string
 XSI::CString remove_digits(const XSI::CString& orignal_str);
@@ -30,3 +32,6 @@ ccl::array<int> string_to_array(const XSI::CString& string);
 std::string build_source_image_path(const XSI::CString& path, const XSI::CString& source_type, bool is_cyclic, int sequence_start, int sequence_frames, int sequence_offset, const XSI::CTime& eval_time, bool allow_tile, bool& change_to_udims);
 
 std::string replace_all_substrings(const std::string& input_string, const std::string& what_part, const std::string& replace_part);
+// return true if input string ends with a given fragment
+bool is_ends_with(const OIIO::ustring& input_string, const XSI::CString& end_fragment);
+XSI::CString vdbprimitive_inputs_to_path(const XSI::CParameterRefArray& params, const XSI::CTime& eval_time);

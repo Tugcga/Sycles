@@ -68,6 +68,9 @@ void RenderEngineCyc::path_init(const XSI::CString& plugin_path)
 	{
 		series_context->setup(input_config.series);
 	}
+
+	// init openvdb
+	openvdb::initialize();
 }
 
 void RenderEngineCyc::clear_session()
@@ -86,12 +89,14 @@ void RenderEngineCyc::clear_session()
 // we should read pixels for all passes and save it into output array
 void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 {
+	rendered_samples = session->progress.get_current_sample();
+
 	// read tile size and offset
 	unsigned int tile_width = tile.size.x;
 	unsigned int tile_height = tile.size.y;
 	unsigned int offset_x = tile.offset.x;  // this parameter defines offset inside the render buffer, not on the whole screen
 	unsigned int offset_y = tile.offset.y;  // so, we should add it to image_corner to obtain actual in-screen offset
-	OIIO::ROI tile_roi = OIIO::ROI(offset_x, offset_x + tile_width, offset_y, offset_y + tile_height);
+	ImageRectangle tile_roi = ImageRectangle(offset_x, offset_x + tile_width, offset_y, offset_y + tile_height);
 
 	// create pixel buffer
 	// we will use it for all passes
@@ -144,8 +149,6 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		}
 	}
 
-	rendered_samples = session->progress.get_current_sample();
-
 	if (render_type == RenderType::RenderType_Pass && series_context->get_is_active())
 	{
 		if (rendered_samples - series_context->get_last_sample() > series_context->get_sampling_step())
@@ -192,14 +195,14 @@ void RenderEngineCyc::read_render_tile(const ccl::OutputDriver::Tile& tile)
 	int h = tile.size.y;
 
 	ccl::vector<float> pixels(static_cast<size_t>(w) * h * 4);
-	OIIO::ROI rect = OIIO::ROI(x, x + w, y, y + h);
+	ImageRectangle rect = ImageRectangle(x, x + w, y, y + h);
 
 	// PASS_BAKE_PRIMITIVE
-	baking_context->get_buffer_primitive_id()->get_pixels(rect, OIIO::TypeDesc::FLOAT, &pixels[0]);
+	baking_context->get_buffer_primitive_id()->get_pixels(rect, &pixels[0]);
 	bool is_primitive = tile.set_pass_pixels("BakePrimitive", 4, &pixels[0]);
 
 	// PASS_BAKE_DIFFERENTIAL
-	baking_context->get_buffer_differencial()->get_pixels(rect, OIIO::TypeDesc::FLOAT, &pixels[0]);
+	baking_context->get_buffer_differencial()->get_pixels(rect, &pixels[0]);
 	bool is_differential = tile.set_pass_pixels("BakeDifferential", 4, &pixels[0]);
 
 	pixels.clear();
@@ -481,6 +484,18 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		}
 	}
 
+	// recreate the scene if we change denoising
+	int denoise_mode = m_render_parameters.GetValue("denoise_mode", eval_time);
+	bool use_denoising = denoise_mode != 0;
+	if (!is_recreate_session)
+	{
+		if (update_context->get_use_denoising() != use_denoising)
+		{
+			is_recreate_session = true;
+		}
+	}
+	update_context->set_use_denoising(use_denoising);
+
 	// set actual motoin type
 	// this value used in integrator
 	// even if we does not update other motion parameters but motion blur is disabled, then in will not be rendered
@@ -523,27 +538,27 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 
 	// when change visibility of any object, recreate the scene
 	// this is similar to create a new object or delete it
-	if (update_type == UpdateType_Visibility)
+	if (update_type == UpdateType::UpdateType_Visibility)
 	{
 		return XSI::CStatus::Abort;
 	}
 
 	XSI::CStatus is_update = XSI::CStatus::OK;
 
-	if (update_type == UpdateType_Camera)
+	if (update_type == UpdateType::UpdateType_Camera)
 	{
 		is_update = sync_camera(session->scene, update_context);
 		is_update_camera = true;
 	}
-	else if (update_type == UpdateType_GlobalAmbient)
+	else if (update_type == UpdateType::UpdateType_GlobalAmbient)
 	{
 		is_update = update_background_color(session->scene, update_context);
 	}
-	else if (update_type == UpdateType_Transform)
+	else if (update_type == UpdateType::UpdateType_Transform)
 	{
 		is_update = update_transform(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_XsiLight)
+	else if (update_type == UpdateType::UpdateType_XsiLight)
 	{
 		XSI::Light xsi_light(xsi_object);
 		is_update = update_xsi_light(session->scene, update_context, xsi_light);
@@ -552,19 +567,19 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 			is_update = update_transform(session->scene, update_context, xsi_object);
 		}
 	}
-	else if (update_type == UpdateType_LightPrimitive)
+	else if (update_type == UpdateType::UpdateType_LightPrimitive)
 	{
 		is_update = update_custom_light(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_Hair)
+	else if (update_type == UpdateType::UpdateType_Hair)
 	{
 		is_update = update_hair(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_Mesh)
+	else if (update_type == UpdateType::UpdateType_Mesh)
 	{
 		is_update = update_polymesh(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_Pointcloud)
+	else if (update_type == UpdateType::UpdateType_Pointcloud)
 	{
 		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
@@ -588,18 +603,22 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 
 		}
 	}
-	else if (update_type == UpdateType_MeshProperty)
+	else if (update_type == UpdateType::UpdateType_VDBPrimitive)
+	{
+		is_update = update_vdb(session->scene, update_context, xsi_object);
+	}
+	else if (update_type == UpdateType::UpdateType_MeshProperty)
 	{
 		// we can change subdivide parameters, in this case we should recreate the mesh
 		// in all other cases we should simply update object properties
 		is_update = update_polymesh(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_HairProperty)
+	else if (update_type == UpdateType::UpdateType_HairProperty)
 	{
 		// update only object properties
 		is_update = update_hair_property(session->scene, update_context, xsi_object);
 	}
-	else if (update_type == UpdateType_PointcloudProperty)
+	else if (update_type == UpdateType::UpdateType_PointcloudProperty)
 	{
 		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
@@ -619,7 +638,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 			return XSI::CStatus::Abort;
 		}
 	}
-	else if (update_type == UpdateType_VolumeProperty)
+	else if (update_type == UpdateType::UpdateType_VolumeProperty)
 	{
 		is_update = update_volume_property(session->scene, update_context, xsi_object);
 	}
@@ -801,7 +820,6 @@ XSI::CStatus RenderEngineCyc::post_scene()
 
 	if(make_render)
 	{
-		// RenderVisualBuffer store pixels in OIIO::ImageBuf
 		visual_buffer->setup((ULONG)image_full_size_width,
 			(ULONG)image_full_size_height,
 			(ULONG)image_corner_x,
@@ -813,7 +831,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			m_render_parameters, eval_time);
 
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
-		sync_passes(session->scene, output_context, series_context, baking_context, visual_buffer, update_context->get_motion_type(), update_context->get_lightgropus(), update_context->get_color_aovs(), update_context->get_value_aovs());
+		sync_passes(session->scene, update_context, output_context, series_context, baking_context, visual_buffer);
 		series_context->set_common_path(output_context);
 
 		if (update_context->is_changed_render_paramters_film(changed_render_parameters))
@@ -888,6 +906,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 		// when the render has the time limit, then return 0 samples, try to obtain actual samples count
 		int current_samples = session->progress.get_current_sample();
 		labels_context->set_render_samples(current_samples == 0 ? rendered_samples : session->progress.get_current_sample());
+		labels_context->set_render_triangles(session->scene);
 	}
 
 	// the render is done, add labels to the output (if we need it)
@@ -903,7 +922,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	}
 
 	//log render time
-	if (render_type != RenderType_Shaderball && make_render)
+	if (render_type != RenderType_Shaderball && make_render && render_time > 0.00001)
 	{
 		if (update_context->get_is_log_rendertime())
 		{
@@ -925,7 +944,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 
 	// reset baking, and also clear the scene
 	// next render will be from scratch
-	// WARNING: there is ono-critical bag here
+	// WARNING: there is non-critical bag here
 	// if we use baking, then it does not properly unload addon dll from the memory when we manually request it
 	// but after close Softimage, it unload it properly
 	bool is_clear = baking_context->get_is_valid();

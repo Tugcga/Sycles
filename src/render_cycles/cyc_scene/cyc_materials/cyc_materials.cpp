@@ -205,18 +205,22 @@ ccl::ShaderNode* xsi_node_to_cycles(
 		XSI::CString out_type;
 		ShadernodeType shadernode_type = get_shadernode_type(xsi_shader, out_type);
 
-		if (shadernode_type == ShadernodeType_Cycles || shadernode_type == ShadernodeType_CyclesAOV)
+		if (shadernode_type == ShadernodeType::ShadernodeType_Cycles || shadernode_type == ShadernodeType::ShadernodeType_CyclesAOV)
 		{
 			XSI::CParameterRefArray params = xsi_shader.GetParameters();
 			return sync_cycles_shader(scene, xsi_shader, out_type, params, eval_time, shader_graph, nodes_map, aovs);
 		}
-		else if (shadernode_type == ShadernodeType_OSL)
+		else if (shadernode_type == ShadernodeType::ShadernodeType_OSL)
 		{
 			return sync_osl_shader(scene, shader_graph, xsi_shader, nodes_map, aovs, eval_time);
 		}
-		else if (shadernode_type == ShadernodeType_NativeXSI)
+		else if (shadernode_type == ShadernodeType::ShadernodeType_NativeXSI)
 		{
 			return sync_xsi_shader(scene, shader_graph, xsi_shader, out_type, nodes_map, aovs, eval_time);
+		}
+		else if (shadernode_type == ShadernodeType::ShadernodeType_GLTF)
+		{
+			return sync_gltf_shader(scene, shader_graph, xsi_shader, out_type, nodes_map, aovs, eval_time);
 		}
 		else
 		{

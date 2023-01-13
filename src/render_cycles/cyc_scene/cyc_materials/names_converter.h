@@ -514,6 +514,11 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		"Softimage.rh_renderer.1.0", {
 			{"out", "BSDF"}  // replace by HairBsdfNode
 		}
+	},
+	{
+		"GLTFShadersPlugin.MetallicRoughness.1.0", {
+			{"BSDF", "BSDF"}  // replace by PrincipledBSDF
+		}
 	}
 };
 

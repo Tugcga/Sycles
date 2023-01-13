@@ -53,6 +53,11 @@ ShadernodeType get_shadernode_type(const XSI::Shader &xsi_shader, XSI::CString &
 			out_type = prog_id.GetSubString(pos[0] + 1, pos[1] - pos[0] - 1);
 			return ShadernodeType_NativeXSI;
 		}
+		else if (app_name == "GLTFShadersPlugin")
+		{
+			out_type = prog_id.GetSubString(pos[0] + 1, pos[1] - pos[0] - 1);
+			return ShadernodeType_GLTF;
+		}
 		else
 		{
 			return ShadernodeType_Unknown;
@@ -116,7 +121,7 @@ bool make_nodes_connection(ccl::ShaderGraph* shader_graph, ccl::ShaderNode* outp
 	// obtain output xsi shader node type, again
 	XSI::CString type_name;
 	ShadernodeType output_node_type = get_shadernode_type(xsi_output_shader, type_name);
-	if (output_node_type == ShadernodeType_Cycles || output_node_type == ShadernodeType_NativeXSI)
+	if (output_node_type == ShadernodeType::ShadernodeType_Cycles || output_node_type == ShadernodeType::ShadernodeType_NativeXSI || output_node_type == ShadernodeType::ShadernodeType_GLTF)
 	{
 		std::string connect_name = convert_port_name(xsi_output_shader.GetProgID(), xsi_output_name);
 		if (connect_name.length() > 0)
@@ -125,12 +130,12 @@ bool make_nodes_connection(ccl::ShaderGraph* shader_graph, ccl::ShaderNode* outp
 			return true;
 		}
 	}
-	else if(output_node_type == ShadernodeType_CyclesAOV)
+	else if(output_node_type == ShadernodeType::ShadernodeType_CyclesAOV)
 	{
 		make_aovs_reconnections(shader_graph, output_node, input_node, xsi_output_shader, input_name, eval_time);
 		return true;
 	}
-	else if (output_node_type == ShadernodeType_OSL)
+	else if (output_node_type == ShadernodeType::ShadernodeType_OSL)
 	{
 		// osl parser create nodes with output parameter names with prefix out
 		// so, we should remove first three letters to obtain actual output port name

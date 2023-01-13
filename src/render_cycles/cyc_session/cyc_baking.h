@@ -7,10 +7,8 @@
 
 #include <vector>
 
-#include "OpenImageIO/imageio.h"
-#include "OpenImageIO/imagebuf.h"
-
 #include "../update_context.h"
+#include "../../render_base/image_buffer.h"
 
 class BakingContext
 {
@@ -22,8 +20,8 @@ public:
 	void setup(ULONG in_width, ULONG in_height);
 	void set(int x, int y, int seed, int primitive_id, ccl::float2 uv, float du_dx, float du_dy, float dv_dx, float dv_dy);
 
-	OIIO::ImageBuf* get_buffer_primitive_id();
-	OIIO::ImageBuf* get_buffer_differencial();
+	ImageBuffer* get_buffer_primitive_id();
+	ImageBuffer* get_buffer_differencial();
 
 	void make_invalid();
 	void make_valid();
@@ -47,14 +45,10 @@ public:
 private:
 	ULONG width, height;
 
-	OIIO::ImageBuf* buffer_primitive_id;
-	std::vector<float> primitive_id_pixels;
+	ImageBuffer* buffer_primitive_id;
+	ImageBuffer* buffer_differencial;
 
-	OIIO::ImageBuf* buffer_differencial;
-	std::vector<float> differential_pixels;
-
-	OIIO::ImageBuf* buffer_uv;
-	std::vector<float> uv_pixels;
+	ImageBuffer* buffer_uv;
 
 	bool is_valid;
 	ccl::PassType pass_type;

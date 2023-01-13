@@ -20,9 +20,13 @@ ccl::uint get_ray_visibility(const XSI::CParameterRefArray &property_params, con
 	flag |= bool(property_params.GetValue("ray_visibility_shadow", eval_time)) ? ccl::PATH_RAY_SHADOW : 0;
 	flag |= bool(property_params.GetValue("ray_visibility_volume_scatter", eval_time)) ? ccl::PATH_RAY_VOLUME_SCATTER : 0;
 
-	if (bool(property_params.GetValue("is_holdout", eval_time)))
+	XSI::Parameter is_holdout_param = property_params.GetItem("is_holdout");
+	if (is_holdout_param.IsValid())
 	{
-		flag &= ~(ccl::PATH_RAY_ALL_VISIBILITY - ccl::PATH_RAY_CAMERA);
+		if (bool(is_holdout_param.GetValue(eval_time)))
+		{
+			flag &= ~(ccl::PATH_RAY_ALL_VISIBILITY - ccl::PATH_RAY_CAMERA);
+		}
 	}
 	return flag;
 }
@@ -40,7 +44,6 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 		object->set_pass_id(0);
 	}
 
-	// try to set custom hair property
 	XSI::Property xsi_property;
 	bool use_property = get_xsi_object_property(xsi_object, property_name, xsi_property);
 	out_motion_deform = false;
@@ -78,6 +81,74 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 		object->tag_shadow_terminator_geometry_offset_modified();
 		object->tag_ao_distance_modified();
 	}
+
+	// next object settings
+	object->name = xsi_object.GetName().GetAsciiString();
+	object->set_asset_name(OIIO::ustring(get_asset_name(xsi_object)));
+	object->set_color(vector3_to_float3(get_object_color(xsi_object, eval_time)));
+	object->set_alpha(1.0);
+
+	object->tag_pass_id_modified();
+	object->tag_color_modified();
+	object->tag_alpha_modified();
+
+	XSI::CString to_hash = XSI::CString(object->name.c_str()) + "_" + XSI::CString(scene->objects.size());
+	object->set_random_id(ccl::hash_uint2(ccl::hash_string(to_hash.GetAsciiString()), 0));
+}
+
+void sync_vdb_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject& xsi_object, XSI::CString& lightgroup, const XSI::CParameterRefArray& primitive_parameters, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
+{
+	// set unique pass id
+	bool output_pass_assign_unique_pass_id = render_parameters.GetValue("output_pass_assign_unique_pass_id", eval_time);
+	if (output_pass_assign_unique_pass_id)
+	{
+		object->set_pass_id(scene->objects.size());
+	}
+	else
+	{
+		object->set_pass_id(0);
+	}
+
+	if (!output_pass_assign_unique_pass_id)
+	{
+		XSI::Parameter pass_id_param = primitive_parameters.GetItem("pass_id");
+		if (pass_id_param.IsValid())
+		{
+			object->set_pass_id(pass_id_param.GetValue(eval_time));
+		}
+	}
+
+	XSI::Parameter ray_visibility_camera_param = primitive_parameters.GetItem("ray_visibility_camera");
+	XSI::Parameter ray_visibility_diffuse_param = primitive_parameters.GetItem("ray_visibility_diffuse");
+	XSI::Parameter ray_visibility_glossy_param = primitive_parameters.GetItem("ray_visibility_glossy");
+	XSI::Parameter ray_visibility_transmission_param = primitive_parameters.GetItem("ray_visibility_transmission");
+	XSI::Parameter ray_visibility_shadow_param = primitive_parameters.GetItem("ray_visibility_shadow");
+	XSI::Parameter ray_visibility_volume_scatter_param = primitive_parameters.GetItem("ray_visibility_volume_scatter");
+	if (ray_visibility_camera_param.IsValid() &&
+		ray_visibility_diffuse_param.IsValid() &&
+		ray_visibility_glossy_param.IsValid() &&
+		ray_visibility_transmission_param.IsValid() &&
+		ray_visibility_shadow_param.IsValid() &&
+		ray_visibility_volume_scatter_param.IsValid())
+	{
+		object->set_visibility(get_ray_visibility(primitive_parameters, eval_time));
+	}
+
+	XSI::Parameter shadow_catcher_param = primitive_parameters.GetItem("shadow_catcher");
+	if (shadow_catcher_param.IsValid())
+	{
+		object->set_is_shadow_catcher(shadow_catcher_param.GetValue(eval_time));
+	}
+
+	XSI::Parameter lightgroup_param = primitive_parameters.GetItem("lightgroup");
+	if (lightgroup_param.IsValid())
+	{
+		lightgroup = lightgroup_param.GetValue(eval_time);
+		object->set_lightgroup(ccl::ustring(lightgroup.GetAsciiString()));
+	}
+	
+	object->tag_visibility_modified();
+	object->tag_is_shadow_catcher_modified();
 
 	// next object settings
 	object->name = xsi_object.GetName().GetAsciiString();

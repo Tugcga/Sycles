@@ -64,6 +64,7 @@ enum ShadernodeType
 	ShadernodeType_CyclesAOV,
 	ShadernodeType_OSL,
 	ShadernodeType_NativeXSI,
+	ShadernodeType_GLTF,
 	ShadernodeType_Unknown
 };
 
@@ -77,7 +78,6 @@ enum SubdivideMode
 enum PointcloudType
 {
 	PointcloudType_Strands,
-	PointcloudType_Explosia,
 	PointcloudType_Points,
 	PointcloudType_Volume,
 	PointcloudType_Instances,

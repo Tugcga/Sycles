@@ -1,5 +1,3 @@
-#include "OpenImageIO/imagebufalgo.h"
-
 #include "util/murmurhash.h"
 
 #include "output_context.h"
@@ -13,8 +11,7 @@
 OutputContext::OutputContext()
 {
 	is_labels = false;
-	labels_buffer_pixels.resize(0);
-	labels_buffer.reset();
+	labels_buffer = new ImageBuffer();
 
 	output_paths.Clear();
 	output_formats.Clear();
@@ -32,9 +29,6 @@ OutputContext::OutputContext()
 	output_pass_bits.resize(0);
 
 	output_buffers.resize(0);
-	output_pixels.resize(0);
-
-	output_buffer_pixels_start.resize(0);
 
 	output_passes_count = 0;
 	render_type = RenderType::RenderType_Unknown;
@@ -54,14 +48,14 @@ OutputContext::OutputContext()
 OutputContext::~OutputContext()
 {
 	reset();
+
+	delete labels_buffer;
 }
 
 void OutputContext::reset()
 {
-	labels_buffer_pixels.clear();
-	labels_buffer_pixels.shrink_to_fit();
 	is_labels = false;
-	labels_buffer.reset();
+	labels_buffer->reset();
 
 	output_paths.Clear();
 	output_formats.Clear();
@@ -86,13 +80,12 @@ void OutputContext::reset()
 	output_pass_bits.clear();
 	output_pass_bits.shrink_to_fit();
 
+	for (size_t i = 0; i < output_buffers.size(); i++)
+	{
+		delete output_buffers[i];
+	}
 	output_buffers.clear();
 	output_buffers.shrink_to_fit();
-	output_pixels.clear();
-	output_pixels.shrink_to_fit();
-
-	output_buffer_pixels_start.clear();
-	output_buffer_pixels_start.shrink_to_fit();
 
 	output_passes_count = 0;
 	render_type = RenderType::RenderType_Unknown;
@@ -185,7 +178,7 @@ int OutputContext::get_output_pass_bits(int index)
 
 float* OutputContext::get_output_pass_pixels(int index)
 {
-	return &output_pixels[output_buffer_pixels_start[index]];
+	return output_buffers[index]->get_pixels_pointer();
 }
 
 void OutputContext::extract_output_channel(int index, int channel, float* output, bool flip_verticaly)
@@ -198,10 +191,10 @@ void OutputContext::extract_output_channel(int index, int channel, float* output
 
 void OutputContext::extract_lables_channel(int channel, float* output, bool flip_verticaly)
 {
-	extract_channel(image_width, image_height, channel, 4, flip_verticaly, &labels_buffer_pixels[0], output);
+	extract_channel(image_width, image_height, channel, 4, flip_verticaly, labels_buffer->get_pixels_pointer(), output);
 }
 
-OIIO::ImageBuf OutputContext::get_output_buffer(int index)
+ImageBuffer* OutputContext::get_output_buffer(int index)
 {
 	return output_buffers[index];
 }
@@ -213,12 +206,12 @@ bool OutputContext::get_is_labels()
 
 float* OutputContext::get_labels_pixels()
 {
-	return &labels_buffer_pixels[0];
+	return labels_buffer->get_pixels_pointer();
 }
 
-bool OutputContext::add_output_pixels(ccl::ROI roi, int index, std::vector<float>& pixels)
+bool OutputContext::add_output_pixels(const ImageRectangle &roi, int index, std::vector<float>& pixels)
 {
-	return output_buffers[index].set_pixels(roi, ccl::TypeDesc::FLOAT, &pixels[0]);
+	return output_buffers[index]->set_pixels(roi, &pixels[0]);
 }
 
 void OutputContext::set_render_type(RenderType type)
@@ -259,9 +252,8 @@ void OutputContext::set_labels_buffer(LabelsContext* labels_context)
 	if (labels_context->is_labels())
 	{
 		is_labels = true;
-		labels_buffer_pixels.resize((size_t)image_width * image_height * 4);
-		labels_buffer = OIIO::ImageBuf(ccl::ImageSpec(image_width, image_height, 4, ccl::TypeDesc::FLOAT), &labels_buffer_pixels[0]);
-		
+		labels_buffer = new ImageBuffer(image_width, image_height, 4);
+
 		build_labels_buffer(labels_buffer, labels_context->get_string(), image_width, image_height,
 			0,  // horisontal shift
 			20,  // height
@@ -271,8 +263,7 @@ void OutputContext::set_labels_buffer(LabelsContext* labels_context)
 	else
 	{
 		is_labels = false;
-		labels_buffer_pixels.clear();
-		labels_buffer.reset();
+		labels_buffer->reset();
 	}
 }
 
@@ -379,7 +370,9 @@ void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CStrin
 
 // this method calls after we sync the scene, but before we setup all render passes
 // data from the object after this method is used for setting all render passes
-void OutputContext::set_output_passes(BakingContext* baking_context, MotionSettingsType motion_type, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
+// if store_denoising is true, then we should add all passes, used for denoising (without path)
+// these passes will be saved into combined exr
+void OutputContext::set_output_passes(BakingContext* baking_context, MotionSettingsType motion_type, bool store_denoising, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
 {
 	output_passes_count = 0;
 	output_pass_types.clear();
@@ -391,8 +384,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 	output_pass_bits.clear();
 
 	output_buffers.clear();
-	output_buffer_pixels_start.clear();
-	crypto_buffer_indices.clear();
 
 	crypto_keys.clear();
 	crypto_values.clear();
@@ -401,7 +392,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 	// in most cases one output channel corresponds to one output pass
 	// but it's possible to select one channel several times and save it with different names
 	// also aovs correspond to several different passes
-	int total_components = 0;
 	for (size_t i = 0; i < output_channels.GetCount(); i++)
 	{
 		// channel for visual pass has proper name (Cycles Depth, for example)
@@ -428,7 +418,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 		{
 			XSI::CString pass_name = pass_to_name(pass_type);  // convert from Cycles pass type to the standart name (PASS_COMBINED -> Combined, for example)
 			int pass_components = get_pass_components(pass_type, is_lightgroup);
-			total_components += pass_components;
 
 			if (pass_type == ccl::PASS_AOV_COLOR || pass_type == ccl::PASS_AOV_VALUE)
 			{// we should add several output passes, for each name in the input array
@@ -441,7 +430,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 					// we assume that input arrays contains aov names without repetitions
 
 					int pass_components = get_pass_components(pass_type, false);
-					total_components += pass_components;
 
 					// we should modify output pass, add at the end the name of the pass (original name, not modified)
 					add_one_pass_data(pass_type, aov_name, pass_components, i, add_aov_name_to_path(output_paths[i], aov_names[aov_index]));
@@ -453,7 +441,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 				{
 					XSI::CString lg_name = add_prefix_to_lightgroup_name(lightgroup_names[lg_index]);
 					int pass_components = get_pass_components(pass_type, true);
-					total_components += pass_components;
 
 					add_one_pass_data(pass_type, lg_name, pass_components, i, add_aov_name_to_path(output_paths[i], lightgroup_names[lg_index]));
 				}
@@ -478,6 +465,18 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 		}
 	}
 
+	if (store_denoising)
+	{
+		ccl::PassType denoising_normal = ccl::PASS_DENOISING_NORMAL;
+		add_one_pass_data(denoising_normal, pass_to_name(denoising_normal), get_pass_components(denoising_normal, false), -1, "");
+
+		ccl::PassType denoising_albedo = ccl::PASS_DENOISING_ALBEDO;
+		add_one_pass_data(denoising_albedo, pass_to_name(denoising_albedo), get_pass_components(denoising_albedo, false), -1, "");
+
+		ccl::PassType denoising_depth = ccl::PASS_DENOISING_DEPTH;
+		add_one_pass_data(denoising_depth, pass_to_name(denoising_depth), get_pass_components(denoising_depth, false), -1, "");
+	}
+
 	// next add cryptomatte passes
 	crypto_passes = ccl::CRYPT_NONE;
 	const char* cryptomatte_prefix = "Crypto";
@@ -493,7 +492,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Object%02d", i)).c_str());
 				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
 				crypto_buffer_indices.push_back(output_passes_count - 1);
-				total_components += crypto_components;
 			}
 			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_OBJECT);
 		}
@@ -505,7 +503,6 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Material%02d", i)).c_str());
 				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
 				crypto_buffer_indices.push_back(output_passes_count - 1);
-				total_components += crypto_components;
 			}
 			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_MATERIAL);
 		}
@@ -517,25 +514,17 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Asset%02d", i)).c_str());
 				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
 				crypto_buffer_indices.push_back(output_passes_count - 1);
-				total_components += crypto_components;
 			}
 			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_ASSET);
 		}
 	}
 
-	// resize output pixels
-	output_pixels.resize((size_t)image_width * image_height * total_components, 0.0f);
-
 	// next wraps all buffers
-	total_components = 0;  // use this variable as components shift for buffer pixels
 	for (size_t i = 0; i < output_passes_count; i++)
 	{
 		int pass_components = output_pass_components[i];
-		size_t start_pixels_index = (size_t)image_width * image_height * total_components;
-		ccl::ImageBuf pass_buffer = ccl::ImageBuf(ccl::ImageSpec(image_width, image_height, pass_components, ccl::TypeDesc::FLOAT), &output_pixels[start_pixels_index]);
-		total_components += pass_components;
+		ImageBuffer* new_buffer = new ImageBuffer(image_width, image_height, pass_components);
 
-		output_buffers.push_back(pass_buffer);
-		output_buffer_pixels_start.push_back(start_pixels_index);
+		output_buffers.push_back(new_buffer);
 	}
 }

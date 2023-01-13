@@ -208,13 +208,13 @@ void sync_xsi_light_object(ccl::Scene* scene, ccl::Light* light, ccl::Shader* li
 		if (xsi_area_shape == 2)
 		{// disc
 			// use only x size
-			light->set_round(true);
+			light->set_ellipse(true);
 			light->set_sizeu(xsi_size_x * 2.0f);
 			light->set_sizev(xsi_size_x * 2.0f);
 		}
 		else
 		{// all other shapes are rectangles
-			light->set_round(false);
+			light->set_ellipse(false);
 			light->set_sizeu(xsi_size_x);
 			light->set_sizev(xsi_size_y);
 		}
@@ -327,7 +327,7 @@ void sync_custom_light_object(ccl::Light* light, const XSI::CString &xsi_name, C
 		{
 			is_round = static_cast<int>(shape_value) != 0;
 		}
-		light->set_round(is_round);
+		light->set_ellipse(is_round);
 	}
 
 	light->set_strength(ccl::one_float3() * (float)xsi_parameters.GetValue("power", eval_time));

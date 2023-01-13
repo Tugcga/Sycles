@@ -1,3 +1,5 @@
+#include <xsi_customproperty.h>
+
 #include "../input/input.h"
 #include "si_locker.h"
 #include "../utilities/logs.h"
@@ -86,7 +88,6 @@ SICALLBACK CyclesRenderer_Init(XSI::CRef &in_ctxt)
 	renderer.AddDefaultChannel("Cycles Background", XSI::siRenderChannelColorType);  // 3
 	renderer.AddDefaultChannel("Cycles AO", XSI::siRenderChannelColorType);  // 3
 	renderer.AddDefaultChannel("Cycles Shadow Catcher", XSI::siRenderChannelColorType);  // 3
-	renderer.AddDefaultChannel("Cycles Shadow", XSI::siRenderChannelColorType);  // 3
 	renderer.AddDefaultChannel("Cycles Motion", XSI::siRenderChannelColorType);  // 4
 	renderer.AddDefaultChannel("Cycles Mist", XSI::siRenderChannelGrayscaleType);  // 1
 	renderer.AddDefaultChannel("Cycles Volume Direct", XSI::siRenderChannelColorType);  // 3
