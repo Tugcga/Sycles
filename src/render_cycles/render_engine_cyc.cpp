@@ -922,7 +922,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	}
 
 	//log render time
-	if (render_type != RenderType_Shaderball && make_render)
+	if (render_type != RenderType_Shaderball && make_render && render_time > 0.00001)
 	{
 		if (update_context->get_is_log_rendertime())
 		{
@@ -944,7 +944,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 
 	// reset baking, and also clear the scene
 	// next render will be from scratch
-	// WARNING: there is ono-critical bag here
+	// WARNING: there is non-critical bag here
 	// if we use baking, then it does not properly unload addon dll from the memory when we manually request it
 	// but after close Softimage, it unload it properly
 	bool is_clear = baking_context->get_is_valid();
