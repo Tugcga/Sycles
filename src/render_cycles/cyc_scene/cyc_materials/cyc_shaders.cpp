@@ -422,6 +422,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString projection = get_string_parameter_value(xsi_parameters, "Projection", eval_time);
 		float projection_blend = get_float_parameter_value(xsi_parameters, "ProjectionBlend", eval_time);
 		XSI::CString extension = get_string_parameter_value(xsi_parameters, "Extension", eval_time);
+		bool premultiply_alpha = get_bool_parameter_value(xsi_parameters, "premultiply_alpha", eval_time);
 		XSI::CString image_source = get_string_parameter_value(xsi_parameters, "ImageSource", eval_time);
 		//XSI::CString tiles = get_string_parameter_value(xsi_parameters, "tiles", eval_time);
 		int image_frames = get_int_parameter_value(xsi_parameters, "ImageFrames", eval_time);
@@ -443,6 +444,16 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			// get tiles
 			std::map<int, XSI::CString> tile_to_path_map = sync_image_tiles(file_path);
 			ccl::array<int> tiles = exctract_tiles(tile_to_path_map);
+
+			// set node parameters before loader, because it use these parameters for define alpha
+			node->set_colorspace(selected_colorscape);
+			node->set_projection(projection == "flat" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT : (projection == "box" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_BOX : (projection == "sphere" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_SPHERE : (projection == "tube" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_TUBE : ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT))));
+			node->set_projection_blend(projection_blend);
+			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
+			node->set_extension(extension == "Clip" ? ccl::ExtensionType::EXTENSION_CLIP : (extension == "Extend" ? ccl::ExtensionType::EXTENSION_EXTEND : ccl::ExtensionType::EXTENSION_REPEAT));
+
+			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
+			node->set_animated(false);
 
 			if(image_source == "tiled")
 			{
@@ -473,14 +484,6 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 			node->set_tiles(tiles);
 
-			node->set_colorspace(selected_colorscape);
-			node->set_projection(projection == "flat" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT : (projection == "box" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_BOX : (projection == "sphere" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_SPHERE : (projection == "tube" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_TUBE : ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT))));
-			node->set_projection_blend(projection_blend);
-			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
-			node->set_extension(extension == "Clip" ? ccl::ExtensionType::EXTENSION_CLIP : (extension == "Extend" ? ccl::ExtensionType::EXTENSION_EXTEND : ccl::ExtensionType::EXTENSION_REPEAT));
-			node->set_alpha_type(ccl::ImageAlphaType::IMAGE_ALPHA_AUTO);
-			node->set_animated(false);
-
 			return node;
 		}
 		else
@@ -502,6 +505,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString color_space = get_string_parameter_value(xsi_parameters, "ColorSpace", eval_time);
 		XSI::CString interpolation = get_string_parameter_value(xsi_parameters, "Interpolation", eval_time);
 		XSI::CString projection = get_string_parameter_value(xsi_parameters, "Projection", eval_time);
+		bool premultiply_alpha = get_bool_parameter_value(xsi_parameters, "premultiply_alpha", eval_time);
 
 		XSI::CString image_source = get_string_parameter_value(xsi_parameters, "ImageSource", eval_time);
 		int image_frames = get_int_parameter_value(xsi_parameters, "ImageFrames", eval_time);
@@ -518,11 +522,13 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			std::string filename = build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, false, temp_flag);
 			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
 
-			XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
-			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
 			node->set_colorspace(selected_colorscape);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));
+			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
+
+			XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
+			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
 
 			return node;
 		}
