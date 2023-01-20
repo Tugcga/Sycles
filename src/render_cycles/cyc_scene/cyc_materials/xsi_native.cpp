@@ -119,6 +119,8 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		XSI::ShaderParameter alt_y_param = params.GetItem("alt_y");
 		XSI::ShaderParameter repeats_param = params.GetItem("repeats");
 		XSI::ShaderParameter uv_param = params.GetItem("tspace_id");
+		bool alpha_output = get_bool_parameter_value(params, "alpha_output", eval_time);
+		// float alpha_factor = get_float_parameter_value(params, "alpha_factor", eval_time);  // does not used
 
 		XSI::CRef tex_source = tex_param.GetSource();
 		if (tex_source.IsValid() && alt_x_param.IsValid() && alt_y_param.IsValid() && repeats_param.IsValid() && uv_param.IsValid())
@@ -153,7 +155,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			node->set_projection_blend(0.0);
 			node->set_interpolation(ccl::InterpolationType::INTERPOLATION_SMART);
 			node->set_extension(ccl::ExtensionType::EXTENSION_REPEAT);
-			node->set_alpha_type(ccl::ImageAlphaType::IMAGE_ALPHA_AUTO);
+			node->set_alpha_type(alpha_output ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 			node->set_animated(false);
 
 			// uv node
