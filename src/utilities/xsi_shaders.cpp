@@ -4,6 +4,7 @@
 #include <xsi_time.h>
 #include <xsi_color4f.h>
 #include <xsi_fcurve.h>
+#include <xsi_imageclip2.h>
 
 #include "xsi_shaders.h"
 #include "logs.h"
@@ -285,4 +286,20 @@ XSI::FCurve get_fcurve_parameter_value(const XSI::CParameterRefArray& all_parame
 	XSI::ShaderParameter param_final = get_source_parameter(param);
 
 	return (XSI::FCurve)param_final.GetValue(eval_time);
+}
+
+XSI::ImageClip2 get_clip_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time)
+{
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
+	XSI::ImageClip2 final_source = param_final.GetSource();
+	if (final_source.IsValid())
+	{
+		if (final_source.IsValid())
+		{
+			return final_source;
+		}
+	}
+
+	return XSI::ImageClip2();
 }

@@ -414,8 +414,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		ccl::ImageTextureNode* node = shader_graph->create_node<ccl::ImageTextureNode>();
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
-		XSI::ShaderParameter image_tex_param = xsi_parameters.GetItem("image");
-		XSI::CRef image_tex_source = image_tex_param.GetSource();
+		XSI::ImageClip2 clip = get_clip_parameter_value(xsi_parameters, "image", eval_time);
 		XSI::CString file_path = "";
 		XSI::CString color_space = get_string_parameter_value(xsi_parameters, "ColorSpace", eval_time);
 		XSI::CString interpolation = get_string_parameter_value(xsi_parameters, "Interpolation", eval_time);
@@ -430,9 +429,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		int offset = get_int_parameter_value(xsi_parameters, "ImageOffset", eval_time);
 		bool cyclic = get_bool_parameter_value(xsi_parameters, "ImageCyclic", eval_time);
 
-		if (image_tex_source.IsValid())
+		if (clip.IsValid())
 		{
-			XSI::ImageClip2 clip(image_tex_source);
 			file_path = clip.GetFileName();
 
 			ULONG xsi_clip_id = clip.GetObjectID();
@@ -498,8 +496,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		node->tex_mapping.rotation = ccl::make_float3(-0.5f * XSI::MATH::PI, 0.0f, 0.0f);
 
-		XSI::ShaderParameter image_tex_param = xsi_parameters.GetItem("image");
-		XSI::CRef image_tex_source = image_tex_param.GetSource();
+		XSI::ImageClip2 clip = get_clip_parameter_value(xsi_parameters, "image", eval_time);
 		XSI::CString file_path = "";
 
 		XSI::CString color_space = get_string_parameter_value(xsi_parameters, "ColorSpace", eval_time);
@@ -513,9 +510,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		int offset = get_int_parameter_value(xsi_parameters, "ImageOffset", eval_time);
 		bool cyclic = get_bool_parameter_value(xsi_parameters, "ImageCyclic", eval_time);
 
-		if (image_tex_source.IsValid())
+		if (clip.IsValid())
 		{
-			XSI::ImageClip2 clip(image_tex_source);
 			file_path = clip.GetFileName();
 
 			bool temp_flag = false;
