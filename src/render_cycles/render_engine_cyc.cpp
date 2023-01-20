@@ -871,6 +871,12 @@ XSI::CStatus RenderEngineCyc::post_scene()
 		update_context->set_logging(m_render_parameters.GetValue("options_logging_log_rendertime", eval_time), m_render_parameters.GetValue("options_logging_log_details", eval_time));
 	}
 
+	int update_method = m_render_parameters.GetValue("options_update_method", eval_time);
+	if (update_method == 0)
+	{// Always Abort
+		activate_force_recreate_scene();
+	}
+
 	// save values of used render parameters
 	update_context->setup_prev_render_parameters(m_render_parameters);
 	// and rendered visual channel
@@ -926,7 +932,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	{
 		if (update_context->get_is_log_rendertime())
 		{
-			log_message("Render statistics: " + XSI::CString(render_time) + " seconds");
+			log_message("Render time: " + XSI::CString(render_time) + " seconds");
 		}
 		if (update_context->get_is_log_details())
 		{
