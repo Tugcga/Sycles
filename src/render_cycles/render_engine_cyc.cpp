@@ -905,7 +905,8 @@ void RenderEngineCyc::render()
 XSI::CStatus RenderEngineCyc::post_render_engine()
 {
 	// get render time
-	double render_time = (finish_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
+	// here we count only actual (in Cycles) render time, without prepare stage
+	double render_time = (finish_render_time - start_render_time) / CLOCKS_PER_SEC;
 	if (make_render)
 	{
 		labels_context->set_render_time(render_time);
@@ -936,6 +937,10 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 		}
 		if (update_context->get_is_log_details())
 		{
+			// otuput scene prepare time
+			double prepare_time = (start_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
+			log_message("Scene export time: " + XSI::CString(prepare_time) + " seconds");
+
 			ccl::RenderStats stats;
 			session->collect_statistics(&stats);
 			log_message(stats.full_report().c_str());
