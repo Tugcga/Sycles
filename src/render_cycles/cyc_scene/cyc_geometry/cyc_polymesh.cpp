@@ -671,7 +671,7 @@ XSI::CStatus update_polymesh(ccl::Scene* scene, UpdateContext* update_context, X
 			size_t index = object_indexes[i];
 			ccl::Object* object = scene->objects[index];
 
-			sync_geometry_object_parameters(scene, object, xsi_object, lightgroup, motion_deform, "CyclesMesh", render_parameters, eval_time);
+			sync_geometry_object_parameters(scene, object, xsi_object, lightgroup, motion_deform, "CyclesMesh", render_parameters, eval_time, false);  // false - dose not reassign color and name of the object
 		}
 		update_context->add_lightgroup(lightgroup);
 

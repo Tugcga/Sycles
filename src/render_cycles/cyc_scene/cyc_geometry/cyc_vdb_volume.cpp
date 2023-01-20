@@ -187,7 +187,7 @@ XSI::CStatus update_vdb(ccl::Scene* scene, UpdateContext* update_context, XSI::X
 			size_t index = object_indexes[i];
 			ccl::Object* object = scene->objects[index];
 
-			sync_vdb_object_parameters(scene, object, xsi_object, lightgroup, primitive_parameters, render_parameters, eval_time);
+			sync_vdb_object_parameters(scene, object, xsi_object, lightgroup, primitive_parameters, render_parameters, eval_time, false);
 		}
 
 		update_context->add_lightgroup(lightgroup);
