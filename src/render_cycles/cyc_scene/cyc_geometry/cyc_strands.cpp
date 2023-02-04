@@ -391,7 +391,7 @@ XSI::CStatus update_strands(ccl::Scene* scene, UpdateContext* update_context, XS
 			size_t index = object_indexes[i];
 			ccl::Object* object = scene->objects[index];
 
-			sync_geometry_object_parameters(scene, object, xsi_object, lightgroup, motion_deform, "CyclesPointcloud", render_parameters, eval_time);
+			sync_geometry_object_parameters(scene, object, xsi_object, lightgroup, motion_deform, "CyclesPointcloud", render_parameters, eval_time, false);
 		}
 
 		update_context->add_lightgroup(lightgroup);

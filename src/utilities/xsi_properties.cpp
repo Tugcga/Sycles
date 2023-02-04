@@ -17,13 +17,22 @@
 #include "logs.h"
 #include "math.h"
 
-bool is_render_visible(XSI::X3DObject& xsi_object, const XSI::CTime &eval_time)
+bool is_render_visible(XSI::X3DObject& xsi_object, bool ignore_hide_master, const XSI::CTime &eval_time)
 {
 	XSI::Property visibility_prop;
 	xsi_object.GetPropertyFromName("visibility", visibility_prop);
 	if (visibility_prop.IsValid())
 	{
-		return visibility_prop.GetParameterValue("rendvis", eval_time);
+		bool rendvis = visibility_prop.GetParameterValue("rendvis", eval_time);
+		bool hidemaster = visibility_prop.GetParameterValue("hidemaster", eval_time);
+		if (ignore_hide_master) 
+		{
+			return rendvis;
+		}
+		else
+		{
+			return !hidemaster && rendvis;
+		}
 	}
 	return false;
 }
@@ -55,7 +64,7 @@ bool obtain_subsub_directions(const XSI::Shader &xsi_shader, float &sun_x, float
 			for (size_t i = 0; i < children.GetCount(); i++)
 			{
 				XSI::X3DObject c = children.GetItem(i);
-				if (is_render_visible(c, eval_time))
+				if (is_render_visible(c, false, eval_time))
 				{
 					bool use_native_sun = false;
 					XSI::siClassID c_class = c.GetClassID();

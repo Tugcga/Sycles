@@ -114,16 +114,16 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 	else if (shader_type == "txt2d-image-explicit")
 	{
 		XSI::CParameterRefArray params = xsi_shader.GetParameters();
-		XSI::ShaderParameter tex_param = params.GetItem("tex");
+		XSI::ImageClip2 clip = get_clip_parameter_value(params, "tex", eval_time);
 		XSI::ShaderParameter alt_x_param = params.GetItem("alt_x");
 		XSI::ShaderParameter alt_y_param = params.GetItem("alt_y");
 		XSI::ShaderParameter repeats_param = params.GetItem("repeats");
 		XSI::ShaderParameter uv_param = params.GetItem("tspace_id");
+		bool alpha_output = get_bool_parameter_value(params, "alpha_output", eval_time);
+		// float alpha_factor = get_float_parameter_value(params, "alpha_factor", eval_time);  // does not used
 
-		XSI::CRef tex_source = tex_param.GetSource();
-		if (tex_source.IsValid() && alt_x_param.IsValid() && alt_y_param.IsValid() && repeats_param.IsValid() && uv_param.IsValid())
+		if (clip.IsValid() && alt_x_param.IsValid() && alt_y_param.IsValid() && repeats_param.IsValid() && uv_param.IsValid())
 		{
-			XSI::ImageClip2 clip(tex_source);
 			XSI::CString file_path = clip.GetFileName();
 
 			bool alt_x = alt_x_param.GetValue(eval_time);
@@ -144,17 +144,16 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			nodes_map[xsi_shader_id] = node;
 			node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
-			//node->set_filename(OIIO::ustring(file_path.GetAsciiString()));
-			XSIImageLoader* image_loader = new XSIImageLoader(clip, ccl::u_colorspace_srgb, 0, "", eval_time);
-			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
-
 			node->set_colorspace(ccl::u_colorspace_srgb);
 			node->set_projection(ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT);
 			node->set_projection_blend(0.0);
 			node->set_interpolation(ccl::InterpolationType::INTERPOLATION_SMART);
 			node->set_extension(ccl::ExtensionType::EXTENSION_REPEAT);
-			node->set_alpha_type(ccl::ImageAlphaType::IMAGE_ALPHA_AUTO);
+			node->set_alpha_type(alpha_output ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 			node->set_animated(false);
+			
+			XSIImageLoader* image_loader = new XSIImageLoader(clip, ccl::u_colorspace_srgb, 0, "", eval_time);
+			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
 
 			// uv node
 			ccl::UVMapNode* uv_node = shader_graph->create_node<ccl::UVMapNode>();

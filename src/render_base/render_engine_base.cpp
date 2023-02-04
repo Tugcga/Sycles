@@ -225,7 +225,7 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	m_render_parameters = m_render_property.GetParameters();
 	//current time
 	eval_time = render_context.GetTime();
-	start_render_time = clock();
+	start_prepare_render_time = clock();
 
 	//camera
 	XSI::Primitive camera_prim(m_render_context.GetAttribute("Camera"));
@@ -867,7 +867,7 @@ XSI::CStatus RenderEngineBase::start_render()
 
 	m_render_context.NewFrame(visual_buffer->get_full_width(), visual_buffer->get_full_height());
 
-	start_prepare_render_time = clock();
+	start_render_time = clock();
 
 	render();
 

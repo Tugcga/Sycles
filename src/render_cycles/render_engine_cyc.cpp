@@ -496,6 +496,17 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	}
 	update_context->set_use_denoising(use_denoising);
 
+	// recreate scene if we change displacement settings
+	int displacement_mode = render_type == RenderType_Shaderball ? get_shaderball_displacement_method() : (int)m_render_parameters.GetValue("options_displacement_method", eval_time);
+	if (!is_recreate_session)
+	{
+		if (update_context->get_displacement_mode() != displacement_mode)
+		{
+			is_recreate_session = true;
+		}
+	}
+	update_context->set_displacement_mode(displacement_mode);
+
 	// set actual motoin type
 	// this value used in integrator
 	// even if we does not update other motion parameters but motion blur is disabled, then in will not be rendered
@@ -684,11 +695,48 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 		aovs[1].Clear();
 		is_update = update_material(session->scene, xsi_material, update_context->get_xsi_material_cycles_index(material_id), update_context->get_time(), aovs);
 
+		if (update_context->is_displacement_material(material_id))
+		{
+			// get all objects, used by this material
+			XSI::CRefArray used_objects = xsi_material.GetUsedBy();
+			ULONG used_count = used_objects.GetCount();
+			for (ULONG i = 0; i < used_count; i++)
+			{
+				XSI::CRef obj(used_objects[i]);
+				if (obj.IsValid())
+				{
+					XSI::siClassID obj_class = obj.GetClassID();
+					if (obj_class == XSI::siClassID::siX3DObjectID)
+					{
+						XSI::X3DObject xsi_obj(obj);
+						XSI::CString xsi_type = xsi_obj.GetType();
+						// use general update_scene function
+						if (xsi_type == "polymsh")
+						{
+							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Mesh);
+						}
+						else if (xsi_type == "hair")
+						{
+							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Hair);
+						}
+						else if (xsi_type == "pointcloud")
+						{
+							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Pointcloud);
+						}
+					}
+					else
+					{
+						
+					}
+				}
+			}
+		}
+
 		update_context->add_aov_names(aovs[0], aovs[1]);
 	}
 	else
 	{
-		// may be we in the shaderball render mode, but update not material but subshader
+		// may be we in the shaderball render mode, and update not material but subshader
 		if (render_type == RenderType_Shaderball)
 		{
 			ULONG shader_id = update_context->get_shaderball_material_node(material_id);
@@ -737,6 +785,12 @@ XSI::CStatus RenderEngineCyc::create_scene()
 
 	// get all motion properties
 	update_context->set_motion(m_render_parameters, output_channels, m_display_channel_name, in_update_motion_type);
+
+	// denoising
+	update_context->set_use_denoising((int)m_render_parameters.GetValue("denoise_mode", eval_time) != 0);
+
+	// setup displacement mode after reset
+	update_context->set_displacement_mode(render_type == RenderType_Shaderball ? get_shaderball_displacement_method() : (int)m_render_parameters.GetValue("options_displacement_method", eval_time));
 
 	if (render_type == RenderType_Shaderball)
 	{
@@ -850,25 +904,17 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			sync_shader_settings(session->scene, m_render_parameters, render_type, get_shaderball_displacement_method(), eval_time);
 		}
 
-		// qick fix for displacement problem
-		// with active displacement, vertices of the mesh is shifted with respect to displacement map
-		// and at the next update it shift these vertices again
-		int settings_displacement_type = render_type == RenderType_Shaderball ? get_shaderball_displacement_method() : (int)m_render_parameters.GetValue("options_displacement_method", eval_time);
-		if (settings_displacement_type != 0)
-		{// 0 - bump displacement
-			bool is_find_displacement = find_scene_shaders_displacement(session->scene);
-			if (is_find_displacement)
-			{
-				// a the next update the scene will be recreated from scratch
-				activate_force_recreate_scene();
-			}
-		}
-
 		// TODO: try to fix this bug
 		// set temp directory for session parameters
 		// session->params.temp_dir = temp_path.GetAsciiString();
 
 		update_context->set_logging(m_render_parameters.GetValue("options_logging_log_rendertime", eval_time), m_render_parameters.GetValue("options_logging_log_details", eval_time));
+	}
+
+	int update_method = m_render_parameters.GetValue("options_update_method", eval_time);
+	if (update_method == 0)
+	{// Always Abort
+		activate_force_recreate_scene();
 	}
 
 	// save values of used render parameters
@@ -899,7 +945,8 @@ void RenderEngineCyc::render()
 XSI::CStatus RenderEngineCyc::post_render_engine()
 {
 	// get render time
-	double render_time = (finish_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
+	// here we count only actual (in Cycles) render time, without prepare stage
+	double render_time = (finish_render_time - start_render_time) / CLOCKS_PER_SEC;
 	if (make_render)
 	{
 		labels_context->set_render_time(render_time);
@@ -926,10 +973,14 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	{
 		if (update_context->get_is_log_rendertime())
 		{
-			log_message("Render statistics: " + XSI::CString(render_time) + " seconds");
+			log_message("Render time: " + XSI::CString(render_time) + " seconds");
 		}
 		if (update_context->get_is_log_details())
 		{
+			// otuput scene prepare time
+			double prepare_time = (start_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
+			log_message("Scene export time: " + XSI::CString(prepare_time) + " seconds");
+
 			ccl::RenderStats stats;
 			session->collect_statistics(&stats);
 			log_message(stats.full_report().c_str());

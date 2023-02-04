@@ -3,6 +3,7 @@
 #include <xsi_shaderparameter.h>
 #include <xsi_shader.h>
 #include <xsi_fcurve.h>
+#include <xsi_imageclip2.h>
 
 enum ShaderParameterType
 {
@@ -59,3 +60,4 @@ XSI::CString get_string_parameter_value(const XSI::CParameterRefArray& all_param
 XSI::MATH::CColor4f get_color_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time);
 XSI::MATH::CVector3 get_vector_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time);
 XSI::FCurve get_fcurve_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time);
+XSI::ImageClip2 get_clip_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time);

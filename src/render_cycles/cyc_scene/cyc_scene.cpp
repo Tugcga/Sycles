@@ -294,6 +294,7 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 {
 	int shader_index = -1;
 	XSI::CTime eval_time = update_context->get_time();
+	ULONG xsi_material_id = 0;  // reassign if shaderball rendered for material
 	if (shaderball_type != ShaderballType_Unknown)
 	{
 		if (shaderball_type == ShaderballType_Material)
@@ -302,6 +303,8 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 			std::vector<XSI::CStringArray> aovs(2);
 			aovs[0].Clear();
 			aovs[1].Clear();
+
+			xsi_material_id = xsi_material.GetObjectID();
 
 			shader_index = sync_material(scene, xsi_material, eval_time, aovs);
 		}
@@ -328,7 +331,10 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 
 	if (shader_index >= 0) 
 	{
-		update_context->add_material_index(shaderball_material_id, shader_index, shaderball_type);
+		update_context->add_material_index(shaderball_material_id,
+			shader_index, 
+			scene->shaders[shader_index]->has_displacement && xsi_material_id > 0,
+			shaderball_type);
 
 		// setup shaderball polymesh
 		bool assign_hero = false;
@@ -402,7 +408,7 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 				tfms_array,
 				need_motion, motion_times, eval_time);
 
-		if (is_render_visible(xsi_object, eval_time))
+		if (is_render_visible(xsi_object, true, eval_time))  // for instance we set ignore hide master
 		{
 			if (xsi_object_type == "polymsh")
 			{
@@ -782,7 +788,7 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 	if (object_class == XSI::siLightID)
 	{// built-in light
 		XSI::X3DObject xsi_object(object_ref);
-		if (is_render_visible(xsi_object, eval_time))
+		if (is_render_visible(xsi_object, false, eval_time))
 		{
 			XSI::Light xsi_light(xsi_object);
 			sync_xsi_light(scene, xsi_light, update_context);
@@ -794,7 +800,7 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 		ULONG xsi_id = xsi_object.GetObjectID();
 		XSI::CString object_type = xsi_object.GetType();
 
-		if (is_render_visible(xsi_object, eval_time))
+		if (is_render_visible(xsi_object, false, eval_time))
 		{
 			if (object_type == "polymsh")
 			{
@@ -892,7 +898,7 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 	else if (object_class == XSI::siModelID)
 	{
 		XSI::Model xsi_model(object_ref);
-		if (xsi_model.IsValid() && is_render_visible(xsi_model, eval_time))
+		if (xsi_model.IsValid() && is_render_visible(xsi_model, false, eval_time))
 		{
 			XSI::siModelKind model_kind = xsi_model.GetModelKind();
 			if (model_kind == XSI::siModelKind_Instance)

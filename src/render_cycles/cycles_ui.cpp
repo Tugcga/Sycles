@@ -359,6 +359,13 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddEnumControl("options_shaders_system", shader_system_combo, "Shading System", XSI::siControlCombo);
 	layout.EndGroup();
 
+	layout.AddGroup("Update");
+	XSI::CValueArray update_combo(4);
+	update_combo[0] = "Always Abort"; update_combo[1] = 0;
+	update_combo[2] = "Update and Abort"; update_combo[3] = 1;
+	layout.AddEnumControl("options_update_method", update_combo, "Mode", XSI::siControlCombo);
+	layout.EndGroup();
+
 	layout.AddGroup("Logging");
 	layout.AddItem("options_logging_log_rendertime", "Log Rendertime");
 	layout.AddItem("options_logging_log_details", "Log Statistics");
@@ -991,6 +998,9 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 
 	// displacement
 	property.AddParameter("options_displacement_method", XSI::CValue::siInt4, caps, "", "", 2, param);
+
+	// updates
+	property.AddParameter("options_update_method", XSI::CValue::siInt4, caps, "", "", 1, param);  // 0 - only abort, 1 - update and abort, 2 - only update (what it is mean?)
 
 	// devices
 	ULONG device_count = 16;

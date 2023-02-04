@@ -67,7 +67,9 @@ void UpdateContext::reset()
 
 	abort_update_transforms_ids.clear();
 
+	displacement_mode = -1;
 	primitive_shape_map.clear();
+	xsi_displacement_materials.clear();
 }
 
 void UpdateContext::set_is_update_scene(bool value)
@@ -554,7 +556,7 @@ int UpdateContext::get_background_light_index()
 	return background_light_index;
 }
 
-void UpdateContext::add_material_index(ULONG xsi_id, size_t cyc_shader_index, ShaderballType shaderball_type)
+void UpdateContext::add_material_index(ULONG xsi_id, size_t cyc_shader_index, bool has_displacement, ShaderballType shaderball_type)
 {
 	material_xsi_to_cyc[xsi_id] = cyc_shader_index;
 
@@ -587,6 +589,11 @@ void UpdateContext::add_material_index(ULONG xsi_id, size_t cyc_shader_index, Sh
 		{
 			shaderball_material_to_node[parent_id] = xsi_id;
 		}
+	}
+
+	if (has_displacement && displacement_mode != 0)
+	{
+		xsi_displacement_materials.insert(xsi_id);
 	}
 }
 
@@ -837,4 +844,19 @@ bool UpdateContext::is_primitive_shape_exists(XSI::siICEShapeType shape_type, si
 size_t UpdateContext::get_primitive_shape(XSI::siICEShapeType shape_type, size_t shader_index)
 {
 	return primitive_shape_map[std::make_pair(shape_type, shader_index)];
+}
+
+bool UpdateContext::is_displacement_material(ULONG xsi_id)
+{
+	return xsi_displacement_materials.contains(xsi_id);
+}
+
+void UpdateContext::set_displacement_mode(int in_mode)
+{
+	displacement_mode = in_mode;
+}
+
+int UpdateContext::get_displacement_mode()
+{
+	return displacement_mode;
 }
