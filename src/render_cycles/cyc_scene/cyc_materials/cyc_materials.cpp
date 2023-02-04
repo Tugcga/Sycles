@@ -535,7 +535,10 @@ void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context)
 				int shader_index = sync_material(scene, xsi_material, eval_time, aovs);
 				if (shader_index >= 0)
 				{
-					update_context->add_material_index(xsi_id, shader_index, ShaderballType_Unknown);
+					update_context->add_material_index(xsi_id, 
+						shader_index, 
+						scene->shaders[shader_index]->has_displacement, 
+						ShaderballType_Unknown);
 				}
 			}
 		}

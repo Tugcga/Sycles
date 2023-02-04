@@ -294,6 +294,7 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 {
 	int shader_index = -1;
 	XSI::CTime eval_time = update_context->get_time();
+	ULONG xsi_material_id = 0;  // reassign if shaderball rendered for material
 	if (shaderball_type != ShaderballType_Unknown)
 	{
 		if (shaderball_type == ShaderballType_Material)
@@ -302,6 +303,8 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 			std::vector<XSI::CStringArray> aovs(2);
 			aovs[0].Clear();
 			aovs[1].Clear();
+
+			xsi_material_id = xsi_material.GetObjectID();
 
 			shader_index = sync_material(scene, xsi_material, eval_time, aovs);
 		}
@@ -328,7 +331,10 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 
 	if (shader_index >= 0) 
 	{
-		update_context->add_material_index(shaderball_material_id, shader_index, shaderball_type);
+		update_context->add_material_index(shaderball_material_id,
+			shader_index, 
+			scene->shaders[shader_index]->has_displacement && xsi_material_id > 0,
+			shaderball_type);
 
 		// setup shaderball polymesh
 		bool assign_hero = false;

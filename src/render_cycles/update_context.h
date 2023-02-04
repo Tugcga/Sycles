@@ -111,7 +111,7 @@ public:
 	size_t get_background_shader_index();
 	ULONG get_background_xsi_material_id();
 
-	void add_material_index(ULONG xsi_id, size_t cyc_shader_index, ShaderballType shaderball_type);
+	void add_material_index(ULONG xsi_id, size_t cyc_shader_index, bool has_displacement, ShaderballType shaderball_type);
 	bool is_material_exists(ULONG xsi_id);
 	size_t get_xsi_material_cycles_index(ULONG xsi_id);
 	ULONG get_shaderball_material_node(ULONG material_id);
@@ -145,6 +145,10 @@ public:
 	void add_primitive_shape(XSI::siICEShapeType shape_type, size_t shader_index, size_t mesh_index);
 	bool is_primitive_shape_exists(XSI::siICEShapeType shape_type, size_t shader_index);
 	size_t get_primitive_shape(XSI::siICEShapeType shape_type, size_t shader_index);
+
+	void set_displacement_mode(int in_mode);
+	int get_displacement_mode();
+	bool is_displacement_material(ULONG xsi_id);
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -184,6 +188,8 @@ private:
 	MotionSettingsPosition motion_position;
 	bool motion_rolling;  // false means None
 	float motion_rolling_duration;  // only for rolling true
+
+	int displacement_mode;
 
 	RenderType render_type;
 
@@ -248,4 +254,8 @@ private:
 	// value - index in the meshes array
 	// used for primitive shapes of point clouds
 	std::map<std::pair<size_t, size_t>, size_t> primitive_shape_map;
+
+	// store here ids of materials with active displacement
+	// when we update any of these materials - then also update all objects, use this material
+	std::unordered_set<ULONG> xsi_displacement_materials;
 };

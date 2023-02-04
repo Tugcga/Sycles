@@ -105,7 +105,9 @@ void sync_shaderball_background_object(ccl::Scene* scene, UpdateContext* update_
 				int shader_index = sync_material(scene, xsi_material, eval_time, aovs);
 				if (shader_index >= 0)
 				{
-					update_context->add_material_index(xsi_material_id, shader_index, ShaderballType_Unknown);
+					// here we assume that background object use material without displacement
+					// in any case it never updates, because it's impossible to change material of the background object in the shaderball
+					update_context->add_material_index(xsi_material_id, shader_index, false, ShaderballType_Unknown);
 					used_shaders.push_back_slow(scene->shaders[shader_index]);
 				}
 			}
