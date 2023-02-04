@@ -402,7 +402,7 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 				tfms_array,
 				need_motion, motion_times, eval_time);
 
-		if (is_render_visible(xsi_object, eval_time))
+		if (is_render_visible(xsi_object, true, eval_time))  // for instance we set ignore hide master
 		{
 			if (xsi_object_type == "polymsh")
 			{
@@ -782,7 +782,7 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 	if (object_class == XSI::siLightID)
 	{// built-in light
 		XSI::X3DObject xsi_object(object_ref);
-		if (is_render_visible(xsi_object, eval_time))
+		if (is_render_visible(xsi_object, false, eval_time))
 		{
 			XSI::Light xsi_light(xsi_object);
 			sync_xsi_light(scene, xsi_light, update_context);
@@ -794,7 +794,7 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 		ULONG xsi_id = xsi_object.GetObjectID();
 		XSI::CString object_type = xsi_object.GetType();
 
-		if (is_render_visible(xsi_object, eval_time))
+		if (is_render_visible(xsi_object, false, eval_time))
 		{
 			if (object_type == "polymsh")
 			{
@@ -892,7 +892,7 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 	else if (object_class == XSI::siModelID)
 	{
 		XSI::Model xsi_model(object_ref);
-		if (xsi_model.IsValid() && is_render_visible(xsi_model, eval_time))
+		if (xsi_model.IsValid() && is_render_visible(xsi_model, false, eval_time))
 		{
 			XSI::siModelKind model_kind = xsi_model.GetModelKind();
 			if (model_kind == XSI::siModelKind_Instance)
