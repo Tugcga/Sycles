@@ -61,11 +61,24 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 		XSI::MATH::CColor4f xsi_emissive_color = get_color_parameter_value(xsi_gltf_params, "emissiveFactor", eval_time);
 
 		// base color is mix of the actual base color texture and occlusion
+		ccl::SeparateColorNode* occlusion_separator = shader_graph->create_node<ccl::SeparateColorNode>();
+		shader_graph->add(occlusion_separator);
+		XSI::ShaderParameter xsi_occlusion_texture = xsi_gltf_params.GetItem("occlusionTexture");
+		sync_float3_parameter(scene, shader_graph, occlusion_separator, xsi_occlusion_texture, nodes_map, aovs, "Color", eval_time);
+		occlusion_separator->set_color(ccl::make_float3(1.0f, 1.0f, 1.0f));
+		// extract only R channel from occlusion color
+		// conver it to the color
+		ccl::CombineColorNode* occlusion_combiner = shader_graph->create_node<ccl::CombineColorNode>();
+		shader_graph->add(occlusion_combiner);
+		// connect r-output of the separator to all cahnnels of the combiner
+		shader_graph->connect(occlusion_separator->output("Red"), occlusion_combiner->input("Red"));
+		shader_graph->connect(occlusion_separator->output("Red"), occlusion_combiner->input("Green"));
+		shader_graph->connect(occlusion_separator->output("Red"), occlusion_combiner->input("Blue"));
+
+		// use occlusion combiner output (Color port) as input to the color multiplicator
 		ccl::MixNode* occlusion_mix = shader_graph->create_node<ccl::MixNode>();
 		shader_graph->add(occlusion_mix);
-		XSI::ShaderParameter xsi_occlusion_texture = xsi_gltf_params.GetItem("occlusionTexture");
-		sync_float3_parameter(scene, shader_graph, occlusion_mix, xsi_occlusion_texture, nodes_map, aovs, "Color2", eval_time);
-		occlusion_mix->set_color2(ccl::make_float3(1.0f, 1.0f, 1.0f));
+		shader_graph->connect(occlusion_combiner->output("Color"), occlusion_mix->input("Color2"));
 		occlusion_mix->set_mix_type(ccl::NodeMix::NODE_MIX_MUL);
 		occlusion_mix->set_fac(xsi_occlusion_strength);
 
