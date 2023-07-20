@@ -18,6 +18,7 @@
 #include "../cyc_scene.h"
 #include "../../../utilities/math.h"
 #include "../../../utilities/logs.h"
+#include "../../../utilities/strings.h"
 #include "../../../utilities/xsi_properties.h"
 
 bool is_pointcloud_strands(const XSI::X3DObject& xsi_object)
@@ -306,6 +307,8 @@ void sync_strands_property(XSI::X3DObject& xsi_object, float& io_tip_prop, const
 // and also define motion deform, if we need it
 void sync_strands_geom_process(ccl::Scene* scene, ccl::Hair* strands_geom, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, bool motion_deform)
 {
+	strands_geom->name = combine_geometry_name(xsi_object, xsi_primitive).GetAsciiString();
+
 	ccl::vector<ccl::float4> original_positions;
 	LONG num_curves = 0;
 	bool use_motion_blur = update_context->get_need_motion() && motion_deform;

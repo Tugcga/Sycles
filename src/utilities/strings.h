@@ -2,6 +2,10 @@
 #include <xsi_application.h>
 #include <xsi_time.h>
 #include <xsi_arrayparameter.h>
+#include <xsi_polygonmesh.h>
+#include <xsi_hairprimitive.h>
+#include <xsi_primitive.h>
+#include <xsi_x3dobject.h>
 
 #include <vector>
 #include <string>
@@ -35,3 +39,9 @@ std::string replace_all_substrings(const std::string& input_string, const std::s
 // return true if input string ends with a given fragment
 bool is_ends_with(const OIIO::ustring& input_string, const XSI::CString& end_fragment);
 XSI::CString vdbprimitive_inputs_to_path(const XSI::CParameterRefArray& params, const XSI::CTime& eval_time);
+
+// these functions used for define Cycles geometry name from different types of XSI objects (for example for mesh->name)
+XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::PolygonMesh& xsi_polymesh);
+XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::HairPrimitive& xsi_hair);
+XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::Primitive& xsi_primitive);
+XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::CString& name);

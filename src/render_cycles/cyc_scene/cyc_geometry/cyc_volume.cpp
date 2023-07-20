@@ -26,6 +26,7 @@
 #include "../../../utilities/xsi_properties.h"
 #include "../../../utilities/logs.h"
 #include "../../../utilities/arrays.h"
+#include "../../../utilities/strings.h"
 #include "../../../render_base/type_enums.h"
 
 bool is_pointcloud_volume(const XSI::X3DObject &xsi_object, const XSI::CTime &eval_time)
@@ -187,6 +188,8 @@ void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_
 
 void sync_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, UpdateContext* update_context, const XSI::Primitive &xsi_primitive, XSI::X3DObject &xsi_object)
 {
+	volume_geom->name = combine_geometry_name(xsi_object, xsi_primitive).GetAsciiString();
+
 	XSI::CTime eval_time = update_context->get_time();
 
 	sync_volume_parameters(volume_geom, xsi_object, eval_time);
