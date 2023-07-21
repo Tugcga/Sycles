@@ -7,6 +7,7 @@
 #include <xsi_color.h>
 #include <xsi_color4f.h>
 #include <xsi_doublearray.h>
+#include <xsi_iceattributedataarray.h>
 
 #include <vector>
 #include <string>
@@ -19,6 +20,8 @@ void log_message(const XSI::CString &message, XSI::siSeverityType level = XSI::s
 XSI::CString to_string(const XSI::CFloatArray& array);
 XSI::CString to_string(const XSI::CLongArray& array);
 XSI::CString to_string(const XSI::CDoubleArray& array);
+XSI::CString to_string(const XSI::CICEAttributeDataArrayVector3f& array);
+XSI::CString to_string(const XSI::CICEAttributeDataArrayFloat& array);
 XSI::CString to_string(const std::vector<std::string>& array);
 XSI::CString to_string(const std::vector<ULONG> &array);
 XSI::CString to_string(const std::vector<LONG>& array);
