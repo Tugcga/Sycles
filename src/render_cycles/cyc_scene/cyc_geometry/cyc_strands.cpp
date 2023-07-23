@@ -40,12 +40,53 @@ bool is_pointcloud_strands(const XSI::X3DObject& xsi_object)
 	}
 }
 
+float calculate_strand_radius(const ULONG point_index,  // the index of the point in the pointcloud
+	const XSI::CICEAttributeDataArrayFloat &point_size,  // array of point radiuses
+	const ULONG point_size_length,  // the size of the array with point radiuses
+	const ULONG strand_index,  // index of the strand knot in the current point, for initial point it equals to 0, for last knot it equals to strand_positions_count
+	const ULONG strand_length,  // the length of the strand (the number of knots with the start one), so, for strand *---*---*, where the first * is point, strand_length = 3 (and strand_positions_count = 2)
+	const XSI::CICEAttributeDataArrayFloat &strand_size,  // array of size values for a given strand
+	const ULONG strand_size_length  // the number of elements of the size array for strand (it can be different from strand_length)
+)
+{
+	// if strand_size_length = 0, then use point radius
+	// laso return point radius in the case when the strand has zero knots (strand_length = konts count + 1)
+	if (strand_size_length == 0 || strand_length <= 1)
+	{
+		// return either 0.0 (if the array with sizes is empty)
+		// or last value of the array (if point index greater the the length)
+		// or actual value in the array
+		return point_size_length > 0 ? point_size[point_index < point_size_length ? point_index : point_size_length - 1] : 0.0;
+	}
+
+	// if there is only one value in strand sizes, then return it
+	if (strand_size_length == 1)
+	{
+		return strand_size[0];
+	}
+
+	float p = (float)strand_index / (float)(strand_length - 1);  // p from 0.0 (for initial point) to 1.0 (for end tip of the strand)
+	float l = 1.0f / (float)(strand_size_length - 1);  // the length of one segment in the sizes array (for *---*---*---* l = 1/3)
+	int interval_index = (int)(p / l);  // index of the interval, where the knot is, so, we should return the lerp of end points of this interval
+
+	// check is the interval index is correct
+	if (interval_index <= 0) { return strand_size[0]; }
+	if (interval_index + 1 >= strand_size_length) { return strand_size[strand_size_length - 1]; }
+
+	float delta = p - (float)interval_index * l;  // delta between interval start and the point (*-delta-|-----*)
+	float c = delta / l;  // lerp coefficient
+	// clamp lerp coefficient
+	if (c <= 0.0f) { c = 0.0f; }
+	else if (c >= 1.0f) { c = 1.0f; }
+
+	return (1.0f - c) * strand_size[interval_index] + c * strand_size[interval_index + 1];
+}
+
 void sync_strands_geom(ccl::Scene* scene, 
 	ccl::Hair* strands_geom,
 	UpdateContext* update_context, 
 	const XSI::Primitive& xsi_primitive, 
 	bool use_motion_blur, 
-	float tip_prop, 
 	// next three arrays comes with zero size
 	ccl::vector<ccl::float4>& out_original_positions,  // total positions and sizes of current frame strands, one plain array, the split template into individual curves stores in the geometry object
 	ccl::vector<size_t> &out_strand_points,  // store here point indices with non-empty strands (the length of strand positions is non-zero), all other points should be ignored
@@ -59,7 +100,6 @@ void sync_strands_geom(ccl::Scene* scene,
 	XSI::ICEAttribute point_position_attr = xsi_geometry.GetICEAttributeFromName("PointPosition");
 	XSI::ICEAttribute strand_position_attr = xsi_geometry.GetICEAttributeFromName("StrandPosition");
 	XSI::ICEAttribute size_attr = xsi_geometry.GetICEAttributeFromName("Size");
-	// TODO: use, if it is possible, strand size attribute
 	XSI::ICEAttribute strand_size_attr = xsi_geometry.GetICEAttributeFromName("StrandSize");  // this is the radius of the strand, NOT the number of points
 	// strand_size_attr.IsDefined() can be false if the attribute is not defined in the ICE tree
 	// strand_size_attr.GetElementCount() is equal to the number of points
@@ -75,7 +115,6 @@ void sync_strands_geom(ccl::Scene* scene,
 	strand_position_attr.GetDataArray2D(strand_position_data);
 
 	XSI::CICEAttributeDataArrayFloat size_data;
-	// TODO: more accurate control of the point size
 	// in trivial case (when we generate grid from two strands (1x2 or 2x1)) the data contains only one element, instead of 2
 	// use this in prepare stage
 	size_attr.GetDataArray(size_data);
@@ -101,7 +140,6 @@ void sync_strands_geom(ccl::Scene* scene,
 		// get the current strand length data
 		strand_position_data.GetSubArray(i, one_strand_data);
 		ULONG strand_length = one_strand_data.GetCount();
-		// TODO: consider non-zero size or even the size is exist
 		if (strand_length > 0)
 		{
 			out_strand_points.push_back(i);
@@ -142,29 +180,9 @@ void sync_strands_geom(ccl::Scene* scene,
 		// get actual point index for this curve
 		size_t point_index = out_strand_points[curve_index];  // we should get data for this point and strand
 
-		// set start point of the strand - point position
-		XSI::MATH::CVector3f point_position = point_position_data[point_index];
-		// for initial strand point use point size
-		// if points size aray is empty, use zero value
-		// if the point index outside of the array, use the last value of the array
-		float point_size = size_data_length > 0 ? size_data[point_index < size_data_length ? point_index : size_data_length - 1] : 0.0;
-		strands_geom->add_curve_key(vector3_to_float3(point_position), point_size);
-
-		// if we need motion blur, fill original positions array
-		if (use_motion_blur)
-		{
-			out_original_positions[original_index] = ccl::make_float4(point_position.GetX(), point_position.GetY(), point_position.GetZ(), point_size);
-		}
-
-		// start strand, so the intercept attribute is 0.0
-		if (attr_intercept)
-		{
-			attr_intercept->add(0.0);
-		}
-
-		// next we should fill positions of the other strand nodes
 		// get strand positions array
 		strand_position_data.GetSubArray(point_index, one_strand_data);
+		ULONG strand_knots_length = one_strand_data.GetCount();
 		// one strand data contains non-zero values
 		// also extract strand sizes, if it exists
 		if (use_strand_size)
@@ -174,25 +192,37 @@ void sync_strands_geom(ccl::Scene* scene,
 			// we will use it later to check is the array is too short or not
 			strand_sizes_length = one_strand_size_data.GetCount();
 		}
+		else
+		{
+			strand_sizes_length = 0;
+		}
 
-		ULONG strand_knots_length = one_strand_data.GetCount();
-		float total_time = strand_knots_length + 1;  // the total number of knots in the strand, with the star one
+		// set start point of the strand - point position
+		XSI::MATH::CVector3f point_position = point_position_data[point_index];
+		// for initial strand point use point size
+		// if points size aray is empty, use zero value
+		// if the point index outside of the array, use the last value of the array
+		float point_radius = calculate_strand_radius(point_index, size_data, size_data_length, 0, strand_knots_length + 1, one_strand_size_data, strand_sizes_length);
+		strands_geom->add_curve_key(vector3_to_float3(point_position), point_radius);
+
+		// if we need motion blur, fill original positions array
+		if (use_motion_blur)
+		{
+			out_original_positions[original_index] = ccl::make_float4(point_position.GetX(), point_position.GetY(), point_position.GetZ(), point_radius);
+			original_index++;
+		}
+
+		// start strand, so the intercept attribute is 0.0
+		if (attr_intercept)
+		{
+			attr_intercept->add(0.0);
+		}
+
 		float strand_sparse_length = 0.0f;
+		float total_time = strand_knots_length + 1;
 		for (ULONG k_index = 0; k_index < strand_knots_length; k_index++)
 		{
-			// use point size attribute and interpolate value by using tip_prop (by default = 0.0)
-			float time = static_cast<float>(k_index + 1) / total_time;
-			float radius = (1 - time) * point_size + time * point_size * tip_prop;
-			if (k_index + 1 == strand_knots_length && tip_prop < 0.0001f)
-			{
-				radius = 0.0;
-			}
-
-			if (use_strand_size && strand_sizes_length > 0)
-			{
-				// if we have the valid strand size attribute, override radius from point size
-				radius = one_strand_size_data[k_index < strand_sizes_length ? k_index : strand_sizes_length - 1];
-			}
+			float radius = calculate_strand_radius(point_index, size_data, size_data_length, k_index + 1, strand_knots_length + 1, one_strand_size_data, strand_sizes_length);
 			
 			XSI::MATH::CVector3f knot_position = one_strand_data[k_index];
 			strands_geom->add_curve_key(vector3_to_float3(knot_position), radius);
@@ -213,6 +243,8 @@ void sync_strands_geom(ccl::Scene* scene,
 
 			if (attr_intercept)
 			{
+				float time = static_cast<float>(k_index + 1) / total_time;
+
 				attr_intercept->add(time);
 			}
 		}
@@ -307,7 +339,6 @@ void sync_strands_geom(ccl::Scene* scene,
 void sync_strands_deform(ccl::Hair* hair, 
 	UpdateContext* update_context,
 	const XSI::X3DObject &xsi_object, 
-	float tip_prop, 
 	const ccl::vector<ccl::float4>& original_positions,
 	const ccl::vector<size_t> &strand_points,
 	const ccl::vector<size_t>& strand_length)
@@ -321,11 +352,6 @@ void sync_strands_deform(ccl::Hair* hair,
 	ccl::float4* motion_positions = attr_m_positions->data_float4();
 	MotionSettingsPosition motion_position = update_context->get_motion_position();
 
-	// prepare data buffers
-	XSI::CICEAttributeDataArrayVector3f time_pos_data;
-	XSI::CICEAttributeDataArray2DVector3f time_strand_data;
-	XSI::CICEAttributeDataArrayFloat time_size_data;
-	XSI::CICEAttributeDataArray2DFloat time_strand_size_data;
 	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
 		size_t time_motion_step = mi;
@@ -351,6 +377,13 @@ void sync_strands_deform(ccl::Hair* hair,
 		bool use_strand_size = time_strand_size.IsDefined();
 		if (time_pos.GetElementCount() > 0 && time_strand.GetElementCount() > 0 && time_size.GetElementCount() > 0)
 		{// attributes exists, get the data
+			// prepare data buffers
+			// make it every time step, because there are some problems if we done it once at very beginning
+			XSI::CICEAttributeDataArrayVector3f time_pos_data;
+			XSI::CICEAttributeDataArray2DVector3f time_strand_data;
+			XSI::CICEAttributeDataArrayFloat time_size_data;
+			XSI::CICEAttributeDataArray2DFloat time_strand_size_data;
+
 			time_pos.GetDataArray(time_pos_data);
 			time_strand.GetDataArray2D(time_strand_data);
 			time_size.GetDataArray(time_size_data);
@@ -377,8 +410,10 @@ void sync_strands_deform(ccl::Hair* hair,
 				bool is_fail = true;
 				if (point_index < time_points_count && point_index < time_sizes_count && point_index < time_strands_count)
 				{
-					XSI::CICEAttributeDataArrayVector3f strand;
-					time_strand_data.GetSubArray(point_index, strand);
+					// create buffer for every strand independently
+					// in onether case the render is crashed
+					XSI::CICEAttributeDataArrayVector3f time_one_strand_positions;
+					time_strand_data.GetSubArray(point_index, time_one_strand_positions);
 					XSI::CICEAttributeDataArrayFloat strand_sizes;
 					ULONG strand_sizes_length = 0;
 					if (use_strand_size && point_index < time_strand_size_count)
@@ -386,34 +421,21 @@ void sync_strands_deform(ccl::Hair* hair,
 						time_strand_size_data.GetSubArray(point_index, strand_sizes);
 						strand_sizes_length = strand_sizes.GetCount();
 					}
-					size_t time_strand_knots_count = strand.GetCount();  // the number of knots in the current strand at current time
+					size_t time_strand_knots_count = time_one_strand_positions.GetCount();  // the number of knots in the current strand at current time
 					float strand_prop_length = time_strand_knots_count + 1;
-
 					if (time_strand_knots_count == strand_knots_count)
 					{
 						// the strand length at the time equal to the strand length at original frame
 						is_fail = false;
 
 						XSI::MATH::CVector3f p = time_pos_data[point_index];
-						float s = time_size_data[point_index];
-						motion_positions[attribute_index++] = ccl::make_float4(p.GetX(), p.GetY(), p.GetZ(), s);
+						float point_radius = calculate_strand_radius(point_index, time_size_data, time_sizes_count, 0, time_strand_knots_count + 1, strand_sizes, strand_sizes_length);
+						motion_positions[attribute_index++] = ccl::make_float4(p.GetX(), p.GetY(), p.GetZ(), point_radius);
 						// next keys for strand positions
-
-						for (ULONG k_index = 0; k_index < strand_knots_count; k_index++)
+						for (ULONG k_index = 0; k_index < time_strand_knots_count; k_index++)
 						{
-							// calculate the radius from point size
-							// this is copy of the similar lines in sync_strands_geom function 
-							float prop = static_cast<float>(k_index + 1) / strand_prop_length;
-							s = (1 - prop) * s + prop * s * tip_prop;
-							if (k_index == strand.GetCount() - 1 && tip_prop < 0.0001f)
-							{
-								s = 0.0;
-							}
-							if (use_strand_size && strand_sizes_length > 0)
-							{
-								s = strand_sizes[k_index < strand_sizes_length ? k_index : strand_sizes_length - 1];
-							}
-							p = strand[k_index];
+							float s = calculate_strand_radius(point_index, time_size_data, time_sizes_count, k_index + 1, time_strand_knots_count + 1, strand_sizes, strand_sizes_length);
+							p = time_one_strand_positions[k_index];
 							motion_positions[attribute_index++] = ccl::make_float4(p.GetX(), p.GetY(), p.GetZ(), s);
 						}
 					}
@@ -447,18 +469,6 @@ void sync_strands_deform(ccl::Hair* hair,
 	}
 }
 
-void sync_strands_property(XSI::X3DObject& xsi_object, float& io_tip_prop, const XSI::CTime &eval_time)
-{
-	XSI::Property xsi_property;
-	bool use_property = get_xsi_object_property(xsi_object, "CyclesPointcloud", xsi_property);
-	if (use_property)
-	{
-		XSI::CParameterRefArray xsi_params = xsi_property.GetParameters();
-
-		io_tip_prop = xsi_params.GetValue("tip_prop", eval_time);
-	}
-}
-
 // in this function we actually create geometry
 // and also define motion deform, if we need it
 void sync_strands_geom_process(ccl::Scene* scene, ccl::Hair* strands_geom, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, bool motion_deform)
@@ -470,15 +480,11 @@ void sync_strands_geom_process(ccl::Scene* scene, ccl::Hair* strands_geom, Updat
 	ccl::vector<size_t> strand_lengths;
 	bool use_motion_blur = update_context->get_need_motion() && motion_deform;
 
-	float tip_prop = 0.0f;
-	sync_strands_property(xsi_object, tip_prop, update_context->get_time());
+	sync_strands_geom(scene, strands_geom, update_context, xsi_primitive, use_motion_blur, original_positions, strand_points, strand_lengths);
 
-	sync_strands_geom(scene, strands_geom, update_context, xsi_primitive, use_motion_blur, tip_prop, original_positions, strand_points, strand_lengths);
-
-	// TODO: set proper blur for strands
 	if (use_motion_blur)
 	{
-		sync_strands_deform(strands_geom, update_context, xsi_object, tip_prop, original_positions, strand_points, strand_lengths);
+		sync_strands_deform(strands_geom, update_context, xsi_object, original_positions, strand_points, strand_lengths);
 	}
 	else
 	{
