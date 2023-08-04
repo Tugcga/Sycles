@@ -642,7 +642,11 @@ void sync_baking(ccl::Scene* scene, UpdateContext* update_context, BakingContext
 	}
 	else
 	{
-		object = scene->objects[update_context->get_geometry_index(baking_object_id)];
+		const std::vector<size_t> obj_cyc_ids = update_context->get_object_cycles_indexes(baking_object_id);
+		// this array may contains several objects
+		// one object for each instance
+		// get the first one
+		object = scene->objects[obj_cyc_ids[0]];
 	}
 
 	ccl::Mesh* mesh = (ccl::Mesh*)object->get_geometry();

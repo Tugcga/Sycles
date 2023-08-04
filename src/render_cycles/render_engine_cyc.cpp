@@ -803,7 +803,6 @@ XSI::CStatus RenderEngineCyc::create_scene()
 		{
 			sync_baking(session->scene, update_context, baking_context, baking_object, baking_uv, image_full_size_width, image_full_size_height);
 		}
-
 	}
 	is_update_camera = true;
 
