@@ -92,7 +92,7 @@ void make_aovs_reconnections(ccl::ShaderGraph* shader_graph, ccl::ShaderNode* ao
 	else
 	{
 		// nothing connected to aov node
-		// but user assume that value from the node affects to the sahder
+		// but user assume that value from the node affects to the shader
 		// so, create constant node (with value from aov) and connect it as to aov and next node
 		if (is_color)
 		{

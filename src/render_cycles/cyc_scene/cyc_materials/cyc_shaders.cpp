@@ -22,6 +22,7 @@
 #include "../../../utilities/xsi_shaders.h"
 #include "../../../utilities/xsi_properties.h"
 #include "../../../utilities/files_io.h"
+#include "../../cyc_session/cyc_pass_utils.h"
 #include "cyc_materials.h"
 #include "names_converter.h"
 
@@ -977,7 +978,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
 		XSI::CString channel_name = get_string_parameter_value(xsi_parameters, "aov_name", eval_time);
-		node->set_name(OIIO::ustring(channel_name.GetAsciiString()));
+		node->set_name(OIIO::ustring(add_prefix_to_aov_name(channel_name, true).GetAsciiString()));
 		aovs[0].Add(channel_name);
 
 		return node;
@@ -988,7 +989,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
 		XSI::CString channel_name = get_string_parameter_value(xsi_parameters, "aov_name", eval_time);
-		node->set_name(OIIO::ustring(channel_name.GetAsciiString()));
+		node->set_name(OIIO::ustring(add_prefix_to_aov_name(channel_name, false).GetAsciiString()));
 		aovs[1].Add(channel_name);
 
 		return node;
