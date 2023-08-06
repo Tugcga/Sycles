@@ -14,6 +14,7 @@ struct ConfigShaderball
 	float clamp_direct;
 	float clamp_indirect;
 	ULONG displacement_method;
+	bool use_gpu;
 };
 
 struct ConfigRender

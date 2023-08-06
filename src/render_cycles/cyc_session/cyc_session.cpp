@@ -29,22 +29,61 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 	{
 		// for shaderball rendering use simple parameters
 		session_params.threads = 0;
-		// use only cpu device
-		ccl::vector<ccl::DeviceInfo> cpu_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_CPU);
-		// we assume that cpu always exists
-		session_params.device = cpu_devices[0];
 		session_params.experimental = true;
 		session_params.pixel_size = 1;
 		session_params.use_auto_tile = false;
 
 		bool use_ocl = true;
 		int samples = 32;
+		bool use_gpu = false;
 		InputConfig input_config = get_input_config();
 		if (input_config.is_init)
 		{
 			ConfigShaderball config_shaderball = input_config.shaderball;
 			use_ocl = config_shaderball.use_ocl;
+			use_gpu = config_shaderball.use_gpu;
+
+			if (use_ocl && use_gpu)
+			{
+				// for now use ocl rendering only at cpu device
+				// so, disable gpu
+				// svm/ocl is more important than cpu/gpu
+				use_gpu = false;
+			}
 			samples = config_shaderball.samples;
+		}
+
+		if (use_gpu)
+		{
+			ccl::vector<ccl::DeviceInfo> hip_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_HIP);
+			ccl::vector<ccl::DeviceInfo> cuda_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_CUDA);
+			ccl::vector<ccl::DeviceInfo> optix_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_OPTIX);
+			if (optix_devices.size() > 0)
+			{
+				session_params.device = optix_devices[0];
+			}
+			else if (cuda_devices.size() > 0)
+			{
+				session_params.device = cuda_devices[0];
+			}
+			else if (hip_devices.size() > 0)
+			{
+				session_params.device = hip_devices[0];
+			}
+			else
+			{
+				// use cpu
+				use_gpu = false;
+			}
+		}
+
+		if (!use_gpu)
+		{
+			// assign cpu device either when it enabled in settings, or there are not gpus
+			ccl::vector<ccl::DeviceInfo> cpu_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_CPU);
+			// we assume that cpu always exists
+			// use the first cpu device
+			session_params.device = cpu_devices[0];
 		}
 
 		// set shading system by using shaderball config
