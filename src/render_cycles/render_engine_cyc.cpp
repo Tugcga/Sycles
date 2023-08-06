@@ -271,7 +271,8 @@ void RenderEngineCyc::progress_cancel_callback()
 void RenderEngineCyc::pre_bake()
 {
 	// here we should only set output paths and formats
-	if (baking_object.IsValid() && baking_uv.Length() > 0)
+	const XSI::CString baking_object_type = baking_object.GetType();
+	if (baking_object_type == XSI::siPolyMeshType && baking_object.IsValid() && baking_uv.Length() > 0)
 	{
 		baking_context->make_valid();
 		baking_context->set_use_camera(false);
@@ -359,6 +360,9 @@ void RenderEngineCyc::pre_bake()
 		// bake object is invalid
 		// so, nothing to bake
 		baking_context->make_invalid();
+		log_message("Baking is fail, object is invalid" + 
+			baking_object_type != XSI::siPolyMeshType ? ", type must be polymesh" : (
+				baking_uv.Length() == 0 ? ", no uv coordinates" : ""), XSI::siWarningMsg);
 	}
 }
 
