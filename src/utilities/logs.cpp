@@ -9,6 +9,7 @@
 #include <xsi_floatarray.h>
 #include <xsi_longarray.h>
 #include <xsi_doublearray.h>
+#include <xsi_iceattributedataarray.h>
 
 #include <vector>
 #include <string>
@@ -59,6 +60,38 @@ XSI::CString to_string(const XSI::CDoubleArray& array)
 	}
 
 	XSI::CString to_return = "[" + XSI::CString(array[0]);
+	for (ULONG i = 1; i < array.GetCount(); i++)
+	{
+		to_return += ", " + XSI::CString(array[i]);
+	}
+	to_return += "]";
+	return to_return;
+}
+
+XSI::CString to_string(const XSI::CICEAttributeDataArrayVector3f& array)
+{
+	if (array.GetCount() == 0)
+	{
+		return "[]";
+	}
+
+	XSI::CString to_return = XSI::CString(array.GetCount()) + "[" + XSI::CString(array[0]);
+	for (ULONG i = 1; i < array.GetCount(); i++)
+	{
+		to_return += ", " + XSI::CString(array[i]);
+	}
+	to_return += "]";
+	return to_return;
+}
+
+XSI::CString to_string(const XSI::CICEAttributeDataArrayFloat& array)
+{
+	if (array.GetCount() == 0)
+	{
+		return "[]";
+	}
+
+	XSI::CString to_return = XSI::CString(array.GetCount()) + "[" + XSI::CString(array[0]);
 	for (ULONG i = 1; i < array.GetCount(); i++)
 	{
 		to_return += ", " + XSI::CString(array[i]);
@@ -303,6 +336,19 @@ XSI::CString to_string_flot4(const ccl::float4& value)
 }
 
 XSI::CString to_string(const ccl::array<int>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += XSI::CString(array[i]) + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
+XSI::CString to_string(const ccl::vector<size_t>& array)
 {
 	XSI::CString to_return = "[";
 	for (ULONG i = 0; i < array.size(); i++)

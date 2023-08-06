@@ -558,6 +558,7 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 {
 	// geometry is new, create it
 	XSI::PolygonMesh xsi_polymesh = xsi_primitive.GetGeometry(eval_time, XSI::siConstructionModeSecondaryShape);
+	mesh_geom->name = combine_geometry_name(xsi_object, xsi_polymesh).GetAsciiString();
 
 	// get geometry property
 	XSI::Property geo_property;

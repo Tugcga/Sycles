@@ -15,6 +15,7 @@
 #include "../../../utilities/xsi_properties.h"
 #include "../../../utilities/math.h"
 #include "../../../utilities/logs.h"
+#include "../../../utilities/strings.h"
 #include "../cyc_scene.h"
 #include "cyc_geometry.h"
 
@@ -416,6 +417,8 @@ void sync_hair_motion_deform(ccl::Hair* hair, UpdateContext* update_context, con
 
 void sync_hair_geom_process(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* update_context, const XSI::HairPrimitive &xsi_hair, XSI::X3DObject &xsi_object, bool motion_deform)
 {
+	hair_geom->name = combine_geometry_name(xsi_object, xsi_hair).GetAsciiString();
+
 	ccl::vector<ccl::float4> original_positions;  // save here positions for motion invalid attributes
 	LONG num_keys = 0;
 	bool use_motion_blur = update_context->get_need_motion() && motion_deform;

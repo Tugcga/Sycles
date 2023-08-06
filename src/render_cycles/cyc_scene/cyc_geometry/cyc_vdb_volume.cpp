@@ -47,6 +47,8 @@ bool is_vector_type(openvdb::GridBase::ConstPtr grid)
 
 void sync_vdb_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, UpdateContext* update_context, XSI::X3DObject& xsi_object, const VDBData& vdb_data, const XSI::CString &file_path)
 {
+	volume_geom->name = combine_geometry_name(xsi_object, "vdb").GetAsciiString();
+
 	XSI::CTime eval_time = update_context->get_time();
 
 	sync_volume_parameters(volume_geom, xsi_object, eval_time);

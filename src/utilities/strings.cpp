@@ -2,6 +2,10 @@
 #include <xsi_time.h>
 #include <xsi_arrayparameter.h>
 #include <xsi_utils.h>
+#include <xsi_polygonmesh.h>
+#include <xsi_hairprimitive.h>
+#include <xsi_primitive.h>
+#include <xsi_x3dobject.h>
 
 #include <vector>
 #include <string>
@@ -426,4 +430,29 @@ XSI::CString vdbprimitive_inputs_to_path(const XSI::CParameterRefArray& params, 
 	}
 
 	return full_path;
+}
+
+XSI::CString combine_names(const XSI::CString &prefix, const XSI::CString &postfix)
+{
+	return prefix + "." + postfix;
+}
+
+XSI::CString combine_geometry_name(const XSI::X3DObject &xsi_object, const XSI::PolygonMesh &xsi_polymesh)
+{
+	return combine_names(xsi_object.GetName(), xsi_polymesh.GetName());
+}
+
+XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::HairPrimitive& xsi_hair)
+{
+	return combine_names(xsi_object.GetName(), xsi_hair.GetName());
+}
+
+XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::Primitive& xsi_primitive)
+{
+	return combine_names(xsi_object.GetName(), xsi_primitive.GetName());
+}
+
+XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::CString &name)
+{
+	return combine_names(xsi_object.GetName(), name);
 }

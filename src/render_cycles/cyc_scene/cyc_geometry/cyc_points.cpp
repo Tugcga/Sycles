@@ -20,6 +20,7 @@
 #include "cyc_geometry.h"
 #include "../cyc_scene.h"
 #include "../../../utilities/math.h"
+#include "../../../utilities/strings.h"
 
 bool is_pointcloud_points(XSI::X3DObject &xsi_object, const XSI::CTime &eval_time)
 {
@@ -224,6 +225,8 @@ void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_cont
 
 void sync_points_geom_process(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, bool motion_deform)
 {
+	points_geom->name = combine_geometry_name(xsi_object, xsi_primitive).GetAsciiString();
+
 	ccl::vector<ccl::float3> original_positions;
 	bool use_motion_blur = update_context->get_need_motion() && motion_deform;
 

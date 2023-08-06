@@ -152,6 +152,10 @@ void read_config_ini()
 		const char* displacement_method_str = ini.GetValue("Shaderball", "displacement_method", "2");
 		shaderball.displacement_method = std::max(0, std::min(2, std::stoi(displacement_method_str, nullptr)));
 
+		const char* use_gpu_str = ini.GetValue("Shaderball", "use_gpu", "0");  // by default gpu is off, ise only cpu for material previes
+		const float use_gpu_float = strtof(use_gpu_str, nullptr);
+		shaderball.use_gpu = use_gpu_float >= 0.5;
+
 		ConfigRender render;
 		const char* devices_str = ini.GetValue("Render", "devices", "16");
 		render.devices = std::stoi(devices_str, nullptr);

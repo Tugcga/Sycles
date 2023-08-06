@@ -630,26 +630,40 @@ void sync_baking(ccl::Scene* scene, UpdateContext* update_context, BakingContext
 	ULONG baking_object_id = bake_object.GetObjectID();
 
 	ccl::Object* object = NULL;
-	if (!update_context->is_object_exists(baking_object_id))
-	{// object is not exported
-		// do it now
-		object = scene->create_node<ccl::Object>();
-		ccl::Mesh* mesh_geom = sync_polymesh_object(scene, object, update_context, bake_object);
-		object->set_geometry(mesh_geom);
-
-		update_context->add_object_index(baking_object_id, scene->objects.size() - 1);
-		sync_transform(object, update_context, bake_object.GetKinematics().GetGlobal());
-	}
-	else
+	// again, chek that bake object is polymesh
+	if (bake_object.GetType() == XSI::siPolyMeshType)
 	{
-		object = scene->objects[update_context->get_geometry_index(baking_object_id)];
+		if (!update_context->is_object_exists(baking_object_id))
+		{// object is not exported
+			// do it now
+			object = scene->create_node<ccl::Object>();
+			ccl::Mesh* mesh_geom = sync_polymesh_object(scene, object, update_context, bake_object);
+			object->set_geometry(mesh_geom);
+
+			update_context->add_object_index(baking_object_id, scene->objects.size() - 1);
+			sync_transform(object, update_context, bake_object.GetKinematics().GetGlobal());
+		}
+		else
+		{
+			const std::vector<size_t> obj_cyc_ids = update_context->get_object_cycles_indexes(baking_object_id);
+			// this array may contains several objects
+			// one object for each instance
+			// get the first one
+			if (obj_cyc_ids.size() > 0)
+			{
+				object = scene->objects[obj_cyc_ids[0]];
+			}
+		}
 	}
 
-	ccl::Mesh* mesh = (ccl::Mesh*)object->get_geometry();
-	baking_context->setup(bake_width, bake_height);
-	size_t uv_index = get_uv_attribute_index(mesh, ccl::ustring(baking_uv_name.GetAsciiString()));
-	
-	populate_bake_data(mesh, uv_index, baking_context);
-	scene->bake_manager->set(scene, object->name.c_str());
-	scene->bake_manager->set_use_camera(baking_context->get_use_camera());
+	if (object)
+	{
+		ccl::Mesh* mesh = (ccl::Mesh*)object->get_geometry();
+		baking_context->setup(bake_width, bake_height);
+		size_t uv_index = get_uv_attribute_index(mesh, ccl::ustring(baking_uv_name.GetAsciiString()));
+
+		populate_bake_data(mesh, uv_index, baking_context);
+		scene->bake_manager->set(scene, object->name.c_str());
+		scene->bake_manager->set_use_camera(baking_context->get_use_camera());
+	}
 }
