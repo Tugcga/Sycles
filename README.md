@@ -2,11 +2,9 @@
 
 This is a [Cycles render](https://www.cycles-renderer.org/) integration into [Softimage](https://en.wikipedia.org/wiki/Autodesk_Softimage). This version is a second generation of the addon. It was completely rewritten from scratch. Works with Softimage version 2015 SP2. This is a latest version of the Softimage, so, no reasons to use other ones. Landing page of the addon is [here](https://ssoftadd.github.io/syclesSecondGenPage.html).
 
-## How to use
+## How to install
 
-Download compiled and packed version of the addon from the release page. ```*.xsiaddon``` file does not contains binaries for using GPUs. The is because different GPUs required different compiled files and as a result the distributive will be heavy. You can download the archive ```lib.zip``` from [here](https://github.com/Tugcga/Sycles/releases/tag/binaries.2.1) (also from the release page).
-
-Install addon as usual. Then unpack ```lib.zip``` and place ```lib``` folder to the installed addon folder. It should be placed at ```\Application\Plugins\ ``` directory near the file ```config.ini```. 
+Download compiled and packed version of the addon from the release page, and install the addon as usual. The addon requires ```nvcuda.dll``` library, installed into system. If you have an NVIDIA GPU, this library is already installed. In other cases (if the GPU is integrated or has a different architecture), simply download this file from [here](https://github.com/Tugcga/Sycles/releases/download/binaries.2.1/nvcuda.dll) and copy it to the ```Sycles\Application\Plugins\bin\nt-x86-64``` folder.
 
 ## How to compile
 
