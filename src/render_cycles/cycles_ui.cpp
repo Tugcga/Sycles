@@ -70,7 +70,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 	layout.AddGroup("Caustics");
 	layout.AddItem("paths_caustics_filter_glossy", "Filter Glossy");
-	layout.AddItem("paths_caustics_reflective", "Reflectibe");
+	layout.AddItem("paths_caustics_reflective", "Reflective");
 	layout.AddItem("paths_caustics_refractive", "Refractive");
 	layout.EndGroup();
 
