@@ -157,7 +157,8 @@ mix_type_enum = [
     "Value", "Value",
     "Color", "Color",
     "Soft Light", "Soft Light",
-    "Linear Light", "Linear Light"
+    "Linear Light", "Linear Light",
+    "Exclusion", "Exclusion"
 ]
 
 tangent_direction_enum = [
@@ -428,6 +429,10 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterShader("CyclesLightFalloff", 1, 0)
     in_reg.RegisterShader("CyclesInvert", 1, 0)
     in_reg.RegisterShader("CyclesMixRGB", 1, 0)
+    in_reg.RegisterShader("CyclesMixColor", 1, 0)
+    in_reg.RegisterShader("CyclesMixFloat", 1, 0)
+    in_reg.RegisterShader("CyclesMixVector", 1, 0)
+    in_reg.RegisterShader("CyclesMixVectorNonUniform", 1, 0)
     in_reg.RegisterShader("CyclesGamma", 1, 0)
     in_reg.RegisterShader("CyclesBrightContrast", 1, 0)
     in_reg.RegisterShader("CyclesHSV", 1, 0)
@@ -681,32 +686,33 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     add_input_string(no_port_pram_options(), params, "Multiscatter GGX", "Distribution")
     add_input_string(no_port_pram_options(), params, "burley", "subsurface_method")
     add_input_color(standard_pram_options(), params, 0.8, "BaseColor")
-    add_input_color(standard_pram_options(), params, 0.8, "SubsurfaceColor")
     add_input_float(standard_pram_options(), params, 1.4, "SubsurfaceIOR", 1.01, 3.8)
     add_input_float(standard_pram_options(), params, 0.0, "SubsurfaceAnisotropy", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Metallic", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Subsurface", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "SubsurfaceWeight", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.1, "SubsurfaceScale", 0.0, 1.0)
     add_input_vector(standard_pram_options(), params, 0.0, "SubsurfaceRadius")
     add_input_float(no_port_pram_options(), params, 1.0, "RadiusX", 0.0, 1.0)
     add_input_float(no_port_pram_options(), params, 0.2, "RadiusY", 0.0, 1.0)
     add_input_float(no_port_pram_options(), params, 0.1, "RadiusZ", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.5, "Specular", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "SpecularIORLevel", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "SpecularTint", 0.0, 1.0)
+    add_input_color(standard_pram_options(), params, 1.0, "SpecularTint")
     add_input_float(standard_pram_options(), params, 0.0, "Anisotropic", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "AnisotropicRotation", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Sheen", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.5, "SheenTint", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Clearcoat", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 1.0, "ClearcoatRoughness", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 1.45, "IOR", 0.0, 5.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Transmission", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "TransmissionRoughness", 0.0, 1.0)
-    add_input_color(standard_pram_options(), params, 0.0, "Emission")
+    add_input_float(standard_pram_options(), params, 0.0, "SheenWeight", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.5, "SheenRoughness", 0.0, 1.0)
+    add_input_color(standard_pram_options(), params, 1.0, "SheenTint")
+    add_input_float(standard_pram_options(), params, 0.0, "CoatWeight", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.03, "CoatRoughness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.5, "CoatIOR", 0.0, 1.0)
+    add_input_color(standard_pram_options(), params, 1.0, "CoatTint")
+    add_input_float(standard_pram_options(), params, 0.0, "TransmissionWeight", 0.0, 1.0)
+    add_input_color(standard_pram_options(), params, 0.0, "EmissionColor")
     add_input_float(standard_pram_options(), params, 1.0, "EmissionStrength", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.0, "Alpha", 0.0, 1.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
-    add_input_normal(standard_pram_options(), params, 0.0, "ClearcoatNormal")
+    add_input_normal(standard_pram_options(), params, 0.0, "CoatNormal")
     add_input_normal(standard_pram_options(), params, 0.0, "Tangent")
 
     # Output Parameter: out
@@ -717,7 +723,8 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     ppgLayout.AddEnumControl("Distribution", principled_distibution_enum, "Distribution")
     ppgLayout.AddEnumControl("subsurface_method", principled_sss_method_enum, "Subsurface Method")
     ppgLayout.AddColor("BaseColor", "Base Color")
-    ppgLayout.AddItem("Subsurface", "Subsurface")
+    ppgLayout.AddItem("SubsurfaceWeight", "Subsurface Weight")
+    ppgLayout.AddItem("SubsurfaceScale", "Subsurface Scale")
     ppgLayout.AddGroup("Subsurface Radius")
     ppgLayout.AddRow()
     ppgLayout.AddItem("RadiusX", "X")
@@ -725,23 +732,23 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     ppgLayout.AddItem("RadiusZ", "Z")
     ppgLayout.EndRow()
     ppgLayout.EndGroup()
-    ppgLayout.AddColor("SubsurfaceColor", "Subsurface Color")
     ppgLayout.AddItem("SubsurfaceIOR", "Subsurface IOR")
     ppgLayout.AddItem("SubsurfaceAnisotropy", "Subsurface Anisotropy")
     ppgLayout.AddItem("Metallic", "Metallic")
-    ppgLayout.AddItem("Specular", "Specular")
-    ppgLayout.AddItem("SpecularTint", "Specular Tint")
+    ppgLayout.AddItem("SpecularIORLevel", "Specular IOR Level")
+    ppgLayout.AddColor("SpecularTint", "Specular Tint")
     ppgLayout.AddItem("Roughness", "Roughness")
     ppgLayout.AddItem("Anisotropic", "Anisotropic")
     ppgLayout.AddItem("AnisotropicRotation", "Anisotropic Rotation")
-    ppgLayout.AddItem("Sheen", "Sheen")
-    ppgLayout.AddItem("SheenTint", "Sheen Tint")
-    ppgLayout.AddItem("Clearcoat", "Clearcoat")
-    ppgLayout.AddItem("ClearcoatRoughness", "Clearcoat Roughness")
-    ppgLayout.AddItem("IOR", "IOR")
-    ppgLayout.AddItem("Transmission", "Transmission")
-    ppgLayout.AddItem("TransmissionRoughness", "Transmission Roughness")
-    ppgLayout.AddColor("Emission", "Emission")
+    ppgLayout.AddItem("SheenWeight", "Sheen Weight")
+    ppgLayout.AddItem("SheenRoughness", "Sheen Roughness")
+    ppgLayout.AddColor("SheenTint", "Sheen Tint")
+    ppgLayout.AddItem("CoatWeight", "Coat Weight")
+    ppgLayout.AddItem("CoatRoughness", "Coat Roughness")
+    ppgLayout.AddItem("CoatIOR", "Coat IOR")
+    ppgLayout.AddColor("CoatTint", "Coat Tint")
+    ppgLayout.AddItem("TransmissionWeight", "Transmission Weight")
+    ppgLayout.AddColor("EmissionColor", "Emission Color")
     ppgLayout.AddItem("EmissionStrength", "Emission Strength")
     ppgLayout.AddItem("Alpha", "Alpha")
     ppgLayout.EndGroup()
@@ -976,7 +983,10 @@ def CyclesShadersPlugin_CyclesGlossyBSDF_1_0_Define(in_ctxt):
     add_input_string(no_port_pram_options(), params, "GGX", "Distribution")
     add_input_color(standard_pram_options(), params, 0.8, "Color")
     add_input_float(standard_pram_options(), params, 0.2, "Roughness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", -1.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "Rotation", 0.0, 1.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
+    add_input_normal(standard_pram_options(), params, 0.0, "Tangent")
 
     # Output Parameter: out
     add_output_closure(shader_def, "BSDF")
@@ -987,6 +997,8 @@ def CyclesShadersPlugin_CyclesGlossyBSDF_1_0_Define(in_ctxt):
     ppgLayout.AddEnumControl("Distribution", glossy_distribution_enum, "Distribution")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.AddItem("Roughness", "Roughness")
+    ppgLayout.AddItem("Anisotropy", "Anisotropy")
+    ppgLayout.AddItem("Rotation", "Rotation")
     ppgLayout.EndGroup()
 
     # Renderer definition
@@ -1413,6 +1425,7 @@ def CyclesShadersPlugin_CyclesPrincipledHairBSDF_1_0_Define(in_ctxt):
     add_input_float(no_port_pram_options(), params, 0.245531, "AbsorptionCoefficientX", 0, 1)
     add_input_float(no_port_pram_options(), params, 0.52, "AbsorptionCoefficientY", 0, 1)
     add_input_float(no_port_pram_options(), params, 1.365, "AbsorptionCoefficientZ", 0, 1)
+    add_input_float(standard_pram_options(), params, 0.85, "AspectRatio", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 2.0, "Offset", -90.0, 90.0)
     add_input_float(standard_pram_options(), params, 0.3, "Roughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.3, "RadialRoughness", 0.0, 1.0)
@@ -1421,6 +1434,9 @@ def CyclesShadersPlugin_CyclesPrincipledHairBSDF_1_0_Define(in_ctxt):
     add_input_float(standard_pram_options(), params, 0.0, "RandomColor", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "RandomRoughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Random", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.0, "Rlobe", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.0, "TTlobe", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.0, "TRTlobe", 0.0, 1.0)
 
     # Output Parameter: out
     add_output_closure(shader_def, "BSDF")
@@ -1439,6 +1455,7 @@ def CyclesShadersPlugin_CyclesPrincipledHairBSDF_1_0_Define(in_ctxt):
     ppgLayout.AddItem("AbsorptionCoefficientY", "Y")
     ppgLayout.AddItem("AbsorptionCoefficientZ", "Z")
     ppgLayout.EndRow()
+    ppgLayout.AddItem("AspectRatio", "Aspect Ratio")
     ppgLayout.EndGroup()
     ppgLayout.EndGroup()
 
@@ -1450,6 +1467,10 @@ def CyclesShadersPlugin_CyclesPrincipledHairBSDF_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Offset", "Offset")
     ppgLayout.AddItem("RandomColor", "Random Color")
     ppgLayout.AddItem("RandomRoughness", "RandomRoughness")
+
+    ppgLayout.AddItem("Rlobe", "Reflection")
+    ppgLayout.AddItem("TTlobe", "Transmission")
+    ppgLayout.AddItem("TRTlobe", "Secondary Reflection")
     ppgLayout.EndGroup()
 
     # logic
@@ -1696,6 +1717,7 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
 
     # Output Parameter: out
     add_output_color(shader_def, "Color")
+    add_output_float(shader_def, "Alpha")
 
     # next init ppg
     ppg_layout = shader_def.PPGLayout
@@ -1885,6 +1907,9 @@ def CyclesShadersPlugin_CyclesNoiseTexture_1_0_Define(in_ctxt):
     add_input_float(standard_pram_options(), params, 5.0, "Scale", 0.0, 10.0)
     add_input_float(standard_pram_options(), params, 2.0, "Detail", 0.0, 10.0)
     add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 2.0, "Lacunarity", 0.0, 10.0)
+    add_input_float(standard_pram_options(), params, 0.0, "Offset", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.0, "Gain", 0.0, 10.0)
     add_input_float(standard_pram_options(), params, 0.0, "Distortion", 0.0, 10.0)
     add_input_vector(standard_pram_options(), params, 0.0, "Vector")
 
@@ -1901,6 +1926,9 @@ def CyclesShadersPlugin_CyclesNoiseTexture_1_0_Define(in_ctxt):
     ppg_layout.AddItem("Scale", "Scale")
     ppg_layout.AddItem("Detail", "Detail")
     ppg_layout.AddItem("Roughness", "Roughness")
+    ppg_layout.AddItem("Lacunarity", "Lacunarity")
+    ppg_layout.AddItem("Offset", "Offset")
+    ppg_layout.AddItem("Gain", "Gain")
     ppg_layout.AddItem("Distortion", "Distortion")
     ppg_layout.EndGroup()
 
@@ -2077,6 +2105,9 @@ def CyclesShadersPlugin_CyclesVoronoiTexture_1_0_Define(in_ctxt):
     add_input_string(no_port_pram_options(), params, "f1", "Feature")
     add_input_float(standard_pram_options(), params, 0.0, "W", 0.0, 10.0)
     add_input_float(standard_pram_options(), params, 5.0, "Scale", 0.0, 10.0)
+    add_input_float(standard_pram_options(), params, 0.0, "Detail", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 2.0, "Lacunarity", 0.0, 10.0)
     add_input_float(standard_pram_options(), params, 1.0, "Smoothness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.5, "Exponent", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.0, "Randomness", 0.0, 1.0)
@@ -2097,6 +2128,9 @@ def CyclesShadersPlugin_CyclesVoronoiTexture_1_0_Define(in_ctxt):
     ppgLayout.AddEnumControl("Distance", voronoi_metric_enum, "Distance Metric")
     ppgLayout.AddItem("W", "W")
     ppgLayout.AddItem("Scale", "Scale")
+    ppgLayout.AddItem("Detail", "Detail")
+    ppgLayout.AddItem("Roughness", "Roughness")
+    ppgLayout.AddItem("Lacunarity", "Lacunarity")
     ppgLayout.AddItem("Smoothness", "Smoothness")
     ppgLayout.AddItem("Exponent", "Exponent")
     ppgLayout.AddItem("Randomness", "Randomness")
@@ -3026,6 +3060,7 @@ def CyclesShadersPlugin_CyclesLightPath_1_0_Define(in_ctxt):
     add_output_float(shader_def, "IsSingularRay")
     add_output_float(shader_def, "IsReflectionRay")
     add_output_float(shader_def, "IsTransmissionRay")
+    add_output_float(shader_def, "outIsVolumeScatterRay")
     add_output_float(shader_def, "RayLength")
     add_output_float(shader_def, "RayDepth")
     add_output_float(shader_def, "DiffuseDepth")
@@ -3743,6 +3778,162 @@ def CyclesShadersPlugin_CyclesMixRGB_1_0_Define(in_ctxt):
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "MixRGB"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesMixColor_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Color")
+    in_ctxt.SetAttribute("DisplayName", "cycMixColor")
+    return True
+
+
+def CyclesShadersPlugin_CyclesMixColor_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+    add_input_string(no_port_pram_options(), params, "Mix", "Type")
+    add_input_boolean(no_port_pram_options(), params, True, "UseClamp")
+    add_input_boolean(no_port_pram_options(), params, False, "UseClampResult")
+    add_input_float(standard_pram_options(), params, 0.5, "Factor", 0.0, 1.0)
+    add_input_color(standard_pram_options(), params, 0.0, "A")
+    add_input_color(standard_pram_options(), params, 0.0, "B")
+
+    # Output Parameter: out
+    add_output_color(shader_def, "Result")
+
+    # next init ppg
+    ppgLayout = shader_def.PPGLayout
+    ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddEnumControl("Type", mix_type_enum, "Type")
+    ppgLayout.AddItem("UseClampResult", "Clamp Result")
+    ppgLayout.AddItem("UseClamp", "Clamp Factor")
+    ppgLayout.AddItem("Factor", "Factor")
+    ppgLayout.AddItem("A", "A")
+    ppgLayout.AddItem("B", "B")
+    ppgLayout.EndGroup()
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "MixColor"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesMixFloat_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Converter")
+    in_ctxt.SetAttribute("DisplayName", "cycMixFloat")
+    return True
+
+
+def CyclesShadersPlugin_CyclesMixFloat1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+    add_input_boolean(no_port_pram_options(), params, False, "UseClamp")
+    add_input_float(standard_pram_options(), params, 0.5, "Factor", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "A", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "B", 0.0, 1.0)
+
+    # Output Parameter: out
+    add_output_float(shader_def, "Result")
+
+    # next init ppg
+    ppgLayout = shader_def.PPGLayout
+    ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddItem("UseClamp", "Clamp Factor")
+    ppgLayout.AddItem("Factor", "Factor")
+    ppgLayout.AddItem("A", "A")
+    ppgLayout.AddItem("B", "B")
+    ppgLayout.EndGroup()
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "MixFloat"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesMixVector_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Converter")
+    in_ctxt.SetAttribute("DisplayName", "cycMixVector")
+    return True
+
+
+def CyclesShadersPlugin_CyclesMixVector_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+    add_input_boolean(no_port_pram_options(), params, False, "UseClamp")
+    add_input_float(standard_pram_options(), params, 0.5, "Factor", 0.0, 1.0)
+    add_input_vector(standard_pram_options(), params, 0.0, "A")
+    add_input_vector(standard_pram_options(), params, 0.0, "B")
+
+    # Output Parameter: out
+    add_output_vector(shader_def, "Result")
+
+    # next init ppg
+    ppgLayout = shader_def.PPGLayout
+    ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddItem("UseClamp", "Use Clamp")
+    ppgLayout.AddItem("Factor", "Factor")
+    ppgLayout.AddItem("A", "A")
+    ppgLayout.AddItem("B", "B")
+    ppgLayout.EndGroup()
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "MixVector"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesMixVectorNonUniform_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Converter")
+    in_ctxt.SetAttribute("DisplayName", "cycMixVectorNonUniform")
+    return True
+
+
+def CyclesShadersPlugin_CyclesMixVectorNonUniform_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+    add_input_boolean(no_port_pram_options(), params, False, "UseClamp")
+    add_input_vector(standard_pram_options(), params, 0.5, "Factor")
+    add_input_vector(standard_pram_options(), params, 0.0, "A")
+    add_input_vector(standard_pram_options(), params, 0.0, "B")
+
+    # Output Parameter: out
+    add_output_vector(shader_def, "Result")
+
+    # next init ppg
+    ppgLayout = shader_def.PPGLayout
+    ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddItem("UseClamp", "Use Clamp")
+    ppgLayout.AddItem("Factor", "Factor")
+    ppgLayout.AddItem("A", "A")
+    ppgLayout.AddItem("B", "B")
+    ppgLayout.EndGroup()
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "MixVectorNonUniform"
 
     return True
 

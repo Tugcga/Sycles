@@ -22,12 +22,44 @@ enum DistributionModes
 static std::unordered_map<std::string, std::unordered_map<std::string, std::string>> shader_names_map = {
 	{
 		"CyclesShadersPlugin.CyclesDiffuseBSDF.1.0", {
-			{"Color", "Color"}, {"Roughness", "Roughness"}, {"Normal", "Normal"}, {"outBSDF", "BSDF"}
+			{"Color", "Color"}, 
+			{"Normal", "Normal"},
+			{"Roughness", "Roughness"},
+	
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesPrincipledBSDF.1.0", {
-			{"BaseColor", "Base Color"}, {"SubsurfaceColor", "Subsurface Color"}, {"SubsurfaceIOR", "Subsurface IOR"}, {"SubsurfaceAnisotropy", "Subsurface Anisotropy"}, {"Metallic", "Metallic"}, {"Subsurface", "Subsurface"}, {"SubsurfaceRadius", "Subsurface Radius"}, {"Specular", "Specular"}, {"Roughness", "Roughness"}, {"SpecularTint", "Specular Tint"}, {"Anisotropic", "Anisotropic"}, {"AnisotropicRotation", "Anisotropic Rotation"}, {"Sheen", "Sheen"}, {"SheenTint", "Sheen Tint"}, {"Clearcoat", "Clearcoat"}, {"ClearcoatRoughness", "Clearcoat Roughness"}, {"IOR", "IOR"}, {"Transmission", "Transmission"}, {"TransmissionRoughness", "Transmission Roughness"}, {"Emission", "Emission"}, {"EmissionStrength", "Emission Strength"}, {"Alpha", "Alpha"}, {"Normal", "Normal"}, {"ClearcoatNormal", "Clearcoat Normal"}, {"Tangent", "Tangent"}, {"outBSDF", "BSDF"}
+			{"BaseColor", "Base Color"},
+			{"Metallic", "Metallic"},
+			{"Roughness", "Roughness"},
+			{"IOR", "IOR"},
+			{"Alpha", "Alpha"}, 
+			{"Normal", "Normal"},
+			{"SubsurfaceWeight", "Subsurface Weight"},
+			{"SubsurfaceScale", "Subsurface Scale"},
+			{"SubsurfaceRadius", "Subsurface Radius"},
+			{"SubsurfaceIOR", "Subsurface IOR"},
+			{"SubsurfaceAnisotropy", "Subsurface Anisotropy"},
+			{"SpecularIORLevel", "Specular IOR Level"}, 
+			{"SpecularTint", "Specular Tint"},
+			{"Anisotropic", "Anisotropic"},
+			{"AnisotropicRotation", "Anisotropic Rotation"},
+			{"Tangent", "Tangent"},
+			{"TransmissionWeight", "Transmission Weight"},
+			{"SheenWeight", "Sheen Weight"}, 
+			{"SheenRoughness", "Sheen Roughness"},
+			{"SheenTint", "Sheen Tint"},
+			{"CoatWeight", "Coat Weight"}, 
+			{"CoatRoughness", "Coat Roughness"},  
+			{"CoatIOR", "Coat IOR"},
+			{"CoatTint", "Coat Tint"},
+			{"CoatNormal", "Coat Normal"},
+			{"EmissionColor", "Emission Color"},
+			{"EmissionStrength", "Emission Strength"},  
+	
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
@@ -37,12 +69,17 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesTranslucentBSDF.1.0", {
-			{"Color", "Color"}, {"Normal", "Normal"}, {"outBSDF", "BSDF"}
+			{"Color", "Color"}, 
+			{"Normal", "Normal"}, 
+	
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesTransparentBSDF.1.0", {
-			{"Color", "Color"}, {"outBSDF", "BSDF"}
+			{"Color", "Color"},
+	
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
@@ -52,42 +89,81 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesToonBSDF.1.0", {
-			{"Color", "Color"}, {"Size", "Size"}, {"Smooth", "Smooth"}, {"Normal", "Normal"}, {"outBSDF", "BSDF"}
+			{"Color", "Color"}, 
+			{"Normal", "Normal"},
+			{"Size", "Size"}, 
+			{"Smooth", "Smooth"}, 
+	
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesGlossyBSDF.1.0", {
-			{"Color", "Color"}, {"Roughness", "Roughness"}, {"Normal", "Normal"}, {"outBSDF", "BSDF"}
+			{"Color", "Color"}, 
+			{"Normal", "Normal"},
+			{"Tangent", "Tangent"},
+			{"Roughness", "Roughness"}, 
+			{"Anisotropy", "Anisotropy"}, 
+			{"Rotation", "Rotation"}, 
+	
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesGlassBSDF.1.0", {
-			{"Color", "Color"}, {"Roughness", "Roughness"}, {"IOR", "IOR"}, {"Normal", "Normal"}, {"outBSDF", "BSDF"}
+			{"Color", "Color"}, 
+			{"Normal", "Normal"},
+			{"Roughness", "Roughness"}, 
+			{"IOR", "IOR"},
+	
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesRefractionBSDF.1.0", {
-			{"Color", "Color"}, {"Roughness", "Roughness"}, {"IOR", "IOR"}, {"Normal", "Normal"}, {"outBSDF", "BSDF"}
+			{"Color", "Color"}, 
+			{"Normal", "Normal"},
+			{"Roughness", "Roughness"}, 
+			{"IOR", "IOR"}, 
+	
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesHairBSDF.1.0", {
-			{"Color", "Color"}, {"Offset", "Offset"}, {"RoughnessU", "RoughnessU"}, {"RoughnessV", "RoughnessV"}, {"Tangent", "Tangent"}, {"outBSDF", "BSDF"}
+			{"Color", "Color"}, 
+			{"Offset", "Offset"}, 
+			{"RoughnessU", "RoughnessU"}, 
+			{"RoughnessV", "RoughnessV"},
+			{"Tangent", "Tangent"},
+		
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesEmission.1.0", {
-			{"Color", "Color"}, {"Strength", "Strength"}, {"outEmission", "Emission"}
+			{"Color", "Color"},
+			{"Strength", "Strength"},
+			
+			{"outEmission", "Emission"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesAmbientOcclusion.1.0", {
-			{"Color", "Color"}, {"Distance", "Distance"}, {"Normal", "Normal"}, {"outColor", "Color"}, {"outAO", "AO"}
+			{"Color", "Color"},
+			{"Distance", "Distance"},
+			{"Normal", "Normal"}, 
+		
+			{"outColor", "Color"},
+			{"outAO", "AO"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesBackground.1.0", {
-			{"Color", "Color"}, {"Strength", "Strength"}, {"outBackground", "Background"}
+			{"Color", "Color"},
+			{"Strength", "Strength"},
+		
+			{"outBackground", "Background"}
 		}
 	},
 	{
@@ -97,67 +173,164 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesAbsorptionVolume.1.0", {
-			{"Color", "Color"}, {"Density", "Density"}, {"outVolume", "Volume"}
+			{"Color", "Color"}, 
+			{"Density", "Density"}, 
+		
+			{"outVolume", "Volume"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesScatterVolume.1.0", {
-			{"Color", "Color"}, {"Density", "Density"}, {"Anisotropy", "Anisotropy"}, {"outVolume", "Volume"}
+			{"Color", "Color"}, 
+			{"Density", "Density"}, {
+			"Anisotropy", "Anisotropy"}, 
+		
+			{"outVolume", "Volume"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesPrincipledVolume.1.0", {
-			{"Color", "Color"}, {"Density", "Density"}, {"Anisotropy", "Anisotropy"}, {"AbsorptionColor", "Absorption Color"}, {"EmissionStrength", "Emission Strength"}, {"EmissionColor", "Emission Color"}, {"BlackbodyIntensity", "Blackbody Intensity"}, {"BlackbodyTint", "Blackbody Tint"}, {"Temperature", "Temperature"}, {"outVolume", "Volume"}
+			{"Color", "Color"}, 
+			{"Density", "Density"}, 
+			{"Anisotropy", "Anisotropy"}, 
+			{"AbsorptionColor", "Absorption Color"}, 
+			{"EmissionStrength", "Emission Strength"}, 
+			{"EmissionColor", "Emission Color"}, 
+			{"BlackbodyIntensity", "Blackbody Intensity"}, 
+			{"BlackbodyTint", "Blackbody Tint"}, 
+			{"Temperature", "Temperature"}, 
+		
+			{"outVolume", "Volume"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesPrincipledHairBSDF.1.0", {
-			{"Color", "Color"}, {"Melanin", "Melanin"}, {"MelaninRedness", "Melanin Redness"}, {"Tint", "Tint"}, {"AbsorptionCoefficient", "Absorption Coefficient"}, {"Offset", "Offset"}, {"Roughness", "Roughness"}, {"RadialRoughness", "Radial Roughness"}, {"Coat", "Coat"}, {"IOR", "IOR"}, {"RandomColor", "Random Color"}, {"RandomRoughness", "Random Roughness"}, {"Random", "Random"}, {"outBSDF", "BSDF"}
+			{"Color", "Color"}, 
+		{"Melanin", "Melanin"},
+		{"MelaninRedness", "Melanin Redness"}, 
+		{"Tint", "Tint"}, 
+		{"AbsorptionCoefficient", "Absorption Coefficient"}, 
+		{"AspectRatio", "Aspect Ratio"},
+		{"Offset", "Offset"}, 
+		{"Roughness", "Roughness"}, 
+		{"RadialRoughness", "Radial Roughness"}, 
+		{"Coat", "Coat"}, 
+		{"IOR", "IOR"},
+		{"RandomRoughness", "Random Roughness"},
+		{"RandomColor", "Random Color"},  
+		{"Random", "Random"}, 
+
+		{"Rlobe", "R lobe"},
+		{"TTlobe", "TT lobe"},
+		{"TRTlobe", "TRT lobe"},
+		
+		{"outBSDF", "BSDF"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesSubsurfaceScattering.1.0", {
-			{"Color", "Color"}, {"Scale", "Scale"}, {"SSSRadius", "Radius"}, {"IOR", "IOR"}, {"Anisotropy", "Anisotropy"}, {"Normal", "Normal"}, {"outBSSRDF", "BSSRDF"}
+			{"Color", "Color"}, 
+			{"Normal", "Normal"},
+			{"Scale", "Scale"},
+			{"SSSRadius", "Radius"},
+			{"IOR", "IOR"},
+			{"Anisotropy", "Anisotropy"}, 
+		
+			{"outBSSRDF", "BSSRDF"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesImageTexture.1.0", {
-			{"Vector", "Vector"}, {"outColor", "Color"}, {"outAlpha", "Alpha"}
+			{"Vector", "Vector"}, 
+			{"outColor", "Color"}, 
+		
+			{"outAlpha", "Alpha"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesEnvironmentTexture.1.0", {
-			{"Vector", "Vector"}, {"outColor", "Color"}
+			{"Vector", "Vector"},
+
+			{"outColor", "Color"},
+			{"outAlpha", "Alpha"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesSkyTexture.1.0", {
-			{"Vector", "Vector"}, {"outColor", "Color"}
+			{"Vector", "Vector"},
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesNoiseTexture.1.0", {
-			{"W", "W"}, {"Scale", "Scale"}, {"Detail", "Detail"}, {"Roughness", "Roughness"}, {"Distortion", "Distortion"}, {"Vector", "Vector"}, {"outColor", "Color"}, {"outFac", "Fac"}
+			{"Vector", "Vector"},
+			{"W", "W"},
+			{"Scale", "Scale"},
+			{"Detail", "Detail"}, 
+			{"Roughness", "Roughness"}, 
+			{"Lacunarity", "Lacunarity"}, 
+			{"Offset", "Offset"}, 
+			{"Gain", "Gain"}, 
+			{"Distortion", "Distortion"}, 
+		
+			{"outFac", "Fac"},
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesCheckerTexture.1.0", {
-			{"Color1", "Color1"}, {"Color2", "Color2"}, {"Scale", "Scale"}, {"Vector", "Vector"}, {"outColor", "Color"}, {"outFac", "Fac"}
+			{"Vector", "Vector"},
+			{"Color1", "Color1"}, 
+			{"Color2", "Color2"}, 
+			{"Scale", "Scale"}, 
+		
+			{"outColor", "Color"}, 
+			{"outFac", "Fac"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesBrickTexture.1.0", {
-			{"Color1", "Color1"}, {"Color2", "Color2"}, {"Mortar", "Mortar"}, {"Scale", "Scale"}, {"MortarSize", "Mortar Size"}, {"MortarSmooth", "Mortar Smooth"}, {"Bias", "Bias"}, {"BrickWidth", "Brick Width"}, {"RowHeight", "Row Height"}, {"Vector", "Vector"}, {"outColor", "Color"}, {"outFac", "Fac"}
+			{"Vector", "Vector"},
+			{"Color1", "Color1"}, 
+			{"Color2", "Color2"}, 
+			{"Mortar", "Mortar"}, 
+			{"Scale", "Scale"}, 
+			{"MortarSize", "Mortar Size"}, 
+			{"MortarSmooth", "Mortar Smooth"}, 
+			{"Bias", "Bias"}, 
+			{"BrickWidth", "Brick Width"}, 
+			{"RowHeight", "Row Height"}, 
+		
+			{"outColor", "Color"}, 
+			{"outFac", "Fac"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesGradientTexture.1.0", {
-			{"Vector", "Vector"}, {"outColor", "Color"}, {"outFac", "Fac"}
+			{"Vector", "Vector"}, 
+		
+			{"outColor", "Color"},
+			{"outFac", "Fac"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesVoronoiTexture.1.0", {
-			{"W", "W"}, {"Scale", "Scale"}, {"Smoothness", "Smoothness"}, {"Exponent", "Exponent"}, {"Randomness", "Randomness"}, {"Vector", "Vector"}, {"outDistance", "Distance"}, {"outColor", "Color"}, {"outPosition", "Position"}, {"outW", "W"}, {"outRadius", "Radius"}
+			{"Vector", "Vector"},
+			{"W", "W"}, 
+			{"Scale", "Scale"}, 
+			{"Detail", "Detail"}, 
+			{"Roughness", "Roughness"}, 
+			{"Lacunarity", "Lacunarity"}, 
+			{"Smoothness", "Smoothness"}, 
+			{"Exponent", "Exponent"}, 
+			{"Randomness", "Randomness"}, 
+		
+			{"outDistance", "Distance"}, 
+			{"outColor", "Color"}, 
+			{"outPosition", "Position"}, 
+			{"outW", "W"}, 
+			{"outRadius", "Radius"}
 		}
 	},
 	{
@@ -167,12 +340,26 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesMagicTexture.1.0", {
-			{"Scale", "Scale"}, {"Distortion", "Distortion"}, {"Vector", "Vector"}, {"outColor", "Color"}, {"outFac", "Fac"}
+			{"Vector", "Vector"},
+			{"Scale", "Scale"}, 
+			{"Distortion", "Distortion"},  
+		
+			{"outColor", "Color"}, 
+			{"outFac", "Fac"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesWaveTexture.1.0", {
-			{"Scale", "Scale"}, {"Distortion", "Distortion"}, {"Detail", "Detail"}, {"DetailScale", "Detail Scale"}, {"DetailRoughness", "Detail Roughness"}, {"PhaseOffset", "Phase Offset"}, {"Vector", "Vector"}, {"outColor", "Color"}, {"outFac", "Fac"}
+			{"Vector", "Vector"},
+			{"Scale", "Scale"}, 
+			{"Distortion", "Distortion"}, 
+			{"Detail", "Detail"}, 
+			{"DetailScale", "Detail Scale"}, 
+			{"DetailRoughness", "Detail Roughness"}, 
+			{"PhaseOffset", "Phase Offset"}, 
+		
+			{"outColor", "Color"}, 
+			{"outFac", "Fac"}
 		}
 	},
 	{
@@ -182,82 +369,160 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesWhiteNoiseTexture.1.0", {
-			{"Vector", "Vector"}, {"W", "W"}, {"outValue", "Value"}, {"outColor", "Color"}
+			{"Vector", "Vector"},
+			{"W", "W"}, 
+		
+			{"outValue", "Value"}, 
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesNormal.1.0", {
-			{"Normal", "Normal"}, {"outNormal", "Normal"}, {"outDot", "Dot"}
+			{"Normal", "Normal"}, 
+		
+			{"outNormal", "Normal"},
+			{"outDot", "Dot"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesBump.1.0", {
-			{"Height", "Height"}, {"Strength", "Strength"}, {"Distance", "Distance"}, {"Normal", "Normal"}, {"outNormal", "Normal"}
+			{"Height", "Height"},
+			{"Normal", "Normal"},
+			{"Strength", "Strength"},
+			{"Distance", "Distance"}, 
+		
+			{"outNormal", "Normal"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesMapping.1.0", {
-			{"Vector", "Vector"}, {"MapLocation", "Location"}, {"MapRotation", "Rotation"}, {"MapScale", "Scale"}, {"outVector", "Vector"}
+			{"Vector", "Vector"}, 
+			{"MapLocation", "Location"}, 
+			{"MapRotation", "Rotation"}, 
+			{"MapScale", "Scale"}, 
+		
+			{"outVector", "Vector"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesNormalMap.1.0", {
-			{"Strength", "Strength"}, {"Color", "Color"}, {"outNormal", "Normal"}
+			{"Strength", "Strength"}, 
+			{"Color", "Color"},
+		
+			{"outNormal", "Normal"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesVectorTransform.1.0", {
-			{"Vector", "Vector"}, {"outVector", "Vector"}
+			{"Vector", "Vector"}, 
+		
+			{"outVector", "Vector"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesVectorRotate.1.0", {
-			{"Vector", "Vector"}, {"Center", "Center"}, {"Axis", "Axis"}, {"VectorRotation", "Rotation"}, {"Angle", "Angle"}, {"outVector", "Vector"}
+			{"Vector", "Vector"}, 
+			{"VectorRotation", "Rotation"},
+			{"Center", "Center"}, 
+			{"Axis", "Axis"},
+			{"Angle", "Angle"},
+		
+			{"outVector", "Vector"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesVectorCurves.1.0", {
-			{"Fac", "Fac"}, {"Vector", "Vector"}, {"outVector", "Vector"}
+			{"Fac", "Fac"}, 
+			{"Vector", "Vector"},
+		
+			{"outVector", "Vector"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesDisplacement.1.0", {
-			{"Height", "Height"}, {"Midlevel", "Midlevel"}, {"Scale", "Scale"}, {"Normal", "Normal"}, {"outDisplacement", "Displacement"}
+			{"Height", "Height"},
+			{"Midlevel", "Midlevel"}, 
+			{"Scale", "Scale"}, 
+			{"Normal", "Normal"}, 
+		
+			{"outDisplacement", "Displacement"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesVectorDisplacement.1.0", {
-			{"Vector", "Vector"}, {"Midlevel", "Midlevel"}, {"Scale", "Scale"}, {"outDisplacement", "Displacement"}
+			{"Vector", "Vector"},
+			{"Midlevel", "Midlevel"}, 
+			{"Scale", "Scale"}, 
+		
+			{"outDisplacement", "Displacement"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesGeometry.1.0", {
-			{"outPosition", "Position"}, {"outNormal", "Normal"}, {"outTangent", "Tangent"}, {"outTrueNormal", "True Normal"}, {"outIncoming", "Incoming"}, {"outParametric", "Parametric"}, {"outBackfacing", "Backfacing"}, {"outPointiness", "Pointiness"}, {"outRandomPerIsland", "Random Per Island"}
+			{"outPosition", "Position"}, 
+			{"outNormal", "Normal"}, 
+			{"outTangent", "Tangent"}, 
+			{"outTrueNormal", "True Normal"}, 
+			{"outIncoming", "Incoming"}, 
+			{"outParametric", "Parametric"}, 
+			{"outBackfacing", "Backfacing"},
+			{"outPointiness", "Pointiness"}, 
+			{"outRandomPerIsland", "Random Per Island"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesTextureCoordinate.1.0", {
-			{"outGenerated", "Generated"}, {"outNormal", "Normal"}, {"outUV", "UV"}, {"outObject", "Object"}, {"outCamera", "Camera"}, {"outWindow", "Window"}, {"outReflection", "Reflection"}
+			{"outGenerated", "Generated"}, 
+			{"outNormal", "Normal"},
+			{"outUV", "UV"},
+			{"outObject", "Object"},
+			{"outCamera", "Camera"}, 
+			{"outWindow", "Window"},
+			{"outReflection", "Reflection"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesLightPath.1.0", {
-			{"outIsCameraRay", "Is Camera Ray"}, {"outIsShadowRay", "Is Shadow Ray"}, {"outIsDiffuseRay", "Is Diffuse Ray"}, {"outIsGlossyRay", "Is Glossy Ray"}, {"outIsSingularRay", "Is Singular Ray"}, {"outIsReflectionRay", "Is Reflection Ray"}, {"outIsTransmissionRay", "Is Transmission Ray"}, {"outRayLength", "Ray Length"}, {"outRayDepth", "Ray Depth"}, {"outDiffuseDepth", "Diffuse Depth"}, {"outGlossyDepth", "Glossy Depth"}, {"outTransparentDepth", "Transparent Depth"}, {"outTransmissionDepth", "Transmission Depth"}
+			{"outIsCameraRay", "Is Camera Ray"},
+			{"outIsShadowRay", "Is Shadow Ray"},
+			{"outIsDiffuseRay", "Is Diffuse Ray"},
+			{"outIsGlossyRay", "Is Glossy Ray"}, 
+			{"outIsSingularRay", "Is Singular Ray"}, 
+			{"outIsReflectionRay", "Is Reflection Ray"},
+			{"outIsTransmissionRay", "Is Transmission Ray"}, 
+			{"outIsVolumeScatterRay", "Is Volume Scatter Ray"},
+
+			{"outRayLength", "Ray Length"}, 
+			{"outRayDepth", "Ray Depth"}, 
+			{"outDiffuseDepth", "Diffuse Depth"}, 
+			{"outGlossyDepth", "Glossy Depth"},
+			{"outTransparentDepth", "Transparent Depth"}, 
+		{"outTransmissionDepth", "Transmission Depth"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesObjectInfo.1.0", {
-			{"outLocation", "Location"}, {"outColor", "Color"}, {"outAlpha", "Alpha"}, {"outObjectIndex", "Object Index"}, {"outMaterialIndex", "Material Index"}, {"outRandom", "Random"}
+			{"outLocation", "Location"}, 
+			{"outColor", "Color"},
+			{"outAlpha", "Alpha"},
+			{"outObjectIndex", "Object Index"},
+			{"outMaterialIndex", "Material Index"}, 
+			{"outRandom", "Random"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesVolumeInfo.1.0", {
-			{"outColor", "Color"}, {"outDensity", "Density"}, {"outFlame", "Flame"}, {"putTemperature", "Temperature"}
+			{"outColor", "Color"},
+			{"outDensity", "Density"},
+			{"outFlame", "Flame"}, 
+			{"putTemperature", "Temperature"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesPointInfo.1.0", {
-			{"outPosition", "Position"}, {"outRadius", "Radius"}, {"outRandom", "Random"}
+			{"outPosition", "Position"}, 
+			{"outRadius", "Radius"}, 
+			{"outRandom", "Random"}
 		}
 	},
 	{
@@ -267,7 +532,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesHairInfo.1.0", {
-			{"outIsStrand", "Is Strand"}, {"outIntercept", "Intercept"}, {"outLength", "Length"}, {"outThickness", "Thickness"}, {"outTangentNormal", "Tangent Normal"}, {"outRandom", "Random"}
+			{"outIsStrand", "Is Strand"},
+			{"outIntercept", "Intercept"},
+			{"outLength", "Length"}, 
+			{"outThickness", "Thickness"}, 
+			{"outTangentNormal", "Tangent Normal"}, 
+			{"outRandom", "Random"}
 		}
 	},
 	{
@@ -282,7 +552,10 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesAttribute.1.0", {
-			{"outColor", "Color"}, {"outVector", "Vector"}, {"outFac", "Fac"}, {"outAlpha", "Alpha"}
+			{"outColor", "Color"}, 
+			{"outVector", "Vector"},
+			{"outFac", "Fac"}, 
+			{"outAlpha", "Alpha"}
 		}
 	},
 	{
@@ -297,12 +570,16 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesVertexColor.1.0", {
-			{"outColor", "Color"}, {"outAlpha", "Alpha"}
+			{"outColor", "Color"},
+			{"outAlpha", "Alpha"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesBevel.1.0", {
-			{"Radius", "Radius"}, {"Normal", "Normal"}, {"outNormal", "Normal"}
+			{"Radius", "Radius"}, 
+			{"Normal", "Normal"},
+		
+			{"outNormal", "Normal"}
 		}
 	},
 	{
@@ -312,22 +589,33 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesCamera.1.0", {
-			{"outViewVector", "View Vector"}, {"outViewZDepth", "View Z Depth"}, {"outViewDistance", "View Distance"}
+			{"outViewVector", "View Vector"}, 
+			{"outViewZDepth", "View Z Depth"},
+			{"outViewDistance", "View Distance"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesFresnel.1.0", {
-			{"IOR", "IOR"}, {"Normal", "Normal"}, {"outFac", "Fac"}
+			{"Normal", "Normal"},
+			{"IOR", "IOR"},
+		
+			{"outFac", "Fac"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesLayerWeight.1.0", {
-			{"Blend", "Blend"}, {"Normal", "Normal"}, {"outFresnel", "Fresnel"}, {"outFacing", "Facing"}
+			{"Normal", "Normal"},
+			{"Blend", "Blend"}, 
+		
+			{"outFresnel", "Fresnel"}, 
+			{"outFacing", "Facing"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesWireframe.1.0", {
-			{"Size", "Size"}, {"outFac", "Fac"}
+			{"Size", "Size"}, 
+		
+			{"outFac", "Fac"}
 		}
 	},
 	{
@@ -337,37 +625,96 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesLightFalloff.1.0", {
-			{"Strength", "Strength"}, {"Smooth", "Smooth"}, {"outQuadratic", "Quadratic"}, {"outLinear", "Linear"}, {"outConstant", "Constant"}
+			{"Strength", "Strength"}, 
+			{"Smooth", "Smooth"}, 
+		
+			{"outQuadratic", "Quadratic"},
+			{"outLinear", "Linear"}, 
+			{"outConstant", "Constant"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesInvert.1.0", {
-			{"Fac", "Fac"}, {"Color", "Color"}, {"outColor", "Color"}
+			{"Fac", "Fac"}, 
+			{"Color", "Color"}, 
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesMixRGB.1.0", {
-			{"Fac", "Fac"}, {"Color1", "Color1"}, {"Color2", "Color2"}, {"outColor", "Color"}
+			{"Fac", "Fac"}, 
+			{"Color1", "Color1"},
+			{"Color2", "Color2"},
+			{"outColor", "Color"}
+		}
+	},
+	{
+		"CyclesShadersPlugin.CyclesMixColor.1.0", {
+			{"Factor", "Factor"},
+			{"A", "A"},
+			{"B", "B"},
+			{"outResult", "Result"}
+		}
+	},
+	{
+		"CyclesShadersPlugin.CyclesMixFloat.1.0", {
+			{"Factor", "Factor"},
+			{"A", "A"},
+			{"B", "B"},
+			{"outResult", "Result"}
+		}
+	},
+	{
+		"CyclesShadersPlugin.CyclesMixVector.1.0", {
+			{"Factor", "Factor"},
+			{"A", "A"},
+			{"B", "B"},
+			{"outResult", "Result"}
+		}
+	},
+	{
+		"CyclesShadersPlugin.CyclesMixVectorNonUniform.1.0", {
+			{"Factor", "Factor"},
+			{"A", "A"},
+			{"B", "B"},
+			{"outResult", "Result"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesGamma.1.0", {
-			{"Color", "Color"}, {"Gamma", "Gamma"}, {"outColor", "Color"}
+			{"Color", "Color"}, 
+			{"Gamma", "Gamma"}, 
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesBrightContrast.1.0", {
-			{"Color", "Color"}, {"Bright", "Bright"}, {"Contrast", "Contrast"}, {"outColor", "Color"}
+			{"Color", "Color"}, 
+			{"Bright", "Bright"}, 
+			{"Contrast", "Contrast"}, 
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesHSV.1.0", {
-			{"Hue", "Hue"}, {"Saturation", "Saturation"}, {"Value", "Value"}, {"Fac", "Fac"}, {"Color", "Color"}, {"outColor", "Color"}
+			{"Hue", "Hue"},
+			{"Saturation", "Saturation"},
+			{"Value", "Value"}, 
+			{"Fac", "Fac"}, 
+			{"Color", "Color"}, 
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesRGBCurves.1.0", {
-			{"Fac", "Fac"}, {"Color", "Color"}, {"outColor", "Color"}
+			{"Fac", "Fac"},
+			{"Color", "Color"}, 
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
@@ -377,102 +724,181 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesWavelength.1.0", {
-			{"Wavelength", "Wavelength"}, {"outColor", "Color"}
+			{"Wavelength", "Wavelength"}, 
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesBlackbody.1.0", {
-			{"Temperature", "Temperature"}, {"outColor", "Color"}
+			{"Temperature", "Temperature"},
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesMixClosure.1.0", {
-			{"Closure1", "Closure1"}, {"Closure2", "Closure2"}, {"Fac", "Fac"}, {"outClosure", "Closure"}
+			{"Fac", "Fac"},
+			{"Closure1", "Closure1"},
+			{"Closure2", "Closure2"}, 
+		
+			{"outClosure", "Closure"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesAddClosure.1.0", {
-			{"Closure1", "Closure1"}, {"Closure2", "Closure2"}, {"outClosure", "Closure"}
+			{"Closure1", "Closure1"},
+			{"Closure2", "Closure2"}, 
+
+			{"outClosure", "Closure"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesCombineColor.1.0", {
-			{"A", "Red"}, {"B", "Green"}, {"C", "Blue"}, {"outColor", "Color"}
+			{"A", "Red"}, 
+			{"B", "Green"}, 
+			{"C", "Blue"}, 
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesCombineRGB.1.0", {
-			{"R", "R"}, {"G", "G"}, {"B", "B"}, {"outImage", "Image"}
+			{"R", "R"},
+			{"G", "G"},
+			{"B", "B"}, 
+		
+			{"outImage", "Image"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesCombineHSV.1.0", {
-			{"H", "H"}, {"S", "S"}, {"V", "V"}, {"outColor", "Color"}
+			{"H", "H"}, 
+			{"S", "S"},
+			{"V", "V"},
+		
+			{"outColor", "Color"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesCombineXYZ.1.0", {
-			{"X", "X"}, {"Y", "Y"}, {"Z", "Z"}, {"outVector", "Vector"}
+			{"X", "X"}, 
+			{"Y", "Y"}, 
+			{"Z", "Z"}, 
+		
+			{"outVector", "Vector"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesSeparateColor.1.0", {
-			{"Color", "Color"}, {"outA", "Red"}, {"outB", "Green"}, {"outC", "Blue"}
+			{"Color", "Color"}, 
+		
+			{"outA", "Red"},
+			{"outB", "Green"}, 
+			{"outC", "Blue"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesSeparateRGB.1.0", {
-			{"Image", "Image"}, {"outR", "R"}, {"outG", "G"}, {"outB", "B"}
+			{"Image", "Image"},
+		
+			{"outR", "R"}, 
+			{"outG", "G"}, 
+			{"outB", "B"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesSeparateHSV.1.0", {
-			{"Color", "Color"}, {"outH", "H"}, {"outS", "S"}, {"outV", "V"}
+			{"Color", "Color"}, 
+		
+			{"outH", "H"},
+			{"outS", "S"},
+			{"outV", "V"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesSeparateXYZ.1.0", {
-			{"Vector", "Vector"}, {"outX", "X"}, {"outY", "Y"}, {"outZ", "Z"}
+			{"Vector", "Vector"}, 
+		
+			{"outX", "X"}, 
+			{"outY", "Y"},
+			{"outZ", "Z"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesMath.1.0", {
-			{"Value1", "Value1"}, {"Value2", "Value2"}, {"Value3", "Value3"}, {"outValue", "Value"}
+			{"Value1", "Value1"},
+			{"Value2", "Value2"}, 
+			{"Value3", "Value3"},
+		
+			{"outValue", "Value"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesVectorMath.1.0", {
-			{"Vector1", "Vector1"}, {"Vector2", "Vector2"}, {"Vector3", "Vector3"}, {"Scale", "Scale"}, {"outVector", "Vector"}, {"outValue", "Value"}
+			{"Vector1", "Vector1"}, 
+			{"Vector2", "Vector2"}, 
+			{"Vector3", "Vector3"},
+			{"Scale", "Scale"}, 
+		
+			{"outValue", "Value"} ,
+			{"outVector", "Vector"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesColorRamp.1.0", {
-			{"Fac", "Fac"}, {"outColor", "Color"}, {"outAlpha", "Alpha"}
+			{"Fac", "Fac"}, 
+		
+			{"outColor", "Color"}, 
+			{"outAlpha", "Alpha"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesMapRange.1.0", {
-			{"Value", "Value"}, {"FromMin", "From Min"}, {"FromMax", "From Max"}, {"ToMin", "To Min"}, {"ToMax", "To Max"}, {"Steps", "Steps"}, {"outResult", "Result"}
-		}
+			{"Value", "Value"},
+			{"FromMin", "From Min"}, 
+			{"FromMax", "From Max"}, 
+			{"ToMin", "To Min"}, 
+			{"ToMax", "To Max"},
+			{"Steps", "Steps"}, 
+		
+			{"outResult", "Result"}
+			}
 	},
 	{
 		"CyclesShadersPlugin.CyclesVectorMapRange.1.0", {
-			{"Vector", "Vector"}, {"FromMinVector", "From_Min_FLOAT3"}, {"FromMaxVector", "From_Max_FLOAT3"}, {"ToMinVector", "To_Min_FLOAT3"}, {"ToMaxVector", "To_Max_FLOAT3"}, {"StepsVector", "Steps_FLOAT3"}, {"outVector", "Vector"}
+			{"Vector", "Vector"}, 
+			{"FromMinVector", "From_Min_FLOAT3"}, 
+			{"FromMaxVector", "From_Max_FLOAT3"}, 
+			{"ToMinVector", "To_Min_FLOAT3"}, 
+			{"ToMaxVector", "To_Max_FLOAT3"}, 
+			{"StepsVector", "Steps_FLOAT3"}, 
+		
+			{"outVector", "Vector"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesFloatCurve.1.0", {
-			{"Fac", "Fac"}, {"Value", "Value"}, {"outValue", "Value"}
+			{"Fac", "Factor"}, 
+			{"Value", "Value"}, 
+		
+			{"outValue", "Value"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesClamp.1.0", {
-			{"Value", "Value"}, {"Min", "Min"}, {"Max", "Max"}, {"outResult", "Result"}
+			{"Value", "Value"}, 
+			{"Min", "Min"}, 
+			{"Max", "Max"}, 
+		
+			{"outResult", "Result"}
 		}
 	},
 	{
 		"CyclesShadersPlugin.CyclesRGBToBW.1.0", {
-			{"Color", "Color"}, {"outVal", "Val"}
+			{"Color", "Color"}, 
+		
+			{"outVal", "Val"}
 		}
 	},
 	{

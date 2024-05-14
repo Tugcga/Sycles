@@ -228,6 +228,7 @@ ccl::NodeMix get_mix_type(const XSI::CString& mix)
 	else if (mix == "Value") { return ccl::NodeMix::NODE_MIX_VAL; }
 	else if (mix == "Color") { return ccl::NodeMix::NODE_MIX_COL; }
 	else if (mix == "Soft Light") { return ccl::NodeMix::NODE_MIX_SOFT; }
+	else if (mix == "exclusion") { return ccl::NodeMix::NODE_MIX_EXCLUSION; }
 	else { return ccl::NodeMix::NODE_MIX_LINEAR; }
 }
 

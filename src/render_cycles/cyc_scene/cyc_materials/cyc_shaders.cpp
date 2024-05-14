@@ -1097,6 +1097,48 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		return node;
 	}
+	else if (shader_type == "MixColor")
+	{
+		ccl::MixColorNode* node = shader_graph->create_node<ccl::MixColorNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
+		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
+		bool use_clamp_result = get_bool_parameter_value(xsi_parameters, "UseClampResult", eval_time);
+
+		node->set_blend_type(get_mix_type(type));
+		node->set_use_clamp(use_clamp);
+		node->set_use_clamp_result(use_clamp_result);
+
+		return node;
+	}
+	else if (shader_type == "MixFloat")
+	{
+		ccl::MixFloatNode* node = shader_graph->create_node<ccl::MixFloatNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
+		node->set_use_clamp(use_clamp);
+		return node;
+	}
+	else if (shader_type == "MixVector")
+	{
+		ccl::MixVectorNode* node = shader_graph->create_node<ccl::MixVectorNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
+		node->set_use_clamp(use_clamp);
+		return node;
+	}
+	else if (shader_type == "MixVectorNonUniform")
+	{
+		ccl::MixVectorNonUniformNode* node = shader_graph->create_node<ccl::MixVectorNonUniformNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
+		node->set_use_clamp(use_clamp);
+		return node;
+	}
 	else if (shader_type == "Gamma")
 	{
 		ccl::GammaNode* node = shader_graph->create_node<ccl::GammaNode>();
