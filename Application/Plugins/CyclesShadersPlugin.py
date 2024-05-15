@@ -288,7 +288,7 @@ vector_displacement_space_enum = [
 principled_sss_method_enum = [
     "Christensen-Burley", "burley",
     "Random Walk", "random_walk",
-    "Random Walk (Fixed Radius)", "random_walk_fixed"
+    "Random Walk (Skin)", "random_walk_fixed"
 ]
 
 voronoi_metric_enum = [
@@ -305,6 +305,11 @@ voronoi_feature_enum = [
     "Distance To Edge", "distance_to_edge",
     "N-Sphere Radius", "n_sphere_radius"
     ]
+
+principled_hair_model_enum = [
+    "Chiang", "chiang",
+    "Huang", "huang",
+]
 
 principled_hair_parametrization_enum = [
     "Direct coloring", "direct_coloring",
@@ -352,6 +357,11 @@ combine_color_mode_enum = [
     "HSL", "hsl"
 ]
 
+sheen_distribution_enum = [
+    "Ashikhmin", "ashikhmin",
+    "Microfiber", "microfiber"
+]
+
 
 def XSILoadPlugin(in_reg):
     in_reg.Author = "Shekn Itrch"
@@ -379,6 +389,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterShader("CyclesSubsurfaceScattering", 1, 0)
     in_reg.RegisterShader("CyclesPrincipledVolume", 1, 0)
     in_reg.RegisterShader("CyclesPrincipledHairBSDF", 1, 0)
+    in_reg.RegisterShader("CyclesSheenBSDF", 1, 0)
     # Texture
     in_reg.RegisterShader("CyclesImageTexture", 1, 0)
     in_reg.RegisterShader("CyclesEnvironmentTexture", 1, 0)
@@ -683,86 +694,122 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     params = shader_def.InputParamDefs
 
     # parameters
-    add_input_string(no_port_pram_options(), params, "Multiscatter GGX", "Distribution")
-    add_input_string(no_port_pram_options(), params, "burley", "subsurface_method")
     add_input_color(standard_pram_options(), params, 0.8, "BaseColor")
-    add_input_float(standard_pram_options(), params, 1.4, "SubsurfaceIOR", 1.01, 3.8)
-    add_input_float(standard_pram_options(), params, 0.0, "SubsurfaceAnisotropy", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Metallic", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.45, "IOR", 0.0, 4.0)
+    add_input_float(standard_pram_options(), params, 1.0, "Alpha", 0.0, 1.0)
+
+    add_input_normal(standard_pram_options(), params, 0.0, "Normal")
+
+    add_input_string(no_port_pram_options(), params, "random_walk", "subsurface_method")
     add_input_float(standard_pram_options(), params, 0.0, "SubsurfaceWeight", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.1, "SubsurfaceScale", 0.0, 1.0)
     add_input_vector(standard_pram_options(), params, 0.0, "SubsurfaceRadius")
     add_input_float(no_port_pram_options(), params, 1.0, "RadiusX", 0.0, 1.0)
     add_input_float(no_port_pram_options(), params, 0.2, "RadiusY", 0.0, 1.0)
     add_input_float(no_port_pram_options(), params, 0.1, "RadiusZ", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "SpecularIORLevel", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.05, "SubsurfaceScale", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.4, "SubsurfaceIOR", 1.01, 3.8)
+    add_input_float(standard_pram_options(), params, 0.0, "SubsurfaceAnisotropy", 0.0, 1.0)
+
+    add_input_string(no_port_pram_options(), params, "Multiscatter GGX", "Distribution")
+    add_input_float(standard_pram_options(), params, 0.5, "SpecularIORLevel", 0.0, 1.0)
     add_input_color(standard_pram_options(), params, 1.0, "SpecularTint")
     add_input_float(standard_pram_options(), params, 0.0, "Anisotropic", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "AnisotropicRotation", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "SheenWeight", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.5, "SheenRoughness", 0.0, 1.0)
-    add_input_color(standard_pram_options(), params, 1.0, "SheenTint")
+    add_input_normal(standard_pram_options(), params, 0.0, "Tangent")
+
+    add_input_float(standard_pram_options(), params, 0.0, "TransmissionWeight", 0.0, 1.0)
+
     add_input_float(standard_pram_options(), params, 0.0, "CoatWeight", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.03, "CoatRoughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.5, "CoatIOR", 0.0, 1.0)
     add_input_color(standard_pram_options(), params, 1.0, "CoatTint")
-    add_input_float(standard_pram_options(), params, 0.0, "TransmissionWeight", 0.0, 1.0)
+    add_input_normal(standard_pram_options(), params, 0.0, "CoatNormal")
+
+    add_input_float(standard_pram_options(), params, 0.0, "SheenWeight", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.5, "SheenRoughness", 0.0, 1.0)
+    add_input_color(standard_pram_options(), params, 1.0, "SheenTint")
+
     add_input_color(standard_pram_options(), params, 0.0, "EmissionColor")
     add_input_float(standard_pram_options(), params, 1.0, "EmissionStrength", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 1.0, "Alpha", 0.0, 1.0)
-    add_input_normal(standard_pram_options(), params, 0.0, "Normal")
-    add_input_normal(standard_pram_options(), params, 0.0, "CoatNormal")
-    add_input_normal(standard_pram_options(), params, 0.0, "Tangent")
 
     # Output Parameter: out
     add_output_closure(shader_def, "BSDF")
 
-    ppgLayout = shader_def.PPGLayout
-    ppgLayout.AddGroup("Parameters")
-    ppgLayout.AddEnumControl("Distribution", principled_distibution_enum, "Distribution")
-    ppgLayout.AddEnumControl("subsurface_method", principled_sss_method_enum, "Subsurface Method")
-    ppgLayout.AddColor("BaseColor", "Base Color")
-    ppgLayout.AddItem("SubsurfaceWeight", "Subsurface Weight")
-    ppgLayout.AddItem("SubsurfaceScale", "Subsurface Scale")
-    ppgLayout.AddGroup("Subsurface Radius")
-    ppgLayout.AddRow()
-    ppgLayout.AddItem("RadiusX", "X")
-    ppgLayout.AddItem("RadiusY", "Y")
-    ppgLayout.AddItem("RadiusZ", "Z")
-    ppgLayout.EndRow()
-    ppgLayout.EndGroup()
-    ppgLayout.AddItem("SubsurfaceIOR", "Subsurface IOR")
-    ppgLayout.AddItem("SubsurfaceAnisotropy", "Subsurface Anisotropy")
-    ppgLayout.AddItem("Metallic", "Metallic")
-    ppgLayout.AddItem("SpecularIORLevel", "Specular IOR Level")
-    ppgLayout.AddColor("SpecularTint", "Specular Tint")
-    ppgLayout.AddItem("Roughness", "Roughness")
-    ppgLayout.AddItem("Anisotropic", "Anisotropic")
-    ppgLayout.AddItem("AnisotropicRotation", "Anisotropic Rotation")
-    ppgLayout.AddItem("SheenWeight", "Sheen Weight")
-    ppgLayout.AddItem("SheenRoughness", "Sheen Roughness")
-    ppgLayout.AddColor("SheenTint", "Sheen Tint")
-    ppgLayout.AddItem("CoatWeight", "Coat Weight")
-    ppgLayout.AddItem("CoatRoughness", "Coat Roughness")
-    ppgLayout.AddItem("CoatIOR", "Coat IOR")
-    ppgLayout.AddColor("CoatTint", "Coat Tint")
-    ppgLayout.AddItem("TransmissionWeight", "Transmission Weight")
-    ppgLayout.AddColor("EmissionColor", "Emission Color")
-    ppgLayout.AddItem("EmissionStrength", "Emission Strength")
-    ppgLayout.AddItem("Alpha", "Alpha")
-    ppgLayout.EndGroup()
+    ppg_layout = shader_def.PPGLayout
 
-    ppgLayout.Language = "Python"
-    ppgLayout.Logic = '''
+    ppg_layout.AddGroup("General Parameters")
+    ppg_layout.AddColor("BaseColor", "Base Color")
+    ppg_layout.AddItem("Metallic", "Metallic")
+    ppg_layout.AddItem("Roughness", "Roughness")
+    ppg_layout.AddItem("IOR", "IOR")
+    ppg_layout.EndGroup()
+
+    ppg_layout.AddTab("Subsurface")
+    ppg_layout.AddGroup("Subsurface Parameters")
+    ppg_layout.AddEnumControl("subsurface_method", principled_sss_method_enum, "Method")
+    ppg_layout.AddItem("SubsurfaceWeight", "Weight")
+    ppg_layout.AddGroup("Radius")
+    ppg_layout.AddRow()
+    ppg_layout.AddItem("RadiusX", "X")
+    ppg_layout.AddItem("RadiusY", "Y")
+    ppg_layout.AddItem("RadiusZ", "Z")
+    ppg_layout.EndRow()
+    ppg_layout.EndGroup()
+    ppg_layout.AddItem("SubsurfaceScale", "Scale")
+    ppg_layout.AddItem("SubsurfaceIOR", "IOR")
+    ppg_layout.AddItem("SubsurfaceAnisotropy", "Anisotropy")
+    ppg_layout.EndGroup()
+
+    ppg_layout.AddTab("Specular")
+    ppg_layout.AddGroup("Specular Parameters")
+    ppg_layout.AddEnumControl("Distribution", principled_distibution_enum, "Distribution")
+    ppg_layout.AddItem("SpecularIORLevel", "IOR Level")
+    ppg_layout.AddColor("SpecularTint", "Tint")
+    ppg_layout.AddItem("Anisotropic", "Anisotropic")
+    ppg_layout.AddItem("AnisotropicRotation", "Anisotropic Rotation")
+    ppg_layout.EndGroup()
+
+    ppg_layout.AddTab("Transmission")
+    ppg_layout.AddGroup("Transmission Parameters")
+    ppg_layout.AddItem("TransmissionWeight", "Weight")
+    ppg_layout.EndGroup()
+
+    ppg_layout.AddTab("Coat")
+    ppg_layout.AddGroup("Coat Parameters")
+    ppg_layout.AddItem("CoatWeight", "Weight")
+    ppg_layout.AddItem("CoatRoughness", "Roughness")
+    ppg_layout.AddItem("CoatIOR", "IOR")
+    ppg_layout.AddColor("CoatTint", "Tint")
+    ppg_layout.EndGroup()
+
+    ppg_layout.AddTab("Sheen")
+    ppg_layout.AddGroup("Sheen Parameters")
+    ppg_layout.AddItem("SheenWeight", "Weight")
+    ppg_layout.AddItem("SheenRoughness", "Roughness")
+    ppg_layout.AddColor("SheenTint", "Tint")
+    ppg_layout.EndGroup()
+
+    ppg_layout.AddTab("Emission")
+    ppg_layout.AddGroup("Emission Parameters")
+    ppg_layout.AddColor("EmissionColor", "Color")
+    ppg_layout.AddItem("EmissionStrength", "Strength")
+    ppg_layout.EndGroup()
+
+    ppg_layout.Language = "Python"
+    ppg_layout.Logic = '''
 def update_ui(prop):
     subsurface_method_value = prop.Parameters("subsurface_method").Value
-    if subsurface_method_value in ["random_walk", "random_walk_fixed"]:
-        prop.Parameters("SubsurfaceIOR").ReadOnly = False
-        prop.Parameters("SubsurfaceAnisotropy").ReadOnly = False
-    else:
+    if subsurface_method_value == "burley":
         prop.Parameters("SubsurfaceIOR").ReadOnly = True
         prop.Parameters("SubsurfaceAnisotropy").ReadOnly = True
+    elif subsurface_method_value == "random_walk":
+        prop.Parameters("SubsurfaceIOR").ReadOnly = True
+        prop.Parameters("SubsurfaceAnisotropy").ReadOnly = False
+    else:
+        prop.Parameters("SubsurfaceIOR").ReadOnly = False
+        prop.Parameters("SubsurfaceAnisotropy").ReadOnly = False
 
 def OnInit():
     prop = PPG.Inspected(0)
@@ -1416,24 +1463,31 @@ def CyclesShadersPlugin_CyclesPrincipledHairBSDF_1_0_Define(in_ctxt):
 
     # Input Parameters
     params = shader_def.InputParamDefs
+    add_input_string(no_port_pram_options(), params, "chiang", "Model")
     add_input_string(no_port_pram_options(), params, "direct_coloring", "Parametrization")
     add_input_color(standard_pram_options(), params, [0.017513, 0.005763, 0.002059], "Color")
-    add_input_float(standard_pram_options(), params, 0.8, "Melanin", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 1.0, "MelaninRedness", 0.0, 1.0)
-    add_input_color(standard_pram_options(), params, 1.0, "Tint")
+
     add_input_vector(standard_pram_options(), params, [0.245531, 0.52, 1.365], "AbsorptionCoefficient")
     add_input_float(no_port_pram_options(), params, 0.245531, "AbsorptionCoefficientX", 0, 1)
     add_input_float(no_port_pram_options(), params, 0.52, "AbsorptionCoefficientY", 0, 1)
     add_input_float(no_port_pram_options(), params, 1.365, "AbsorptionCoefficientZ", 0, 1)
+
+    add_input_float(standard_pram_options(), params, 0.8, "Melanin", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.0, "MelaninRedness", 0.0, 1.0)
+    add_input_color(standard_pram_options(), params, 1.0, "Tint")
+
     add_input_float(standard_pram_options(), params, 0.85, "AspectRatio", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 2.0, "Offset", -90.0, 90.0)
     add_input_float(standard_pram_options(), params, 0.3, "Roughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.3, "RadialRoughness", 0.0, 1.0)
+
     add_input_float(standard_pram_options(), params, 0.0, "Coat", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.55, "IOR", 0.0, 5.0)
+    add_input_float(standard_pram_options(), params, 2.0, "Offset", -90.0, 90.0)
+
     add_input_float(standard_pram_options(), params, 0.0, "RandomColor", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "RandomRoughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Random", 0.0, 1.0)
+
     add_input_float(standard_pram_options(), params, 1.0, "Rlobe", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.0, "TTlobe", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.0, "TRTlobe", 0.0, 1.0)
@@ -1444,6 +1498,7 @@ def CyclesShadersPlugin_CyclesPrincipledHairBSDF_1_0_Define(in_ctxt):
     # next init ppg
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Coloring Parameters")
+    ppgLayout.AddEnumControl("Model", principled_hair_model_enum, "Scattering Model")
     ppgLayout.AddEnumControl("Parametrization", principled_hair_parametrization_enum, "Parametrization")
     ppgLayout.AddColor("Color", "Color")
     ppgLayout.AddItem("Melanin", "Melanin")
@@ -1455,18 +1510,18 @@ def CyclesShadersPlugin_CyclesPrincipledHairBSDF_1_0_Define(in_ctxt):
     ppgLayout.AddItem("AbsorptionCoefficientY", "Y")
     ppgLayout.AddItem("AbsorptionCoefficientZ", "Z")
     ppgLayout.EndRow()
-    ppgLayout.AddItem("AspectRatio", "Aspect Ratio")
     ppgLayout.EndGroup()
     ppgLayout.EndGroup()
 
     ppgLayout.AddGroup("General Parameters")
+    ppgLayout.AddItem("AspectRatio", "Aspect Ratio")
     ppgLayout.AddItem("Roughness", "Roughness")
     ppgLayout.AddItem("RadialRoughness", "Radial Roughness")
     ppgLayout.AddItem("Coat", "Coat")
     ppgLayout.AddItem("IOR", "IOR")
     ppgLayout.AddItem("Offset", "Offset")
     ppgLayout.AddItem("RandomColor", "Random Color")
-    ppgLayout.AddItem("RandomRoughness", "RandomRoughness")
+    ppgLayout.AddItem("RandomRoughness", "Random Roughness")
 
     ppgLayout.AddItem("Rlobe", "Reflection")
     ppgLayout.AddItem("TTlobe", "Transmission")
@@ -1478,6 +1533,7 @@ def CyclesShadersPlugin_CyclesPrincipledHairBSDF_1_0_Define(in_ctxt):
     ppgLayout.Logic = '''
 def update_ui(prop):
     parametrization_value = prop.Parameters("Parametrization").Value
+    model_value = prop.Parameters("Model").Value
     if parametrization_value == "direct_coloring":
         prop.Parameters("Color").ReadOnly = False
         prop.Parameters("Melanin").ReadOnly = True
@@ -1486,6 +1542,7 @@ def update_ui(prop):
         prop.Parameters("AbsorptionCoefficientX").ReadOnly = True
         prop.Parameters("AbsorptionCoefficientY").ReadOnly = True
         prop.Parameters("AbsorptionCoefficientZ").ReadOnly = True
+        prop.Parameters("RandomColor").ReadOnly = True
     elif parametrization_value == "melanin_concentration":
         prop.Parameters("Color").ReadOnly = True
         prop.Parameters("Melanin").ReadOnly = False
@@ -1494,6 +1551,7 @@ def update_ui(prop):
         prop.Parameters("AbsorptionCoefficientX").ReadOnly = True
         prop.Parameters("AbsorptionCoefficientY").ReadOnly = True
         prop.Parameters("AbsorptionCoefficientZ").ReadOnly = True
+        prop.Parameters("RandomColor").ReadOnly = False
     else:
         prop.Parameters("Color").ReadOnly = True
         prop.Parameters("Melanin").ReadOnly = True
@@ -1502,6 +1560,18 @@ def update_ui(prop):
         prop.Parameters("AbsorptionCoefficientX").ReadOnly = False
         prop.Parameters("AbsorptionCoefficientY").ReadOnly = False
         prop.Parameters("AbsorptionCoefficientZ").ReadOnly = False
+        prop.Parameters("RandomColor").ReadOnly = True
+
+    if model_value == "chiang":
+        prop.Parameters("AspectRatio").ReadOnly = True
+        prop.Parameters("Rlobe").ReadOnly = True
+        prop.Parameters("TTlobe").ReadOnly = True
+        prop.Parameters("TRTlobe").ReadOnly = True
+    else:
+        prop.Parameters("AspectRatio").ReadOnly = False
+        prop.Parameters("Rlobe").ReadOnly = False
+        prop.Parameters("TTlobe").ReadOnly = False
+        prop.Parameters("TRTlobe").ReadOnly = False
 
 def OnInit():
     prop = PPG.Inspected(0)
@@ -1509,11 +1579,55 @@ def OnInit():
 
 def Parametrization_OnChanged():
     prop = PPG.Inspected(0)
+    update_ui(prop)
+
+def Model_OnChanged():
+    prop = PPG.Inspected(0)
     update_ui(prop)'''
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "PrincipledHairBSDF"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesSheenBSDF_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Shaders")
+    in_ctxt.SetAttribute("DisplayName", "cycSheenBSDF")
+    return True
+
+
+def CyclesShadersPlugin_CyclesSheenBSDF_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyVolume)
+    shader_def.AddShaderFamily(c.siShaderFamilySurfaceMat)
+
+    # Input Parameter: input
+    params = shader_def.InputParamDefs
+
+    # parameters
+    add_input_string(no_port_pram_options(), params, "microfiber", "distribution")
+    add_input_color(standard_pram_options(), params, 0.8, "Color")
+    add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
+    add_input_normal(standard_pram_options(), params, 0.0, "Normal")
+
+    # Output Parameter: out
+    add_output_closure(shader_def, "BSDF")
+
+    # next init ppg
+    ppg_layout = shader_def.PPGLayout
+    ppg_layout.AddGroup("Parameters")
+    ppg_layout.AddEnumControl("distribution", sheen_distribution_enum, "Distribution")
+    ppg_layout.AddItem("Color", "Color")
+    ppg_layout.AddItem("Roughness", "Roughness")
+    ppg_layout.EndGroup()
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "SheenBSDF"
 
     return True
 
@@ -3832,7 +3946,7 @@ def CyclesShadersPlugin_CyclesMixFloat_1_0_DefineInfo(in_ctxt):
     return True
 
 
-def CyclesShadersPlugin_CyclesMixFloat1_0_Define(in_ctxt):
+def CyclesShadersPlugin_CyclesMixFloat_1_0_Define(in_ctxt):
     shader_def = in_ctxt.GetAttribute("Definition")
     shader_def.AddShaderFamily(c.siShaderFamilyTexture)
 

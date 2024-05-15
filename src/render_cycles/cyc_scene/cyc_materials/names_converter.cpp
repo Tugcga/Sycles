@@ -92,6 +92,18 @@ ccl::NodePrincipledHairParametrization principled_hair_parametrization(const XSI
 	else { return ccl::NodePrincipledHairParametrization::NODE_PRINCIPLED_HAIR_DIRECT_ABSORPTION; }
 }
 
+ccl::NodePrincipledHairModel principled_hair_model(const XSI::CString& key)
+{
+	if (key == "chiang") { return ccl::NodePrincipledHairModel::NODE_PRINCIPLED_HAIR_CHIANG; }
+	else { return ccl::NodePrincipledHairModel::NODE_PRINCIPLED_HAIR_HUANG; }
+}
+
+ccl::ClosureType sheen_distribution(const XSI::CString& key)
+{
+	if (key == "ashikhmin") { return ccl::ClosureType::CLOSURE_BSDF_ASHIKHMIN_VELVET_ID; }
+	else { return ccl::ClosureType::CLOSURE_BSDF_SHEEN_ID; }
+}
+
 int get_dimensions_type(const XSI::CString& type)
 {
 	if (type == "1d") { return 1; }

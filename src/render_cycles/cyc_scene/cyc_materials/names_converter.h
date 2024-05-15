@@ -36,26 +36,33 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Roughness", "Roughness"},
 			{"IOR", "IOR"},
 			{"Alpha", "Alpha"}, 
+
 			{"Normal", "Normal"},
+
 			{"SubsurfaceWeight", "Subsurface Weight"},
 			{"SubsurfaceScale", "Subsurface Scale"},
 			{"SubsurfaceRadius", "Subsurface Radius"},
 			{"SubsurfaceIOR", "Subsurface IOR"},
 			{"SubsurfaceAnisotropy", "Subsurface Anisotropy"},
+
 			{"SpecularIORLevel", "Specular IOR Level"}, 
 			{"SpecularTint", "Specular Tint"},
 			{"Anisotropic", "Anisotropic"},
 			{"AnisotropicRotation", "Anisotropic Rotation"},
 			{"Tangent", "Tangent"},
+
 			{"TransmissionWeight", "Transmission Weight"},
+
 			{"SheenWeight", "Sheen Weight"}, 
 			{"SheenRoughness", "Sheen Roughness"},
 			{"SheenTint", "Sheen Tint"},
+
 			{"CoatWeight", "Coat Weight"}, 
 			{"CoatRoughness", "Coat Roughness"},  
 			{"CoatIOR", "Coat IOR"},
 			{"CoatTint", "Coat Tint"},
 			{"CoatNormal", "Coat Normal"},
+
 			{"EmissionColor", "Emission Color"},
 			{"EmissionStrength", "Emission Strength"},  
 	
@@ -206,25 +213,34 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	{
 		"CyclesShadersPlugin.CyclesPrincipledHairBSDF.1.0", {
 			{"Color", "Color"}, 
-		{"Melanin", "Melanin"},
-		{"MelaninRedness", "Melanin Redness"}, 
-		{"Tint", "Tint"}, 
-		{"AbsorptionCoefficient", "Absorption Coefficient"}, 
-		{"AspectRatio", "Aspect Ratio"},
-		{"Offset", "Offset"}, 
-		{"Roughness", "Roughness"}, 
-		{"RadialRoughness", "Radial Roughness"}, 
-		{"Coat", "Coat"}, 
-		{"IOR", "IOR"},
-		{"RandomRoughness", "Random Roughness"},
-		{"RandomColor", "Random Color"},  
-		{"Random", "Random"}, 
+			{"Melanin", "Melanin"},
+			{"MelaninRedness", "Melanin Redness"}, 
+			{"Tint", "Tint"}, 
+			{"AbsorptionCoefficient", "Absorption Coefficient"}, 
+			{"AspectRatio", "Aspect Ratio"},
+			{"Offset", "Offset"}, 
+			{"Roughness", "Roughness"}, 
+			{"RadialRoughness", "Radial Roughness"}, 
+			{"Coat", "Coat"}, 
+			{"IOR", "IOR"},
+			{"RandomRoughness", "Random Roughness"},
+			{"RandomColor", "Random Color"},  
+			{"Random", "Random"}, 
 
-		{"Rlobe", "R lobe"},
-		{"TTlobe", "TT lobe"},
-		{"TRTlobe", "TRT lobe"},
+			{"Rlobe", "R lobe"},
+			{"TTlobe", "TT lobe"},
+			{"TRTlobe", "TRT lobe"},
 		
-		{"outBSDF", "BSDF"}
+			{"outBSDF", "BSDF"}
+		}
+	},
+	{
+		"CyclesShadersPlugin.CyclesSheenBSDF.1.0", {
+			{"Color", "Color"},
+			{"Roughness", "Roughness"},
+			{"Normal", "Normal"},
+
+			{"outBSDF", "BSDF"}
 		}
 	},
 	{
@@ -364,7 +380,10 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesIESTexture.1.0", {
-			{"Strength", "Strength"}, {"Vector", "Vector"}, {"outFac", "Fac"}
+			{"Strength", "Strength"}, 
+			{"Vector", "Vector"}, 
+
+			{"outFac", "Fac"}
 		}
 	},
 	{
@@ -526,8 +545,16 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		}
 	},
 	{
-		"CyclesShadersPlugin.CyclesParticleInf.1.0", {
-			{"outIndex", "Index"}, {"outRandom", "Random"}, {"outAge", "Age"}, {"outLifetime", "Lifetime"}, {"outLocation", "Location"}, {"outSize", "Size"}, {"outVelocity", "Velocity"}, {"outAngularVelocity", "Angular Velocity"}
+		"CyclesShadersPlugin.CyclesParticleInfo.1.0", {
+			{"outIndex", "Index"}, 
+			{"outRandom", "Random"}, 
+			{"outAge", "Age"},
+			{"outLifetime", "Lifetime"},
+			{"outLocation", "Location"},
+			// Rotation is missing in Blender node, but exists in the node declaration
+			{"outSize", "Size"}, 
+			{"outVelocity", "Velocity"},
+			{"outAngularVelocity", "Angular Velocity"}
 		}
 	},
 	{
@@ -954,6 +981,8 @@ std::string convert_port_name(const XSI::CString& node_name, const XSI::CString&
 ccl::ClosureType get_distribution(const XSI::CString& distribution, DistributionModes mode);
 ccl::ClosureType get_subsurface_method(const XSI::CString& method_string);
 ccl::NodePrincipledHairParametrization principled_hair_parametrization(const XSI::CString& key);
+ccl::NodePrincipledHairModel principled_hair_model(const XSI::CString& key);
+ccl::ClosureType sheen_distribution(const XSI::CString& key);
 int get_dimensions_type(const XSI::CString& type);
 ccl::NodeGradientType get_gradient_type(const XSI::CString& gradient);
 ccl::NodeVoronoiDistanceMetric voronoi_distance(const XSI::CString& key);

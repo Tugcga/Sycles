@@ -375,12 +375,24 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
 		XSI::CString parameterization = get_string_parameter_value(xsi_parameters, "Parametrization", eval_time);
+		XSI::CString model = get_string_parameter_value(xsi_parameters, "Model", eval_time);
 		float abs_x = get_float_parameter_value(xsi_parameters, "AbsorptionCoefficientX", eval_time);
 		float abs_y = get_float_parameter_value(xsi_parameters, "AbsorptionCoefficientY", eval_time);
 		float abs_z = get_float_parameter_value(xsi_parameters, "AbsorptionCoefficientZ", eval_time);
 
 		node->set_parametrization(principled_hair_parametrization(parameterization));
+		node->set_model(principled_hair_model(model));  // TODO: may be the method is named in another way
 		node->set_absorption_coefficient(ccl::make_float3(abs_x, abs_y, abs_z));
+
+		return node;
+	}
+	else if (shader_type == "SheenBSDF")
+	{
+		ccl::SheenBsdfNode* node = shader_graph->create_node<ccl::SheenBsdfNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		XSI::CString distributeion = get_string_parameter_value(xsi_parameters, "distribution", eval_time);
+		node->set_distribution(sheen_distribution(distributeion));
 
 		return node;
 	}
