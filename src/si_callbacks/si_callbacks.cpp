@@ -255,10 +255,6 @@ XSI::CStatus end_render_event(XSI::RendererContext& ctxt, XSI::CStringArray& out
 	return status;
 }
 
-// this is for test only
-// remove when it will be not necessary
-size_t process_counter = 0;
-
 SICALLBACK CyclesRenderer_Process(XSI::CRef &in_ctxt)
 {
 	set_abort(false);

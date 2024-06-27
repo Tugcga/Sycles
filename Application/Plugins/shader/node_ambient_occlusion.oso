@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.oso
 shader node_ambient_occlusion
 param	color	ColorIn	1 1 1		%read{15,15} %write{2147483647,-1}
 param	int	samples	16		%read{9,9} %write{2147483647,-1}
@@ -30,13 +30,13 @@ temp	float	$tmp10	%read{14,14} %write{13,13}
 const	string	$const6	"sblur"		%read{14,14} %write{2147483647,-1}
 const	string	$const7	"tblur"		%read{14,14} %write{2147483647,-1}
 code Normal
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:9
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:10
 #                               normal Normal = N,
-	assign		Normal N 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl"} %line{9} %argrw{"wr"}
+	assign		Normal N 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl"} %line{10} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:15
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:16
 #   int global_radius = (Distance == 0.0 && !isconnected(Distance));
-	eq		$tmp1 Distance $const1 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl"} %line{15} %argrw{"wrr"}
+	eq		$tmp1 Distance $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl"} %line{16} %argrw{"wrr"}
 	neq		$tmp2 $tmp1 $const2 	%argrw{"wrr"}
 	if		$tmp2 8 8 	%argrw{"r"}
 	isconnected	$tmp3 Distance 	%argrw{"wr"}
@@ -44,23 +44,23 @@ code ___main___
 	neq		$tmp5 $tmp4 $const2 	%argrw{"wrr"}
 	assign		$tmp2 $tmp5 	%argrw{"wr"}
 	assign		global_radius $tmp2 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:18
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:19
 #   AO = texture("@ao",
-	assign		$tmp6 samples 	%line{18} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:21
+	assign		$tmp6 samples 	%line{19} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:22
 #                Normal[0],
-	compref		$tmp7 Normal $const2 	%line{21} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:22
+	compref		$tmp7 Normal $const2 	%line{22} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:23
 #                Normal[1],
-	compref		$tmp8 Normal $const4 	%line{22} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:23
+	compref		$tmp8 Normal $const4 	%line{23} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:24
 #                Normal[2],
-	compref		$tmp9 Normal $const5 	%line{23} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:18
+	compref		$tmp9 Normal $const5 	%line{24} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:19
 #   AO = texture("@ao",
-	assign		$tmp10 inside 	%line{18} %argrw{"wr"}
+	assign		$tmp10 inside 	%line{19} %argrw{"wr"}
 	texture		AO $const3 $tmp6 Distance $tmp7 $tmp8 $tmp9 $tmp10 $const6 only_local $const7 global_radius 	%argrw{"wrrrrrrrrrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:29
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_ambient_occlusion.osl:30
 #   ColorOut = ColorIn * AO;
-	mul		ColorOut ColorIn AO 	%line{29} %argrw{"wrr"}
+	mul		ColorOut ColorIn AO 	%line{30} %argrw{"wrr"}
 	end

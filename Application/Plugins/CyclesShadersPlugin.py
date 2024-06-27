@@ -57,14 +57,6 @@ gradient_type_enum = [
     "Spherical", "Spherical"
 ]
 
-mussgrave_type = [
-    "Multifractal", "Multifractal",
-    "fBM", "fBM",
-    "Hybrid Multifractal", "Hybrid Multifractal",
-    "Ridged Multifractal", "Ridged Multifractal",
-    "Hetero Terrain", "Hetero Terrain"
-]
-
 wave_type_enum = [
     "Bands", "Bands",
     "Rings", "Rings"
@@ -90,13 +82,6 @@ wave_rings_direction_enum = [
     "Spherical", "spherical"
 ]
 
-anisotropic_distibution_enum = [
-    "Beckmann", "Beckmann",
-    "GGX", "GGX",
-    "Ashikhmin-Shirley", "Ashikhmin-Shirley",
-    "Multiscatter GGX", "Multiscatter GGX"
-]
-
 principled_distibution_enum = [
     "GGX", "GGX",
     "Multiscatter GGX", "Multiscatter GGX"
@@ -108,7 +93,6 @@ toon_component_enum = [
 ]
 
 glossy_distribution_enum = [
-    "Sharp", "Sharp",
     "Beckmann", "Beckmann",
     "GGX", "GGX",
     "Ashikhmin-Shirley", "Ashikhmin-Shirley",
@@ -116,14 +100,12 @@ glossy_distribution_enum = [
 ]
 
 glass_distribution_enum = [
-    "Sharp", "Sharp",
     "Beckmann", "Beckmann",
     "GGX", "GGX",
     "Multiscatter GGX", "Multiscatter GGX"
 ]
 
 refraction_distribution_enum = [
-    "Sharp", "Sharp",
     "Beckmann", "Beckmann",
     "GGX", "GGX"
 ]
@@ -136,7 +118,7 @@ hair_component_enum = [
 ss_closure_enum = [
     "Christensen-Burley", "Christensen-Burley",
     "Random Walk", "random_walk",
-    "Random Walk (Fiexed Radius)", "random_walk_fixed"
+    "Random Walk (Skin)", "random_walk_fixed"
 ]
 
 mix_type_enum = [
@@ -370,11 +352,9 @@ def XSILoadPlugin(in_reg):
     in_reg.Minor = 0
     # Shaders
     in_reg.RegisterShader("CyclesDiffuseBSDF", 1, 0)
-    in_reg.RegisterShader("CyclesAnisotropicBSDF", 1, 0)
     in_reg.RegisterShader("CyclesPrincipledBSDF", 1, 0)
     in_reg.RegisterShader("CyclesTranslucentBSDF", 1, 0)
     in_reg.RegisterShader("CyclesTransparentBSDF", 1, 0)
-    in_reg.RegisterShader("CyclesVelvetBSDF", 1, 0)
     in_reg.RegisterShader("CyclesToonBSDF", 1, 0)
     in_reg.RegisterShader("CyclesGlossyBSDF", 1, 0)
     in_reg.RegisterShader("CyclesGlassBSDF", 1, 0)
@@ -399,7 +379,6 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterShader("CyclesBrickTexture", 1, 0)
     in_reg.RegisterShader("CyclesGradientTexture", 1, 0)
     in_reg.RegisterShader("CyclesVoronoiTexture", 1, 0)
-    in_reg.RegisterShader("CyclesMusgraveTexture", 1, 0)
     in_reg.RegisterShader("CyclesMagicTexture", 1, 0)
     in_reg.RegisterShader("CyclesWaveTexture", 1, 0)
     in_reg.RegisterShader("CyclesIESTexture", 1, 0)
@@ -828,49 +807,6 @@ def subsurface_method_OnChanged():
 
 # --------------------------------------------------------------------
 # --------------------------------------------------------------------
-def CyclesShadersPlugin_CyclesAnisotropicBSDF_1_0_DefineInfo(in_ctxt):
-    in_ctxt.SetAttribute("Category", "Cycles/Shaders")
-    in_ctxt.SetAttribute("DisplayName", "cycAnisotropicBSDF")
-    return True
-
-
-def CyclesShadersPlugin_CyclesAnisotropicBSDF_1_0_Define(in_ctxt):
-    shader_def = in_ctxt.GetAttribute("Definition")
-    shader_def.AddShaderFamily(c.siShaderFamilyVolume)
-    shader_def.AddShaderFamily(c.siShaderFamilySurfaceMat)
-
-    # Input Parameters
-    params = shader_def.InputParamDefs
-    add_input_string(no_port_pram_options(), params, "GGX", "Distribution")
-    add_input_color(standard_pram_options(), params, 0.8, "Color")
-    add_input_float(standard_pram_options(), params, 0.2, "Roughness", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.5, "Anisotropy", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Rotation", 0.0, 1.0)
-    add_input_normal(standard_pram_options(), params, 0.0, "Normal")
-    add_input_vector(standard_pram_options(), params, 0.0, "Tangent")
-
-    # Output Parameter: out
-    add_output_closure(shader_def, "BSDF")
-
-    # next init ppg
-    ppgLayout = shader_def.PPGLayout
-    ppgLayout.AddGroup("Parameters")
-    ppgLayout.AddEnumControl("Distribution", anisotropic_distibution_enum, "Distribution")
-    ppgLayout.AddItem("Color", "Color")
-    ppgLayout.AddItem("Roughness", "Roughness")
-    ppgLayout.AddItem("Anisotropy", "Anisotropy")
-    ppgLayout.AddItem("Rotation", "Rotation")
-    ppgLayout.EndGroup()
-
-    # Renderer definition
-    renderer_def = shader_def.AddRendererDef("Cycles")
-    renderer_def.SymbolName = "AnisotropicBSDF"
-
-    return True
-
-
-# --------------------------------------------------------------------
-# --------------------------------------------------------------------
 def CyclesShadersPlugin_CyclesTranslucentBSDF_1_0_DefineInfo(in_ctxt):
     in_ctxt.SetAttribute("Category", "Cycles/Shaders")
     in_ctxt.SetAttribute("DisplayName", "cycTranslucentBSDF")
@@ -932,42 +868,6 @@ def CyclesShadersPlugin_CyclesTransparentBSDF_1_0_Define(in_ctxt):
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "TransparentBSDF"
-
-    return True
-
-
-# --------------------------------------------------------------------
-# --------------------------------------------------------------------
-def CyclesShadersPlugin_CyclesVelvetBSDF_1_0_DefineInfo(in_ctxt):
-    in_ctxt.SetAttribute("Category", "Cycles/Shaders")
-    in_ctxt.SetAttribute("DisplayName", "cycVelvetBSDF")
-    return True
-
-
-def CyclesShadersPlugin_CyclesVelvetBSDF_1_0_Define(in_ctxt):
-    shader_def = in_ctxt.GetAttribute("Definition")
-    shader_def.AddShaderFamily(c.siShaderFamilyVolume)
-    shader_def.AddShaderFamily(c.siShaderFamilySurfaceMat)
-
-    # Input Parameters
-    params = shader_def.InputParamDefs
-    add_input_color(standard_pram_options(), params, 0.8, "Color")
-    add_input_float(standard_pram_options(), params, 1.0, "Sigma", 0.0, 1.0)
-    add_input_normal(standard_pram_options(), params, 0.0, "Normal")
-
-    # Output Parameter: out
-    add_output_closure(shader_def, "BSDF")
-
-    # next init ppg
-    ppgLayout = shader_def.PPGLayout
-    ppgLayout.AddGroup("Parameters")
-    ppgLayout.AddItem("Color", "Color")
-    ppgLayout.AddItem("Sigma", "Sigma")
-    ppgLayout.EndGroup()
-
-    # Renderer definition
-    renderer_def = shader_def.AddRendererDef("Cycles")
-    renderer_def.SymbolName = "VelvetBSDF"
 
     return True
 
@@ -2298,87 +2198,6 @@ def Distance_OnChanged():
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "VoronoiTexture"
-
-    return True
-
-
-# --------------------------------------------------------------------
-# --------------------------------------------------------------------
-def CyclesShadersPlugin_CyclesMusgraveTexture_1_0_DefineInfo(in_ctxt):
-    in_ctxt.SetAttribute("Category", "Cycles/Texture")
-    in_ctxt.SetAttribute("DisplayName", "cycMusgraveTexture")
-    return True
-
-
-def CyclesShadersPlugin_CyclesMusgraveTexture_1_0_Define(in_ctxt):
-    shader_def = in_ctxt.GetAttribute("Definition")
-    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
-
-    # Input Parameters
-    params = shader_def.InputParamDefs
-    add_input_string(no_port_pram_options(), params, "1d", "MusgraveDimensions")
-    add_input_string(no_port_pram_options(), params, "fBM", "Type")
-    add_input_float(standard_pram_options(), params, 0.0, "W", 0.0, 10.0)
-    add_input_float(standard_pram_options(), params, 5.0, "Scale", 0.0, 10.0)
-    add_input_float(standard_pram_options(), params, 2.0, "Detail", 0.0, 10.0)
-    add_input_float(standard_pram_options(), params, 2.0, "Dimension", 0.0, 10.0)
-    add_input_float(standard_pram_options(), params, 2.0, "Lacunarity", 0.0, 5.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Offset", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 1.0, "Gain", 0.0, 5.0)
-    add_input_vector(standard_pram_options(), params, 0.0, "Vector")
-
-    # Output Parameter: out
-    add_output_float(shader_def, "Fac")
-
-    # next init ppg
-    ppgLayout = shader_def.PPGLayout
-    ppgLayout.AddGroup("Parameters")
-    ppgLayout.AddEnumControl("MusgraveDimensions", dimensions_type_enum, "Dimensions")
-    ppgLayout.AddEnumControl("Type", mussgrave_type, "Type")
-    ppgLayout.AddItem("W", "W")
-    ppgLayout.AddItem("Scale", "Scale")
-    ppgLayout.AddItem("Detail", "Detail")
-    ppgLayout.AddItem("Dimension", "Dimension")
-    ppgLayout.AddItem("Lacunarity", "Lacunarity")
-    ppgLayout.AddItem("Offset", "Offset")
-    ppgLayout.AddItem("Gain", "Gain")
-    ppgLayout.EndGroup()
-
-    ppgLayout.Language = "Python"
-    ppgLayout.Logic = '''
-def build_ui(prop):
-    noise_dimensions = prop.Parameters("MusgraveDimensions").Value
-    type = prop.Parameters("Type").Value
-    if noise_dimensions == "1d" or noise_dimensions == "4d":
-        prop.Parameters("W").ReadOnly = False
-    else:
-        prop.Parameters("W").ReadOnly = True
-
-    if type == "Ridged Multifractal" or type == "Hybrid Multifractal" or type == "Hetero Terrain":
-        prop.Parameters("Offset").ReadOnly = False
-    else:
-        prop.Parameters("Offset").ReadOnly = True
-
-    if type == "Ridged Multifractal" or type == "Hybrid Multifractal":
-        prop.Parameters("Gain").ReadOnly = False
-    else:
-        prop.Parameters("Gain").ReadOnly = True
-
-def OnInit():
-    prop = PPG.Inspected(0)
-    build_ui(prop)
-
-def MusgraveDimensions_OnChanged():
-    prop = PPG.Inspected(0)
-    build_ui(prop)
-
-def Type_OnChanged():
-    prop = PPG.Inspected(0)
-    build_ui(prop)'''
-
-    # Renderer definition
-    renderer_def = shader_def.AddRendererDef("Cycles")
-    renderer_def.SymbolName = "MusgraveTexture"
 
     return True
 

@@ -1,33 +1,48 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.oso
 shader node_diffuse_bsdf
-param	color	Color	0.800000012 0.800000012 0.800000012		%read{4,6} %write{2147483647,-1}
-param	float	Roughness	0		%read{1,5} %write{2147483647,-1}
-param	normal	Normal	0 0 0		%read{3,5} %write{0,0} %initexpr
-oparam	closure color	BSDF			%read{2147483647,-1} %write{4,6}
+param	color	Color	0.800000012 0.800000012 0.800000012		%read{4,11} %write{2147483647,-1}
+param	float	Roughness	0		%read{1,10} %write{2147483647,-1}
+param	normal	Normal	0 0 0		%read{3,10} %write{0,0} %initexpr
+oparam	closure color	BSDF			%read{2147483647,-1} %write{4,11}
 global	normal	N	%read{0,0} %write{2147483647,-1}
-const	float	$const1	0		%read{1,1} %write{2147483647,-1}
+const	float	$const1	0		%read{1,5} %write{2147483647,-1}
 temp	int	$tmp1	%read{2,2} %write{1,1}
 temp	closure color	$tmp2	%read{4,4} %write{3,3}
 const	string	$const2	"diffuse"		%read{3,3} %write{2147483647,-1}
-temp	closure color	$tmp3	%read{6,6} %write{5,5}
-const	string	$const3	"oren_nayar"		%read{5,5} %write{2147483647,-1}
+temp	closure color	$tmp3	%read{11,11} %write{10,10}
+temp	color	$tmp4	%read{10,10} %write{9,9}
+temp	color	$tmp5	%read{9,9} %write{5,5}
+const	float	$const3	1		%read{6,6} %write{2147483647,-1}
+temp	color	$tmp6	%read{8,8} %write{6,6}
+const	string	$const4	"clamp"		%read{7,7} %write{2147483647,-1}
+temp	color	$tmp7	%read{9,9} %write{8,8}
+const	string	$const5	"oren_nayar_diffuse_bsdf"		%read{10,10} %write{2147483647,-1}
 code Normal
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl:8
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl:9
 #                          normal Normal = N,
-	assign		Normal N 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl"} %line{8} %argrw{"wr"}
+	assign		Normal N 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl"} %line{9} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl:11
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl:12
 #   if (Roughness == 0.0)
-	eq		$tmp1 Roughness $const1 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl"} %line{11} %argrw{"wrr"}
-	if		$tmp1 5 7 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl:12
+	eq		$tmp1 Roughness $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl"} %line{12} %argrw{"wrr"}
+	if		$tmp1 5 12 	%argrw{"r"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl:13
 #     BSDF = Color * diffuse(Normal);
-	closure		$tmp2 $const2 Normal 	%line{12} %argrw{"wrr"}
+	closure		$tmp2 $const2 Normal 	%line{13} %argrw{"wrr"}
 	mul		BSDF $tmp2 Color 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl:14
-#     BSDF = Color * oren_nayar(Normal, Roughness);
-	closure		$tmp3 $const3 Normal Roughness 	%line{14} %argrw{"wrrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl:15
+#     BSDF = Color * oren_nayar_diffuse_bsdf(Normal, clamp(Color, 0.0, 1.0), Roughness);
+	assign		$tmp5 $const1 	%line{15} %argrw{"wr"}
+	assign		$tmp6 $const3 	%argrw{"wr"}
+	functioncall	$const4 10 	%argrw{"r"}
+# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:140
+# color  clamp (color x, color minval, color maxval) { return max(min(x,maxval),minval); }
+	min		$tmp7 Color $tmp6 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{140} %argrw{"wrr"}
+	max		$tmp4 $tmp7 $tmp5 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl:15
+#     BSDF = Color * oren_nayar_diffuse_bsdf(Normal, clamp(Color, 0.0, 1.0), Roughness);
+	closure		$tmp3 $const5 Normal $tmp4 Roughness 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_diffuse_bsdf.osl"} %line{15} %argrw{"wrrrr"}
 	mul		BSDF $tmp3 Color 	%argrw{"wrr"}
 	end

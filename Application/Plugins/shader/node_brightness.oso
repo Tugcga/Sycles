@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_brightness.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_brightness.oso
 shader node_brightness
 param	color	ColorIn	0.800000012 0.800000012 0.800000012		%read{3,13} %write{2147483647,-1}
 param	float	Bright	0		%read{2,2} %write{2147483647,-1}
@@ -28,30 +28,30 @@ temp	float	$tmp11	%read{14,14} %write{13,13}
 temp	float	$tmp12	%read{15,15} %write{14,14}
 temp	float	$tmp13	%read{16,16} %write{15,15}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:11
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:12
 #   float a = 1.0 + Contrast;
-	add		a $const1 Contrast 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl"} %line{11} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:12
+	add		a $const1 Contrast 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl"} %line{12} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:13
 #   float b = Bright - Contrast * 0.5;
-	mul		$tmp1 Contrast $const2 	%line{12} %argrw{"wrr"}
+	mul		$tmp1 Contrast $const2 	%line{13} %argrw{"wrr"}
 	sub		b Bright $tmp1 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:14
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:15
 #   ColorOut[0] = max(a * ColorIn[0] + b, 0.0);
-	compref		$tmp3 ColorIn $const3 	%line{14} %argrw{"wrr"}
+	compref		$tmp3 ColorIn $const3 	%line{15} %argrw{"wrr"}
 	mul		$tmp4 a $tmp3 	%argrw{"wrr"}
 	add		$tmp5 $tmp4 b 	%argrw{"wrr"}
 	max		$tmp2 $tmp5 $const4 	%argrw{"wrr"}
 	compassign	ColorOut $const3 $tmp2 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:15
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:16
 #   ColorOut[1] = max(a * ColorIn[1] + b, 0.0);
-	compref		$tmp7 ColorIn $const5 	%line{15} %argrw{"wrr"}
+	compref		$tmp7 ColorIn $const5 	%line{16} %argrw{"wrr"}
 	mul		$tmp8 a $tmp7 	%argrw{"wrr"}
 	add		$tmp9 $tmp8 b 	%argrw{"wrr"}
 	max		$tmp6 $tmp9 $const4 	%argrw{"wrr"}
 	compassign	ColorOut $const5 $tmp6 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:16
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_brightness.osl:17
 #   ColorOut[2] = max(a * ColorIn[2] + b, 0.0);
-	compref		$tmp11 ColorIn $const6 	%line{16} %argrw{"wrr"}
+	compref		$tmp11 ColorIn $const6 	%line{17} %argrw{"wrr"}
 	mul		$tmp12 a $tmp11 	%argrw{"wrr"}
 	add		$tmp13 $tmp12 b 	%argrw{"wrr"}
 	max		$tmp10 $tmp13 $const4 	%argrw{"wrr"}

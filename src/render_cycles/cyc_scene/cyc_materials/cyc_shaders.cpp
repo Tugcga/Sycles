@@ -226,16 +226,6 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		return node;
 	}
-	else if (shader_type == "AnisotropicBSDF")
-	{
-		ccl::AnisotropicBsdfNode* node = shader_graph->create_node<ccl::AnisotropicBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
-
-		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "Distribution", eval_time);
-		node->set_distribution(get_distribution(distribution, DistributionModes_Anisotropic));
-
-		return node;
-	}
 	else if (shader_type == "TranslucentBSDF")
 	{
 		ccl::TranslucentBsdfNode* node = shader_graph->create_node<ccl::TranslucentBsdfNode>();
@@ -245,12 +235,6 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "TransparentBSDF")
 	{
 		ccl::TransparentBsdfNode* node = shader_graph->create_node<ccl::TransparentBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
-		return node;
-	}
-	else if (shader_type == "VelvetBSDF")
-	{
-		ccl::VelvetBsdfNode* node = shader_graph->create_node<ccl::VelvetBsdfNode>();
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 		return node;
 	}
@@ -412,7 +396,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		}
 		else if (falloff == "random_walk_fixed")
 		{
-			node->set_method(ccl::CLOSURE_BSSRDF_RANDOM_WALK_FIXED_RADIUS_ID);
+			node->set_method(ccl::CLOSURE_BSSRDF_RANDOM_WALK_SKIN_ID);
 		}
 		else
 		{
@@ -671,18 +655,6 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		node->set_dimensions(get_dimensions_type(dimensions));
 		node->set_metric(voronoi_distance(distance));
 		node->set_feature(voronoi_feature(feature));
-
-		return node;
-	}
-	else if (shader_type == "MusgraveTexture")
-	{
-		ccl::MusgraveTextureNode* node = shader_graph->create_node<ccl::MusgraveTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
-
-		XSI::CString dimensions = get_string_parameter_value(xsi_parameters, "MusgraveDimensions", eval_time);
-		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
-		node->set_dimensions(get_dimensions_type(dimensions));
-		node->set_musgrave_type(get_musgrave_type(type));
 
 		return node;
 	}

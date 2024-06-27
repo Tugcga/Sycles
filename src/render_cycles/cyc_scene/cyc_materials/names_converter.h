@@ -70,11 +70,6 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		}
 	},
 	{
-		"CyclesShadersPlugin.CyclesAnisotropicBSDF.1.0", {
-			{"Color", "Color"}, {"Roughness", "Roughness"}, {"Anisotropy", "Anisotropy"}, {"Rotation", "Rotation"}, {"Normal", "Normal"}, {"Tangent", "Tangent"}, {"outBSDF", "BSDF"}
-		}
-	},
-	{
 		"CyclesShadersPlugin.CyclesTranslucentBSDF.1.0", {
 			{"Color", "Color"}, 
 			{"Normal", "Normal"}, 
@@ -87,11 +82,6 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Color", "Color"},
 	
 			{"outBSDF", "BSDF"}
-		}
-	},
-	{
-		"CyclesShadersPlugin.CyclesVelvetBSDF.1.0", {
-			{"Color", "Color"}, {"Sigma", "Sigma"}, {"Normal", "Normal"}, {"outBSDF", "BSDF"}
 		}
 	},
 	{
@@ -347,11 +337,6 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"outPosition", "Position"}, 
 			{"outW", "W"}, 
 			{"outRadius", "Radius"}
-		}
-	},
-	{
-		"CyclesShadersPlugin.CyclesMusgraveTexture.1.0", {
-			{"W", "W"}, {"Scale", "Scale"}, {"Detail", "Detail"}, {"Dimension", "Dimension"}, {"Lacunarity", "Lacunarity"}, {"Offset", "Offset"}, {"Gain", "Gain"}, {"Vector", "Vector"}, {"outFac", "Fac"}
 		}
 	},
 	{
@@ -987,7 +972,6 @@ int get_dimensions_type(const XSI::CString& type);
 ccl::NodeGradientType get_gradient_type(const XSI::CString& gradient);
 ccl::NodeVoronoiDistanceMetric voronoi_distance(const XSI::CString& key);
 ccl::NodeVoronoiFeature voronoi_feature(const XSI::CString& key);
-ccl::NodeMusgraveType get_musgrave_type(const XSI::CString& musgrave);
 ccl::NodeWaveProfile get_wave_profile(const XSI::CString& wave);
 ccl::NodeWaveBandsDirection get_wave_bands_direction(const XSI::CString& direction);
 ccl::NodeWaveRingsDirection get_wave_rings_direction(const XSI::CString& direction);

@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_normal.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_normal.oso
 shader node_normal
 param	normal	direction	0 0 0		%read{0,0} %write{2147483647,-1}
 param	normal	NormalIn	0 0 0		%read{1,1} %write{2147483647,-1}
@@ -8,11 +8,11 @@ oparam	normal	NormalOut	0 0 0		%read{2,2} %write{0,0}
 oparam	float	Dot	1		%read{2147483647,-1} %write{2,2}
 temp	normal	$tmp1	%read{2,2} %write{1,1}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_normal.osl:11
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_normal.osl:12
 #   NormalOut = normalize(direction);
-	normalize	NormalOut direction 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_normal.osl"} %line{11} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_normal.osl:12
+	normalize	NormalOut direction 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_normal.osl"} %line{12} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_normal.osl:13
 #   Dot = dot(NormalOut, normalize(NormalIn));
-	normalize	$tmp1 NormalIn 	%line{12} %argrw{"wr"}
+	normalize	$tmp1 NormalIn 	%line{13} %argrw{"wr"}
 	dot		Dot NormalOut $tmp1 	%argrw{"wrr"}
 	end

@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_vector_curves.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_vector_curves.oso
 shader node_vector_curves
 param	color[]	ramp	0 0 0		%read{7,186} %write{2147483647,-1}
 param	float	min_x	0		%read{0,2} %write{2147483647,-1}
@@ -9,13 +9,13 @@ param	int	extrapolate	1		%read{16,140} %write{2147483647,-1}
 param	vector	VectorIn	0 0 0		%read{1,196} %write{2147483647,-1}
 param	float	Fac	0		%read{196,196} %write{2147483647,-1}
 oparam	vector	VectorOut	0 0 0		%read{196,196} %write{191,196}
-local	float	___330_f	%read{8,175} %write{6,166}
-local	int	___330_table_size	%read{25,173} %write{7,131}
-local	color	___331_t0	%read{23,159} %write{21,150}
-local	color	___331_dy	%read{31,155} %write{23,153}
-local	int	___330_i	%read{44,185} %write{43,173}
-local	float	___330_t	%read{55,187} %write{51,175}
-local	color	___330_result	%read{60,189} %write{52,188}
+local	float	___344_f	%read{8,175} %write{6,166}
+local	int	___344_table_size	%read{25,173} %write{7,131}
+local	color	___345_t0	%read{23,159} %write{21,150}
+local	color	___345_dy	%read{31,155} %write{23,153}
+local	int	___344_i	%read{44,185} %write{43,173}
+local	float	___344_t	%read{55,187} %write{51,175}
+local	color	___344_result	%read{60,189} %write{52,188}
 local	vector	c	%read{4,128} %write{3,3}
 local	color	r	%read{190,190} %write{35,65}
 local	color	g	%read{192,192} %write{97,127}
@@ -127,28 +127,28 @@ temp	float	$tmp97	%read{191,191} %write{190,190}
 temp	float	$tmp98	%read{193,193} %write{192,192}
 temp	float	$tmp99	%read{195,195} %write{194,194}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:16
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:17
 #   vector c = (VectorIn - vector(min_x, min_x, min_x)) / (max_x - min_x);
-	vector		$tmp1 min_x min_x min_x 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl"} %line{16} %argrw{"wrrr"}
+	vector		$tmp1 min_x min_x min_x 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl"} %line{17} %argrw{"wrrr"}
 	sub		$tmp2 VectorIn $tmp1 	%argrw{"wrr"}
 	sub		$tmp3 max_x min_x 	%argrw{"wrr"}
 	div		c $tmp2 $tmp3 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:18
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:19
 #   color r = rgb_ramp_lookup(ramp, c[0], 1, extrapolate);
-	compref		$tmp4 c $const1 	%line{18} %argrw{"wrr"}
+	compref		$tmp4 c $const1 	%line{19} %argrw{"wrr"}
 	functioncall	$const3 66 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:8
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:9
 #   float f = at;
-	assign		___330_f $tmp4 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{8} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:9
+	assign		___344_f $tmp4 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{9} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:10
 #   int table_size = arraylength(ramp);
-	arraylength	___330_table_size ramp 	%line{9} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:11
+	arraylength	___344_table_size ramp 	%line{10} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:12
 #   if ((f < 0.0 || f > 1.0) && extrapolate) {
-	lt		$tmp5 ___330_f $const4 	%line{11} %argrw{"wrr"}
+	lt		$tmp5 ___344_f $const4 	%line{12} %argrw{"wrr"}
 	neq		$tmp6 $tmp5 $const1 	%argrw{"wrr"}
 	if		$tmp6 11 14 	%argrw{"r"}
-	gt		$tmp7 ___330_f $const5 	%argrw{"wrr"}
+	gt		$tmp7 ___344_f $const5 	%argrw{"wrr"}
 	neq		$tmp8 $tmp7 $const1 	%argrw{"wrr"}
 	assign		$tmp6 $tmp8 	%argrw{"wr"}
 	neq		$tmp9 $tmp6 $const1 	%argrw{"wrr"}
@@ -156,111 +156,111 @@ code ___main___
 	neq		$tmp10 extrapolate $const1 	%argrw{"wrr"}
 	assign		$tmp9 $tmp10 	%argrw{"wr"}
 	if		$tmp9 37 37 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:13
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:14
 #     if (f < 0.0) {
-	lt		$tmp11 ___330_f $const4 	%line{13} %argrw{"wrr"}
+	lt		$tmp11 ___344_f $const4 	%line{14} %argrw{"wrr"}
 	if		$tmp11 25 31 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:14
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:15
 #       t0 = ramp[0];
-	aref		___331_t0 ramp $const1 	%line{14} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:15
+	aref		___345_t0 ramp $const1 	%line{15} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:16
 #       dy = t0 - ramp[1];
-	aref		$tmp12 ramp $const2 	%line{15} %argrw{"wrr"}
-	sub		___331_dy ___331_t0 $tmp12 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:16
+	aref		$tmp12 ramp $const2 	%line{16} %argrw{"wrr"}
+	sub		___345_dy ___345_t0 $tmp12 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:17
 #       f = -f;
-	neg		___330_f ___330_f 	%line{16} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:19
+	neg		___344_f ___344_f 	%line{17} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:20
 #       t0 = ramp[table_size - 1];
-	sub		$tmp13 ___330_table_size $const2 	%line{19} %argrw{"wrr"}
-	aref		___331_t0 ramp $tmp13 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:20
+	sub		$tmp13 ___344_table_size $const2 	%line{20} %argrw{"wrr"}
+	aref		___345_t0 ramp $tmp13 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:21
 #       dy = t0 - ramp[table_size - 2];
-	sub		$tmp14 ___330_table_size $const6 	%line{20} %argrw{"wrr"}
+	sub		$tmp14 ___344_table_size $const6 	%line{21} %argrw{"wrr"}
 	aref		$tmp15 ramp $tmp14 	%argrw{"wrr"}
-	sub		___331_dy ___331_t0 $tmp15 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:21
+	sub		___345_dy ___345_t0 $tmp15 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:22
 #       f = f - 1.0;
-	sub		___330_f ___330_f $const5 	%line{21} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:23
+	sub		___344_f ___344_f $const5 	%line{22} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:24
 #     return t0 + dy * f * (table_size - 1);
-	mul		$tmp16 ___331_dy ___330_f 	%line{23} %argrw{"wrr"}
-	sub		$tmp17 ___330_table_size $const2 	%argrw{"wrr"}
+	mul		$tmp16 ___345_dy ___344_f 	%line{24} %argrw{"wrr"}
+	sub		$tmp17 ___344_table_size $const2 	%argrw{"wrr"}
 	assign		$tmp19 $tmp17 	%argrw{"wr"}
 	mul		$tmp18 $tmp16 $tmp19 	%argrw{"wrr"}
-	add		r ___331_t0 $tmp18 	%argrw{"wrr"}
+	add		r ___345_t0 $tmp18 	%argrw{"wrr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:26
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:27
 #   f = clamp(at, 0.0, 1.0) * (table_size - 1);
-	functioncall	$const7 40 	%line{26} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:141
+	functioncall	$const7 40 	%line{27} %argrw{"r"}
+# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp21 $tmp4 $const5 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp21 $tmp4 $const5 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp20 $tmp21 $const4 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:26
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:27
 #   f = clamp(at, 0.0, 1.0) * (table_size - 1);
-	sub		$tmp22 ___330_table_size $const2 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{26} %argrw{"wrr"}
+	sub		$tmp22 ___344_table_size $const2 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{27} %argrw{"wrr"}
 	assign		$tmp23 $tmp22 	%argrw{"wr"}
-	mul		___330_f $tmp20 $tmp23 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:29
+	mul		___344_f $tmp20 $tmp23 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:30
 #   int i = (int)f;
-	assign		___330_i ___330_f 	%line{29} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:30
-#   if (i < 0)
-	lt		$tmp24 ___330_i $const1 	%line{30} %argrw{"wrr"}
+	assign		___344_i ___344_f 	%line{30} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:31
+#   if (i < 0) {
+	lt		$tmp24 ___344_i $const1 	%line{31} %argrw{"wrr"}
 	if		$tmp24 47 47 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:31
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:32
 #     i = 0;
-	assign		___330_i $const1 	%line{31} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:32
-#   if (i >= table_size)
-	ge		$tmp25 ___330_i ___330_table_size 	%line{32} %argrw{"wrr"}
+	assign		___344_i $const1 	%line{32} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:34
+#   if (i >= table_size) {
+	ge		$tmp25 ___344_i ___344_table_size 	%line{34} %argrw{"wrr"}
 	if		$tmp25 50 50 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:33
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:35
 #     i = table_size - 1;
-	sub		___330_i ___330_table_size $const2 	%line{33} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:34
+	sub		___344_i ___344_table_size $const2 	%line{35} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:37
 #   float t = f - (float)i;
-	assign		$tmp26 ___330_i 	%line{34} %argrw{"wr"}
-	sub		___330_t ___330_f $tmp26 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:36
+	assign		$tmp26 ___344_i 	%line{37} %argrw{"wr"}
+	sub		___344_t ___344_f $tmp26 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:39
 #   color result = ramp[i];
-	aref		___330_result ramp ___330_i 	%line{36} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:38
-#   if (interpolate && t > 0.0)
-	neq		$tmp27 $const2 $const1 	%line{38} %argrw{"wrr"}
+	aref		___344_result ramp ___344_i 	%line{39} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:41
+#   if (interpolate && t > 0.0) {
+	neq		$tmp27 $const2 $const1 	%line{41} %argrw{"wrr"}
 	if		$tmp27 58 58 	%argrw{"r"}
-	gt		$tmp28 ___330_t $const4 	%argrw{"wrr"}
+	gt		$tmp28 ___344_t $const4 	%argrw{"wrr"}
 	neq		$tmp29 $tmp28 $const1 	%argrw{"wrr"}
 	assign		$tmp27 $tmp29 	%argrw{"wr"}
 	if		$tmp27 65 65 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:39
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:42
 #     result = (1.0 - t) * result + t * ramp[i + 1];
-	sub		$tmp30 $const5 ___330_t 	%line{39} %argrw{"wrr"}
-	mul		$tmp31 $tmp30 ___330_result 	%argrw{"wrr"}
-	add		$tmp32 ___330_i $const2 	%argrw{"wrr"}
+	sub		$tmp30 $const5 ___344_t 	%line{42} %argrw{"wrr"}
+	mul		$tmp31 $tmp30 ___344_result 	%argrw{"wrr"}
+	add		$tmp32 ___344_i $const2 	%argrw{"wrr"}
 	aref		$tmp33 ramp $tmp32 	%argrw{"wrr"}
-	mul		$tmp34 ___330_t $tmp33 	%argrw{"wrr"}
-	add		___330_result $tmp31 $tmp34 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:41
+	mul		$tmp34 ___344_t $tmp33 	%argrw{"wrr"}
+	add		___344_result $tmp31 $tmp34 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:45
 #   return result;
-	assign		r ___330_result 	%line{41} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:19
+	assign		r ___344_result 	%line{45} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:20
 #   color g = rgb_ramp_lookup(ramp, c[0], 1, extrapolate);
-	compref		$tmp35 c $const1 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl"} %line{19} %argrw{"wrr"}
+	compref		$tmp35 c $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl"} %line{20} %argrw{"wrr"}
 	functioncall	$const3 128 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:8
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:9
 #   float f = at;
-	assign		___330_f $tmp35 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{8} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:9
+	assign		___344_f $tmp35 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{9} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:10
 #   int table_size = arraylength(ramp);
-	arraylength	___330_table_size ramp 	%line{9} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:11
+	arraylength	___344_table_size ramp 	%line{10} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:12
 #   if ((f < 0.0 || f > 1.0) && extrapolate) {
-	lt		$tmp36 ___330_f $const4 	%line{11} %argrw{"wrr"}
+	lt		$tmp36 ___344_f $const4 	%line{12} %argrw{"wrr"}
 	neq		$tmp37 $tmp36 $const1 	%argrw{"wrr"}
 	if		$tmp37 73 76 	%argrw{"r"}
-	gt		$tmp38 ___330_f $const5 	%argrw{"wrr"}
+	gt		$tmp38 ___344_f $const5 	%argrw{"wrr"}
 	neq		$tmp39 $tmp38 $const1 	%argrw{"wrr"}
 	assign		$tmp37 $tmp39 	%argrw{"wr"}
 	neq		$tmp40 $tmp37 $const1 	%argrw{"wrr"}
@@ -268,111 +268,111 @@ code ___main___
 	neq		$tmp41 extrapolate $const1 	%argrw{"wrr"}
 	assign		$tmp40 $tmp41 	%argrw{"wr"}
 	if		$tmp40 99 99 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:13
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:14
 #     if (f < 0.0) {
-	lt		$tmp42 ___330_f $const4 	%line{13} %argrw{"wrr"}
+	lt		$tmp42 ___344_f $const4 	%line{14} %argrw{"wrr"}
 	if		$tmp42 87 93 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:14
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:15
 #       t0 = ramp[0];
-	aref		___331_t0 ramp $const1 	%line{14} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:15
+	aref		___345_t0 ramp $const1 	%line{15} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:16
 #       dy = t0 - ramp[1];
-	aref		$tmp43 ramp $const2 	%line{15} %argrw{"wrr"}
-	sub		___331_dy ___331_t0 $tmp43 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:16
+	aref		$tmp43 ramp $const2 	%line{16} %argrw{"wrr"}
+	sub		___345_dy ___345_t0 $tmp43 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:17
 #       f = -f;
-	neg		___330_f ___330_f 	%line{16} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:19
+	neg		___344_f ___344_f 	%line{17} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:20
 #       t0 = ramp[table_size - 1];
-	sub		$tmp44 ___330_table_size $const2 	%line{19} %argrw{"wrr"}
-	aref		___331_t0 ramp $tmp44 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:20
+	sub		$tmp44 ___344_table_size $const2 	%line{20} %argrw{"wrr"}
+	aref		___345_t0 ramp $tmp44 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:21
 #       dy = t0 - ramp[table_size - 2];
-	sub		$tmp45 ___330_table_size $const6 	%line{20} %argrw{"wrr"}
+	sub		$tmp45 ___344_table_size $const6 	%line{21} %argrw{"wrr"}
 	aref		$tmp46 ramp $tmp45 	%argrw{"wrr"}
-	sub		___331_dy ___331_t0 $tmp46 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:21
+	sub		___345_dy ___345_t0 $tmp46 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:22
 #       f = f - 1.0;
-	sub		___330_f ___330_f $const5 	%line{21} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:23
+	sub		___344_f ___344_f $const5 	%line{22} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:24
 #     return t0 + dy * f * (table_size - 1);
-	mul		$tmp47 ___331_dy ___330_f 	%line{23} %argrw{"wrr"}
-	sub		$tmp48 ___330_table_size $const2 	%argrw{"wrr"}
+	mul		$tmp47 ___345_dy ___344_f 	%line{24} %argrw{"wrr"}
+	sub		$tmp48 ___344_table_size $const2 	%argrw{"wrr"}
 	assign		$tmp50 $tmp48 	%argrw{"wr"}
 	mul		$tmp49 $tmp47 $tmp50 	%argrw{"wrr"}
-	add		g ___331_t0 $tmp49 	%argrw{"wrr"}
+	add		g ___345_t0 $tmp49 	%argrw{"wrr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:26
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:27
 #   f = clamp(at, 0.0, 1.0) * (table_size - 1);
-	functioncall	$const7 102 	%line{26} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:141
+	functioncall	$const7 102 	%line{27} %argrw{"r"}
+# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp52 $tmp35 $const5 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp52 $tmp35 $const5 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp51 $tmp52 $const4 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:26
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:27
 #   f = clamp(at, 0.0, 1.0) * (table_size - 1);
-	sub		$tmp53 ___330_table_size $const2 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{26} %argrw{"wrr"}
+	sub		$tmp53 ___344_table_size $const2 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{27} %argrw{"wrr"}
 	assign		$tmp54 $tmp53 	%argrw{"wr"}
-	mul		___330_f $tmp51 $tmp54 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:29
+	mul		___344_f $tmp51 $tmp54 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:30
 #   int i = (int)f;
-	assign		___330_i ___330_f 	%line{29} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:30
-#   if (i < 0)
-	lt		$tmp55 ___330_i $const1 	%line{30} %argrw{"wrr"}
+	assign		___344_i ___344_f 	%line{30} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:31
+#   if (i < 0) {
+	lt		$tmp55 ___344_i $const1 	%line{31} %argrw{"wrr"}
 	if		$tmp55 109 109 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:31
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:32
 #     i = 0;
-	assign		___330_i $const1 	%line{31} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:32
-#   if (i >= table_size)
-	ge		$tmp56 ___330_i ___330_table_size 	%line{32} %argrw{"wrr"}
+	assign		___344_i $const1 	%line{32} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:34
+#   if (i >= table_size) {
+	ge		$tmp56 ___344_i ___344_table_size 	%line{34} %argrw{"wrr"}
 	if		$tmp56 112 112 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:33
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:35
 #     i = table_size - 1;
-	sub		___330_i ___330_table_size $const2 	%line{33} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:34
+	sub		___344_i ___344_table_size $const2 	%line{35} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:37
 #   float t = f - (float)i;
-	assign		$tmp57 ___330_i 	%line{34} %argrw{"wr"}
-	sub		___330_t ___330_f $tmp57 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:36
+	assign		$tmp57 ___344_i 	%line{37} %argrw{"wr"}
+	sub		___344_t ___344_f $tmp57 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:39
 #   color result = ramp[i];
-	aref		___330_result ramp ___330_i 	%line{36} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:38
-#   if (interpolate && t > 0.0)
-	neq		$tmp58 $const2 $const1 	%line{38} %argrw{"wrr"}
+	aref		___344_result ramp ___344_i 	%line{39} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:41
+#   if (interpolate && t > 0.0) {
+	neq		$tmp58 $const2 $const1 	%line{41} %argrw{"wrr"}
 	if		$tmp58 120 120 	%argrw{"r"}
-	gt		$tmp59 ___330_t $const4 	%argrw{"wrr"}
+	gt		$tmp59 ___344_t $const4 	%argrw{"wrr"}
 	neq		$tmp60 $tmp59 $const1 	%argrw{"wrr"}
 	assign		$tmp58 $tmp60 	%argrw{"wr"}
 	if		$tmp58 127 127 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:39
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:42
 #     result = (1.0 - t) * result + t * ramp[i + 1];
-	sub		$tmp61 $const5 ___330_t 	%line{39} %argrw{"wrr"}
-	mul		$tmp62 $tmp61 ___330_result 	%argrw{"wrr"}
-	add		$tmp63 ___330_i $const2 	%argrw{"wrr"}
+	sub		$tmp61 $const5 ___344_t 	%line{42} %argrw{"wrr"}
+	mul		$tmp62 $tmp61 ___344_result 	%argrw{"wrr"}
+	add		$tmp63 ___344_i $const2 	%argrw{"wrr"}
 	aref		$tmp64 ramp $tmp63 	%argrw{"wrr"}
-	mul		$tmp65 ___330_t $tmp64 	%argrw{"wrr"}
-	add		___330_result $tmp62 $tmp65 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:41
+	mul		$tmp65 ___344_t $tmp64 	%argrw{"wrr"}
+	add		___344_result $tmp62 $tmp65 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:45
 #   return result;
-	assign		g ___330_result 	%line{41} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:20
+	assign		g ___344_result 	%line{45} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:21
 #   color b = rgb_ramp_lookup(ramp, c[0], 1, extrapolate);
-	compref		$tmp66 c $const1 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl"} %line{20} %argrw{"wrr"}
+	compref		$tmp66 c $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl"} %line{21} %argrw{"wrr"}
 	functioncall	$const3 190 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:8
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:9
 #   float f = at;
-	assign		___330_f $tmp66 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{8} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:9
+	assign		___344_f $tmp66 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{9} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:10
 #   int table_size = arraylength(ramp);
-	arraylength	___330_table_size ramp 	%line{9} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:11
+	arraylength	___344_table_size ramp 	%line{10} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:12
 #   if ((f < 0.0 || f > 1.0) && extrapolate) {
-	lt		$tmp67 ___330_f $const4 	%line{11} %argrw{"wrr"}
+	lt		$tmp67 ___344_f $const4 	%line{12} %argrw{"wrr"}
 	neq		$tmp68 $tmp67 $const1 	%argrw{"wrr"}
 	if		$tmp68 135 138 	%argrw{"r"}
-	gt		$tmp69 ___330_f $const5 	%argrw{"wrr"}
+	gt		$tmp69 ___344_f $const5 	%argrw{"wrr"}
 	neq		$tmp70 $tmp69 $const1 	%argrw{"wrr"}
 	assign		$tmp68 $tmp70 	%argrw{"wr"}
 	neq		$tmp71 $tmp68 $const1 	%argrw{"wrr"}
@@ -380,108 +380,108 @@ code ___main___
 	neq		$tmp72 extrapolate $const1 	%argrw{"wrr"}
 	assign		$tmp71 $tmp72 	%argrw{"wr"}
 	if		$tmp71 161 161 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:13
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:14
 #     if (f < 0.0) {
-	lt		$tmp73 ___330_f $const4 	%line{13} %argrw{"wrr"}
+	lt		$tmp73 ___344_f $const4 	%line{14} %argrw{"wrr"}
 	if		$tmp73 149 155 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:14
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:15
 #       t0 = ramp[0];
-	aref		___331_t0 ramp $const1 	%line{14} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:15
+	aref		___345_t0 ramp $const1 	%line{15} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:16
 #       dy = t0 - ramp[1];
-	aref		$tmp74 ramp $const2 	%line{15} %argrw{"wrr"}
-	sub		___331_dy ___331_t0 $tmp74 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:16
+	aref		$tmp74 ramp $const2 	%line{16} %argrw{"wrr"}
+	sub		___345_dy ___345_t0 $tmp74 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:17
 #       f = -f;
-	neg		___330_f ___330_f 	%line{16} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:19
+	neg		___344_f ___344_f 	%line{17} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:20
 #       t0 = ramp[table_size - 1];
-	sub		$tmp75 ___330_table_size $const2 	%line{19} %argrw{"wrr"}
-	aref		___331_t0 ramp $tmp75 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:20
+	sub		$tmp75 ___344_table_size $const2 	%line{20} %argrw{"wrr"}
+	aref		___345_t0 ramp $tmp75 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:21
 #       dy = t0 - ramp[table_size - 2];
-	sub		$tmp76 ___330_table_size $const6 	%line{20} %argrw{"wrr"}
+	sub		$tmp76 ___344_table_size $const6 	%line{21} %argrw{"wrr"}
 	aref		$tmp77 ramp $tmp76 	%argrw{"wrr"}
-	sub		___331_dy ___331_t0 $tmp77 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:21
+	sub		___345_dy ___345_t0 $tmp77 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:22
 #       f = f - 1.0;
-	sub		___330_f ___330_f $const5 	%line{21} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:23
+	sub		___344_f ___344_f $const5 	%line{22} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:24
 #     return t0 + dy * f * (table_size - 1);
-	mul		$tmp78 ___331_dy ___330_f 	%line{23} %argrw{"wrr"}
-	sub		$tmp79 ___330_table_size $const2 	%argrw{"wrr"}
+	mul		$tmp78 ___345_dy ___344_f 	%line{24} %argrw{"wrr"}
+	sub		$tmp79 ___344_table_size $const2 	%argrw{"wrr"}
 	assign		$tmp81 $tmp79 	%argrw{"wr"}
 	mul		$tmp80 $tmp78 $tmp81 	%argrw{"wrr"}
-	add		b ___331_t0 $tmp80 	%argrw{"wrr"}
+	add		b ___345_t0 $tmp80 	%argrw{"wrr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:26
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:27
 #   f = clamp(at, 0.0, 1.0) * (table_size - 1);
-	functioncall	$const7 164 	%line{26} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:141
+	functioncall	$const7 164 	%line{27} %argrw{"r"}
+# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp83 $tmp66 $const5 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp83 $tmp66 $const5 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp82 $tmp83 $const4 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:26
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:27
 #   f = clamp(at, 0.0, 1.0) * (table_size - 1);
-	sub		$tmp84 ___330_table_size $const2 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{26} %argrw{"wrr"}
+	sub		$tmp84 ___344_table_size $const2 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h"} %line{27} %argrw{"wrr"}
 	assign		$tmp85 $tmp84 	%argrw{"wr"}
-	mul		___330_f $tmp82 $tmp85 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:29
+	mul		___344_f $tmp82 $tmp85 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:30
 #   int i = (int)f;
-	assign		___330_i ___330_f 	%line{29} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:30
-#   if (i < 0)
-	lt		$tmp86 ___330_i $const1 	%line{30} %argrw{"wrr"}
+	assign		___344_i ___344_f 	%line{30} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:31
+#   if (i < 0) {
+	lt		$tmp86 ___344_i $const1 	%line{31} %argrw{"wrr"}
 	if		$tmp86 171 171 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:31
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:32
 #     i = 0;
-	assign		___330_i $const1 	%line{31} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:32
-#   if (i >= table_size)
-	ge		$tmp87 ___330_i ___330_table_size 	%line{32} %argrw{"wrr"}
+	assign		___344_i $const1 	%line{32} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:34
+#   if (i >= table_size) {
+	ge		$tmp87 ___344_i ___344_table_size 	%line{34} %argrw{"wrr"}
 	if		$tmp87 174 174 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:33
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:35
 #     i = table_size - 1;
-	sub		___330_i ___330_table_size $const2 	%line{33} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:34
+	sub		___344_i ___344_table_size $const2 	%line{35} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:37
 #   float t = f - (float)i;
-	assign		$tmp88 ___330_i 	%line{34} %argrw{"wr"}
-	sub		___330_t ___330_f $tmp88 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:36
+	assign		$tmp88 ___344_i 	%line{37} %argrw{"wr"}
+	sub		___344_t ___344_f $tmp88 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:39
 #   color result = ramp[i];
-	aref		___330_result ramp ___330_i 	%line{36} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:38
-#   if (interpolate && t > 0.0)
-	neq		$tmp89 $const2 $const1 	%line{38} %argrw{"wrr"}
+	aref		___344_result ramp ___344_i 	%line{39} %argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:41
+#   if (interpolate && t > 0.0) {
+	neq		$tmp89 $const2 $const1 	%line{41} %argrw{"wrr"}
 	if		$tmp89 182 182 	%argrw{"r"}
-	gt		$tmp90 ___330_t $const4 	%argrw{"wrr"}
+	gt		$tmp90 ___344_t $const4 	%argrw{"wrr"}
 	neq		$tmp91 $tmp90 $const1 	%argrw{"wrr"}
 	assign		$tmp89 $tmp91 	%argrw{"wr"}
 	if		$tmp89 189 189 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:39
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:42
 #     result = (1.0 - t) * result + t * ramp[i + 1];
-	sub		$tmp92 $const5 ___330_t 	%line{39} %argrw{"wrr"}
-	mul		$tmp93 $tmp92 ___330_result 	%argrw{"wrr"}
-	add		$tmp94 ___330_i $const2 	%argrw{"wrr"}
+	sub		$tmp92 $const5 ___344_t 	%line{42} %argrw{"wrr"}
+	mul		$tmp93 $tmp92 ___344_result 	%argrw{"wrr"}
+	add		$tmp94 ___344_i $const2 	%argrw{"wrr"}
 	aref		$tmp95 ramp $tmp94 	%argrw{"wrr"}
-	mul		$tmp96 ___330_t $tmp95 	%argrw{"wrr"}
-	add		___330_result $tmp93 $tmp96 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:41
+	mul		$tmp96 ___344_t $tmp95 	%argrw{"wrr"}
+	add		___344_result $tmp93 $tmp96 	%argrw{"wrr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_ramp_util.h:45
 #   return result;
-	assign		b ___330_result 	%line{41} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:22
+	assign		b ___344_result 	%line{45} %argrw{"wr"}
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:23
 #   VectorOut[0] = r[0];
-	compref		$tmp97 r $const1 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl"} %line{22} %argrw{"wrr"}
+	compref		$tmp97 r $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl"} %line{23} %argrw{"wrr"}
 	compassign	VectorOut $const1 $tmp97 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:23
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:24
 #   VectorOut[1] = g[1];
-	compref		$tmp98 g $const2 	%line{23} %argrw{"wrr"}
+	compref		$tmp98 g $const2 	%line{24} %argrw{"wrr"}
 	compassign	VectorOut $const2 $tmp98 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:24
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:25
 #   VectorOut[2] = b[2];
-	compref		$tmp99 b $const6 	%line{24} %argrw{"wrr"}
+	compref		$tmp99 b $const6 	%line{25} %argrw{"wrr"}
 	compassign	VectorOut $const6 $tmp99 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:26
+# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vector_curves.osl:27
 #   VectorOut = mix(VectorIn, VectorOut, Fac);
-	mix		VectorOut VectorIn VectorOut Fac 	%line{26} %argrw{"wrrr"}
+	mix		VectorOut VectorIn VectorOut Fac 	%line{27} %argrw{"wrrr"}
 	end

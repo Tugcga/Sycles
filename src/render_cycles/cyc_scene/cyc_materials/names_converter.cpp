@@ -43,23 +43,20 @@ ccl::ClosureType get_distribution(const XSI::CString& distribution, Distribution
 	}
 	else if (mode == DistributionModes_Glossy)
 	{//glossy
-		if (distribution == "Sharp") { return ccl::ClosureType::CLOSURE_BSDF_REFLECTION_ID; }
-		else if (distribution == "Beckmann") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_BECKMANN_ID; }
+		if (distribution == "Beckmann") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_BECKMANN_ID; }
 		else if (distribution == "GGX") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_GGX_ID; }
 		else if (distribution == "Multiscatter GGX") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_MULTI_GGX_ID; }
 		else { return ccl::ClosureType::CLOSURE_BSDF_ASHIKHMIN_SHIRLEY_ID; }
 	}
 	else if (mode == DistributionModes_Glass)
 	{//glass
-		if (distribution == "Sharp") { return ccl::ClosureType::CLOSURE_BSDF_SHARP_GLASS_ID; }
-		else if (distribution == "Beckmann") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_BECKMANN_GLASS_ID; }
+		if (distribution == "Beckmann") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_BECKMANN_GLASS_ID; }
 		else if (distribution == "Multiscatter GGX") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_MULTI_GGX_GLASS_ID; }
 		else { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_GGX_GLASS_ID; }
 	}
 	else if (mode == DistributionModes_Refraction)
 	{//refraction
-		if (distribution == "Sharp") { return ccl::ClosureType::CLOSURE_BSDF_REFRACTION_ID; }
-		else if (distribution == "Beckmann") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_BECKMANN_REFRACTION_ID; }
+		if (distribution == "Beckmann") { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_BECKMANN_REFRACTION_ID; }
 		else { return ccl::ClosureType::CLOSURE_BSDF_MICROFACET_GGX_REFRACTION_ID; }
 	}
 	else if (mode == DistributionModes_Hair)
@@ -81,7 +78,7 @@ ccl::ClosureType get_distribution(const XSI::CString& distribution, Distribution
 ccl::ClosureType get_subsurface_method(const XSI::CString& method_string)
 {
 	if (method_string == "burley") { return ccl::ClosureType::CLOSURE_BSSRDF_BURLEY_ID; }
-	else if (method_string == "random_walk_fixed") { return ccl::ClosureType::CLOSURE_BSSRDF_RANDOM_WALK_FIXED_RADIUS_ID; }
+	else if (method_string == "random_walk_fixed") { return ccl::ClosureType::CLOSURE_BSSRDF_RANDOM_WALK_SKIN_ID; }
 	else { return ccl::ClosureType::CLOSURE_BSSRDF_RANDOM_WALK_ID; }
 }
 
@@ -138,15 +135,6 @@ ccl::NodeVoronoiFeature voronoi_feature(const XSI::CString& key)
 	else if (key == "smooth_f1") { return ccl::NodeVoronoiFeature::NODE_VORONOI_SMOOTH_F1; }
 	else if (key == "distance_to_edge") { return ccl::NodeVoronoiFeature::NODE_VORONOI_DISTANCE_TO_EDGE; }
 	else { return ccl::NodeVoronoiFeature::NODE_VORONOI_N_SPHERE_RADIUS; }
-}
-
-ccl::NodeMusgraveType get_musgrave_type(const XSI::CString& musgrave)
-{
-	if (musgrave == "Multifractal") { return ccl::NodeMusgraveType::NODE_MUSGRAVE_HYBRID_MULTIFRACTAL; }
-	else if (musgrave == "fBM") { return ccl::NodeMusgraveType::NODE_MUSGRAVE_FBM; }
-	else if (musgrave == "Hybrid Multifractal") { return ccl::NodeMusgraveType::NODE_MUSGRAVE_HYBRID_MULTIFRACTAL; }
-	else if (musgrave == "Ridged Multifractal") { return ccl::NodeMusgraveType::NODE_MUSGRAVE_RIDGED_MULTIFRACTAL; }
-	else { return ccl::NodeMusgraveType::NODE_MUSGRAVE_HETERO_TERRAIN; }
 }
 
 ccl::NodeWaveProfile get_wave_profile(const XSI::CString& wave)

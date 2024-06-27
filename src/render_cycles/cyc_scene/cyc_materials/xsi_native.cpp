@@ -257,7 +257,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		{
 			// phong specular color interprete as specular intensity
 			XSI::MATH::CColor4f spec_color = get_color_parameter_value(xsi_parameters, "specular", eval_time);
-			node->set_specular((spec_color.GetR() + spec_color.GetG() + spec_color.GetB()) / 3.0f);
+			node->set_specular_tint(color4_to_float3(spec_color));
 
 			// phong shiny is roughness (inverse and devided by 100)
 			// shiny = 0 -> roughness = 1
@@ -287,7 +287,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		else
 		{
 			// set zero specular
-			node->set_specular(0.0f);
+			node->set_specular_tint(ccl::make_float3(0.0f, 0.0f, 0.0f));
 		}
 
 		return node;
