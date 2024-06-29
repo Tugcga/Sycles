@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_bevel.oso
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_bevel.oso
 shader node_bevel
 param	int	samples	4		%read{2,2} %write{2147483647,-1} %derivs
 param	float	Radius	0.0500000007		%read{3,3} %write{2147483647,-1} %derivs
@@ -13,19 +13,19 @@ temp	float	$tmp1	%read{3,3} %write{2,2} %derivs
 temp	vector	$tmp2	%read{5,5} %write{4,4}
 temp	normal	$tmp3	%read{6,6} %write{5,5}
 code NormalIn
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_bevel.osl:9
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bevel.osl:9
 #                   normal NormalIn = N,
-	assign		NormalIn N 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_bevel.osl"} %line{9} %argrw{"wr"}
+	assign		NormalIn N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bevel.osl"} %line{9} %argrw{"wr"}
 code NormalOut
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_bevel.osl:10
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bevel.osl:10
 #                   output normal NormalOut = N)
-	assign		NormalOut N 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_bevel.osl"} %line{10} %argrw{"wr"}
+	assign		NormalOut N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bevel.osl"} %line{10} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_bevel.osl:13
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bevel.osl:13
 #   vector bevel_N = (normal)(color)texture("@bevel", samples, Radius);
-	assign		$tmp1 samples 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_bevel.osl"} %line{13} %argrw{"wr"}
+	assign		$tmp1 samples 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bevel.osl"} %line{13} %argrw{"wr"}
 	texture		bevel_N $const1 $tmp1 Radius 	%argrw{"wrrr"} %argderivs{2,3}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_bevel.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bevel.osl:16
 #   NormalOut = normalize(NormalIn + (bevel_N - N));
 	sub		$tmp2 bevel_N N 	%line{16} %argrw{"wrr"}
 	add		$tmp3 NormalIn $tmp2 	%argrw{"wrr"}

@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_vertex_color.oso
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_vertex_color.oso
 shader node_vertex_color
 param	string	bump_offset	"center"		%read{11,17} %write{2147483647,-1}
 param	string	layer_name	""		%read{0,3} %write{2147483647,-1} %derivs
@@ -30,54 +30,54 @@ temp	float	$tmp11	%read{22,22} %write{21,21} %derivs
 const	string	$const9	"%s"		%read{23,23} %write{2147483647,-1}
 const	string	$const10	"Invalid attribute."		%read{23,23} %write{2147483647,-1}
 code ___main___
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:15
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:15
 #   if (layer_name == "") {
-	eq		$tmp1 layer_name $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl"} %line{15} %argrw{"wrr"}
+	eq		$tmp1 layer_name $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl"} %line{15} %argrw{"wrr"}
 	if		$tmp1 3 4 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:16
 #     vertex_color_layer = "geom:vertex_color";
 	assign		vertex_color_layer $const2 	%line{16} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:19
 #     vertex_color_layer = layer_name;
 	assign		vertex_color_layer layer_name 	%line{19} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:22
 #   if (getattribute(vertex_color_layer, vertex_color)) {
 	getattribute	$tmp2 vertex_color_layer vertex_color 	%line{22} %argrw{"wrw"}
 	if		$tmp2 23 24 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:23
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:23
 #     Color = color(vertex_color[0], vertex_color[1], vertex_color[2]);
 	aref		$tmp3 vertex_color $const3 	%line{23} %argrw{"wrr"}
 	aref		$tmp4 vertex_color $const4 	%argrw{"wrr"}
 	aref		$tmp5 vertex_color $const5 	%argrw{"wrr"}
 	color		Color $tmp3 $tmp4 $tmp5 	%argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:24
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:24
 #     Alpha = vertex_color[3];
 	aref		Alpha vertex_color $const6 	%line{24} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:26
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:26
 #     if (bump_offset == "dx") {
 	eq		$tmp6 bump_offset $const7 	%line{26} %argrw{"wrr"}
 	if		$tmp6 17 23 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:27
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:27
 #       Color += Dx(Color);
 	Dx		$tmp7 Color 	%line{27} %argrw{"wr"} %argderivs{1}
 	add		Color Color $tmp7 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:28
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:28
 #       Alpha += Dx(Alpha);
 	Dx		$tmp8 Alpha 	%line{28} %argrw{"wr"} %argderivs{1}
 	add		Alpha Alpha $tmp8 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:30
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:30
 #     else if (bump_offset == "dy") {
 	eq		$tmp9 bump_offset $const8 	%line{30} %argrw{"wrr"}
 	if		$tmp9 23 23 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:31
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:31
 #       Color += Dy(Color);
 	Dy		$tmp10 Color 	%line{31} %argrw{"wr"} %argderivs{1}
 	add		Color Color $tmp10 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:32
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:32
 #       Alpha += Dy(Alpha);
 	Dy		$tmp11 Alpha 	%line{32} %argrw{"wr"} %argderivs{1}
 	add		Alpha Alpha $tmp11 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:36
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vertex_color.osl:36
 #     warning("%s", "Invalid attribute.");
 	warning		$const9 $const10 	%line{36} %argrw{"rr"}
 	end

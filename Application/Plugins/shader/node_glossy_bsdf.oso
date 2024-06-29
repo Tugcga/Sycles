@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.oso
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.oso
 shader node_glossy_bsdf
 param	color	Color	0.800000012 0.800000012 0.800000012		%read{1,1} %write{2147483647,-1}
 param	string	distribution	"ggx"		%read{79,83} %write{2147483647,-1}
@@ -98,163 +98,163 @@ const	string	$const15	"microfacet_multi_ggx_aniso"		%read{81,81} %write{21474836
 temp	closure color	$tmp58	%read{84,84} %write{83,83}
 const	string	$const16	"microfacet"		%read{83,83} %write{2147483647,-1}
 code Normal
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:13
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:13
 #                         normal Normal = N,
-	assign		Normal N 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{13} %argrw{"wr"}
+	assign		Normal N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{13} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:18
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:18
 #   color base_color = max(Color, color(0.0));
-	max		base_color Color $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{18} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:19
+	max		base_color Color $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{18} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:19
 #   float roughness = clamp(Roughness, 0.0, 1.0);
 	functioncall	$const4 5 	%line{19} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp2 Roughness $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp2 Roughness $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		roughness $tmp2 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:20
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:20
 #   roughness = roughness * roughness;
-	mul		roughness roughness roughness 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{20} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:22
+	mul		roughness roughness roughness 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{20} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:22
 #   float aniso = clamp(Anisotropy, -0.99, 0.99);
 	functioncall	$const4 9 	%line{22} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp3 Anisotropy $const6 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp3 Anisotropy $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		aniso $tmp3 $const5 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:25
 #   vector T = Tangent;
-	assign		T Tangent 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{25} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:27
+	assign		T Tangent 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{25} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:27
 #   if (abs(aniso) <= 1e-4) {
 	abs		$tmp4 aniso 	%line{27} %argrw{"wr"}
 	le		$tmp5 $tmp4 $const7 	%argrw{"wrr"}
 	if		$tmp5 15 79 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:28
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:28
 #     roughness_u = roughness;
 	assign		roughness_u roughness 	%line{28} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:29
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:29
 #     roughness_v = roughness;
 	assign		roughness_v roughness 	%line{29} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:32
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:32
 #     if (Rotation != 0.0)
 	neq		$tmp6 Rotation $const2 	%line{32} %argrw{"wrr"}
 	if		$tmp6 69 69 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:33
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:33
 #       T = rotate(T, Rotation * M_2PI, point(0.0, 0.0, 0.0), Normal);
 	mul		$tmp7 Rotation $const8 	%line{33} %argrw{"wrr"}
 	functioncall	$const10 69 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:270
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:270
 #     vector axis = normalize (b - a);
-	sub		$tmp9 Normal $const9 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{270} %argrw{"wrr"}
+	sub		$tmp9 Normal $const9 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{270} %argrw{"wrr"}
 	normalize	___257_axis $tmp9 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:272
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:272
 #     sincos (angle, sinang, cosang);
 	sincos		$tmp7 ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:273
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:273
 #     float cosang1 = 1.0 - cosang;
 	sub		___257_cosang1 $const3 ___257_cosang 	%line{273} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:274
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:274
 #     float x = axis[0], y = axis[1], z = axis[2];
 	compref		___257_x ___257_axis $const11 	%line{274} %argrw{"wrr"}
 	compref		___257_y ___257_axis $const12 	%argrw{"wrr"}
 	compref		___257_z ___257_axis $const13 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:275
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:275
 #     matrix M = matrix (x * x + (1.0 - x * x) * cosang,
 	mul		$tmp10 ___257_x ___257_x 	%line{275} %argrw{"wrr"}
 	mul		$tmp11 ___257_x ___257_x 	%argrw{"wrr"}
 	sub		$tmp12 $const3 $tmp11 	%argrw{"wrr"}
 	mul		$tmp13 $tmp12 ___257_cosang 	%argrw{"wrr"}
 	add		$tmp14 $tmp10 $tmp13 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:276
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:276
 #                        x * y * cosang1 + z * sinang,
 	mul		$tmp15 ___257_x ___257_y 	%line{276} %argrw{"wrr"}
 	mul		$tmp16 $tmp15 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp17 ___257_z ___257_sinang 	%argrw{"wrr"}
 	add		$tmp18 $tmp16 $tmp17 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:277
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:277
 #                        x * z * cosang1 - y * sinang,
 	mul		$tmp19 ___257_x ___257_z 	%line{277} %argrw{"wrr"}
 	mul		$tmp20 $tmp19 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp21 ___257_y ___257_sinang 	%argrw{"wrr"}
 	sub		$tmp22 $tmp20 $tmp21 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:279
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:279
 #                        x * y * cosang1 - z * sinang,
 	mul		$tmp23 ___257_x ___257_y 	%line{279} %argrw{"wrr"}
 	mul		$tmp24 $tmp23 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp25 ___257_z ___257_sinang 	%argrw{"wrr"}
 	sub		$tmp26 $tmp24 $tmp25 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:280
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:280
 #                        y * y + (1.0 - y * y) * cosang,
 	mul		$tmp27 ___257_y ___257_y 	%line{280} %argrw{"wrr"}
 	mul		$tmp28 ___257_y ___257_y 	%argrw{"wrr"}
 	sub		$tmp29 $const3 $tmp28 	%argrw{"wrr"}
 	mul		$tmp30 $tmp29 ___257_cosang 	%argrw{"wrr"}
 	add		$tmp31 $tmp27 $tmp30 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:281
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:281
 #                        y * z * cosang1 + x * sinang,
 	mul		$tmp32 ___257_y ___257_z 	%line{281} %argrw{"wrr"}
 	mul		$tmp33 $tmp32 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp34 ___257_x ___257_sinang 	%argrw{"wrr"}
 	add		$tmp35 $tmp33 $tmp34 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:283
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:283
 #                        x * z * cosang1 + y * sinang,
 	mul		$tmp36 ___257_x ___257_z 	%line{283} %argrw{"wrr"}
 	mul		$tmp37 $tmp36 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp38 ___257_y ___257_sinang 	%argrw{"wrr"}
 	add		$tmp39 $tmp37 $tmp38 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:284
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:284
 #                        y * z * cosang1 - x * sinang,
 	mul		$tmp40 ___257_y ___257_z 	%line{284} %argrw{"wrr"}
 	mul		$tmp41 $tmp40 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp42 ___257_x ___257_sinang 	%argrw{"wrr"}
 	sub		$tmp43 $tmp41 $tmp42 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:285
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:285
 #                        z * z + (1.0 - z * z) * cosang,
 	mul		$tmp44 ___257_z ___257_z 	%line{285} %argrw{"wrr"}
 	mul		$tmp45 ___257_z ___257_z 	%argrw{"wrr"}
 	sub		$tmp46 $const3 $tmp45 	%argrw{"wrr"}
 	mul		$tmp47 $tmp46 ___257_cosang 	%argrw{"wrr"}
 	add		$tmp48 $tmp44 $tmp47 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:275
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:275
 #     matrix M = matrix (x * x + (1.0 - x * x) * cosang,
 	matrix		___257_M $tmp14 $tmp18 $tmp22 $const2 $tmp26 $tmp31 $tmp35 $const2 $tmp39 $tmp43 $tmp48 $const2 $const2 $const2 $const2 $const3 	%line{275} %argrw{"wrrrrrrrrrrrrrrrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:288
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:288
 #     return transform (M, p-a) + a;
 	sub		$tmp50 T $const9 	%line{288} %argrw{"wrr"}
 	transformv	$tmp49 ___257_M $tmp50 	%argrw{"wrr"}
 	add		T $tmp49 $const9 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:35
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:35
 #     if (aniso < 0.0) {
-	lt		$tmp51 aniso $const2 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{35} %argrw{"wrr"}
+	lt		$tmp51 aniso $const2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl"} %line{35} %argrw{"wrr"}
 	if		$tmp51 75 79 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:36
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:36
 #       roughness_u = roughness / (1.0 + aniso);
 	add		$tmp52 $const3 aniso 	%line{36} %argrw{"wrr"}
 	div		roughness_u roughness $tmp52 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:37
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:37
 #       roughness_v = roughness * (1.0 + aniso);
 	add		$tmp53 $const3 aniso 	%line{37} %argrw{"wrr"}
 	mul		roughness_v roughness $tmp53 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:40
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:40
 #       roughness_u = roughness * (1.0 - aniso);
 	sub		$tmp54 $const3 aniso 	%line{40} %argrw{"wrr"}
 	mul		roughness_u roughness $tmp54 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:41
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:41
 #       roughness_v = roughness / (1.0 - aniso);
 	sub		$tmp55 $const3 aniso 	%line{41} %argrw{"wrr"}
 	div		roughness_v roughness $tmp55 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:45
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:45
 #   if (distribution == "Multiscatter GGX")
 	eq		$tmp56 distribution $const14 	%line{45} %argrw{"wrr"}
 	if		$tmp56 83 85 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:47
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:47
 #            microfacet_multi_ggx_aniso(Normal, T, roughness_u, roughness_v, base_color);
 	closure		$tmp57 $const15 Normal T roughness_u roughness_v base_color 	%line{47} %argrw{"wrrrrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:46
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:46
 #     BSDF = base_color *
 	mul		BSDF $tmp57 base_color 	%line{46} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:49
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glossy_bsdf.osl:49
 #     BSDF = base_color * microfacet(distribution, Normal, T, roughness_u, roughness_v, 0.0, 0);
 	closure		$tmp58 $const16 distribution Normal T roughness_u roughness_v $const2 $const11 	%line{49} %argrw{"wrrrrrrrr"}
 	mul		BSDF $tmp58 base_color 	%argrw{"wrr"}

@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_principled_bsdf.oso
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_principled_bsdf.oso
 shader node_principled_bsdf
 param	string	distribution	"multi_ggx"		%read{146,184} %write{2147483647,-1}
 param	string	subsurface_method	"random_walk"		%read{125,129} %write{2147483647,-1}
@@ -258,301 +258,301 @@ temp	float	$tmp151	%read{249,249} %write{248,248}
 temp	closure color	$tmp152	%read{251,251} %write{249,249}
 temp	closure color	$tmp153	%read{251,251} %write{250,250}
 code Normal
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:36
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:36
 #                             normal Normal = N,
-	assign		Normal N 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{36} %argrw{"wr"}
+	assign		Normal N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{36} %argrw{"wr"}
 code CoatNormal
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:37
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:37
 #                             normal CoatNormal = N,
-	assign		CoatNormal N 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{37} %argrw{"wr"}
+	assign		CoatNormal N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{37} %argrw{"wr"}
 code Tangent
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:38
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:38
 #                             normal Tangent = normalize(dPdu),
-	normalize	Tangent dPdu 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{38} %argrw{"wr"}
+	normalize	Tangent dPdu 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{38} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:41
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:41
 #   float CLOSURE_WEIGHT_CUTOFF = 1e-5;
-	assign		CLOSURE_WEIGHT_CUTOFF $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{41} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:44
+	assign		CLOSURE_WEIGHT_CUTOFF $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{41} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:44
 #   float metallic = clamp(Metallic, 0.0, 1.0);
 	functioncall	$const4 7 	%line{44} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp1 Metallic $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp1 Metallic $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		metallic $tmp1 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:45
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:45
 #   float transmission = clamp(TransmissionWeight, 0.0, 1.0);
-	functioncall	$const4 10 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{45} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+	functioncall	$const4 10 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{45} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp2 TransmissionWeight $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp2 TransmissionWeight $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		transmission $tmp2 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:46
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:46
 #   float subsurface_weight = clamp(SubsurfaceWeight, 0.0, 1.0);
-	functioncall	$const4 13 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{46} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+	functioncall	$const4 13 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{46} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp3 SubsurfaceWeight $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp3 SubsurfaceWeight $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		subsurface_weight $tmp3 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:47
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:47
 #   color specular_tint = max(SpecularTint, color(0.0));
-	max		specular_tint SpecularTint $const5 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{47} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:48
+	max		specular_tint SpecularTint $const5 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{47} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:48
 #   float coat_weight = max(CoatWeight, 0.0);
 	max		coat_weight CoatWeight $const2 	%line{48} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:49
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:49
 #   color coat_tint = max(CoatTint, color(0.0));
 	max		coat_tint CoatTint $const5 	%line{49} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:50
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:50
 #   float sheen_weight = max(SheenWeight, 0.0);
 	max		sheen_weight SheenWeight $const2 	%line{50} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:51
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:51
 #   color base_color = max(BaseColor, color(0.0));
 	max		base_color BaseColor $const5 	%line{51} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:52
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:52
 #   color clamped_base_color = min(base_color, color(1.0));
 	min		clamped_base_color base_color $const6 	%line{52} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:54
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:54
 #   float r2 = clamp(Roughness, 0.0, 1.0);
 	functioncall	$const4 22 	%line{54} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp8 Roughness $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp8 Roughness $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		r2 $tmp8 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:55
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:55
 #   r2 = r2 * r2;
-	mul		r2 r2 r2 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{55} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:57
+	mul		r2 r2 r2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{55} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:57
 #   float alpha_x = r2, alpha_y = r2;
 	assign		alpha_x r2 	%line{57} %argrw{"wr"}
 	assign		alpha_y r2 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:60
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:60
 #   vector T = Tangent;
 	assign		T Tangent 	%line{60} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:61
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:61
 #   if (Anisotropic > 0.0) {
 	gt		$tmp9 Anisotropic $const2 	%line{61} %argrw{"wrr"}
 	if		$tmp9 90 90 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:62
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:62
 #     float aspect = sqrt(1.0 - clamp(Anisotropic, 0.0, 1.0) * 0.9);
 	functioncall	$const4 31 	%line{62} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp11 Anisotropic $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp11 Anisotropic $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp10 $tmp11 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:62
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:62
 #     float aspect = sqrt(1.0 - clamp(Anisotropic, 0.0, 1.0) * 0.9);
-	mul		$tmp12 $tmp10 $const7 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{62} %argrw{"wrr"}
+	mul		$tmp12 $tmp10 $const7 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{62} %argrw{"wrr"}
 	sub		$tmp13 $const3 $tmp12 	%argrw{"wrr"}
 	sqrt		___368_aspect $tmp13 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:63
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:63
 #     alpha_x /= aspect;
 	div		alpha_x alpha_x ___368_aspect 	%line{63} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:64
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:64
 #     alpha_y *= aspect;
 	mul		alpha_y alpha_y ___368_aspect 	%line{64} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:65
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:65
 #     if (AnisotropicRotation != 0.0)
 	neq		$tmp14 AnisotropicRotation $const2 	%line{65} %argrw{"wrr"}
 	if		$tmp14 90 90 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:66
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:66
 #       T = rotate(T, AnisotropicRotation * M_2PI, point(0.0, 0.0, 0.0), Normal);
 	mul		$tmp15 AnisotropicRotation $const8 	%line{66} %argrw{"wrr"}
 	functioncall	$const10 90 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:270
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:270
 #     vector axis = normalize (b - a);
-	sub		$tmp17 Normal $const9 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{270} %argrw{"wrr"}
+	sub		$tmp17 Normal $const9 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{270} %argrw{"wrr"}
 	normalize	___257_axis $tmp17 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:272
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:272
 #     sincos (angle, sinang, cosang);
 	sincos		$tmp15 ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:273
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:273
 #     float cosang1 = 1.0 - cosang;
 	sub		___257_cosang1 $const3 ___257_cosang 	%line{273} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:274
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:274
 #     float x = axis[0], y = axis[1], z = axis[2];
 	compref		___257_x ___257_axis $const11 	%line{274} %argrw{"wrr"}
 	compref		___257_y ___257_axis $const12 	%argrw{"wrr"}
 	compref		___257_z ___257_axis $const13 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:275
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:275
 #     matrix M = matrix (x * x + (1.0 - x * x) * cosang,
 	mul		$tmp18 ___257_x ___257_x 	%line{275} %argrw{"wrr"}
 	mul		$tmp19 ___257_x ___257_x 	%argrw{"wrr"}
 	sub		$tmp20 $const3 $tmp19 	%argrw{"wrr"}
 	mul		$tmp21 $tmp20 ___257_cosang 	%argrw{"wrr"}
 	add		$tmp22 $tmp18 $tmp21 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:276
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:276
 #                        x * y * cosang1 + z * sinang,
 	mul		$tmp23 ___257_x ___257_y 	%line{276} %argrw{"wrr"}
 	mul		$tmp24 $tmp23 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp25 ___257_z ___257_sinang 	%argrw{"wrr"}
 	add		$tmp26 $tmp24 $tmp25 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:277
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:277
 #                        x * z * cosang1 - y * sinang,
 	mul		$tmp27 ___257_x ___257_z 	%line{277} %argrw{"wrr"}
 	mul		$tmp28 $tmp27 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp29 ___257_y ___257_sinang 	%argrw{"wrr"}
 	sub		$tmp30 $tmp28 $tmp29 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:279
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:279
 #                        x * y * cosang1 - z * sinang,
 	mul		$tmp31 ___257_x ___257_y 	%line{279} %argrw{"wrr"}
 	mul		$tmp32 $tmp31 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp33 ___257_z ___257_sinang 	%argrw{"wrr"}
 	sub		$tmp34 $tmp32 $tmp33 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:280
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:280
 #                        y * y + (1.0 - y * y) * cosang,
 	mul		$tmp35 ___257_y ___257_y 	%line{280} %argrw{"wrr"}
 	mul		$tmp36 ___257_y ___257_y 	%argrw{"wrr"}
 	sub		$tmp37 $const3 $tmp36 	%argrw{"wrr"}
 	mul		$tmp38 $tmp37 ___257_cosang 	%argrw{"wrr"}
 	add		$tmp39 $tmp35 $tmp38 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:281
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:281
 #                        y * z * cosang1 + x * sinang,
 	mul		$tmp40 ___257_y ___257_z 	%line{281} %argrw{"wrr"}
 	mul		$tmp41 $tmp40 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp42 ___257_x ___257_sinang 	%argrw{"wrr"}
 	add		$tmp43 $tmp41 $tmp42 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:283
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:283
 #                        x * z * cosang1 + y * sinang,
 	mul		$tmp44 ___257_x ___257_z 	%line{283} %argrw{"wrr"}
 	mul		$tmp45 $tmp44 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp46 ___257_y ___257_sinang 	%argrw{"wrr"}
 	add		$tmp47 $tmp45 $tmp46 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:284
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:284
 #                        y * z * cosang1 - x * sinang,
 	mul		$tmp48 ___257_y ___257_z 	%line{284} %argrw{"wrr"}
 	mul		$tmp49 $tmp48 ___257_cosang1 	%argrw{"wrr"}
 	mul		$tmp50 ___257_x ___257_sinang 	%argrw{"wrr"}
 	sub		$tmp51 $tmp49 $tmp50 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:285
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:285
 #                        z * z + (1.0 - z * z) * cosang,
 	mul		$tmp52 ___257_z ___257_z 	%line{285} %argrw{"wrr"}
 	mul		$tmp53 ___257_z ___257_z 	%argrw{"wrr"}
 	sub		$tmp54 $const3 $tmp53 	%argrw{"wrr"}
 	mul		$tmp55 $tmp54 ___257_cosang 	%argrw{"wrr"}
 	add		$tmp56 $tmp52 $tmp55 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:275
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:275
 #     matrix M = matrix (x * x + (1.0 - x * x) * cosang,
 	matrix		___257_M $tmp22 $tmp26 $tmp30 $const2 $tmp34 $tmp39 $tmp43 $const2 $tmp47 $tmp51 $tmp56 $const2 $const2 $const2 $const2 $const3 	%line{275} %argrw{"wrrrrrrrrrrrrrrrr"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:288
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:288
 #     return transform (M, p-a) + a;
 	sub		$tmp58 T $const9 	%line{288} %argrw{"wrr"}
 	transformv	$tmp57 ___257_M $tmp58 	%argrw{"wrr"}
 	add		T $tmp57 $const9 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:69
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:69
 #   if (metallic < 1.0 && TransmissionWeight < 1.0) {
-	lt		$tmp59 metallic $const3 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{69} %argrw{"wrr"}
+	lt		$tmp59 metallic $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{69} %argrw{"wrr"}
 	neq		$tmp60 $tmp59 $const11 	%argrw{"wrr"}
 	if		$tmp60 96 96 	%argrw{"r"}
 	lt		$tmp61 TransmissionWeight $const3 	%argrw{"wrr"}
 	neq		$tmp62 $tmp61 $const11 	%argrw{"wrr"}
 	assign		$tmp60 $tmp62 	%argrw{"wr"}
 	if		$tmp60 148 148 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:70
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:70
 #     float eta = max(IOR, 1e-5);
 	max		___369_eta IOR $const1 	%line{70} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:71
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:71
 #     float f0 = F0_from_ior(eta);
 	functioncall	$const14 103 	%line{71} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:42
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:42
 #   float f0 = (eta - 1.0) / (eta + 1.0);
-	sub		$tmp63 ___369_eta $const3 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{42} %argrw{"wrr"}
+	sub		$tmp63 ___369_eta $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{42} %argrw{"wrr"}
 	add		$tmp64 ___369_eta $const3 	%argrw{"wrr"}
 	div		___348_f0 $tmp63 $tmp64 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:43
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:43
 #   return f0 * f0;
 	mul		___369_f0 ___348_f0 ___348_f0 	%line{43} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:72
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:72
 #     if (SpecularIORLevel != 0.5) {
-	neq		$tmp65 SpecularIORLevel $const15 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{72} %argrw{"wrr"}
+	neq		$tmp65 SpecularIORLevel $const15 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{72} %argrw{"wrr"}
 	if		$tmp65 119 119 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:73
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:73
 #       f0 *= 2.0 * max(SpecularIORLevel, 0.0);
 	max		$tmp66 SpecularIORLevel $const2 	%line{73} %argrw{"wrr"}
 	mul		$tmp67 $const16 $tmp66 	%argrw{"wrr"}
 	mul		___369_f0 ___369_f0 $tmp67 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:74
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:74
 #       eta = ior_from_F0(f0);
 	functioncall	$const17 116 	%line{74} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:48
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:48
 #   float sqrt_f0 = sqrt(clamp(f0, 0.0, 0.99));
-	functioncall	$const4 112 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{48} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+	functioncall	$const4 112 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{48} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp69 ___369_f0 $const18 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp69 ___369_f0 $const18 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp68 $tmp69 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:48
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:48
 #   float sqrt_f0 = sqrt(clamp(f0, 0.0, 0.99));
-	sqrt		___349_sqrt_f0 $tmp68 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{48} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:49
+	sqrt		___349_sqrt_f0 $tmp68 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{48} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:49
 #   return (1.0 + sqrt_f0) / (1.0 - sqrt_f0);
 	add		$tmp70 $const3 ___349_sqrt_f0 	%line{49} %argrw{"wrr"}
 	sub		$tmp71 $const3 ___349_sqrt_f0 	%argrw{"wrr"}
 	div		___369_eta $tmp70 $tmp71 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:75
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:75
 #       if (IOR < 1.0) {
-	lt		$tmp72 IOR $const3 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{75} %argrw{"wrr"}
+	lt		$tmp72 IOR $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{75} %argrw{"wrr"}
 	if		$tmp72 119 119 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:76
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:76
 #         eta = 1.0 / eta;
 	div		___369_eta $const3 ___369_eta 	%line{76} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:80
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:80
 #     BSDF = base_color * diffuse(Normal);
 	closure		$tmp73 $const19 Normal 	%line{80} %argrw{"wrr"}
 	mul		BSDF $tmp73 base_color 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:81
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:81
 #     if (subsurface_weight > CLOSURE_WEIGHT_CUTOFF) {
 	gt		$tmp74 subsurface_weight CLOSURE_WEIGHT_CUTOFF 	%line{81} %argrw{"wrr"}
 	if		$tmp74 136 136 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:82
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:82
 #       vector radius = max(SubsurfaceScale * SubsurfaceRadius, vector(0.0));
 	mul		$tmp75 SubsurfaceScale SubsurfaceRadius 	%line{82} %argrw{"wrr"}
 	max		___372_radius $tmp75 $const20 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:83
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:83
 #       float subsurface_ior = (subsurface_method == "random_walk_skin") ? SubsurfaceIOR : eta;
 	eq		$tmp77 subsurface_method $const21 	%line{83} %argrw{"wrr"}
 	if		$tmp77 128 129 	%argrw{"r"}
 	assign		___372_subsurface_ior SubsurfaceIOR 	%argrw{"wr"}
 	assign		___372_subsurface_ior ___369_eta 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:84
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:84
 #       closure color SubsurfBSDF = bssrdf(subsurface_method,
 	closure		___372_SubsurfBSDF $const25 subsurface_method Normal ___372_radius clamped_base_color $const22 r2 $const23 ___372_subsurface_ior $const24 SubsurfaceAnisotropy 	%line{84} %argrw{"wrrrrrrrrrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:94
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:94
 #       BSDF = mix(BSDF, clamped_base_color * SubsurfBSDF, subsurface_weight);
 	mul		$tmp78 ___372_SubsurfBSDF clamped_base_color 	%line{94} %argrw{"wrr"}
 	functioncall	$const26 136 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:164
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:164
 # closure color mix (closure color x, closure color y, float a) { return x*(1-a) + y*a; }
-	sub		$tmp79 $const3 subsurface_weight 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{164} %argrw{"wrr"}
+	sub		$tmp79 $const3 subsurface_weight 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{164} %argrw{"wrr"}
 	mul		$tmp80 BSDF $tmp79 	%argrw{"wrr"}
 	mul		$tmp81 $tmp78 subsurface_weight 	%argrw{"wrr"}
 	add		BSDF $tmp80 $tmp81 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:97
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:97
 #     if (eta != 1.0 || ThinFilmThickness > 0.1) {
-	neq		$tmp82 ___369_eta $const3 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{97} %argrw{"wrr"}
+	neq		$tmp82 ___369_eta $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{97} %argrw{"wrr"}
 	neq		$tmp83 $tmp82 $const11 	%argrw{"wrr"}
 	if		$tmp83 139 142 	%argrw{"r"}
 	gt		$tmp84 ThinFilmThickness $const27 	%argrw{"wrr"}
 	neq		$tmp85 $tmp84 $const11 	%argrw{"wrr"}
 	assign		$tmp83 $tmp85 	%argrw{"wr"}
 	if		$tmp83 148 148 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:99
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:99
 #       color F0 = f0 * specular_tint;
 	mul		___373_F0 ___369_f0 specular_tint 	%line{99} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:100
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:100
 #       color F90 = color(1.0);
 	assign		___373_F90 $const6 	%line{100} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:110
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:110
 #                                             -eta,
 	neg		$tmp89 ___369_eta 	%line{110} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:102
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:102
 #       BSDF = layer(generalized_schlick_bsdf(Normal,
 	closure		$tmp86 $const30 Normal T $const6 $const5 alpha_x alpha_y ___373_F0 ___373_F90 $tmp89 distribution $const28 ThinFilmThickness $const29 ThinFilmIOR 	%line{102} %argrw{"wrrrrrrrrrrrrrrr"}
 	closure		BSDF $const31 $tmp86 BSDF 	%argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:120
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:120
 #   closure color TransmissionBSDF = 0;
 	assign		TransmissionBSDF $const11 	%line{120} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:121
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:121
 #   if (metallic < 1.0 && TransmissionWeight > CLOSURE_WEIGHT_CUTOFF) {
 	lt		$tmp90 metallic $const3 	%line{121} %argrw{"wrr"}
 	neq		$tmp91 $tmp90 $const11 	%argrw{"wrr"}
@@ -561,113 +561,113 @@ code ___main___
 	neq		$tmp93 $tmp92 $const11 	%argrw{"wrr"}
 	assign		$tmp91 $tmp93 	%argrw{"wr"}
 	if		$tmp91 179 179 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:122
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:122
 #     float eta = max(IOR, 1e-5);
 	max		___374_eta IOR $const1 	%line{122} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:123
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:123
 #     float thinfilm_ior = backfacing() ? ThinFilmIOR / eta : ThinFilmIOR;
 	backfacing	$tmp94 	%line{123} %argrw{"w"}
 	if		$tmp94 160 161 	%argrw{"r"}
 	div		___374_thinfilm_ior ThinFilmIOR ___374_eta 	%argrw{"wrr"}
 	assign		___374_thinfilm_ior ThinFilmIOR 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:124
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:124
 #     eta = backfacing() ? 1.0 / eta : eta;
 	backfacing	$tmp95 	%line{124} %argrw{"w"}
 	if		$tmp95 164 164 	%argrw{"r"}
 	div		___374_eta $const3 ___374_eta 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:126
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:126
 #     color F0 = F0_from_ior(eta) * specular_tint;
 	functioncall	$const14 169 	%line{126} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:42
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:42
 #   float f0 = (eta - 1.0) / (eta + 1.0);
-	sub		$tmp97 ___374_eta $const3 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{42} %argrw{"wrr"}
+	sub		$tmp97 ___374_eta $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{42} %argrw{"wrr"}
 	add		$tmp98 ___374_eta $const3 	%argrw{"wrr"}
 	div		___348_f0 $tmp97 $tmp98 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:43
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:43
 #   return f0 * f0;
 	mul		$tmp96 ___348_f0 ___348_f0 	%line{43} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:126
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:126
 #     color F0 = F0_from_ior(eta) * specular_tint;
-	mul		___374_F0 $tmp96 specular_tint 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{126} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:127
+	mul		___374_F0 $tmp96 specular_tint 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{126} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:127
 #     color F90 = color(1.0);
 	assign		___374_F90 $const6 	%line{127} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:132
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:132
 #                                                 sqrt(clamped_base_color),
 	sqrt		$tmp101 clamped_base_color 	%line{132} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:137
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:137
 #                                                 -eta,
 	neg		$tmp102 ___374_eta 	%line{137} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:129
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:129
 #     TransmissionBSDF = generalized_schlick_bsdf(Normal,
 	closure		TransmissionBSDF $const30 Normal $const20 $const6 $tmp101 r2 r2 ___374_F0 ___374_F90 $tmp102 distribution $const28 ThinFilmThickness $const29 ___374_thinfilm_ior 	%line{129} %argrw{"wrrrrrrrrrrrrrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:143
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:143
 #     BSDF = mix(BSDF, TransmissionBSDF, transmission);
 	functioncall	$const26 179 	%line{143} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:164
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:164
 # closure color mix (closure color x, closure color y, float a) { return x*(1-a) + y*a; }
-	sub		$tmp103 $const3 transmission 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{164} %argrw{"wrr"}
+	sub		$tmp103 $const3 transmission 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{164} %argrw{"wrr"}
 	mul		$tmp104 BSDF $tmp103 	%argrw{"wrr"}
 	mul		$tmp105 TransmissionBSDF transmission 	%argrw{"wrr"}
 	add		BSDF $tmp104 $tmp105 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:146
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:146
 #   closure color MetallicBSDF = 0;
-	assign		MetallicBSDF $const11 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{146} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:147
+	assign		MetallicBSDF $const11 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{146} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:147
 #   if (metallic > CLOSURE_WEIGHT_CUTOFF) {
 	gt		$tmp106 metallic CLOSURE_WEIGHT_CUTOFF 	%line{147} %argrw{"wrr"}
 	if		$tmp106 190 190 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:148
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:148
 #     color F0 = clamped_base_color;
 	assign		___375_F0 clamped_base_color 	%line{148} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:149
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:149
 #     color F82 = min(specular_tint, color(1.0));
 	min		___375_F82 specular_tint $const6 	%line{149} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:150
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:150
 #     MetallicBSDF = microfacet_f82_tint(distribution, Normal, T, alpha_x, alpha_y, F0, F82);
 	closure		MetallicBSDF $const32 distribution Normal T alpha_x alpha_y ___375_F0 ___375_F82 	%line{150} %argrw{"wrrrrrrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:151
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:151
 #     BSDF = mix(BSDF, MetallicBSDF, metallic);
 	functioncall	$const26 190 	%line{151} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:164
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:164
 # closure color mix (closure color x, closure color y, float a) { return x*(1-a) + y*a; }
-	sub		$tmp108 $const3 metallic 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{164} %argrw{"wrr"}
+	sub		$tmp108 $const3 metallic 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{164} %argrw{"wrr"}
 	mul		$tmp109 BSDF $tmp108 	%argrw{"wrr"}
 	mul		$tmp110 MetallicBSDF metallic 	%argrw{"wrr"}
 	add		BSDF $tmp109 $tmp110 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:154
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:154
 #   if (EmissionStrength != 0.0 && EmissionColor != color(0.0)) {
-	neq		$tmp111 EmissionStrength $const2 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{154} %argrw{"wrr"}
+	neq		$tmp111 EmissionStrength $const2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{154} %argrw{"wrr"}
 	neq		$tmp112 $tmp111 $const11 	%argrw{"wrr"}
 	if		$tmp112 196 196 	%argrw{"r"}
 	neq		$tmp114 EmissionColor $const5 	%argrw{"wrr"}
 	neq		$tmp115 $tmp114 $const11 	%argrw{"wrr"}
 	assign		$tmp112 $tmp115 	%argrw{"wr"}
 	if		$tmp112 201 201 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:155
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:155
 #     BSDF += EmissionStrength * EmissionColor * emission();
 	closure		$tmp116 $const33 	%line{155} %argrw{"wr"}
 	mul		$tmp117 EmissionStrength EmissionColor 	%argrw{"wrr"}
 	mul		$tmp118 $tmp116 $tmp117 	%argrw{"wrr"}
 	add		BSDF BSDF $tmp118 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:158
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:158
 #   if (coat_weight > CLOSURE_WEIGHT_CUTOFF) {
 	gt		$tmp119 coat_weight CLOSURE_WEIGHT_CUTOFF 	%line{158} %argrw{"wrr"}
 	if		$tmp119 228 228 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:159
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:159
 #     float coat_ior = max(CoatIOR, 1.0);
 	max		___377_coat_ior CoatIOR $const3 	%line{159} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:160
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:160
 #     if (CoatTint != color(1.0)) {
 	neq		$tmp121 CoatTint $const6 	%line{160} %argrw{"wrr"}
 	if		$tmp121 221 221 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:161
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:161
 #       float coat_neta = 1.0 / coat_ior;
 	div		___378_coat_neta $const3 ___377_coat_ior 	%line{161} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:162
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:162
 #       float cosNI = dot(I, CoatNormal);
 	dot		___378_cosNI I CoatNormal 	%line{162} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:163
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:163
 #       float cosNT = sqrt(1.0 - coat_neta * coat_neta * (1 - cosNI * cosNI));
 	mul		$tmp122 ___378_coat_neta ___378_coat_neta 	%line{163} %argrw{"wrr"}
 	mul		$tmp123 ___378_cosNI ___378_cosNI 	%argrw{"wrr"}
@@ -675,81 +675,81 @@ code ___main___
 	mul		$tmp125 $tmp122 $tmp124 	%argrw{"wrr"}
 	sub		$tmp126 $const3 $tmp125 	%argrw{"wrr"}
 	sqrt		___378_cosNT $tmp126 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:164
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:164
 #       BSDF *= mix(color(1.0), pow(CoatTint, 1.0 / cosNT), clamp(coat_weight, 0.0, 1.0));
 	div		$tmp130 $const3 ___378_cosNT 	%line{164} %argrw{"wrr"}
 	pow		$tmp129 CoatTint $tmp130 	%argrw{"wrr"}
 	functioncall	$const4 219 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp132 coat_weight $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp132 coat_weight $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp131 $tmp132 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:164
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:164
 #       BSDF *= mix(color(1.0), pow(CoatTint, 1.0 / cosNT), clamp(coat_weight, 0.0, 1.0));
-	mix		$tmp127 $const6 $tmp129 $tmp131 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{164} %argrw{"wrrr"}
+	mix		$tmp127 $const6 $tmp129 $tmp131 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{164} %argrw{"wrrr"}
 	mul		BSDF BSDF $tmp127 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:166
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:166
 #     float coat_r2 = clamp(CoatRoughness, 0.0, 1.0);
 	functioncall	$const4 224 	%line{166} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp133 CoatRoughness $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp133 CoatRoughness $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		___377_coat_r2 $tmp133 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:167
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:167
 #     coat_r2 = coat_r2 * coat_r2;
-	mul		___377_coat_r2 ___377_coat_r2 ___377_coat_r2 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{167} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:169
+	mul		___377_coat_r2 ___377_coat_r2 ___377_coat_r2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{167} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:169
 #     closure color CoatBSDF = dielectric_bsdf(
 	closure		___377_CoatBSDF $const35 CoatNormal $const20 $const6 $const5 ___377_coat_r2 ___377_coat_r2 ___377_coat_ior $const34 	%line{169} %argrw{"wrrrrrrrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:171
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:171
 #     BSDF = layer(coat_weight * CoatBSDF, BSDF);
 	mul		$tmp137 ___377_CoatBSDF coat_weight 	%line{171} %argrw{"wrr"}
 	closure		BSDF $const31 $tmp137 BSDF 	%argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:174
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:174
 #   if (SheenWeight > CLOSURE_WEIGHT_CUTOFF) {
 	gt		$tmp138 SheenWeight CLOSURE_WEIGHT_CUTOFF 	%line{174} %argrw{"wrr"}
 	if		$tmp138 243 243 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:175
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:175
 #     normal sheen_normal = normalize(mix(Normal, CoatNormal, clamp(coat_weight, 0.0, 1.0)));
 	functioncall	$const4 233 	%line{175} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp141 coat_weight $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp141 coat_weight $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp140 $tmp141 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:175
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:175
 #     normal sheen_normal = normalize(mix(Normal, CoatNormal, clamp(coat_weight, 0.0, 1.0)));
-	mix		$tmp139 Normal CoatNormal $tmp140 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{175} %argrw{"wrrr"}
+	mix		$tmp139 Normal CoatNormal $tmp140 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{175} %argrw{"wrrr"}
 	normalize	___379_sheen_normal $tmp139 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:176
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:176
 #     closure color SheenBSDF = sheen(sheen_normal, clamp(SheenRoughness, 0.0, 1.0));
 	functioncall	$const4 238 	%line{176} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp143 SheenRoughness $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp143 SheenRoughness $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp142 $tmp143 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:176
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:176
 #     closure color SheenBSDF = sheen(sheen_normal, clamp(SheenRoughness, 0.0, 1.0));
-	closure		___379_SheenBSDF $const36 ___379_sheen_normal $tmp142 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{176} %argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:177
+	closure		___379_SheenBSDF $const36 ___379_sheen_normal $tmp142 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{176} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:177
 #     BSDF = layer(sheen_weight * max(SheenTint, color(0.0)) * SheenBSDF, BSDF);
 	max		$tmp144 SheenTint $const5 	%line{177} %argrw{"wrr"}
 	mul		$tmp146 sheen_weight $tmp144 	%argrw{"wrr"}
 	mul		$tmp147 ___379_SheenBSDF $tmp146 	%argrw{"wrr"}
 	closure		BSDF $const31 $tmp147 BSDF 	%argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:180
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:180
 #   BSDF = mix(transparent(), BSDF, clamp(Alpha, 0.0, 1.0));
 	closure		$tmp148 $const37 	%line{180} %argrw{"wr"}
 	functioncall	$const4 247 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp150 Alpha $const3 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp150 Alpha $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp149 $tmp150 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:180
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl:180
 #   BSDF = mix(transparent(), BSDF, clamp(Alpha, 0.0, 1.0));
-	functioncall	$const26 252 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{180} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:164
+	functioncall	$const26 252 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_bsdf.osl"} %line{180} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:164
 # closure color mix (closure color x, closure color y, float a) { return x*(1-a) + y*a; }
-	sub		$tmp151 $const3 $tmp149 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{164} %argrw{"wrr"}
+	sub		$tmp151 $const3 $tmp149 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{164} %argrw{"wrr"}
 	mul		$tmp152 $tmp148 $tmp151 	%argrw{"wrr"}
 	mul		$tmp153 BSDF $tmp149 	%argrw{"wrr"}
 	add		BSDF $tmp152 $tmp153 	%argrw{"wrr"}

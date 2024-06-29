@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_gabor_texture.oso
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_gabor_texture.oso
 shader node_gabor_texture
 param	int	use_mapping	0		%read{2,2} %write{2147483647,-1}
 param	matrix	mapping	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0		%read{3,3} %write{2147483647,-1}
@@ -319,404 +319,404 @@ temp	float	$tmp138	%read{361,361} %write{359,359}
 temp	float	$tmp139	%read{361,361} %write{360,360}
 temp	float	$tmp140	%read{362,362} %write{361,361}
 code Vector
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:282
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:282
 #                           vector3 Vector = P,
-	assign		Vector P 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{282} %argrw{"wr"}
+	assign		Vector P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{282} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:292
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:292
 #   vector3 coordinates = Vector;
-	assign		coordinates Vector 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{292} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:293
+	assign		coordinates Vector 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{292} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:293
 #   if (use_mapping) {
 	if		use_mapping 4 4 	%line{293} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:294
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:294
 #     coordinates = transform(mapping, coordinates);
 	transform	coordinates mapping coordinates 	%line{294} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:297
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:297
 #   vector3 scaled_coordinates = coordinates * Scale;
 	mul		scaled_coordinates coordinates Scale 	%line{297} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:298
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:298
 #   float isotropy = 1.0 - clamp(Anisotropy, 0.0, 1.0);
 	functioncall	$const3 8 	%line{298} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp2 Anisotropy $const1 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp2 Anisotropy $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp1 $tmp2 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:298
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:298
 #   float isotropy = 1.0 - clamp(Anisotropy, 0.0, 1.0);
-	sub		isotropy $const1 $tmp1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{298} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:299
+	sub		isotropy $const1 $tmp1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{298} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:299
 #   float frequency = max(0.001, Frequency);
 	max		frequency $const4 Frequency 	%line{299} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:301
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:301
 #   vector2 phasor = vector2(0.0, 0.0);
 	assign		phasor.x $const2 	%line{301} %argrw{"wr"}
 	assign		phasor.y $const2 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:302
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:302
 #   float standard_deviation = 1.0;
 	assign		standard_deviation $const1 	%line{302} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:303
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:303
 #   if (type == "2D") {
 	eq		$tmp3 type $const5 	%line{303} %argrw{"wrr"}
 	if		$tmp3 157 350 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:305
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:305
 #         vector2(scaled_coordinates.x, scaled_coordinates.y), frequency, isotropy, Orientation2D);
 	compref		$tmp4.x scaled_coordinates $const6 	%line{305} %argrw{"wrr"}
 	compref		$tmp4.y scaled_coordinates $const7 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:304
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:304
 #     phasor = compute_2d_gabor_noise(
 	functioncall	$const8 147 	%line{304} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:149
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:149
 #   vector2 cell_position = floor(coordinates);
 	functioncall	$const9 21 	%line{149} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:157
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:157
 #     return vector2 (floor(a.x), floor(a.y));
-	floor		___497_cell_position.x $tmp4.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{157} %argrw{"wr"}
+	floor		___497_cell_position.x $tmp4.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{157} %argrw{"wr"}
 	floor		___497_cell_position.y $tmp4.y 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const10 24 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:53
+	functioncall	$const10 24 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:53
 #     return vector2(a.x - b.x, a.y - b.y);
-	sub		___497_local_position.x $tmp4.x ___497_cell_position.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{53} %argrw{"wrr"}
+	sub		___497_local_position.x $tmp4.x ___497_cell_position.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{53} %argrw{"wrr"}
 	sub		___497_local_position.y $tmp4.y ___497_cell_position.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:152
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:152
 #   vector2 sum = vector2(0.0, 0.0);
-	assign		___497_sum.x $const2 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{152} %argrw{"wr"}
+	assign		___497_sum.x $const2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{152} %argrw{"wr"}
 	assign		___497_sum.y $const2 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:153
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:153
 #   for (int j = -1; j <= 1; j++) {
 	for		$tmp6 28 30 143 145 	%line{153} %argrw{"r"}
 	assign		___498_j $const11 	%argrw{"wr"}
 	le		$tmp5 ___498_j $const7 	%argrw{"wrr"}
 	neq		$tmp6 $tmp5 $const6 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:154
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:154
 #     for (int i = -1; i <= 1; i++) {
 	for		$tmp8 32 34 141 143 	%line{154} %argrw{"r"}
 	assign		___500_i $const11 	%argrw{"wr"}
 	le		$tmp7 ___500_i $const7 	%argrw{"wrr"}
 	neq		$tmp8 $tmp7 $const6 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:155
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:155
 #       vector2 cell_offset = vector2(i, j);
 	assign		___501_cell_offset.x ___500_i 	%line{155} %argrw{"wr"}
 	assign		___501_cell_offset.y ___498_j 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
 	functioncall	$const12 39 	%line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
 #     return vector2(a.x + b.x, a.y + b.y);
-	add		___501_current_cell_position.x ___497_cell_position.x ___501_cell_offset.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
+	add		___501_current_cell_position.x ___497_cell_position.x ___501_cell_offset.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
 	add		___501_current_cell_position.y ___497_cell_position.y ___501_cell_offset.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const10 42 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:53
+	functioncall	$const10 42 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:53
 #     return vector2(a.x - b.x, a.y - b.y);
-	sub		___501_position_in_cell_space.x ___497_local_position.x ___501_cell_offset.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{53} %argrw{"wrr"}
+	sub		___501_position_in_cell_space.x ___497_local_position.x ___501_cell_offset.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{53} %argrw{"wrr"}
 	sub		___501_position_in_cell_space.y ___497_local_position.y ___501_cell_offset.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:158
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:158
 #       sum += compute_2d_gabor_noise_cell(
-	functioncall	$const13 138 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{158} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:116
+	functioncall	$const13 138 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{158} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:116
 #   vector2 noise = vector2(0.0, 0.0);
 	assign		___494_noise.x $const2 	%line{116} %argrw{"wr"}
 	assign		___494_noise.y $const2 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:117
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:117
 #   for (int i = 0; i < IMPULSES_COUNT; ++i) {
 	for		$tmp11 47 49 134 135 	%line{117} %argrw{"r"}
 	assign		___495_i $const6 	%argrw{"wr"}
 	lt		$tmp10 ___495_i $const14 	%argrw{"wrr"}
 	neq		$tmp11 $tmp10 $const6 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:119
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:119
 #     vector3 seed_for_orientation = vector3(cell.x, cell.y, i * 3);
 	mul		$tmp12 ___495_i $const15 	%line{119} %argrw{"wrr"}
 	assign		$tmp13 $tmp12 	%argrw{"wr"}
 	point		___496_seed_for_orientation ___501_current_cell_position.x ___501_current_cell_position.y $tmp13 	%argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:120
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:120
 #     vector3 seed_for_kernel_center = vector3(cell.x, cell.y, i * 3 + 1);
 	mul		$tmp14 ___495_i $const15 	%line{120} %argrw{"wrr"}
 	add		$tmp15 $tmp14 $const7 	%argrw{"wrr"}
 	assign		$tmp16 $tmp15 	%argrw{"wr"}
 	point		___496_seed_for_kernel_center ___501_current_cell_position.x ___501_current_cell_position.y $tmp16 	%argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:121
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:121
 #     vector3 seed_for_weight = vector3(cell.x, cell.y, i * 3 + 2);
 	mul		$tmp17 ___495_i $const15 	%line{121} %argrw{"wrr"}
 	add		$tmp18 $tmp17 $const16 	%argrw{"wrr"}
 	assign		$tmp19 $tmp18 	%argrw{"wr"}
 	point		___496_seed_for_weight ___501_current_cell_position.x ___501_current_cell_position.y $tmp19 	%argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:127
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:127
 #     float random_orientation = hash_vector3_to_float(seed_for_orientation) * M_PI;
 	functioncall	$const17 62 	%line{127} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:25
 #   return hashnoise(k);
-	hashnoise	$tmp20 ___496_seed_for_orientation 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{25} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:127
+	hashnoise	$tmp20 ___496_seed_for_orientation 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{25} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:127
 #     float random_orientation = hash_vector3_to_float(seed_for_orientation) * M_PI;
-	mul		___496_random_orientation $tmp20 $const18 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{127} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:128
+	mul		___496_random_orientation $tmp20 $const18 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{127} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:128
 #     float orientation = base_orientation + random_orientation * isotropy;
 	mul		$tmp21 ___496_random_orientation isotropy 	%line{128} %argrw{"wrr"}
 	add		___496_orientation Orientation2D $tmp21 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:130
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:130
 #     vector2 kernel_center = hash_vector3_to_vector2(seed_for_kernel_center);
 	functioncall	$const19 78 	%line{130} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:117
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:117
 #   return vector2(hash_vector3_to_float(vector3(k.x, k.y, k.z)),
-	compref		$tmp23 ___496_seed_for_kernel_center $const6 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{117} %argrw{"wrr"}
+	compref		$tmp23 ___496_seed_for_kernel_center $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{117} %argrw{"wrr"}
 	compref		$tmp24 ___496_seed_for_kernel_center $const7 	%argrw{"wrr"}
 	compref		$tmp25 ___496_seed_for_kernel_center $const16 	%argrw{"wrr"}
 	point		$tmp22 $tmp23 $tmp24 $tmp25 	%argrw{"wrrr"}
 	functioncall	$const17 72 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:25
 #   return hashnoise(k);
 	hashnoise	___496_kernel_center.x $tmp22 	%line{25} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:118
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:118
 #                  hash_vector3_to_float(vector3(k.z, k.x, k.y)));
 	compref		$tmp27 ___496_seed_for_kernel_center $const16 	%line{118} %argrw{"wrr"}
 	compref		$tmp28 ___496_seed_for_kernel_center $const6 	%argrw{"wrr"}
 	compref		$tmp29 ___496_seed_for_kernel_center $const7 	%argrw{"wrr"}
 	point		$tmp26 $tmp27 $tmp28 $tmp29 	%argrw{"wrrr"}
 	functioncall	$const17 78 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:25
 #   return hashnoise(k);
 	hashnoise	___496_kernel_center.y $tmp26 	%line{25} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const10 81 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:53
+	functioncall	$const10 81 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:53
 #     return vector2(a.x - b.x, a.y - b.y);
-	sub		___496_position_in_kernel_space.x ___501_position_in_cell_space.x ___496_kernel_center.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{53} %argrw{"wrr"}
+	sub		___496_position_in_kernel_space.x ___501_position_in_cell_space.x ___496_kernel_center.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{53} %argrw{"wrr"}
 	sub		___496_position_in_kernel_space.y ___501_position_in_cell_space.y ___496_kernel_center.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:135
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:135
 #     float weight = hash_vector3_to_float(seed_for_weight) < 0.5 ? -1.0 : 1.0;
-	functioncall	$const17 83 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{135} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:25
+	functioncall	$const17 83 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{135} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:25
 #   return hashnoise(k);
-	hashnoise	$tmp30 ___496_seed_for_weight 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{25} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:135
+	hashnoise	$tmp30 ___496_seed_for_weight 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{25} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:135
 #     float weight = hash_vector3_to_float(seed_for_weight) < 0.5 ? -1.0 : 1.0;
-	lt		$tmp31 $tmp30 $const20 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{135} %argrw{"wrr"}
+	lt		$tmp31 $tmp30 $const20 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{135} %argrw{"wrr"}
 	if		$tmp31 86 87 	%argrw{"r"}
 	assign		___496_weight $const21 	%argrw{"wr"}
 	assign		___496_weight $const1 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:137
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:137
 #     noise += weight * compute_2d_gabor_kernel(position_in_kernel_space, frequency, orientation);
 	functioncall	$const22 125 	%line{137} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:65
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:65
 #   float distance_squared = dot(position, position);
 	functioncall	$const23 92 	%line{65} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:187
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:187
 #     return (a.x * b.x + a.y * b.y);
-	mul		$tmp34 ___496_position_in_kernel_space.x ___496_position_in_kernel_space.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{187} %argrw{"wrr"}
+	mul		$tmp34 ___496_position_in_kernel_space.x ___496_position_in_kernel_space.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{187} %argrw{"wrr"}
 	mul		$tmp35 ___496_position_in_kernel_space.y ___496_position_in_kernel_space.y 	%argrw{"wrr"}
 	add		___491_distance_squared $tmp34 $tmp35 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:66
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:66
 #   if (distance_squared >= 1.0) {
-	ge		$tmp36 ___491_distance_squared $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{66} %argrw{"wrr"}
+	ge		$tmp36 ___491_distance_squared $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{66} %argrw{"wrr"}
 	if		$tmp36 97 97 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:67
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:67
 #     return vector2(0.0, 0.0);
 	assign		$tmp33.x $const2 	%line{67} %argrw{"wr"}
 	assign		$tmp33.y $const2 	%argrw{"wr"}
 	return
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:70
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:70
 #   float hann_window = 0.5 + 0.5 * cos(M_PI * distance_squared);
 	mul		$tmp38 $const18 ___491_distance_squared 	%line{70} %argrw{"wrr"}
 	cos		$tmp37 $tmp38 	%argrw{"wr"}
 	mul		$tmp39 $const20 $tmp37 	%argrw{"wrr"}
 	add		___491_hann_window $const20 $tmp39 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:71
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:71
 #   float gaussian_envelop = exp(-M_PI * distance_squared);
 	mul		$tmp40 $const24 ___491_distance_squared 	%line{71} %argrw{"wrr"}
 	exp		___491_gaussian_envelop $tmp40 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:72
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:72
 #   float windowed_gaussian_envelope = gaussian_envelop * hann_window;
 	mul		___491_windowed_gaussian_envelope ___491_gaussian_envelop ___491_hann_window 	%line{72} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:74
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:74
 #   vector2 frequency_vector = frequency * vector2(cos(orientation), sin(orientation));
 	cos		$tmp41.x ___496_orientation 	%line{74} %argrw{"wr"}
 	sin		$tmp41.y ___496_orientation 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
 	functioncall	$const25 112 	%line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
 #     return b * vector2(a, a);
-	assign		$tmp42.x frequency 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
+	assign		$tmp42.x frequency 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
 	assign		$tmp42.y frequency 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const25 112 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
+	functioncall	$const25 112 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
 #     return vector2(a.x * b.x, a.y * b.y);
-	mul		___491_frequency_vector.x $tmp41.x $tmp42.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
+	mul		___491_frequency_vector.x $tmp41.x $tmp42.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
 	mul		___491_frequency_vector.y $tmp41.y $tmp42.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:75
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:75
 #   float angle = 2.0 * M_PI * dot(position, frequency_vector);
-	functioncall	$const23 116 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{75} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:187
+	functioncall	$const23 116 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{75} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:187
 #     return (a.x * b.x + a.y * b.y);
-	mul		$tmp44 ___496_position_in_kernel_space.x ___491_frequency_vector.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{187} %argrw{"wrr"}
+	mul		$tmp44 ___496_position_in_kernel_space.x ___491_frequency_vector.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{187} %argrw{"wrr"}
 	mul		$tmp45 ___496_position_in_kernel_space.y ___491_frequency_vector.y 	%argrw{"wrr"}
 	add		$tmp43 $tmp44 $tmp45 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:75
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:75
 #   float angle = 2.0 * M_PI * dot(position, frequency_vector);
-	mul		___491_angle $const26 $tmp43 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{75} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:76
+	mul		___491_angle $const26 $tmp43 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{75} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:76
 #   vector2 phasor = vector2(cos(angle), sin(angle));
 	cos		___491_phasor.x ___491_angle 	%line{76} %argrw{"wr"}
 	sin		___491_phasor.y ___491_angle 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
 	functioncall	$const25 125 	%line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
 #     return b * vector2(a, a);
-	assign		$tmp46.x ___491_windowed_gaussian_envelope 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
+	assign		$tmp46.x ___491_windowed_gaussian_envelope 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
 	assign		$tmp46.y ___491_windowed_gaussian_envelope 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const25 125 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
+	functioncall	$const25 125 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
 #     return vector2(a.x * b.x, a.y * b.y);
-	mul		$tmp33.x ___491_phasor.x $tmp46.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
+	mul		$tmp33.x ___491_phasor.x $tmp46.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
 	mul		$tmp33.y ___491_phasor.y $tmp46.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const25 131 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
+	functioncall	$const25 131 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
 #     return b * vector2(a, a);
-	assign		$tmp47.x ___496_weight 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
+	assign		$tmp47.x ___496_weight 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
 	assign		$tmp47.y ___496_weight 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const25 131 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
+	functioncall	$const25 131 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
 #     return vector2(a.x * b.x, a.y * b.y);
-	mul		$tmp32.x $tmp33.x $tmp47.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
+	mul		$tmp32.x $tmp33.x $tmp47.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
 	mul		$tmp32.y $tmp33.y $tmp47.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const12 134 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
+	functioncall	$const12 134 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
 #     return vector2(a.x + b.x, a.y + b.y);
-	add		___494_noise.x ___494_noise.x $tmp32.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
+	add		___494_noise.x ___494_noise.x $tmp32.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
 	add		___494_noise.y ___494_noise.y $tmp32.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:117
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:117
 #   for (int i = 0; i < IMPULSES_COUNT; ++i) {
-	add		___495_i ___495_i $const7 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{117} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:139
+	add		___495_i ___495_i $const7 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{117} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:139
 #   return noise;
 	assign		$tmp9.x ___494_noise.x 	%line{139} %argrw{"wr"}
 	assign		$tmp9.y ___494_noise.y 	%argrw{"wr"}
 	return
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
 	functioncall	$const12 141 	%line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
 #     return vector2(a.x + b.x, a.y + b.y);
-	add		___497_sum.x ___497_sum.x $tmp9.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
+	add		___497_sum.x ___497_sum.x $tmp9.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
 	add		___497_sum.y ___497_sum.y $tmp9.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:154
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:154
 #     for (int i = -1; i <= 1; i++) {
-	assign		$tmp48 ___500_i 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{154} %argrw{"wr"}
+	assign		$tmp48 ___500_i 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{154} %argrw{"wr"}
 	add		___500_i ___500_i $const7 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:153
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:153
 #   for (int j = -1; j <= 1; j++) {
 	assign		$tmp49 ___498_j 	%line{153} %argrw{"wr"}
 	add		___498_j ___498_j $const7 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:163
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:163
 #   return sum;
 	assign		phasor.x ___497_sum.x 	%line{163} %argrw{"wr"}
 	assign		phasor.y ___497_sum.y 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:306
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:306
 #     standard_deviation = compute_2d_gabor_standard_deviation(frequency);
 	functioncall	$const27 157 	%line{306} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:101
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:101
 #   float integral_of_gabor_squared = (1.0 - exp(-2.0 * M_PI * frequency * frequency)) / 4.0;
 	mul		$tmp51 $const28 frequency 	%line{101} %argrw{"wrr"}
 	mul		$tmp52 $tmp51 frequency 	%argrw{"wrr"}
 	exp		$tmp50 $tmp52 	%argrw{"wr"}
 	sub		$tmp53 $const1 $tmp50 	%argrw{"wrr"}
 	div		___493_integral_of_gabor_squared $tmp53 $const29 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:102
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:102
 #   float second_moment = 0.5;
 	assign		___493_second_moment $const20 	%line{102} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:103
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:103
 #   return sqrt(IMPULSES_COUNT * second_moment * integral_of_gabor_squared);
 	mul		$tmp54 $const30 ___493_second_moment 	%line{103} %argrw{"wrr"}
 	mul		$tmp55 $tmp54 ___493_integral_of_gabor_squared 	%argrw{"wrr"}
 	sqrt		standard_deviation $tmp55 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:308
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:308
 #   else if (type == "3D") {
 	eq		$tmp56 type $const31 	%line{308} %argrw{"wrr"}
 	if		$tmp56 349 350 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:309
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:309
 #     vector3 orientation = normalize(vector(Orientation3D));
 	assign		$tmp57 Orientation3D 	%line{309} %argrw{"wr"}
 	normalize	___519_orientation $tmp57 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:310
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:310
 #     phasor = compute_3d_gabor_noise(scaled_coordinates, frequency, isotropy, orientation);
 	functioncall	$const32 338 	%line{310} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:260
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:260
 #   vector3 cell_position = floor(coordinates);
 	floor		___510_cell_position scaled_coordinates 	%line{260} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:261
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:261
 #   vector3 local_position = coordinates - cell_position;
 	sub		___510_local_position scaled_coordinates ___510_cell_position 	%line{261} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:263
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:263
 #   vector2 sum = vector2(0.0, 0.0);
 	assign		___510_sum.x $const2 	%line{263} %argrw{"wr"}
 	assign		___510_sum.y $const2 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:264
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:264
 #   for (int k = -1; k <= 1; k++) {
 	for		$tmp59 168 170 334 336 	%line{264} %argrw{"r"}
 	assign		___511_k $const11 	%argrw{"wr"}
 	le		$tmp58 ___511_k $const7 	%argrw{"wrr"}
 	neq		$tmp59 $tmp58 $const6 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:265
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:265
 #     for (int j = -1; j <= 1; j++) {
 	for		$tmp61 172 174 332 334 	%line{265} %argrw{"r"}
 	assign		___513_j $const11 	%argrw{"wr"}
 	le		$tmp60 ___513_j $const7 	%argrw{"wrr"}
 	neq		$tmp61 $tmp60 $const6 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:266
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:266
 #       for (int i = -1; i <= 1; i++) {
 	for		$tmp63 176 178 330 332 	%line{266} %argrw{"r"}
 	assign		___515_i $const11 	%argrw{"wr"}
 	le		$tmp62 ___515_i $const7 	%argrw{"wrr"}
 	neq		$tmp63 $tmp62 $const6 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:267
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:267
 #         vector3 cell_offset = vector3(i, j, k);
 	assign		$tmp64 ___515_i 	%line{267} %argrw{"wr"}
 	assign		$tmp65 ___513_j 	%argrw{"wr"}
 	assign		$tmp66 ___511_k 	%argrw{"wr"}
 	point		___516_cell_offset $tmp64 $tmp65 $tmp66 	%argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:268
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:268
 #         vector3 current_cell_position = cell_position + cell_offset;
 	add		___516_current_cell_position ___510_cell_position ___516_cell_offset 	%line{268} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:269
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:269
 #         vector3 position_in_cell_space = local_position - cell_offset;
 	sub		___516_position_in_cell_space ___510_local_position ___516_cell_offset 	%line{269} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:270
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:270
 #         sum += compute_3d_gabor_noise_cell(
 	functioncall	$const33 327 	%line{270} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:233
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:233
 #   vector2 noise = vector2(0.0, 0.0);
 	assign		___507_noise.x $const2 	%line{233} %argrw{"wr"}
 	assign		___507_noise.y $const2 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:234
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:234
 #   for (int i = 0; i < IMPULSES_COUNT; ++i) {
 	for		$tmp69 189 191 323 324 	%line{234} %argrw{"r"}
 	assign		___508_i $const6 	%argrw{"wr"}
 	lt		$tmp68 ___508_i $const14 	%argrw{"wrr"}
 	neq		$tmp69 $tmp68 $const6 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:236
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:236
 #     vector4 seed_for_orientation = vector4(cell.x, cell.y, cell.z, i * 3);
 	compref		___509_seed_for_orientation.x ___516_current_cell_position $const6 	%line{236} %argrw{"wrr"}
 	compref		___509_seed_for_orientation.y ___516_current_cell_position $const7 	%argrw{"wrr"}
 	compref		___509_seed_for_orientation.z ___516_current_cell_position $const16 	%argrw{"wrr"}
 	mul		$tmp70 ___508_i $const15 	%argrw{"wrr"}
 	assign		___509_seed_for_orientation.w $tmp70 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:237
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:237
 #     vector4 seed_for_kernel_center = vector4(cell.x, cell.y, cell.z, i * 3 + 1);
 	compref		___509_seed_for_kernel_center.x ___516_current_cell_position $const6 	%line{237} %argrw{"wrr"}
 	compref		___509_seed_for_kernel_center.y ___516_current_cell_position $const7 	%argrw{"wrr"}
@@ -724,7 +724,7 @@ code ___main___
 	mul		$tmp71 ___508_i $const15 	%argrw{"wrr"}
 	add		$tmp72 $tmp71 $const7 	%argrw{"wrr"}
 	assign		___509_seed_for_kernel_center.w $tmp72 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:238
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:238
 #     vector4 seed_for_weight = vector4(cell.x, cell.y, cell.z, i * 3 + 2);
 	compref		___509_seed_for_weight.x ___516_current_cell_position $const6 	%line{238} %argrw{"wrr"}
 	compref		___509_seed_for_weight.y ___516_current_cell_position $const7 	%argrw{"wrr"}
@@ -732,95 +732,95 @@ code ___main___
 	mul		$tmp73 ___508_i $const15 	%argrw{"wrr"}
 	add		$tmp74 $tmp73 $const16 	%argrw{"wrr"}
 	assign		___509_seed_for_weight.w $tmp74 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:240
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:240
 #     vector3 orientation = compute_3d_orientation(base_orientation, isotropy, seed_for_orientation);
 	functioncall	$const34 262 	%line{240} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:207
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:207
 #   if (isotropy == 0.0) {
 	eq		$tmp75 isotropy $const2 	%line{207} %argrw{"wrr"}
 	if		$tmp75 213 213 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:208
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:208
 #     return orientation;
 	assign		___509_orientation ___519_orientation 	%line{208} %argrw{"wr"}
 	return
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:212
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:212
 #   float inclination = acos(orientation.z);
 	compref		$tmp76 ___519_orientation $const16 	%line{212} %argrw{"wrr"}
 	acos		___505_inclination $tmp76 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:213
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:213
 #   float azimuth = sign(orientation.y) *
 	compref		$tmp78 ___519_orientation $const7 	%line{213} %argrw{"wrr"}
 	sign		$tmp77 $tmp78 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:214
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:214
 #                   acos(orientation.x / length(vector2(orientation.x, orientation.y)));
 	compref		$tmp80 ___519_orientation $const6 	%line{214} %argrw{"wrr"}
 	compref		$tmp82.x ___519_orientation $const6 	%argrw{"wrr"}
 	compref		$tmp82.y ___519_orientation $const7 	%argrw{"wrr"}
 	functioncall	$const35 226 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:192
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:192
 #     return hypot (a.x, a.y);
-	functioncall	$const36 226 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{192} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:101
+	functioncall	$const36 226 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{192} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:101
 # float hypot (float a, float b) { return sqrt (a*a + b*b); }
-	mul		$tmp83 $tmp82.x $tmp82.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{101} %argrw{"wrr"}
+	mul		$tmp83 $tmp82.x $tmp82.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{101} %argrw{"wrr"}
 	mul		$tmp84 $tmp82.y $tmp82.y 	%argrw{"wrr"}
 	add		$tmp85 $tmp83 $tmp84 	%argrw{"wrr"}
 	sqrt		$tmp81 $tmp85 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:214
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:214
 #                   acos(orientation.x / length(vector2(orientation.x, orientation.y)));
-	div		$tmp86 $tmp80 $tmp81 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{214} %argrw{"wrr"}
+	div		$tmp86 $tmp80 $tmp81 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{214} %argrw{"wrr"}
 	acos		$tmp79 $tmp86 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:213
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:213
 #   float azimuth = sign(orientation.y) *
 	mul		___505_azimuth $tmp77 $tmp79 	%line{213} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:220
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:220
 #   vector2 random_angles = hash_vector4_to_vector2(seed) * M_PI;
 	functioncall	$const37 244 	%line{220} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:123
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:123
 #   return vector2(hash_vector4_to_float(vector4(k.x, k.y, k.z, k.w)),
-	assign		$tmp88.x ___509_seed_for_orientation.x 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{123} %argrw{"wr"}
+	assign		$tmp88.x ___509_seed_for_orientation.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{123} %argrw{"wr"}
 	assign		$tmp88.y ___509_seed_for_orientation.y 	%argrw{"wr"}
 	assign		$tmp88.z ___509_seed_for_orientation.z 	%argrw{"wr"}
 	assign		$tmp88.w ___509_seed_for_orientation.w 	%argrw{"wr"}
 	functioncall	$const38 237 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp89 $tmp88.x $tmp88.y $tmp88.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp87.x $tmp89 $tmp88.w 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:124
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:124
 #                  hash_vector4_to_float(vector4(k.z, k.x, k.w, k.y)));
 	assign		$tmp90.x ___509_seed_for_orientation.z 	%line{124} %argrw{"wr"}
 	assign		$tmp90.y ___509_seed_for_orientation.x 	%argrw{"wr"}
 	assign		$tmp90.z ___509_seed_for_orientation.w 	%argrw{"wr"}
 	assign		$tmp90.w ___509_seed_for_orientation.y 	%argrw{"wr"}
 	functioncall	$const38 244 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp91 $tmp90.x $tmp90.y $tmp90.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp87.y $tmp91 $tmp90.w 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const25 250 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:88
+	functioncall	$const25 250 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:88
 #     return a * vector2(b, b);
-	assign		$tmp92.x $const18 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{88} %argrw{"wr"}
+	assign		$tmp92.x $const18 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{88} %argrw{"wr"}
 	assign		$tmp92.y $const18 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const25 250 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
+	functioncall	$const25 250 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
 #     return vector2(a.x * b.x, a.y * b.y);
-	mul		___505_random_angles.x $tmp87.x $tmp92.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
+	mul		___505_random_angles.x $tmp87.x $tmp92.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
 	mul		___505_random_angles.y $tmp87.y $tmp92.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:221
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:221
 #   inclination += random_angles.x * isotropy;
-	mul		$tmp93 ___505_random_angles.x isotropy 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{221} %argrw{"wrr"}
+	mul		$tmp93 ___505_random_angles.x isotropy 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{221} %argrw{"wrr"}
 	add		___505_inclination ___505_inclination $tmp93 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:222
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:222
 #   azimuth += random_angles.y * isotropy;
 	mul		$tmp94 ___505_random_angles.y isotropy 	%line{222} %argrw{"wrr"}
 	add		___505_azimuth ___505_azimuth $tmp94 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:226
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:226
 #       sin(inclination) * cos(azimuth), sin(inclination) * sin(azimuth), cos(inclination));
 	sin		$tmp95 ___505_inclination 	%line{226} %argrw{"wr"}
 	cos		$tmp96 ___505_azimuth 	%argrw{"wr"}
@@ -829,217 +829,217 @@ code ___main___
 	sin		$tmp99 ___505_azimuth 	%argrw{"wr"}
 	mul		$tmp100 $tmp98 $tmp99 	%argrw{"wrr"}
 	cos		$tmp101 ___505_inclination 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:225
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:225
 #   return vector3(
 	point		___509_orientation $tmp97 $tmp100 $tmp101 	%line{225} %argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:242
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:242
 #     vector3 kernel_center = hash_vector4_to_vector3(seed_for_kernel_center);
 	functioncall	$const39 281 	%line{242} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:103
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:103
 #   return vector3(hash_vector4_to_float(k),
-	functioncall	$const38 266 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{103} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+	functioncall	$const38 266 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{103} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp103 ___509_seed_for_kernel_center.x ___509_seed_for_kernel_center.y ___509_seed_for_kernel_center.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp102 $tmp103 ___509_seed_for_kernel_center.w 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:104
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:104
 #                  hash_vector4_to_float(vector4(k.z, k.x, k.w, k.y)),
 	assign		$tmp105.x ___509_seed_for_kernel_center.z 	%line{104} %argrw{"wr"}
 	assign		$tmp105.y ___509_seed_for_kernel_center.x 	%argrw{"wr"}
 	assign		$tmp105.z ___509_seed_for_kernel_center.w 	%argrw{"wr"}
 	assign		$tmp105.w ___509_seed_for_kernel_center.y 	%argrw{"wr"}
 	functioncall	$const38 273 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp106 $tmp105.x $tmp105.y $tmp105.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp104 $tmp106 $tmp105.w 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:105
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:105
 #                  hash_vector4_to_float(vector4(k.w, k.z, k.y, k.x)));
 	assign		$tmp108.x ___509_seed_for_kernel_center.w 	%line{105} %argrw{"wr"}
 	assign		$tmp108.y ___509_seed_for_kernel_center.z 	%argrw{"wr"}
 	assign		$tmp108.z ___509_seed_for_kernel_center.y 	%argrw{"wr"}
 	assign		$tmp108.w ___509_seed_for_kernel_center.x 	%argrw{"wr"}
 	functioncall	$const38 280 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp109 $tmp108.x $tmp108.y $tmp108.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp107 $tmp109 $tmp108.w 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:103
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:103
 #   return vector3(hash_vector4_to_float(k),
 	point		___509_kernel_center $tmp102 $tmp104 $tmp107 	%line{103} %argrw{"wrrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:243
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:243
 #     vector3 position_in_kernel_space = position - kernel_center;
-	sub		___509_position_in_kernel_space ___516_position_in_cell_space ___509_kernel_center 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{243} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:247
+	sub		___509_position_in_kernel_space ___516_position_in_cell_space ___509_kernel_center 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{243} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:247
 #     float weight = hash_vector4_to_float(seed_for_weight) < 0.5 ? -1.0 : 1.0;
 	functioncall	$const38 285 	%line{247} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
-	point		$tmp111 ___509_seed_for_weight.x ___509_seed_for_weight.y ___509_seed_for_weight.z 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{30} %argrw{"wrrr"}
+	point		$tmp111 ___509_seed_for_weight.x ___509_seed_for_weight.y ___509_seed_for_weight.z 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{30} %argrw{"wrrr"}
 	hashnoise	$tmp110 $tmp111 ___509_seed_for_weight.w 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:247
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:247
 #     float weight = hash_vector4_to_float(seed_for_weight) < 0.5 ? -1.0 : 1.0;
-	lt		$tmp112 $tmp110 $const20 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{247} %argrw{"wrr"}
+	lt		$tmp112 $tmp110 $const20 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{247} %argrw{"wrr"}
 	if		$tmp112 288 289 	%argrw{"r"}
 	assign		___509_weight $const21 	%argrw{"wr"}
 	assign		___509_weight $const1 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:249
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:249
 #     noise += weight * compute_3d_gabor_kernel(position_in_kernel_space, frequency, orientation);
 	functioncall	$const40 314 	%line{249} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:174
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:174
 #   float distance_squared = dot(position, position);
 	dot		___502_distance_squared ___509_position_in_kernel_space ___509_position_in_kernel_space 	%line{174} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:175
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:175
 #   if (distance_squared >= 1.0) {
 	ge		$tmp115 ___502_distance_squared $const1 	%line{175} %argrw{"wrr"}
 	if		$tmp115 296 296 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:176
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:176
 #     return vector2(0.0, 0.0);
 	assign		$tmp114.x $const2 	%line{176} %argrw{"wr"}
 	assign		$tmp114.y $const2 	%argrw{"wr"}
 	return
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:179
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:179
 #   float hann_window = 0.5 + 0.5 * cos(M_PI * distance_squared);
 	mul		$tmp117 $const18 ___502_distance_squared 	%line{179} %argrw{"wrr"}
 	cos		$tmp116 $tmp117 	%argrw{"wr"}
 	mul		$tmp118 $const20 $tmp116 	%argrw{"wrr"}
 	add		___502_hann_window $const20 $tmp118 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:180
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:180
 #   float gaussian_envelop = exp(-M_PI * distance_squared);
 	mul		$tmp119 $const24 ___502_distance_squared 	%line{180} %argrw{"wrr"}
 	exp		___502_gaussian_envelop $tmp119 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:181
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:181
 #   float windowed_gaussian_envelope = gaussian_envelop * hann_window;
 	mul		___502_windowed_gaussian_envelope ___502_gaussian_envelop ___502_hann_window 	%line{181} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:183
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:183
 #   vector3 frequency_vector = frequency * orientation;
 	mul		___502_frequency_vector frequency ___509_orientation 	%line{183} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:184
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:184
 #   float angle = 2.0 * M_PI * dot(position, frequency_vector);
 	dot		$tmp120 ___509_position_in_kernel_space ___502_frequency_vector 	%line{184} %argrw{"wrr"}
 	mul		___502_angle $const26 $tmp120 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:185
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:185
 #   vector2 phasor = vector2(cos(angle), sin(angle));
 	cos		___502_phasor.x ___502_angle 	%line{185} %argrw{"wr"}
 	sin		___502_phasor.y ___502_angle 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
 	functioncall	$const25 314 	%line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
 #     return b * vector2(a, a);
-	assign		$tmp121.x ___502_windowed_gaussian_envelope 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
+	assign		$tmp121.x ___502_windowed_gaussian_envelope 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
 	assign		$tmp121.y ___502_windowed_gaussian_envelope 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const25 314 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
+	functioncall	$const25 314 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
 #     return vector2(a.x * b.x, a.y * b.y);
-	mul		$tmp114.x ___502_phasor.x $tmp121.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
+	mul		$tmp114.x ___502_phasor.x $tmp121.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
 	mul		$tmp114.y ___502_phasor.y $tmp121.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const25 320 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
+	functioncall	$const25 320 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:98
 #     return b * vector2(a, a);
-	assign		$tmp122.x ___509_weight 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
+	assign		$tmp122.x ___509_weight 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{98} %argrw{"wr"}
 	assign		$tmp122.y ___509_weight 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const25 320 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
+	functioncall	$const25 320 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:78
 #     return vector2(a.x * b.x, a.y * b.y);
-	mul		$tmp113.x $tmp114.x $tmp122.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
+	mul		$tmp113.x $tmp114.x $tmp122.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{78} %argrw{"wrr"}
 	mul		$tmp113.y $tmp114.y $tmp122.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
-	functioncall	$const12 323 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
+	functioncall	$const12 323 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{332} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
 #     return vector2(a.x + b.x, a.y + b.y);
-	add		___507_noise.x ___507_noise.x $tmp113.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
+	add		___507_noise.x ___507_noise.x $tmp113.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
 	add		___507_noise.y ___507_noise.y $tmp113.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:234
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:234
 #   for (int i = 0; i < IMPULSES_COUNT; ++i) {
-	add		___508_i ___508_i $const7 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{234} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:251
+	add		___508_i ___508_i $const7 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{234} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:251
 #   return noise;
 	assign		$tmp67.x ___507_noise.x 	%line{251} %argrw{"wr"}
 	assign		$tmp67.y ___507_noise.y 	%argrw{"wr"}
 	return
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:332
 # 
 	functioncall	$const12 330 	%line{332} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:28
 #     return vector2(a.x + b.x, a.y + b.y);
-	add		___510_sum.x ___510_sum.x $tmp67.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
+	add		___510_sum.x ___510_sum.x $tmp67.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{28} %argrw{"wrr"}
 	add		___510_sum.y ___510_sum.y $tmp67.y 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:266
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:266
 #       for (int i = -1; i <= 1; i++) {
-	assign		$tmp123 ___515_i 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{266} %argrw{"wr"}
+	assign		$tmp123 ___515_i 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{266} %argrw{"wr"}
 	add		___515_i ___515_i $const7 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:265
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:265
 #     for (int j = -1; j <= 1; j++) {
 	assign		$tmp124 ___513_j 	%line{265} %argrw{"wr"}
 	add		___513_j ___513_j $const7 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:264
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:264
 #   for (int k = -1; k <= 1; k++) {
 	assign		$tmp125 ___511_k 	%line{264} %argrw{"wr"}
 	add		___511_k ___511_k $const7 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:276
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:276
 #   return sum;
 	assign		phasor.x ___510_sum.x 	%line{276} %argrw{"wr"}
 	assign		phasor.y ___510_sum.y 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:311
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:311
 #     standard_deviation = compute_3d_gabor_standard_deviation(frequency);
 	functioncall	$const41 349 	%line{311} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:195
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:195
 #   float integral_of_gabor_squared = (1.0 - exp(-2.0 * M_PI * frequency * frequency)) /
 	mul		$tmp127 $const28 frequency 	%line{195} %argrw{"wrr"}
 	mul		$tmp128 $tmp127 frequency 	%argrw{"wrr"}
 	exp		$tmp126 $tmp128 	%argrw{"wr"}
 	sub		$tmp129 $const1 $tmp126 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:196
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:196
 #                                     pow(2.0, 5.0 / 2.0);
 	pow		$tmp130 $const42 $const43 	%line{196} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:195
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:195
 #   float integral_of_gabor_squared = (1.0 - exp(-2.0 * M_PI * frequency * frequency)) /
 	div		___504_integral_of_gabor_squared $tmp129 $tmp130 	%line{195} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:197
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:197
 #   float second_moment = 0.5;
 	assign		___504_second_moment $const20 	%line{197} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:198
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:198
 #   return sqrt(IMPULSES_COUNT * second_moment * integral_of_gabor_squared);
 	mul		$tmp131 $const30 ___504_second_moment 	%line{198} %argrw{"wrr"}
 	mul		$tmp132 $tmp131 ___504_integral_of_gabor_squared 	%argrw{"wrr"}
 	sqrt		standard_deviation $tmp132 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:314
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:314
 #     error("Unknown type!");
 	error		$const44 	%line{314} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:319
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:319
 #   float normalization_factor = 6.0 * standard_deviation;
 	mul		normalization_factor $const45 standard_deviation 	%line{319} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:323
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:323
 #   Value = (phasor.y / normalization_factor) * 0.5 + 0.5;
 	div		$tmp133 phasor.y normalization_factor 	%line{323} %argrw{"wrr"}
 	mul		$tmp134 $tmp133 $const20 	%argrw{"wrr"}
 	add		Value $tmp134 $const20 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:327
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:327
 #   Phase = (atan2(phasor.y, phasor.x) + M_PI) / (2.0 * M_PI);
 	atan2		$tmp135 phasor.y phasor.x 	%line{327} %argrw{"wrr"}
 	add		$tmp136 $tmp135 $const18 	%argrw{"wrr"}
 	div		Phase $tmp136 $const26 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:330
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:330
 #   Intensity = length(phasor) / normalization_factor;
 	functioncall	$const35 363 	%line{330} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:192
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h:192
 #     return hypot (a.x, a.y);
-	functioncall	$const36 363 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{192} %argrw{"r"}
-# F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:101
+	functioncall	$const36 363 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\vector2.h"} %line{192} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:101
 # float hypot (float a, float b) { return sqrt (a*a + b*b); }
-	mul		$tmp138 phasor.x phasor.x 	%filename{"F:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{101} %argrw{"wrr"}
+	mul		$tmp138 phasor.x phasor.x 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{101} %argrw{"wrr"}
 	mul		$tmp139 phasor.y phasor.y 	%argrw{"wrr"}
 	add		$tmp140 $tmp138 $tmp139 	%argrw{"wrr"}
 	sqrt		$tmp137 $tmp140 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:330
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl:330
 #   Intensity = length(phasor) / normalization_factor;
-	div		Intensity $tmp137 normalization_factor 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{330} %argrw{"wrr"}
+	div		Intensity $tmp137 normalization_factor 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gabor_texture.osl"} %line{330} %argrw{"wrr"}
 	end

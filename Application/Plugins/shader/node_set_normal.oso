@@ -1,23 +1,23 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_set_normal.oso
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_set_normal.oso
 surface node_set_normal
 param	normal	Direction	0 0 0		%read{2,3} %write{0,0} %initexpr
 oparam	normal	Normal	0 0 0		%read{2147483647,-1} %write{1,3} %initexpr
 global	normal	N	%read{0,1} %write{2,2}
 code Direction
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_set_normal.osl:7
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_set_normal.osl:7
 # surface node_set_normal(normal Direction = N, output normal Normal = N)
-	assign		Direction N 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_set_normal.osl"} %line{7} %argrw{"wr"}
+	assign		Direction N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_set_normal.osl"} %line{7} %argrw{"wr"}
 code Normal
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_set_normal.osl:7
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_set_normal.osl:7
 # surface node_set_normal(normal Direction = N, output normal Normal = N)
-	assign		Normal N 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_set_normal.osl"} %line{7} %argrw{"wr"}
+	assign		Normal N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_set_normal.osl"} %line{7} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_set_normal.osl:9
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_set_normal.osl:9
 #   N = Direction;
-	assign		N Direction 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_set_normal.osl"} %line{9} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_set_normal.osl:10
+	assign		N Direction 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_set_normal.osl"} %line{9} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_set_normal.osl:10
 #   Normal = Direction;
 	assign		Normal Direction 	%line{10} %argrw{"wr"}
 	end

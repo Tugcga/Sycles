@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_principled_volume.oso
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_principled_volume.oso
 shader node_principled_volume
 param	color	Color	0.5 0.5 0.5		%read{10,10} %write{2147483647,-1}
 param	float	Density	1		%read{1,1} %write{2147483647,-1}
@@ -75,47 +75,47 @@ temp	color	$tmp33	%read{62,62} %write{61,61}
 temp	closure color	$tmp34	%read{64,64} %write{63,63}
 temp	closure color	$tmp35	%read{65,65} %write{64,64}
 code ___main___
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:22
 #   float primitive_density = 1.0;
-	assign		primitive_density $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl"} %line{22} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:23
+	assign		primitive_density $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl"} %line{22} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:23
 #   float density = max(Density, 0.0);
 	max		density Density $const2 	%line{23} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:25
 #   if (density > 1e-5) {
 	gt		$tmp1 density $const3 	%line{25} %argrw{"wrr"}
 	if		$tmp1 8 8 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:26
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:26
 #     if (getattribute(DensityAttribute, primitive_density)) {
 	getattribute	$tmp2 DensityAttribute primitive_density 	%line{26} %argrw{"wrw"}
 	if		$tmp2 8 8 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:27
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:27
 #       density = max(density * primitive_density, 0.0);
 	mul		$tmp3 density primitive_density 	%line{27} %argrw{"wrr"}
 	max		density $tmp3 $const2 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:31
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:31
 #   if (density > 1e-5) {
 	gt		$tmp4 density $const3 	%line{31} %argrw{"wrr"}
 	if		$tmp4 32 32 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:33
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:33
 #     color scatter_color = Color;
 	assign		___364_scatter_color Color 	%line{33} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:35
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:35
 #     if (getattribute(ColorAttribute, primitive_color)) {
 	getattribute	$tmp5 ColorAttribute ___364_primitive_color 	%line{35} %argrw{"wrw"}
 	if		$tmp5 14 14 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:36
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:36
 #       scatter_color *= primitive_color;
 	mul		___364_scatter_color ___364_scatter_color ___364_primitive_color 	%line{36} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:40
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:40
 #     color scatter_coeff = scatter_color;
 	assign		___364_scatter_coeff ___364_scatter_color 	%line{40} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:41
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:41
 #     color absorption_color = sqrt(max(AbsorptionColor, 0.0));
 	assign		$tmp7 $const2 	%line{41} %argrw{"wr"}
 	max		$tmp6 AbsorptionColor $tmp7 	%argrw{"wrr"}
 	sqrt		___364_absorption_color $tmp6 	%argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:42
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:42
 #     color absorption_coeff = max(1.0 - scatter_color, 0.0) * max(1.0 - absorption_color, 0.0);
 	sub		$tmp9 $const1 ___364_scatter_color 	%line{42} %argrw{"wrr"}
 	assign		$tmp10 $const2 	%argrw{"wr"}
@@ -124,85 +124,85 @@ code ___main___
 	assign		$tmp13 $const2 	%argrw{"wr"}
 	max		$tmp11 $tmp12 $tmp13 	%argrw{"wrr"}
 	mul		___364_absorption_coeff $tmp8 $tmp11 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:43
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:43
 #     Volume = scatter_coeff * density * henyey_greenstein(Anisotropy) +
 	closure		$tmp14 $const4 Anisotropy 	%line{43} %argrw{"wrr"}
 	mul		$tmp15 ___364_scatter_coeff density 	%argrw{"wrr"}
 	mul		$tmp16 $tmp14 $tmp15 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:44
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:44
 #              absorption_coeff * density * absorption();
 	closure		$tmp17 $const5 	%line{44} %argrw{"wr"}
 	mul		$tmp18 ___364_absorption_coeff density 	%argrw{"wrr"}
 	mul		$tmp19 $tmp17 $tmp18 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:43
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:43
 #     Volume = scatter_coeff * density * henyey_greenstein(Anisotropy) +
 	add		Volume $tmp16 $tmp19 	%line{43} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:48
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:48
 #   float emission_strength = max(EmissionStrength, 0.0);
 	max		emission_strength EmissionStrength $const2 	%line{48} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:49
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:49
 #   float blackbody_intensity = BlackbodyIntensity;
 	assign		blackbody_intensity BlackbodyIntensity 	%line{49} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:51
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:51
 #   if (emission_strength > 1e-5) {
 	gt		$tmp20 emission_strength $const3 	%line{51} %argrw{"wrr"}
 	if		$tmp20 40 40 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:52
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:52
 #     Volume += emission_strength * EmissionColor * emission();
 	closure		$tmp21 $const6 	%line{52} %argrw{"wr"}
 	mul		$tmp22 emission_strength EmissionColor 	%argrw{"wrr"}
 	mul		$tmp23 $tmp21 $tmp22 	%argrw{"wrr"}
 	add		Volume Volume $tmp23 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:55
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:55
 #   if (blackbody_intensity > 1e-3) {
 	gt		$tmp24 blackbody_intensity $const7 	%line{55} %argrw{"wrr"}
 	if		$tmp24 66 66 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:56
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:56
 #     float T = Temperature;
 	assign		___367_T Temperature 	%line{56} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:60
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:60
 #     if (getattribute(TemperatureAttribute, temperature)) {
 	getattribute	$tmp25 TemperatureAttribute ___367_temperature 	%line{60} %argrw{"wrw"}
 	if		$tmp25 47 47 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:61
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:61
 #       T *= max(temperature, 0.0);
 	max		$tmp26 ___367_temperature $const2 	%line{61} %argrw{"wrr"}
 	mul		___367_T ___367_T $tmp26 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:64
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:64
 #     T = max(T, 0.0);
 	max		___367_T ___367_T $const2 	%line{64} %argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:67
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:67
 #     float T4 = (T * T) * (T * T);
 	mul		$tmp27 ___367_T ___367_T 	%line{67} %argrw{"wrr"}
 	mul		$tmp28 ___367_T ___367_T 	%argrw{"wrr"}
 	mul		___367_T4 $tmp27 $tmp28 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:68
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:68
 #     float sigma = 5.670373e-8 * 1e-6 / M_PI;
 	assign		___367_sigma $const8 	%line{68} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:69
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:69
 #     float intensity = sigma * mix(1.0, T4, blackbody_intensity);
 	mix		$tmp29 $const1 ___367_T4 blackbody_intensity 	%line{69} %argrw{"wrrr"}
 	mul		___367_intensity ___367_sigma $tmp29 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:71
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:71
 #     if (intensity > 1e-5) {
 	gt		$tmp30 ___367_intensity $const3 	%line{71} %argrw{"wrr"}
 	if		$tmp30 66 66 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:72
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:72
 #       color bb = blackbody(T);
 	blackbody	___369_bb ___367_T 	%line{72} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:73
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:73
 #       float l = luminance(bb);
 	luminance	___369_l ___369_bb 	%line{73} %argrw{"wr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:75
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:75
 #       if (l != 0.0) {
 	neq		$tmp31 ___369_l $const2 	%line{75} %argrw{"wrr"}
 	if		$tmp31 66 66 	%argrw{"r"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:76
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:76
 #         bb *= BlackbodyTint * intensity / l;
 	mul		$tmp32 BlackbodyTint ___367_intensity 	%line{76} %argrw{"wrr"}
 	div		$tmp33 $tmp32 ___369_l 	%argrw{"wrr"}
 	mul		___369_bb ___369_bb $tmp33 	%argrw{"wrr"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:77
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_volume.osl:77
 #         Volume += bb * emission();
 	closure		$tmp34 $const6 	%line{77} %argrw{"wr"}
 	mul		$tmp35 $tmp34 ___369_bb 	%argrw{"wrr"}

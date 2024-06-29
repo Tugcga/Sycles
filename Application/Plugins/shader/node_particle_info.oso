@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blender_repo/blender/lib/windows_x64/osl/share/OSL/shaders -o F:/Repositories/blender_repo/build_windows_Cycles_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_particle_info.oso
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_particle_info.oso
 shader node_particle_info
 oparam	float	Index	0		%read{2147483647,-1} %write{2,2}
 oparam	float	Random	0		%read{2147483647,-1} %write{3,3}
@@ -28,36 +28,36 @@ const	string	$const8	"particle:velocity"		%read{8,8} %write{2147483647,-1}
 temp	int	$tmp8	%read{2147483647,-1} %write{9,9}
 const	string	$const9	"particle:angular_velocity"		%read{9,9} %write{2147483647,-1}
 code Velocity
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:13
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:13
 #                           output vector Velocity = point(0.0, 0.0, 0.0),
-	assign		Velocity $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl"} %line{13} %argrw{"wr"}
+	assign		Velocity $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl"} %line{13} %argrw{"wr"}
 code AngularVelocity
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:14
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:14
 #                           output vector AngularVelocity = point(0.0, 0.0, 0.0))
-	assign		AngularVelocity $const1 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl"} %line{14} %argrw{"wr"}
+	assign		AngularVelocity $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl"} %line{14} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:16
 #   getattribute("particle:index", Index);
-	getattribute	$tmp1 $const2 Index 	%filename{"F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl"} %line{16} %argrw{"wrw"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:17
+	getattribute	$tmp1 $const2 Index 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl"} %line{16} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:17
 #   getattribute("particle:random", Random);
 	getattribute	$tmp2 $const3 Random 	%line{17} %argrw{"wrw"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:18
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:18
 #   getattribute("particle:age", Age);
 	getattribute	$tmp3 $const4 Age 	%line{18} %argrw{"wrw"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:19
 #   getattribute("particle:lifetime", Lifetime);
 	getattribute	$tmp4 $const5 Lifetime 	%line{19} %argrw{"wrw"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:20
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:20
 #   getattribute("particle:location", Location);
 	getattribute	$tmp5 $const6 Location 	%line{20} %argrw{"wrw"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:21
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:21
 #   getattribute("particle:size", Size);
 	getattribute	$tmp6 $const7 Size 	%line{21} %argrw{"wrw"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:22
 #   getattribute("particle:velocity", Velocity);
 	getattribute	$tmp7 $const8 Velocity 	%line{22} %argrw{"wrw"}
-# F:/Repositories/blender_repo/blender/intern/cycles/kernel/osl/shaders/node_particle_info.osl:23
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_particle_info.osl:23
 #   getattribute("particle:angular_velocity", AngularVelocity);
 	getattribute	$tmp8 $const9 AngularVelocity 	%line{23} %argrw{"wrw"}
 	end
