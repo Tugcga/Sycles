@@ -380,6 +380,13 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		return node;
 	}
+	else if (shader_type == "RayPortalBSDF")
+	{
+		ccl::RayPortalBsdfNode* node = shader_graph->create_node<ccl::RayPortalBsdfNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		return node;
+	}
 	else if (shader_type == "SubsurfaceScattering")
 	{
 		ccl::SubsurfaceScatteringNode* node = shader_graph->create_node<ccl::SubsurfaceScatteringNode>();
@@ -652,9 +659,11 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString dimensions = get_string_parameter_value(xsi_parameters, "VoronoiDimensions", eval_time);
 		XSI::CString distance = get_string_parameter_value(xsi_parameters, "Distance", eval_time);
 		XSI::CString feature = get_string_parameter_value(xsi_parameters, "Feature", eval_time);
+		bool normalize = get_bool_parameter_value(xsi_parameters, "normalize", eval_time);
 		node->set_dimensions(get_dimensions_type(dimensions));
 		node->set_metric(voronoi_distance(distance));
 		node->set_feature(voronoi_feature(feature));
+		node->set_use_normalize(normalize);
 
 		return node;
 	}
@@ -717,6 +726,20 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		node->set_dimensions(get_dimensions_type(dimensions));
 		node->set_vector(ccl::make_float3(vector_x, vector_y, vector_z));
+
+		return node;
+	}
+	else if (shader_type == "GaborTexture")
+	{
+		ccl::GaborTextureNode* node = shader_graph->create_node<ccl::GaborTextureNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		XSI::CString gabor_type = get_string_parameter_value(xsi_parameters, "gabor_type", eval_time);
+		float orientation_3d_x = get_float_parameter_value(xsi_parameters, "orientation_3d_x", eval_time);
+		float orientation_3d_y = get_float_parameter_value(xsi_parameters, "orientation_3d_y", eval_time);
+		float orientation_3d_z = get_float_parameter_value(xsi_parameters, "orientation_3d_z", eval_time);
+
+		node->set_type(get_gabor_type(gabor_type));
+		node->set_orientation_3d(ccl::make_float3(orientation_3d_x, orientation_3d_y, orientation_3d_z));
 
 		return node;
 	}

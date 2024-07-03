@@ -344,6 +344,11 @@ sheen_distribution_enum = [
     "Microfiber", "microfiber"
 ]
 
+gabor_type_enum = [
+    "2D", "2d",
+    "3D", "3d"
+]
+
 
 def XSILoadPlugin(in_reg):
     in_reg.Author = "Shekn Itrch"
@@ -370,6 +375,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterShader("CyclesPrincipledVolume", 1, 0)
     in_reg.RegisterShader("CyclesPrincipledHairBSDF", 1, 0)
     in_reg.RegisterShader("CyclesSheenBSDF", 1, 0)
+    in_reg.RegisterShader("CyclesRayPortalBSDF", 1, 0)
     # Texture
     in_reg.RegisterShader("CyclesImageTexture", 1, 0)
     in_reg.RegisterShader("CyclesEnvironmentTexture", 1, 0)
@@ -383,6 +389,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterShader("CyclesWaveTexture", 1, 0)
     in_reg.RegisterShader("CyclesIESTexture", 1, 0)
     in_reg.RegisterShader("CyclesWhiteNoiseTexture", 1, 0)
+    in_reg.RegisterShader("CyclesGaborTexture", 1, 0)
     # Vector
     in_reg.RegisterShader("CyclesNormal", 1, 0)
     in_reg.RegisterShader("CyclesBump", 1, 0)
@@ -713,6 +720,9 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     add_input_color(standard_pram_options(), params, 0.0, "EmissionColor")
     add_input_float(standard_pram_options(), params, 1.0, "EmissionStrength", 0.0, 1.0)
 
+    add_input_float(standard_pram_options(), params, 0.0, "ThinFilmThickness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.33, "ThinFilmIOR", 1.0, 4.0)
+
     # Output Parameter: out
     add_output_closure(shader_def, "BSDF")
 
@@ -774,6 +784,12 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     ppg_layout.AddGroup("Emission Parameters")
     ppg_layout.AddColor("EmissionColor", "Color")
     ppg_layout.AddItem("EmissionStrength", "Strength")
+    ppg_layout.EndGroup()
+
+    ppg_layout.AddTab("Thin Film")
+    ppg_layout.AddGroup("Thin Film Parameters")
+    ppg_layout.AddColor("ThinFilmThickness", "Thickness")
+    ppg_layout.AddItem("ThinFilmIOR", "IOR")
     ppg_layout.EndGroup()
 
     ppg_layout.Language = "Python"
@@ -1534,6 +1550,43 @@ def CyclesShadersPlugin_CyclesSheenBSDF_1_0_Define(in_ctxt):
 
 # --------------------------------------------------------------------
 # --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesRayPortalBSDF_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Shaders")
+    in_ctxt.SetAttribute("DisplayName", "cycRayPortalBSDF")
+    return True
+
+
+def CyclesShadersPlugin_CyclesRayPortalBSDF_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyVolume)
+    shader_def.AddShaderFamily(c.siShaderFamilySurfaceMat)
+
+    # Input Parameter: input
+    params = shader_def.InputParamDefs
+
+    # parameters
+    add_input_color(standard_pram_options(), params, 1.0, "Color")
+    add_input_vector(standard_pram_options(), params, 0.0, "Position")
+    add_input_vector(standard_pram_options(), params, 0.0, "Direction")
+
+    # Output Parameter: out
+    add_output_closure(shader_def, "BSDF")
+
+    # next init ppg
+    ppg_layout = shader_def.PPGLayout
+    ppg_layout.AddGroup("Parameters")
+    ppg_layout.AddItem("Color", "Color")
+    ppg_layout.EndGroup()
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "RayPortalBSDF"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
 def CyclesShadersPlugin_CyclesSubsurfaceScattering_1_0_DefineInfo(in_ctxt):
     in_ctxt.SetAttribute("Category", "Cycles/Shaders")
     in_ctxt.SetAttribute("DisplayName", "cycSubsurfaceScattering")
@@ -1549,13 +1602,14 @@ def CyclesShadersPlugin_CyclesSubsurfaceScattering_1_0_Define(in_ctxt):
     params = shader_def.InputParamDefs
     add_input_string(no_port_pram_options(), params, "Christensen-Burley", "Falloff")
     add_input_color(standard_pram_options(), params, 0.8, "Color")
-    add_input_float(standard_pram_options(), params, 0.01, "Scale", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.05, "Scale", 0.0, 1.0)
 
-    add_input_float(no_port_pram_options(), params, 0.1, "RadiusX")
-    add_input_float(no_port_pram_options(), params, 0.1, "RadiusY")
+    add_input_float(no_port_pram_options(), params, 1.0, "RadiusX")
+    add_input_float(no_port_pram_options(), params, 0.2, "RadiusY")
     add_input_float(no_port_pram_options(), params, 0.1, "RadiusZ")
     add_input_vector(standard_pram_options(), params, [0.1, 0.1, 0.1], "SSSRadius")
     add_input_float(standard_pram_options(), params, 1.4, "IOR", 1.01, 3.8)
+    add_input_float(standard_pram_options(), params, 1.0, "Roughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", 0.0, 1.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
 
@@ -1576,6 +1630,7 @@ def CyclesShadersPlugin_CyclesSubsurfaceScattering_1_0_Define(in_ctxt):
     ppgLayout.EndRow()
     ppgLayout.EndGroup()
     ppgLayout.AddItem("IOR", "IOR")
+    ppgLayout.AddItem("Roughness", "Roughness")
     ppgLayout.AddItem("Anisotropy", "Anisotropy")
     ppgLayout.EndGroup()
 
@@ -1586,8 +1641,13 @@ def update_ui(prop):
     if falloff_value == "random_walk" or falloff_value == "random_walk_fixed":
         prop.Parameters("IOR").ReadOnly = False
         prop.Parameters("Anisotropy").ReadOnly = False
+        if falloff_value == "random_walk":
+            prop.Parameters("Roughness").ReadOnly = False
+        else:
+            prop.Parameters("Roughness").ReadOnly = True
     else:
         prop.Parameters("IOR").ReadOnly = True
+        prop.Parameters("Roughness").ReadOnly = True
         prop.Parameters("Anisotropy").ReadOnly = True
 
 def OnInit():
@@ -2117,6 +2177,7 @@ def CyclesShadersPlugin_CyclesVoronoiTexture_1_0_Define(in_ctxt):
     add_input_string(no_port_pram_options(), params, "1d", "VoronoiDimensions")
     add_input_string(no_port_pram_options(), params, "distance", "Distance")
     add_input_string(no_port_pram_options(), params, "f1", "Feature")
+    add_input_boolean(no_port_pram_options(), params, False, "normalize")
     add_input_float(standard_pram_options(), params, 0.0, "W", 0.0, 10.0)
     add_input_float(standard_pram_options(), params, 5.0, "Scale", 0.0, 10.0)
     add_input_float(standard_pram_options(), params, 0.0, "Detail", 0.0, 1.0)
@@ -2140,6 +2201,7 @@ def CyclesShadersPlugin_CyclesVoronoiTexture_1_0_Define(in_ctxt):
     ppgLayout.AddEnumControl("VoronoiDimensions", dimensions_type_enum, "Dimensions")
     ppgLayout.AddEnumControl("Feature", voronoi_feature_enum, "Feature Output")
     ppgLayout.AddEnumControl("Distance", voronoi_metric_enum, "Distance Metric")
+    ppgLayout.AddItem("normalize", "Normalize")
     ppgLayout.AddItem("W", "W")
     ppgLayout.AddItem("Scale", "Scale")
     ppgLayout.AddItem("Detail", "Detail")
@@ -2178,6 +2240,19 @@ def build_ui(prop):
         prop.Parameters("Exponent").ReadOnly = False
     else:
         prop.Parameters("Exponent").ReadOnly = True
+
+    if feature == "n_sphere_radius":
+        prop.Parameters("normalize").ReadOnly = True
+        prop.Parameters("Detail").ReadOnly = True
+        prop.Parameters("Roughness").ReadOnly = True
+        prop.Parameters("Lacunarity").ReadOnly = True
+        prop.Parameters("Smoothness").ReadOnly = True
+        prop.Parameters("Exponent").ReadOnly = True
+    else:
+        prop.Parameters("normalize").ReadOnly = False
+        prop.Parameters("Detail").ReadOnly = False
+        prop.Parameters("Roughness").ReadOnly = False
+        prop.Parameters("Lacunarity").ReadOnly = False
 
 def OnInit():
     prop = PPG.Inspected(0)
@@ -2417,6 +2492,85 @@ def NoiseDimensions_OnChanged():
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "WhiteNoiseTexture"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesGaborTexture_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Texture")
+    in_ctxt.SetAttribute("DisplayName", "cycGaborTexture")
+    return True
+
+
+def CyclesShadersPlugin_CyclesGaborTexture_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+    add_input_string(no_port_pram_options(), params, "2d", "gabor_type")
+    add_input_vector(standard_pram_options(), params, 0.0, "vector")
+    add_input_float(standard_pram_options(), params, 5.0, "scale", 1.0, 10.0)
+    add_input_float(standard_pram_options(), params, 2.0, "frequency", 0.0, 4.0)
+    add_input_float(standard_pram_options(), params, 1.0, "anisotropy", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 45.0, "orientation_2d", 0.0, 360.0)
+
+    add_input_float(no_port_pram_options(), params, 1.41, "orientation_3d_x", 0.0, 1.0)
+    add_input_float(no_port_pram_options(), params, 1.41, "orientation_3d_y", 0.0, 1.0)
+    add_input_float(no_port_pram_options(), params, 0.0, "orientation_3d_z", 0.0, 1.0)
+    add_input_vector(standard_pram_options(), params, 0.0, "orientation_3d")
+
+    # Output Parameter: out
+    add_output_float(shader_def, "Value")
+    add_output_float(shader_def, "Phase")
+    add_output_float(shader_def, "Intensity")
+
+    # next init ppg
+    ppgLayout = shader_def.PPGLayout
+
+    ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddEnumControl("gabor_type", gabor_type_enum, "Type")
+    ppgLayout.AddItem("scale", "Scale")
+    ppgLayout.AddItem("frequency", "Frequency")
+    ppgLayout.AddItem("anisotropy", "Anisotropy")
+    ppgLayout.AddItem("orientation_2d", "Orientation 2D")
+    ppgLayout.AddGroup("Orientation 3D")
+    ppgLayout.AddRow()
+    ppgLayout.AddItem("orientation_3d_x", "X")
+    ppgLayout.AddItem("orientation_3d_y", "Y")
+    ppgLayout.AddItem("orientation_3d_z", "Z")
+    ppgLayout.EndRow()
+    ppgLayout.EndGroup()
+    ppgLayout.EndGroup()
+
+    ppgLayout.Language = "Python"
+    ppgLayout.Logic = '''
+def build_ui(prop):
+    type_value = prop.Parameters("gabor_type").Value
+    if type_value == "2d":
+        prop.Parameters("orientation_2d").ReadOnly = False
+        prop.Parameters("orientation_3d_x").ReadOnly = True
+        prop.Parameters("orientation_3d_y").ReadOnly = True
+        prop.Parameters("orientation_3d_z").ReadOnly = True
+    else:
+        prop.Parameters("orientation_2d").ReadOnly = True
+        prop.Parameters("orientation_3d_x").ReadOnly = False
+        prop.Parameters("orientation_3d_y").ReadOnly = False
+        prop.Parameters("orientation_3d_z").ReadOnly = False
+
+def OnInit():
+    prop = PPG.Inspected(0)
+    build_ui(prop)
+
+def gabor_type_OnChanged():
+    prop = PPG.Inspected(0)
+    build_ui(prop)'''
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "GaborTexture"
 
     return True
 

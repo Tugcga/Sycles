@@ -109,6 +109,12 @@ int get_dimensions_type(const XSI::CString& type)
 	else { return 4; }
 }
 
+ccl::NodeGaborType get_gabor_type(const XSI::CString &type)
+{
+	if (type == "2d") { return ccl::NodeGaborType::NODE_GABOR_TYPE_2D; }
+	else { return ccl::NodeGaborType::NODE_GABOR_TYPE_3D; }
+}
+
 ccl::NodeGradientType get_gradient_type(const XSI::CString& gradient)
 {
 	if (gradient == "Linear") { return ccl::NodeGradientType::NODE_BLEND_LINEAR; }
