@@ -22,6 +22,7 @@ public:
 
 	ImageBuffer* get_buffer_primitive_id();
 	ImageBuffer* get_buffer_differencial();
+	ImageBuffer* get_buffer_seed();
 
 	void make_invalid();
 	void make_valid();
@@ -47,8 +48,7 @@ private:
 
 	ImageBuffer* buffer_primitive_id;
 	ImageBuffer* buffer_differencial;
-
-	ImageBuffer* buffer_uv;
+	ImageBuffer* buffer_seed;
 
 	bool is_valid;
 	ccl::PassType pass_type;

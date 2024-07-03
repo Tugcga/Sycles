@@ -916,7 +916,6 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray &all_models_list)
 {
-	RenderType render_type = update_context->get_render_type();
 	XSI::CTime eval_time = update_context->get_time();
 	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 

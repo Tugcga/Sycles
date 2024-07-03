@@ -204,7 +204,7 @@ XSI::CStatus update_instance_transform(ccl::Scene* scene, UpdateContext *update_
 		return XSI::CStatus::OK;
 	}
 	{
-		log_message("no " + xsi_model.GetName());
+		log_message("no " + xsi_model.GetFullName());
 	}
 
 	return XSI::CStatus::Abort;

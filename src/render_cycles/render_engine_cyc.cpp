@@ -199,11 +199,15 @@ void RenderEngineCyc::read_render_tile(const ccl::OutputDriver::Tile& tile)
 
 	// PASS_BAKE_PRIMITIVE
 	baking_context->get_buffer_primitive_id()->get_pixels(rect, &pixels[0]);
-	bool is_primitive = tile.set_pass_pixels("BakePrimitive", 4, &pixels[0]);
+	bool is_primitive = tile.set_pass_pixels("BakePrimitive", 3, &pixels[0]);
 
 	// PASS_BAKE_DIFFERENTIAL
 	baking_context->get_buffer_differencial()->get_pixels(rect, &pixels[0]);
 	bool is_differential = tile.set_pass_pixels("BakeDifferential", 4, &pixels[0]);
+
+	// PASS_BAKE_SEED
+	baking_context->get_buffer_seed()->get_pixels(rect, &pixels[0]);
+	bool is_seed = tile.set_pass_pixels("BakeSeed", 1, &pixels[0]);
 
 	pixels.clear();
 	pixels.shrink_to_fit();
