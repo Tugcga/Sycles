@@ -231,6 +231,7 @@ void read_ocio_config()
 	// reset config data
 	ocio_config.is_init = false;
 	ocio_config.is_file_exist = false;
+	ocio_config.max_view = 0;
 	ocio_config.displays.clear();
 	ocio_config.looks.clear();
 
@@ -266,6 +267,10 @@ void read_ocio_config()
 				new_display.name = ocio_config.config->getDisplay(display_index);
 				new_display.views_count = ocio_config.config->getNumViews(new_display.name.GetAsciiString());
 				new_display.views.resize(new_display.views_count);
+				if (new_display.views_count > ocio_config.max_view)
+				{
+					ocio_config.max_view = new_display.views_count;
+				}
 				for (size_t view_index = 0; view_index < new_display.views_count; view_index++)
 				{
 					new_display.views[view_index] = ocio_config.config->getView(new_display.name.GetAsciiString(), view_index);
@@ -287,7 +292,7 @@ void read_ocio_config()
 		// setup default device
 		ocio_config.is_init = true;
 		ocio_config.default_display = 1;  // <--- default device index, if delete None device, then this value should be 1 instead 2
-		ocio_config.default_view = 1;
+		ocio_config.default_view = 2;  // in current profile default is AgX view transform
 	}
 }
 

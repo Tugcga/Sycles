@@ -687,6 +687,33 @@ void set_colormanagement(XSI::CustomProperty& prop)
 
 	XSI::Parameter cm_gamma = prop_array.GetItem("cm_gamma");
 	cm_gamma.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
+
+	// for sRGB display set AgX (index = 2), for other displays - Standart (index = 0)
+	OCIOConfig ocio_config = get_ocio_config();
+	int display_index = cm_display_index.GetValue();
+	if (display_index == 0)
+	{
+		if (ocio_config.displays_count > display_index)
+		{
+			OCIODisplay ocio_display = ocio_config.displays[display_index];
+			if (ocio_display.views_count > 2)
+			{
+				cm_view_index.PutValue(2);
+			}
+			else
+			{
+				cm_view_index.PutValue(0);
+			}
+		}
+		else
+		{
+			cm_view_index.PutValue(0);
+		}
+	}
+	else
+	{
+		cm_view_index.PutValue(0);
+	}
 }
 
 void set_logging(XSI::CustomProperty& prop)
@@ -940,11 +967,12 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("performance_simplify_cull_distance_margin", XSI::CValue::siFloat, caps, "", "", 50.0, 0.0, FLT_MAX, 0.0, 100.0, param);
 
 	// color management tab
+	OCIOConfig ocio_config = get_ocio_config();
 	property.AddParameter("cm_apply_to_ldr", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("cm_mode", XSI::CValue::siInt4, caps, "", "", 0, param);
 	property.AddParameter("cm_display_index", XSI::CValue::siInt4, caps, "", "", 0, param);  // <-- default device index
-	property.AddParameter("cm_view_index", XSI::CValue::siInt4, caps, "", "", 1, 0, 4, 0, 4, param);
-	property.AddParameter("cm_look_index", XSI::CValue::siInt4, caps, "", "", 0, 0, 14, 0, 14, param);
+	property.AddParameter("cm_view_index", XSI::CValue::siInt4, caps, "", "", 2, param);  // by deafult set AgX, the maximum nuber of view transforms are different for different devices
+	property.AddParameter("cm_look_index", XSI::CValue::siInt4, caps, "", "", 0, param);
 	property.AddParameter("cm_exposure", XSI::CValue::siFloat, caps, "", "", 0.0, -1024.0, 1024.0, -10.0, 10.0, param);
 	property.AddParameter("cm_gamma", XSI::CValue::siFloat, caps, "", "", 1.0, 0.0, 1024.0, 0.0, 5.0, param);
 
