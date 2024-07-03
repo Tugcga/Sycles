@@ -754,7 +754,7 @@ XSI::CStatus RenderEngineBase::scene_process()
 							{
 								update_status = update_scene(xsi_3d_obj, UpdateType_Camera);
 							}
-							else
+							else if (xsi_3d_obj_type != "")
 							{
 								//update unknown property
 								log_message("update unknown property " + property_type + " for object type " + xsi_3d_obj_type);
