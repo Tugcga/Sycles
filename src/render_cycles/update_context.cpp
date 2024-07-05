@@ -273,7 +273,8 @@ XSI::Camera UpdateContext::get_camera()
 
 void UpdateContext::set_time(const XSI::CTime& time)
 {
-	eval_time = time;
+	eval_time.PutFormat(time.GetFormat(), time.GetFrameRate());
+	eval_time.PutTime(time.GetTime());
 }
 
 XSI::CTime UpdateContext::get_time()

@@ -149,7 +149,7 @@ private:
 	XSI::CString render_options_name;  // used for update process, to detect that we change parameters of the quick view render settings
 	bool ready_to_render;
 	bool force_recreate_scene;
-	bool note_abort;  // set true when call aboert_render method, set float at the start of scene_process after we lock the scene
+	bool note_abort;  // set true when call abort_render method, set float at the start of scene_process after we lock the scene
 	XSI::CRefArray prev_isolated_objects;
 	RenderType prev_render_type;
 	

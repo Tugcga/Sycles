@@ -225,6 +225,29 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	m_render_parameters = m_render_property.GetParameters();
 	//current time
 	eval_time = render_context.GetTime();
+	
+	// tweak by playcontrol
+	XSI::Project prj = XSI::Application().GetActiveProject();
+	XSI::CRefArray proplist = prj.GetProperties();
+	XSI::Property playctrl(proplist.GetItem("Play Control"));
+	LONG pc_format = playctrl.GetParameterValue("Format");
+	double pc_frame_rate = playctrl.GetParameterValue("Rate");
+	double pc_current = playctrl.GetParameterValue("Current");
+
+	double original_frame_rate = eval_time.GetFrameRate();
+	double original_frame = eval_time.GetTime();
+	XSI::CTime::Format original_format = eval_time.GetFormat();
+	
+	XSI::CTime::Format eval_format = XSI::CTime::ConvertFromPlayControlFormat(pc_format);
+	eval_time.PutFormat(eval_format, pc_frame_rate);
+	eval_time.PutTime(pc_current);
+
+	// if original time or frame rate is differ from the new one, then recreate the scene
+	if (original_format != eval_format || std::abs(original_frame_rate - pc_frame_rate) > 0.001 || std::abs(original_frame - pc_current) > 0.001)
+	{
+		activate_force_recreate_scene();
+	}
+
 	start_prepare_render_time = clock();
 
 	//camera
