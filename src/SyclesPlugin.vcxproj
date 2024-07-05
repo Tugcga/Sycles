@@ -71,6 +71,7 @@
     <ClCompile Include="output\write_image.cpp" />
     <ClCompile Include="render_base\image_buffer.cpp" />
     <ClCompile Include="render_base\render_engine_base.cpp" />
+    <ClCompile Include="render_base\write_tile_pixel.cpp" />
     <ClCompile Include="render_cycles\cycles_ui.cpp" />
     <ClCompile Include="render_cycles\cyc_output\color_transform_context.cpp" />
     <ClCompile Include="render_cycles\cyc_output\output_context.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="render_base\render_tile.h" />
     <ClInclude Include="render_base\render_visual_buffer.h" />
     <ClInclude Include="render_base\type_enums.h" />
+    <ClInclude Include="render_base\write_tile_pixel.h" />
     <ClInclude Include="render_cycles\cyc_output\color_transform_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_context.h" />
     <ClInclude Include="render_cycles\cyc_output\output_drivers.h" />
