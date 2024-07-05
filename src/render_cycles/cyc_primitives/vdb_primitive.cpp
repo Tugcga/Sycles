@@ -103,6 +103,10 @@ SICALLBACK VDBPrimitive_Define(const XSI::CRef& in_ref)
 		XSI::Parameter visual;
 		in_prim.AddParameter(visual_def, visual);
 
+		XSI::CRef force_load_def = fact.CreateParamDef("force_load_grids", XSI::CValue::siBool, kParamCaps, "force_load_grids", "", false, 0, 1, 0, 1);
+		XSI::Parameter force_load;
+		in_prim.AddParameter(force_load_def, force_load);
+
 		// velocity grid names
 		XSI::CRef velocity_name_def = fact.CreateParamDef("velocity_name", XSI::CValue::siString, "velocity");
 		XSI::Parameter velocity_name;
@@ -184,6 +188,8 @@ void build_vdb_ui(XSI::PPGLayout& layout, XSI::CustomPrimitive& in_prim)
 	layout.AddItem("frame", "Frame");
 
 	layout.AddItem("visual", "Visualize in Viewport");
+
+	layout.AddItem("force_load_grids", "Load All Grids");
 
 	VDBData data = vdb_cache.get(in_prim);
 

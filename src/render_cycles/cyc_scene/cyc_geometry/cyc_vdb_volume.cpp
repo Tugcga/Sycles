@@ -49,7 +49,6 @@ bool is_vector_type(openvdb::GridBase::ConstPtr grid)
 void sync_vdb_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, UpdateContext* update_context, XSI::X3DObject& xsi_object, const VDBData& vdb_data, const XSI::CString &file_path)
 {
 	volume_geom->name = combine_geometry_name(xsi_object, "vdb").GetAsciiString();
-	bool force_load_all_grids = true;
 
 	XSI::CTime eval_time = update_context->get_time();
 
@@ -66,6 +65,8 @@ void sync_vdb_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, U
 	XSI::CString velocity_x_name = xsi_prim_params.GetValue("velocity_x_name");
 	XSI::CString velocity_y_name = xsi_prim_params.GetValue("velocity_y_name");
 	XSI::CString velocity_z_name = xsi_prim_params.GetValue("velocity_z_name");
+
+	bool force_load_all_grids = xsi_prim_params.GetValue("force_load_grids");
 
 	int frame = get_frame(eval_time);
 	std::vector<XSI::CString> loaded_grid_names(0);
