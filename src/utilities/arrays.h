@@ -7,6 +7,7 @@
 
 //return true if value in the array
 bool is_contains(const std::vector<std::string>& array, const std::string &value);
+bool is_contains(const std::vector<XSI::CString>& array, const XSI::CString& value);
 bool is_contains(const std::vector<ULONG> &array, const ULONG value);
 bool is_contains(const XSI::CRefArray &array, const XSI::CRef &object);
 

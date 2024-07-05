@@ -103,6 +103,29 @@ SICALLBACK VDBPrimitive_Define(const XSI::CRef& in_ref)
 		XSI::Parameter visual;
 		in_prim.AddParameter(visual_def, visual);
 
+		// velocity grid names
+		XSI::CRef velocity_name_def = fact.CreateParamDef("velocity_name", XSI::CValue::siString, "velocity");
+		XSI::Parameter velocity_name;
+		in_prim.AddParameter(velocity_name_def, velocity_name);
+
+		// for cpecific axis
+		XSI::CRef velocity_name_x_def = fact.CreateParamDef("velocity_x_name", XSI::CValue::siString, "");
+		XSI::Parameter velocity_name_x;
+		in_prim.AddParameter(velocity_name_x_def, velocity_name_x);
+
+		XSI::CRef velocity_name_y_def = fact.CreateParamDef("velocity_y_name", XSI::CValue::siString, "");
+		XSI::Parameter velocity_name_y;
+		in_prim.AddParameter(velocity_name_y_def, velocity_name_y);
+
+		XSI::CRef velocity_name_z_def = fact.CreateParamDef("velocity_z_name", XSI::CValue::siString, "");
+		XSI::Parameter velocity_name_z;
+		in_prim.AddParameter(velocity_name_z_def, velocity_name_z);
+
+		// velocity scale
+		XSI::CRef velocty_scale_def = fact.CreateParamDef("velocty_scale", XSI::CValue::siFloat, XSI::siAnimatable, "velocty_scale", "", 1.0, 0.0, FLT_MAX, 0.0, 4.0);
+		XSI::Parameter velocty_scale;
+		in_prim.AddParameter(velocty_scale_def, velocty_scale);
+
 		// pass parameters
 		XSI::CRef pass_id_def = fact.CreateParamDef("pass_id", XSI::CValue::siInt4, kParamCaps, "pass_id", "", 0, 0, INT_MAX, 0, 100);
 		XSI::CRef is_shadow_catcher_def = fact.CreateParamDef("is_shadow_catcher", XSI::CValue::siBool, kParamCaps, "is_shadow_catcher", "", false, 0, 1, 0, 1);
@@ -204,6 +227,19 @@ void build_vdb_ui(XSI::PPGLayout& layout, XSI::CustomPrimitive& in_prim)
 		set_grid_index(in_prim, false);
 	}
 
+	layout.EndGroup();
+
+	layout.AddTab("Velocity");
+	layout.AddGroup("Parameters");
+	layout.AddItem("velocty_scale", "Scale");
+	layout.AddItem("velocity_name", "Grid");
+	layout.AddGroup("Component Names");
+	layout.AddRow();
+	layout.AddItem("velocity_x_name", "X");
+	layout.AddItem("velocity_y_name", "Y");
+	layout.AddItem("velocity_z_name", "Z");
+	layout.EndRow();
+	layout.EndGroup();
 	layout.EndGroup();
 
 	layout.AddTab("Pass");

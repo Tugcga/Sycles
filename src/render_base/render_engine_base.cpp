@@ -916,8 +916,6 @@ void RenderEngineBase::on_nested_objects_changed(XSI::CRef& in_ctx)
 	activate_force_recreate_scene();
 }
 
-
-
 void RenderEngineBase::abort_render()
 {
 	note_abort = true;

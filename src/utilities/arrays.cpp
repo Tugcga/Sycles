@@ -15,6 +15,18 @@ bool is_contains(const std::vector<std::string>& array, const std::string &value
 	return false;
 }
 
+bool is_contains(const std::vector<XSI::CString>& array, const XSI::CString& value)
+{
+	for (LONG i = 0; i < array.size(); i++)
+	{
+		if (array[i] == value)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool is_contains(const std::vector<ULONG> &array, const ULONG value)
 {
 	for (LONG i = 0; i < array.size(); i++)
