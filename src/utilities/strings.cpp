@@ -375,6 +375,24 @@ bool is_ends_with(const OIIO::ustring& input_string, const XSI::CString& end_fra
 	return true;
 }
 
+bool is_start_from(const OIIO::ustring& str, const OIIO::ustring& prefix)
+{
+	if (str.size() < prefix.size())
+	{
+		return false;
+	}
+
+	for (size_t i = 0; i < prefix.size(); i++)
+	{
+		if (str[i] != prefix[i])
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 // get from OpenVDB for Softimage sources (VDB_GridIO.cpp:37)
 inline std::string parse_file_name(const std::string& in_filename, int frame)
 {

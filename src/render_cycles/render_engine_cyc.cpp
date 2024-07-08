@@ -85,7 +85,7 @@ void RenderEngineCyc::clear_session()
 	}
 }
 
-// this method calls from output driver when nex tile is come
+// this method calls from output driver when next tile is come
 // we should read pixels for all passes and save it into output array
 void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 {
@@ -137,7 +137,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	{
 		ccl::PassType pass_type = output_context->get_output_pass_type(i);
 		ccl::ustring pass_name = output_context->get_output_pass_name(i);
-		int pass_components = get_pass_components(pass_type, pass_type == ccl::PASS_COMBINED && pass_name.size() >= 9);  // because lightgroup pass has the name Combined_... (length >= 9)
+		int pass_components = get_pass_components(pass_type, pass_type == ccl::PASS_COMBINED && is_start_from(pass_name, ccl::ustring("Combined_")));  // because lightgroup pass has the name Combined_... (length >= 9)
 		is_get = tile.get_pass_pixels(pass_name, pass_components, &pixels[0]);
 		if (is_get)
 		{

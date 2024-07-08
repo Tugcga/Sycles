@@ -17,6 +17,7 @@ XSI::CString remove_prefix_from_lightgroup_name(const XSI::CString& name);
 ccl::PassType channel_to_pass_type(const XSI::CString& channel_name);
 // return default name of the pass
 XSI::CString pass_to_name(ccl::PassType pass_type);
+ccl::ustring noisy_combined_name();
 // return the number of components in the output for given pass type
 int get_pass_components(ccl::PassType pass_type, bool is_lightgroup);
 ccl::PassType convert_baking_pass(ccl::PassType input_pass, BakingContext* baking_context);

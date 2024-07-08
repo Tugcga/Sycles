@@ -38,6 +38,8 @@ std::string build_source_image_path(const XSI::CString& path, const XSI::CString
 std::string replace_all_substrings(const std::string& input_string, const std::string& what_part, const std::string& replace_part);
 // return true if input string ends with a given fragment
 bool is_ends_with(const OIIO::ustring& input_string, const XSI::CString& end_fragment);
+// return true if str starts with prefix
+bool is_start_from(const OIIO::ustring& str, const OIIO::ustring& prefix);
 XSI::CString vdbprimitive_inputs_to_path(const XSI::CParameterRefArray& params, const XSI::CTime& eval_time);
 
 // these functions used for define Cycles geometry name from different types of XSI objects (for example for mesh->name)

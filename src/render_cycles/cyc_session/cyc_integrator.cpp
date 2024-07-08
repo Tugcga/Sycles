@@ -17,6 +17,14 @@ ccl::DenoiseParams get_denoise_params(const XSI::CParameterRefArray &render_para
 	int denoise_mode = render_parameters.GetValue("denoise_mode", eval_time);
 	denoising.use = denoise_mode != 0;
 	denoising.type = denoise_mode == 2 ? ccl::DenoiserType::DENOISER_OPTIX : ccl::DenoiserType::DENOISER_OPENIMAGEDENOISE;
+	denoising.use_gpu = false;  // it looks like this parameter important only for OIDN
+
+	int denoise_prefilter = render_parameters.GetValue("denoise_prefilter", eval_time);
+	denoising.prefilter = denoise_prefilter == 2 ? ccl::DENOISER_PREFILTER_ACCURATE :
+		(denoise_prefilter == 1 ? ccl::DENOISER_PREFILTER_FAST : ccl::DENOISER_PREFILTER_NONE);
+
+	denoising.quality = ccl::DENOISER_QUALITY_BALANCED;
+
 	denoising.use_pass_albedo = false;
 	denoising.use_pass_normal = false;
 
@@ -30,10 +38,6 @@ ccl::DenoiseParams get_denoise_params(const XSI::CParameterRefArray &render_para
 		denoising.use_pass_albedo = true;
 		denoising.use_pass_normal = true;
 	}
-
-	int denoise_prefilter = render_parameters.GetValue("denoise_prefilter", eval_time);
-	denoising.prefilter = denoise_prefilter == 2 ? ccl::DENOISER_PREFILTER_ACCURATE :
-		(denoise_prefilter == 1 ? ccl::DENOISER_PREFILTER_FAST : ccl::DENOISER_PREFILTER_NONE);
 
 	return denoising;
 }
@@ -106,10 +110,12 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		if (denoise_params.use)
 		{
 			integrator->set_denoiser_type(denoise_params.type);
+			integrator->set_denoise_use_gpu(denoise_params.use_gpu);
 			integrator->set_denoise_start_sample(denoise_params.start_sample);
 			integrator->set_use_denoise_pass_albedo(denoise_params.use_pass_albedo);
 			integrator->set_use_denoise_pass_normal(denoise_params.use_pass_normal);
 			integrator->set_denoiser_prefilter(denoise_params.prefilter);
+			integrator->set_denoiser_quality(denoise_params.quality);
 		}
 
 		float scrambling_distance = render_parameters.GetValue("sampling_advanced_scrambling_multiplier", eval_time);

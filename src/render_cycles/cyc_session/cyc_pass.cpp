@@ -12,6 +12,11 @@
 #include "cyc_baking.h"
 #include "../cyc_output/series_context.h"
 
+ccl::ustring noisy_combined_name()
+{
+    return ccl::ustring((XSI::CString("Noisy ") + pass_to_name(ccl::PASS_COMBINED)).GetAsciiString());
+}
+
 XSI::CString add_prefix_to_aov_name(const XSI::CString &name, bool is_color)
 {
     if (is_color)
@@ -81,22 +86,20 @@ XSI::CString channel_name_to_pass_name(const XSI::CParameterRefArray& render_par
     return local_pass_name;
 }
 
-ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name)
+ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name, ccl::PassMode mode)
 {
 	ccl::Pass* pass = scene->create_node<ccl::Pass>();
 
 	pass->set_type(type);
 	pass->set_name(name);
+    pass->set_mode(mode);
 	
     // lightgroups are always noisy (like in Blender)
-    if (type == ccl::PASS_COMBINED && name.size() >= 9)
+    // each lightgroup has the name Combined_...
+    if (type == ccl::PASS_COMBINED && is_start_from(name, ccl::ustring("Combined_")))
     {
         pass->set_mode(ccl::PassMode::NOISY);
         pass->set_lightgroup(ccl::ustring(remove_prefix_from_lightgroup_name(XSI::CString(name.c_str())).GetAsciiString()));
-    }
-    else
-    {
-        pass->set_mode(ccl::PassMode::DENOISED);
     }
 
 	return pass;
@@ -392,8 +395,17 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
     {
         store_denoising = render_parameters.GetValue("output_exr_denoising_data", eval_time);
     }
+    
+    if (store_denoising)
+    {
+        if (!use_denoising)
+        {
+            log_message("You choose to include denoising passes in a single EXR, but denoising mode is disabled. Skip these passes.", XSI::siWarningMsg);
+        }
+        store_denoising = store_denoising & use_denoising;
+    }
 
-    // here we call the main method in output contex
+    // here we call the main method in output contexå
     // and setup all output passes, buffers, pixels and so on
     output_context->set_output_passes(baking_context, motion_type, store_denoising, aov_color_names, aov_value_names, lightgroups);
 
@@ -406,7 +418,14 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
     std::set<ccl::ustring> exported_names;
     ccl::ustring combined_name = ccl::ustring(pass_to_name(ccl::PASS_COMBINED).GetAsciiString());
     exported_names.insert(combined_name);
-    pass_add(scene, ccl::PASS_COMBINED, combined_name);
+    pass_add(scene, ccl::PASS_COMBINED, combined_name, ccl::PassMode::DENOISED);
+
+    if (store_denoising)
+    {
+        ccl::ustring combined_noisy_name = noisy_combined_name();  // this name should be the same as in output contex
+        exported_names.insert(combined_noisy_name);
+        pass_add(scene, ccl::PASS_COMBINED, combined_noisy_name, ccl::PassMode::NOISY);
+    }
 
     // next visual
     ccl::ustring visual_name = visual_buffer->get_pass_name();
@@ -417,16 +436,16 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
         ccl::PassType visual_pass_type = visual_buffer->get_pass_type();
         if (!(use_denoising && visual_pass_type == ccl::PassType::PASS_COMBINED && visual_name != "Combined"))
         {
-            pass_add(scene, visual_pass_type, visual_name);
+            pass_add(scene, visual_pass_type, visual_name, ccl::PassMode::DENOISED);
         }
         else
         {
-            // WARNING: visual buffer was setup for lightgroup
+            // WARNING: visual buffer was setuped for lightgroup
             // it contains only 3 components
             // this is ok, because at update tile callback we get 3 components from the tile
             // but we does not apply color correction, because it requires 4 components
             // so, render result is not perfect, but it's enough for warning message
-            pass_add(scene, ccl::PassType::PASS_COMBINED, ccl::ustring(pass_to_name(ccl::PassType::PASS_COMBINED).GetAsciiString()));
+            pass_add(scene, ccl::PassType::PASS_COMBINED, ccl::ustring(pass_to_name(ccl::PassType::PASS_COMBINED).GetAsciiString()), ccl::PassMode::DENOISED);
             visual_buffer->set_pass_name("Combined");
 
             log_message("There is a bug with rendering denoising lightgroups. Switch visual channel to 3-channels raw combined pass.", XSI::siWarningMsg);
@@ -454,7 +473,7 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
             // so, if denoising is active, does not render lightgroups
             if (!(use_denoising && new_pass_type == ccl::PassType::PASS_COMBINED && output_name != "Combined"))
             {
-                ccl::Pass* pass = pass_add(scene, new_pass_type, output_name);
+                ccl::Pass* pass = pass_add(scene, new_pass_type, output_name, ccl::PassMode::DENOISED);
                 if (baking_context->get_is_valid())  // use valid baking context as identifier of the rendermap render process
                 {
                     pass->set_include_albedo(baking_context->get_key_is_color());
@@ -503,7 +522,7 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
         if (!exported_names.contains(albedo_name))
         {
             exported_names.insert(albedo_name);
-            pass_add(scene, albedo_type, albedo_name);
+            pass_add(scene, albedo_type, albedo_name, ccl::PassMode::DENOISED);
         }
     }
     if (series_context->need_normal())
@@ -513,7 +532,7 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
         if (!exported_names.contains(normal_name))
         {
             exported_names.insert(normal_name);
-            pass_add(scene, normal_type, normal_name);
+            pass_add(scene, normal_type, normal_name, ccl::PassMode::DENOISED);
         }
     }
 

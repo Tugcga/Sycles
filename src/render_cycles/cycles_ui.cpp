@@ -253,7 +253,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 	layout.AddGroup("Multilayer EXR");
 	layout.AddItem("output_exr_combine_passes", "Combine Render Passes To Single EXR");
-	layout.AddItem("output_exr_denoising_data", "Include Denoising Data");
+	layout.AddItem("output_exr_denoising_data", "Include Denoising Passes");
 	layout.AddItem("output_exr_render_separate_passes", "Save Separate Passes");
 	layout.EndGroup();
 
