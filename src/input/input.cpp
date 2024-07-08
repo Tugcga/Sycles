@@ -139,9 +139,9 @@ void read_config_ini()
 		const char* volume_bounces_str = ini.GetValue("Shaderball", "volume_bounces", "2");
 		shaderball.volume_bounces = std::stoi(volume_bounces_str, nullptr);
 
-		const char* use_ocl_str = ini.GetValue("Shaderball", "use_ocl", "1");
-		const float use_ocl_float = strtof(use_ocl_str, nullptr);
-		shaderball.use_ocl = use_ocl_float >= 0.5;
+		const char* use_osl_str = ini.GetValue("Shaderball", "use_osl", "1");
+		const float use_osl_float = strtof(use_osl_str, nullptr);
+		shaderball.use_osl = use_osl_float >= 0.5;
 
 		const char* clamp_direct_str = ini.GetValue("Shaderball", "clamp_direct", "1.0");
 		shaderball.clamp_direct = strtof(clamp_direct_str, nullptr);
