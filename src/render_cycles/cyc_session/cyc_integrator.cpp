@@ -150,10 +150,25 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		}
 		integrator->set_ao_distance(render_parameters.GetValue("paths_fastgi_ao_distance", eval_time));
 
-		integrator->set_use_guiding(render_parameters.GetValue("sampling_path_guiding_use", eval_time));
-		integrator->set_use_surface_guiding(render_parameters.GetValue("sampling_path_guiding_surface", eval_time));
-		integrator->set_use_volume_guiding(render_parameters.GetValue("sampling_path_guiding_volume", eval_time));
-		integrator->set_guiding_training_samples(render_parameters.GetValue("sampling_path_guiding_training_samples", eval_time));
+		ccl::DeviceInfo render_device = session->params.device;
+		if (render_device.type == ccl::DeviceType::DEVICE_CPU)
+		{
+			integrator->set_use_guiding(render_parameters.GetValue("sampling_path_guiding_use", eval_time));
+			integrator->set_use_surface_guiding(render_parameters.GetValue("sampling_path_guiding_surface", eval_time));
+			integrator->set_use_volume_guiding(render_parameters.GetValue("sampling_path_guiding_volume", eval_time));
+			integrator->set_guiding_training_samples(render_parameters.GetValue("sampling_path_guiding_training_samples", eval_time));
+		}
+		else
+		{
+			bool sampling_path_guiding_use = render_parameters.GetValue("sampling_path_guiding_use", eval_time);
+			if (sampling_path_guiding_use)
+			{
+				log_message("Path guiding available only with CPU render device. Disable it.", XSI::siWarningMsg);
+			}
+			integrator->set_use_guiding(false);
+		}
+
+		
 	}
 
 	if (render_type == RenderType::RenderType_Rendermap && baking_context->get_is_valid())
