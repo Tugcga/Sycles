@@ -31,7 +31,7 @@ XSI::MATH::CTransformation calc_instance_object_tfm(const XSI::MATH::CTransforma
 	return to_return;
 }
 
-std::vector<XSI::MATH::CTransformation> calc_instance_object_tfm(const XSI::KinematicState& master_root, const XSI::KinematicState& master_object, const std::vector<XSI::MATH::CTransformation> &instance_root_tfm_array, bool need_motion, const std::vector<float>& motion_times, const XSI::CTime& eval_time)
+std::vector<XSI::MATH::CTransformation> calc_instance_object_tfm(const XSI::KinematicState& master_root, const XSI::KinematicState& master_object, const std::vector<XSI::MATH::CTransformation> &instance_root_tfm_array, bool need_motion, const std::vector<double>& motion_times, const XSI::CTime& eval_time)
 {
 	if (need_motion)
 	{

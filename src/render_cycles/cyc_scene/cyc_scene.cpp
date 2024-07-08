@@ -393,7 +393,7 @@ void sync_instance_children_pointcloud_volume(ccl::Scene* scene, UpdateContext* 
 	update_context->add_geometry_instance_data(object_id, object_index, m_ids);
 }
 
-void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& children, const XSI::KinematicState &master_kine, ULONG xsi_master_object_id, const std::vector<XSI::MATH::CTransformation> &tfms_array, const std::vector<ULONG> &master_ids, ULONG object_id, bool need_motion, const std::vector<float>& motion_times, size_t main_motion_step, const XSI::CTime& eval_time)
+void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& children, const XSI::KinematicState &master_kine, ULONG xsi_master_object_id, const std::vector<XSI::MATH::CTransformation> &tfms_array, const std::vector<ULONG> &master_ids, ULONG object_id, bool need_motion, const std::vector<double>& motion_times, size_t main_motion_step, const XSI::CTime& eval_time)
 {
 	for (size_t i = 0; i < children.GetCount(); i++)
 	{
@@ -583,7 +583,7 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 	XSI::CTime eval_time = update_context->get_time();
 
 	bool need_motion = update_context->get_need_motion();
-	std::vector<float> motion_times = update_context->get_motion_times();
+	std::vector<double> motion_times = update_context->get_motion_times();
 	size_t main_motion_step = update_context->get_main_motion_step();
 
 	// build array of transforms for motions
@@ -612,7 +612,7 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object, const std::vector<XSI::MATH::CTransformation>& root_tfms)
 {
 	XSI::CTime eval_time = update_context->get_time();
-	std::vector<float> motion_times = update_context->get_motion_times();
+	std::vector<double> motion_times = update_context->get_motion_times();
 	size_t motion_times_count = motion_times.size();
 
 	bool use_root_tfm = root_tfms.size() > 0;

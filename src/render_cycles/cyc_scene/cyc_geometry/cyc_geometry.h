@@ -40,7 +40,7 @@ bool is_explosia(const XSI::X3DObject& xsi_object, const XSI::CTime &eval_time);
 bool is_pointcloud_instances(const XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
 bool is_valid_shape(XSI::siICEShapeType shape_type);
 XSI::MATH::CTransformation build_point_transform(const XSI::MATH::CVector3f& position, const XSI::MATH::CRotationf& rotation, float size, const XSI::MATH::CVector3f& scale, bool is_scale_define);
-std::vector<std::vector<XSI::MATH::CTransformation>> build_time_points_transforms(const XSI::X3DObject& xsi_object, const std::vector<float>& motion_times);
+std::vector<std::vector<XSI::MATH::CTransformation>> build_time_points_transforms(const XSI::X3DObject& xsi_object, const std::vector<double>& motion_times);
 void sync_point_primitive_shape(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::siICEShapeType shape_type, const XSI::MATH::CColor4f& color, const std::vector<XSI::MATH::CTransformation>& point_tfms, XSI::X3DObject& xsi_pointcloud, const XSI::CTime& eval_time);
 
 // cycs_strands

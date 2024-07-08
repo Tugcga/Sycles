@@ -144,7 +144,7 @@ XSI::MATH::CTransformation build_point_transform(const XSI::MATH::CVector3f& pos
 	return build_point_transform(position, rotation, size_vector);
 }
 
-std::vector<std::vector<XSI::MATH::CTransformation>> build_time_points_transforms(const XSI::X3DObject &xsi_object, const std::vector<float> &motion_times)
+std::vector<std::vector<XSI::MATH::CTransformation>> build_time_points_transforms(const XSI::X3DObject &xsi_object, const std::vector<double> &motion_times)
 {
 	size_t motion_times_count = motion_times.size();
 	// get geometries for all times

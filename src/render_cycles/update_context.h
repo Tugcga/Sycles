@@ -76,10 +76,10 @@ public:
 	void set_motion_rolling(bool value);
 	float get_motion_rolling_duration();
 	void set_motion_rolling_duration(float value);
-	float get_motion_fisrt_time();
-	float get_motion_last_time();
-	std::vector<float> get_motion_times();
-	float get_motion_time(size_t step);
+	double get_motion_fisrt_time();
+	double get_motion_last_time();
+	std::vector<double> get_motion_times();
+	double get_motion_time(size_t step);
 	size_t get_main_motion_step();  // retun index with respect to selected position (0 if at start, last if at end and middle if at center), 0 if there is no motion
 
 	void set_render_type(RenderType value);
@@ -183,8 +183,8 @@ private:
 
 	bool use_denoising;
 	MotionSettingsType motion_type;
-	float motion_shutter_time;
-	std::vector<float> motion_times;
+	double motion_shutter_time;
+	std::vector<double> motion_times;
 	MotionSettingsPosition motion_position;
 	bool motion_rolling;  // false means None
 	float motion_rolling_duration;  // only for rolling true

@@ -317,7 +317,7 @@ void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters,
 	// as in Cycles, for pass we use constant shutter time
 	if (motion_type == MotionType_Pass)
 	{
-		motion_shutter_time = 2.0f;
+		motion_shutter_time = 2.0;
 	}
 	motion_rolling = film_motion_rolling_type == 1;
 	motion_rolling_duration = render_parameters.GetValue("film_motion_rolling_duration", eval_time);
@@ -325,27 +325,27 @@ void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters,
 	int motion_steps = (2 << (film_motion_steps - 1)) + 1;
 	motion_position = film_motion_position == 0 ? MotionPosition_Start : (film_motion_position == 1 ? MotionPosition_Center : MotionPosition_End);
 	
-	motion_times.resize(motion_steps, 0.0f);
+	motion_times.resize(motion_steps, 0.0);
 	// calculate actual frames for motion steps
 	double center_time = eval_time.GetTime();
-	float center_delta = 0.0;
+	double center_delta = 0.0;
 	// use motion position parameter only for motion blur mode (for motion pass always use center)
 	if (motion_type != MotionType_Pass)
 	{
 		if (motion_position == MotionPosition_End)
 		{
-			center_delta = -motion_shutter_time * 0.5f;
+			center_delta = -motion_shutter_time * 0.5;
 		}
 		else if (motion_position == MotionPosition_Start)
 		{
-			center_delta = motion_shutter_time * 0.5f;
+			center_delta = motion_shutter_time * 0.5;
 		}
 	}
-	float frame_time = center_time + center_delta;
-	float step_time = motion_shutter_time / (float)(motion_steps - 1);
+	double frame_time = center_time + center_delta;
+	double step_time = motion_shutter_time / (double)(motion_steps - 1);
 	for (size_t i = 0; i < motion_steps; i++)
 	{
-		float moment_time = frame_time - 0.5 * motion_shutter_time + i * step_time;
+		double moment_time = frame_time - 0.5 * motion_shutter_time + (double)i * step_time;
 		motion_times[i] = moment_time;
 	}
 }
@@ -400,17 +400,17 @@ void UpdateContext::set_motion_rolling_duration(float value)
 	motion_rolling_duration = value;
 }
 
-float UpdateContext::get_motion_fisrt_time()
+double UpdateContext::get_motion_fisrt_time()
 {
 	return motion_times[0];
 }
 
-float UpdateContext::get_motion_last_time()
+double UpdateContext::get_motion_last_time()
 {
 	return motion_times[motion_times.size() - 1];
 }
 
-std::vector<float> UpdateContext::get_motion_times()
+std::vector<double> UpdateContext::get_motion_times()
 {
 	if (get_need_motion())
 	{
@@ -422,7 +422,7 @@ std::vector<float> UpdateContext::get_motion_times()
 	}
 }
 
-float UpdateContext::get_motion_time(size_t step)
+double UpdateContext::get_motion_time(size_t step)
 {
 	return motion_times[step];
 }

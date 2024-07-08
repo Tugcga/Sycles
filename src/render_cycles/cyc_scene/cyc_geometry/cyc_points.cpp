@@ -40,7 +40,7 @@ bool is_pointcloud_points(XSI::X3DObject &xsi_object, const XSI::CTime &eval_tim
 	}
 }
 
-void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, bool use_motion_blur, ccl::vector<ccl::float3>& out_original_positions)
+void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, bool use_motion_blur, ccl::vector<ccl::float4>& out_original_positions)
 {
 	XSI::CTime eval_time = update_context->get_time();
 
@@ -70,7 +70,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 		float size = i < size_count ? size_data[i] : 0.0f;
 		ccl::float3 position_float3 = vector3_to_float3(position);
 		points_geom->add_point(position_float3, size);
-		out_original_positions[i] = position_float3;
+		out_original_positions[i] = ccl::make_float4(position_float3.x, position_float3.y, position_float3.z, size);
 		if (attr_random != NULL)
 		{
 			attr_random->add(ccl::hash_uint2_to_float(i, 0));
@@ -171,7 +171,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 	}
 }
 
-void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_context, const XSI::X3DObject& xsi_object, const std::vector<ccl::float3> &original_positions)
+void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_context, const XSI::X3DObject& xsi_object, const std::vector<ccl::float4> &original_positions)
 {
 	size_t motion_steps = update_context->get_motion_steps();
 	ULONG original_points_count = original_positions.size();
@@ -180,7 +180,7 @@ void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_cont
 
 	size_t attribute_index = 0;
 	ccl::Attribute* attr_m_positions = points_geom->attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_points_position"));
-	ccl::float3* motion_positions = attr_m_positions->data_float3();
+	ccl::float4* motion_positions = attr_m_positions->data_float4();
 	MotionSettingsPosition motion_position = update_context->get_motion_position();
 	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
@@ -197,28 +197,38 @@ void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_cont
 			}
 		}
 
-		float time = update_context->get_motion_time(time_motion_step);
+		float time = update_context->get_motion_time(time_motion_step) + (mi == (motion_steps - 1) ? 0.0001 : 0.0);  // add small delta to the last time, because in some times it get wrong snap of the geometry
 		XSI::Geometry time_xsi_geometry = xsi_object.GetActivePrimitive(time).GetGeometry(time);
 
+		// WARNING: the renderer required ICE attribute values before and after the current frame
+		// when Softimage goes back at the time, it return the same value as the last calculate value
+		// it happens when pointcloud contains simulated ICE tree
+		// so, it fails to get proper data from already simulated frames
+		// each time it return the last simulated value
 		XSI::ICEAttribute position_attr = time_xsi_geometry.GetICEAttributeFromName("PointPosition");
 		XSI::CICEAttributeDataArrayVector3f position_data;
 		position_attr.GetDataArray(position_data);
-		ULONG time_points_count = position_attr.GetElementCount();
-		if (time_points_count == original_points_count)
+
+		XSI::ICEAttribute size_attr = time_xsi_geometry.GetICEAttributeFromName("Size");
+		XSI::CICEAttributeDataArrayFloat size_data;
+		size_attr.GetDataArray(size_data);
+		ULONG time_points_count = std::min(position_attr.GetElementCount(), size_attr.GetElementCount());
+
+		// we should define the same number of points as at original time
+		// if at current time the number of points is greater than original, ignore it
+		// if the number of points is less, then fill other by center position
+		ULONG points_limit = std::min(original_points_count, time_points_count);
+		for (ULONG point_index = 0; point_index < points_limit; point_index++)
 		{
-			for (size_t p = 0; p < original_points_count; p++)
-			{
-				motion_positions[attribute_index++] = vector3_to_float3(position_data[p]);
-			}
+			XSI::MATH::CVector3f position = position_data[point_index];
+			float size = size_data[point_index];
+			motion_positions[attribute_index++] = ccl::make_float4(position.GetX(), position.GetY(), position.GetZ(), size);
 		}
-		else
+
+		// next other points
+		for (ULONG point_index = points_limit; point_index < original_points_count; point_index++)
 		{
-			// current points count differs from original one
-			// copy original positions to time positions
-			for (size_t p = 0; p < original_points_count; p++)
-			{
-				motion_positions[attribute_index++] = original_positions[p];
-			}
+			motion_positions[attribute_index++] = original_positions[point_index];
 		}
 	}
 }
@@ -227,7 +237,7 @@ void sync_points_geom_process(ccl::Scene* scene, ccl::PointCloud* points_geom, U
 {
 	points_geom->name = combine_geometry_name(xsi_object, xsi_primitive).GetAsciiString();
 
-	ccl::vector<ccl::float3> original_positions;
+	ccl::vector<ccl::float4> original_positions;
 	bool use_motion_blur = update_context->get_need_motion() && motion_deform;
 
 	sync_points_geom(scene, points_geom, update_context, xsi_primitive, use_motion_blur, original_positions);
