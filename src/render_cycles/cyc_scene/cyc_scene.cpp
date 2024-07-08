@@ -658,13 +658,41 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 	XSI::CICEAttributeDataArrayColor4f color_data;
 	color_attribute.GetDataArray(color_data);
 
+	XSI::ICEAttribute age_attribute = xsi_geometry.GetICEAttributeFromName("Age");
+	XSI::CICEAttributeDataArrayFloat age_data;
+	age_attribute.GetDataArray(age_data);
+	ULONG age_data_count = age_data.GetCount();
+
+	XSI::ICEAttribute lifetime_attribute = xsi_geometry.GetICEAttributeFromName("AgeLimit");
+	XSI::CICEAttributeDataArrayFloat lifetime_data;
+	lifetime_attribute.GetDataArray(lifetime_data);
+	ULONG lifetime_data_count = lifetime_data.GetCount();
+
+	XSI::ICEAttribute velocity_attribute = xsi_geometry.GetICEAttributeFromName("PointVelocity");
+	XSI::CICEAttributeDataArrayVector3f velocity_data;
+	velocity_attribute.GetDataArray(velocity_data);
+	ULONG velocity_data_count = velocity_data.GetCount();
+
+	XSI::ICEAttribute angular_velocity_attribute = xsi_geometry.GetICEAttributeFromName("AngularVelocity");
+	XSI::CICEAttributeDataArrayRotationf angular_velocity_data;
+	angular_velocity_attribute.GetDataArray(angular_velocity_data);
+	ULONG angular_velocity_data_count = angular_velocity_data.GetCount();
+
 	size_t shape_data_count = shape_data.GetCount();
 	int scale_count = scale_attribute.GetElementCount();
 	bool is_scale_define = scale_attribute.IsDefined();
 
+	// array of transforms for points
+	// the first array - for the first motion step (contains all point), the second array - for the second step and so on
+	// if array contains only one array, then there are no motions
 	std::vector<std::vector<XSI::MATH::CTransformation>> time_points_tfms = build_time_points_transforms(xsi_object, motion_times);
 
 	XSI::KinematicState pointcloud_kine = xsi_object.GetKinematics().GetGlobal();
+
+	// create the particle system for pointcloud
+	ccl::ParticleSystem* psys = scene->create_node<ccl::ParticleSystem>();
+	psys->particles.clear();
+	psys->tag_update(scene);
 	
 	size_t export_point_index = 0;
 	for (size_t i = 0; i < shape_data_count; i++)
@@ -715,6 +743,7 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 			// increase index of exported point
 			export_point_index++;
 
+			size_t start_objects_index = scene->objects.size();
 			if (shape_type == XSI::siICEShapeReference)
 			{
 				XSI::MATH::CShape shape = shape_data[i];
@@ -727,7 +756,6 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 				// add all children ids to abort update transforms inside update context
 				update_context->add_abort_update_transform_id(children);
 
-				size_t start_objects_index = scene->objects.size();
 				sync_instance_children(scene,  // scene
 					update_context,  // update context
 					children,  // children array
@@ -743,28 +771,51 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 					update_context->get_motion_times(),  // motion times
 					update_context->get_main_motion_step(),  // main motion step
 					eval_time);
-
-				// if we would like not override colors for child pointclouds, then use custom property
-				// it's hard properly define when override should be by default
-				if (override_color)
-				{
-					size_t objects_count = scene->objects.size();
-					// override object colors by color from the point
-					for (size_t object_index = start_objects_index; object_index < objects_count; object_index++)
-					{
-						ccl::Object* new_object = scene->objects[object_index];
-						new_object->set_color(color4_to_float3(point_color));
-						new_object->set_alpha(point_color.GetA());
-
-						new_object->tag_color_modified();
-						new_object->tag_alpha_modified();
-					}
-				}
 			}
 			else
 			{
 				ccl::Object* point_object = scene->create_node<ccl::Object>();
 				sync_point_primitive_shape(scene, point_object, update_context, shape_type, point_color, point_tfms, xsi_object, eval_time);
+			}
+
+			// add additional attributes to all newly created objects
+			size_t objects_count = scene->objects.size();
+			for (size_t object_index = start_objects_index; object_index < objects_count; object_index++)
+			{
+				ccl::Object* new_object = scene->objects[object_index];
+
+				// if we would like not override colors for child pointclouds, then use custom property
+				// it's hard properly define when override should be by default
+				if (override_color)
+				{
+					// override object colors by color from the point
+					// for primitives we will make it twise, it does not matter
+					new_object->set_color(color4_to_float3(point_color));
+					new_object->set_alpha(point_color.GetA());
+
+					new_object->tag_color_modified();
+					new_object->tag_alpha_modified();
+				}
+
+				// next define particle attributes
+				if (new_object->get_geometry()->need_attribute(scene, ccl::ATTR_STD_PARTICLE))
+				{
+					ccl::Particle pa;
+					pa.index = i;
+					if (i < age_data_count) { pa.age = age_data[i]; } else { pa.age = 0.0f; }
+					if (i < lifetime_data_count) { pa.lifetime = lifetime_data[i]; } else { pa.lifetime = 0.0f; }
+					pa.location = vector3_to_float3(current_point_tfm.GetTranslation());
+					XSI::MATH::CQuaternion q = current_point_tfm.GetRotationQuaternion();
+					pa.rotation = quaternion_to_float4(q);
+					pa.size = size_data[i];
+					if (i < velocity_data_count) { pa.velocity = vector3_to_float3(velocity_data[i]); } else { pa.velocity = ccl::make_float3(0.0, 0.0, 0.0); }
+					if (i < angular_velocity_data_count) { pa.angular_velocity = rotation_to_float3(angular_velocity_data[i]); } else { pa.angular_velocity = ccl::make_float3(0.0, 0.0, 0.0); }
+
+					psys->particles.push_back_slow(pa);
+
+					new_object->set_particle_system(psys);
+					new_object->set_particle_index(psys->particles.size() - 1);
+				}
 			}
 		}
 	}

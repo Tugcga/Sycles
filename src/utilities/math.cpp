@@ -9,6 +9,7 @@
 #include <xsi_color4f.h>
 #include <xsi_vector3f.h>
 #include <xsi_vector2f.h>
+#include <xsi_rotationf.h>
 
 #include "util/transform.h"
 #include "util/projection.h"
@@ -255,6 +256,18 @@ ccl::float3 vector3_to_float3(const XSI::MATH::CVector3f& vector)
 ccl::float2 vector2_to_float2(const XSI::MATH::CVector2f& vector)
 {
 	return ccl::make_float2(vector.GetX(), vector.GetY());
+}
+
+ccl::float4 quaternion_to_float4(const XSI::MATH::CQuaternion& quaternion)
+{
+	return ccl::make_float4(quaternion.GetX(), quaternion.GetY(), quaternion.GetZ(), quaternion.GetW());
+}
+
+ccl::float3 rotation_to_float3(const XSI::MATH::CRotationf& rotation)
+{
+	float x, y, z;
+	rotation.GetXYZAngles(x, y, z);
+	return ccl::make_float3(x, y, z);
 }
 
 float get_minimum(float v1, float v2, float v3)
