@@ -138,7 +138,7 @@ public:
 
 	void clear();
 
-	void activate_force_recreate_scene();
+	void activate_force_recreate_scene(const XSI::CString& message = XSI::CString());
 
 	//call these methods when we change scene and force to recreate the scene from scratch
 	void on_object_add(XSI::CRef& in_ctxt);

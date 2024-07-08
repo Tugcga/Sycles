@@ -225,6 +225,11 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	m_render_parameters = m_render_property.GetParameters();
 	//current time
 	eval_time = render_context.GetTime();
+
+	XSI::CString render_type_str = render_context.GetAttribute("RenderType");
+	render_type = render_type_str == XSI::CString("Pass") ? RenderType_Pass :
+				 (render_type_str == XSI::CString("Region") ? RenderType_Region : (
+				  render_type_str == XSI::CString("Shaderball") ? RenderType_Shaderball : RenderType_Rendermap));
 	
 	// tweak by playcontrol
 	XSI::Project prj = XSI::Application().GetActiveProject();
@@ -240,12 +245,15 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	
 	XSI::CTime::Format eval_format = XSI::CTime::ConvertFromPlayControlFormat(pc_format);
 	eval_time.PutFormat(eval_format, pc_frame_rate);
-	eval_time.PutTime(pc_current);
-
+	if (render_type == RenderType_Region)
+	{
+		eval_time.PutTime(pc_current);
+	}
+	
 	// if original time or frame rate is differ from the new one, then recreate the scene
 	if (original_format != eval_format || std::abs(original_frame_rate - pc_frame_rate) > 0.001 || std::abs(original_frame - pc_current) > 0.001)
 	{
-		activate_force_recreate_scene();
+		activate_force_recreate_scene("change the frame");
 	}
 
 	start_prepare_render_time = clock();
@@ -264,16 +272,11 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 
 	if (camera.GetObjectID() != prev_camera_id)
 	{
-		activate_force_recreate_scene();
+		activate_force_recreate_scene("change hte camera");
 	}
 
 	//get pathes to save images
 	output_paths.Clear();
-
-	XSI::CString render_type_str = render_context.GetAttribute("RenderType");
-	render_type = render_type_str == XSI::CString("Pass") ? RenderType_Pass :
-		(render_type_str == XSI::CString("Region") ? RenderType_Region : (
-			render_type_str == XSI::CString("Shaderball") ? RenderType_Shaderball : RenderType_Rendermap));
 
 	archive_folder = render_context.GetAttribute("ArchiveFileName");
 	if (render_type == RenderType_Pass && archive_folder.Length() > 0)
@@ -919,24 +922,28 @@ XSI::CStatus RenderEngineBase::post_render()
 	return status;
 }
 
-void RenderEngineBase::activate_force_recreate_scene()
+void RenderEngineBase::activate_force_recreate_scene(const XSI::CString &message)
 {
 	force_recreate_scene = true;
+	if (false && message.Length() > 0)  // disable logging
+	{
+		log_message(XSI::CString("Force recreate scene: ") + message);
+	}
 }
 
 void RenderEngineBase::on_object_add(XSI::CRef& in_ctxt)
 {
-	activate_force_recreate_scene();
+	activate_force_recreate_scene("on object add");
 }
 
 void RenderEngineBase::on_object_remove(XSI::CRef& in_ctxt)
 {
-	activate_force_recreate_scene();
+	activate_force_recreate_scene("on object remove");
 }
 
 void RenderEngineBase::on_nested_objects_changed(XSI::CRef& in_ctx)
 {
-	activate_force_recreate_scene();
+	activate_force_recreate_scene("on nested object changed");
 }
 
 void RenderEngineBase::abort_render()
