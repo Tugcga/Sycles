@@ -3,6 +3,7 @@
 #include "session/session.h"
 #include "scene/integrator.h"
 #include "util/hash.h"
+#include "scene/light.h"
 
 #include "../../render_cycles/update_context.h"
 #include "../../utilities/math.h"
@@ -136,16 +137,19 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		int fast_method = render_parameters.GetValue("paths_fastgi_method", eval_time);
 		if (use_fast_ao)
 		{
-			integrator->set_ao_bounces(render_parameters.GetValue("paths_fastgi_ao_bouncess", eval_time));
+			float ao_factor = render_parameters.GetValue("paths_fastgi_ao_factor", eval_time);
+			int ao_bounces = render_parameters.GetValue("paths_fastgi_ao_bouncess", eval_time);
+			integrator->set_ao_bounces(ao_bounces);
+			
 			if (fast_method == 0)
 			{// replace 
-				integrator->set_ao_factor(render_parameters.GetValue("paths_fastgi_ao_factor", eval_time));
+				integrator->set_ao_factor(ao_factor);
 				integrator->set_ao_additive_factor(0.0f);
 			}
 			else
 			{// add
 				integrator->set_ao_factor(0.0f);
-				integrator->set_ao_additive_factor(render_parameters.GetValue("paths_fastgi_ao_factor", eval_time));
+				integrator->set_ao_additive_factor(ao_factor);
 			}
 		}
 		else
@@ -154,7 +158,8 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 			integrator->set_ao_additive_factor(0.0f);
 			integrator->set_ao_bounces(0);
 		}
-		integrator->set_ao_distance(render_parameters.GetValue("paths_fastgi_ao_distance", eval_time));
+		float ao_distance = render_parameters.GetValue("paths_fastgi_ao_distance", eval_time);
+		integrator->set_ao_distance(ao_distance);
 
 		ccl::DeviceInfo render_device = session->params.device;
 		if (render_device.type == ccl::DeviceType::DEVICE_CPU)
@@ -173,8 +178,6 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 			}
 			integrator->set_use_guiding(false);
 		}
-
-		
 	}
 
 	if (render_type == RenderType::RenderType_Rendermap && baking_context->get_is_valid())
