@@ -386,3 +386,8 @@ XSI::CString to_string(const ccl::vector<size_t>& array)
 
 	return to_return;
 }
+
+XSI::CString to_string_int2(const ccl::int2& value)
+{
+	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";
+}

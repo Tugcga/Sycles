@@ -101,6 +101,11 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	// create pixel buffer
 	// we will use it for all passes
 	std::vector<float> pixels((size_t)tile_width * tile_height * 4, 0.0f);
+	// TODO: here is a problem when use tile rendering
+	// more details in cycles_ui.cpp:133
+	// shortly, tile contains some strange additional padding near actual tile pixels and required array with bigger size
+	// and this padding has no constant size, so, it's hard properly extract actual pixels
+
 	// we should get from tile pixels for each pass and save pixels into buffers (visual or output)
 	bool is_get = false;
 	if (render_type != RenderType::RenderType_Rendermap)
@@ -108,7 +113,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		// use visual only for non baking render
 		// get at first pixels for visual
 		int visual_components = visual_buffer->get_components();
-		is_get = tile.get_pass_pixels(visual_buffer->get_pass_name(), visual_components, &pixels[0]);
+		is_get = tile.get_pass_pixels(visual_buffer->get_pass_name(), visual_components, pixels.data());
 		if (is_get)
 		{
 			visual_buffer->add_pixels(tile_roi, pixels);
@@ -525,9 +530,16 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	// create temp folder
 	// we will setup it to the session params later after scene is created
 	// because this will be the common moment as for scene updates and creating from scratch
-	// TODO: there is a bug somewhere, even if we setup the temp directory into session parameters, it crashes when render small tiles
-	// so, try to fix it later, for now simply disable tiling
-	// temp_path = create_temp_path();
+	bool use_tiles = m_render_parameters.GetValue("performance_memory_use_auto_tile", eval_time);
+	if (use_tiles)
+	{
+		temp_path = create_temp_path();
+	}
+	else
+	{
+		temp_path == "";
+	}
+	
 
 	// if recreate session, then automaticaly say that the scene is also new
 	// this parameter used in post_scene, for example
@@ -780,8 +792,8 @@ XSI::CStatus RenderEngineCyc::update_scene_render()
 XSI::CStatus RenderEngineCyc::create_scene()
 {
 	clear_session();
-
 	session = create_session(session_params, scene_params);
+
 	is_session = true;
 	create_new_scene = true;
 
@@ -911,10 +923,20 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			sync_shader_settings(session->scene, m_render_parameters, render_type, get_shaderball_displacement_method(), eval_time);
 		}
 
-		// TODO: try to fix this bug
 		// set temp directory for session parameters
-		// session->params.temp_dir = temp_path.GetAsciiString();
-
+		if (session->params.use_auto_tile && temp_path.Length() > 0)
+		{
+			session->params.temp_dir = temp_path.GetAsciiString();
+		}
+		else
+		{
+			if (session->params.use_auto_tile)
+			{
+				log_message("Render use tiles mode, but temp directory is not defined. Disabled this mode.", XSI::siWarningMsg);
+			}
+			session->params.use_auto_tile = false;
+		}
+		
 		update_context->set_logging(m_render_parameters.GetValue("options_logging_log_rendertime", eval_time), m_render_parameters.GetValue("options_logging_log_details", eval_time));
 	}
 
@@ -994,8 +1016,8 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 		}
 	}
 
-	// TODO: fix crash when using tiling rendering
-	// remove_temp_path(temp_path);
+	// remove temp directory (if it exists)
+	remove_temp_path(temp_path);
 
 	// clear output context object
 	output_context->reset();

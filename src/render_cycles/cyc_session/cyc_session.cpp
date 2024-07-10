@@ -7,6 +7,7 @@
 #include "../../input/input_devices.h"
 #include "../cyc_scene/cyc_scene.h"
 #include "cyc_session.h"
+#include "../../utilities/files_io.h"
 
 void set_session_samples(ccl::SessionParams &session_params, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
 {
@@ -178,7 +179,6 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 
 			use_cpu = false;
 		}
-
 		session_params.experimental = true;
 		set_session_samples(session_params, render_parameters, eval_time);
 

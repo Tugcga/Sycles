@@ -130,7 +130,13 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("performance_threads_count", "Threads");
 	layout.EndGroup();
 
-	// TODO: try to fix the bug with crash when we render small tiles
+	// TODO: with activated tile rendering there are some problems to obtain pixels from the tile
+	// it adds some padding to the tile segment, and pixels of the tile have empty spaces
+	// so, pass pixels array to the tile.get_pass_pixels does not work, because it requires more pixels than size of the tile
+	// NOTE: in test console app all works fine, the tile does not contains any padding in pixels
+	// why it happens here?
+	// so, for now hode option for tile rendering from the UI
+	// by default it's false
 	// layout.AddGroup("Memory");
 	// layout.AddItem("performance_memory_use_auto_tile", "Use Tiling");
 	// layout.AddItem("performance_memory_tile_size", "Tile Size");

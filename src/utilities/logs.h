@@ -44,3 +44,4 @@ XSI::CString to_string(const ccl::vector<ccl::float4>& array);
 XSI::CString to_string_flot4(const ccl::float4 &value);  // to_string name exists in ccl namespace
 XSI::CString to_string(const ccl::array<int>& array);
 XSI::CString to_string(const ccl::vector<size_t>& array);
+XSI::CString to_string_int2(const ccl::int2 &value);
