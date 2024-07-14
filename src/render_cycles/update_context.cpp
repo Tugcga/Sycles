@@ -27,6 +27,7 @@ void UpdateContext::reset()
 	// set to true, because reset called when we create the scene
 	// in this case we say that the scene is new and render should be done
 	is_update_scene = true;
+	is_update_light_linking = true;
 
 	prev_dispaly_pass_name = "";
 
@@ -72,9 +73,19 @@ void UpdateContext::reset()
 	xsi_displacement_materials.clear();
 }
 
+void UpdateContext::set_is_update_light_linking(bool value)
+{
+	is_update_light_linking = value;
+}
+
 void UpdateContext::set_is_update_scene(bool value)
 {
 	is_update_scene = value;
+}
+
+bool UpdateContext::get_is_update_light_linking()
+{
+	return is_update_light_linking;
 }
 
 bool UpdateContext::get_is_update_scene()
@@ -483,6 +494,18 @@ std::vector<size_t> UpdateContext::get_xsi_light_cycles_indexes(ULONG xsi_id)
 	return lights_xsi_to_cyc[xsi_id];
 }
 
+std::vector<ULONG> UpdateContext::get_xsi_light_ids()
+{
+	std::vector<ULONG> xsi_ids;
+	xsi_ids.reserve(lights_xsi_to_cyc.size());
+
+	for (auto kv : lights_xsi_to_cyc)
+	{
+		xsi_ids.push_back(kv.first);
+	}
+	return xsi_ids;
+}
+
 void UpdateContext::add_geometry_index(ULONG xsi_id, size_t cyc_geo_index)
 {
 	geometry_xsi_to_cyc[xsi_id] = cyc_geo_index;
@@ -518,6 +541,18 @@ bool UpdateContext::is_object_exists(ULONG xsi_id)
 std::vector<size_t> UpdateContext::get_object_cycles_indexes(ULONG xsi_id)
 {
 	return object_xsi_to_cyc[xsi_id];
+}
+
+std::vector<ULONG> UpdateContext::get_xsi_object_ids()
+{
+	std::vector<ULONG> xsi_ids;
+	xsi_ids.reserve(object_xsi_to_cyc.size());
+
+	for (auto kv : object_xsi_to_cyc)
+	{
+		xsi_ids.push_back(kv.first);
+	}
+	return xsi_ids;
 }
 
 bool UpdateContext::get_use_background_light()

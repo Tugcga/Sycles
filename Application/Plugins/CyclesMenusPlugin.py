@@ -119,6 +119,7 @@ def CyclesProperties_Init(ctxt):
     menu.AddCommandItem("Add Volume Property", "AddCyclesVolume")
     menu.AddCommandItem("Add Pointcloud Property", "AddCyclesPointcloud")
     menu.AddCommandItem("Add Baking Property", "AddCyclesBake")
+    menu.AddCommandItem("Add Light Linking Property", "AddCyclesLightLinking")
     menu.AddCommandItem("Print Light Direction", "PrintLightDirection")
 
 

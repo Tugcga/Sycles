@@ -6,6 +6,7 @@
 #include "scene/background.h"
 #include "scene/camera.h"
 #include "scene/pointcloud.h"
+#include "scene//light.h"
 #include "util/hash.h"
 
 #include <unordered_set>
@@ -22,16 +23,17 @@
 #include <xsi_time.h>
 #include <xsi_arrayparameter.h>
 #include <xsi_model.h>
+#include <xsi_group.h>
 
+#include "../../render_base/type_enums.h"
+#include "../../input/input.h"
+#include "../../utilities/xsi_properties.h"
 #include "../../utilities/logs.h"
 #include "../../utilities/math.h"
 #include "../cyc_session/cyc_session.h"
 #include "cyc_scene.h"
 #include "cyc_geometry/cyc_geometry.h"
 #include "primitives_geometry.h"
-#include "../../render_base/type_enums.h"
-#include "../../input/input.h"
-#include "../../utilities/xsi_properties.h"
 
 // cube from -1 to 1 (the edge size is 2)
 ccl::Mesh* build_cube(ccl::Scene* scene)

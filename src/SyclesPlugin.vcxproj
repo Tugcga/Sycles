@@ -92,6 +92,7 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_volume.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_instance.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_light.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_light_linking.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_ice_volume_loader.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_loaders\cyc_image_loader.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_gltf_shaders.cpp" />
@@ -117,6 +118,7 @@
     <ClCompile Include="utilities\files_io.cpp" />
     <ClCompile Include="utilities\io_exr.cpp" />
     <ClCompile Include="utilities\logs.cpp" />
+    <ClCompile Include="utilities\maps.cpp" />
     <ClCompile Include="utilities\math.cpp" />
     <ClCompile Include="utilities\miniz.c" />
     <ClCompile Include="utilities\strings.cpp" />
@@ -159,6 +161,7 @@
     <ClInclude Include="render_cycles\update_context.h" />
     <ClInclude Include="si_callbacks\si_callbacks.h" />
     <ClInclude Include="si_callbacks\si_locker.h" />
+    <ClInclude Include="utilities\maps.h" />
     <ClInclude Include="utilities\arrays.h" />
     <ClInclude Include="utilities\files_io.h" />
     <ClInclude Include="utilities\io_exr.h" />

@@ -32,8 +32,10 @@ public:
 	void reset();
 
 	void set_is_update_scene(bool value);
+	void set_is_update_light_linking(bool value);
 
 	bool get_is_update_scene();
+	bool get_is_update_light_linking();
 
 	// return true if only color management parameters changed in render settings
 	bool is_changed_render_parameters_only_cm(const std::unordered_set<std::string>& parameters);
@@ -95,6 +97,7 @@ public:
 	void add_light_index(ULONG xsi_light_id, size_t cyc_light_index);
 	bool is_xsi_light_exists(ULONG xsi_id);
 	std::vector<size_t> get_xsi_light_cycles_indexes(ULONG xsi_id);
+	std::vector<ULONG> get_xsi_light_ids();
 
 	void add_geometry_index(ULONG xsi_id, size_t cyc_geo_index);
 	bool is_geometry_exists(ULONG xsi_id);
@@ -103,6 +106,7 @@ public:
 	void add_object_index(ULONG xsi_id, size_t cyc_index);
 	bool is_object_exists(ULONG xsi_id);
 	std::vector<size_t> get_object_cycles_indexes(ULONG xsi_id);
+	std::vector<ULONG> get_xsi_object_ids();
 
 	bool get_use_background_light();
 	void set_use_background_light(size_t shader_index, ULONG material_id);  // activate use backgound light
@@ -160,6 +164,8 @@ private:
 	// at the very start it set to false, but if something should be changed, then is set to true
 	// if it false, then we should not render, because the visual buffer already contains rendered image
 	bool is_update_scene;
+
+	bool is_update_light_linking;
 
 	// set true if we change something in the scene and this may effect to the backgound
 	// set false in every pre scene process

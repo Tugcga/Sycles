@@ -673,6 +673,11 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	{
 		is_update = update_volume_property(session->scene, update_context, xsi_object);
 	}
+	else if (update_type == UpdateType::UpdateType_LightLinkingProperty)
+	{
+		// we change collection on some light linking property, so, we should recalculate it for the whole scene
+		update_context->set_is_update_light_linking(true);
+	}
 
 	update_context->set_is_update_scene(true);
 
@@ -840,6 +845,12 @@ XSI::CStatus RenderEngineCyc::create_scene()
 // if return Abort, then the engine will recreate the scene
 XSI::CStatus RenderEngineCyc::post_scene()
 {
+	if (update_context->get_is_update_light_linking())
+	{
+		sync_light_linking(session->scene, update_context);
+	}
+	update_context->set_is_update_light_linking(false);
+
 	call_abort_render = false;
 	make_render = true;
 

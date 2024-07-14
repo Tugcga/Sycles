@@ -69,6 +69,8 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterCommand("AddCyclesVolume", "AddCyclesVolume")
     in_reg.RegisterProperty("CyclesBake")
     in_reg.RegisterCommand("AddCyclesBake", "AddCyclesBake")
+    in_reg.RegisterProperty("CyclesLightLinking")
+    in_reg.RegisterCommand("AddCyclesLightLinking", "AddCyclesLightLinking")
     # RegistrationInsertionPoint - do not remove this line
 
     return true
@@ -111,6 +113,16 @@ def AddCyclesVolume_Init(in_ctxt):
 
 
 def AddCyclesBake_Init(in_ctxt):
+    oCmd = in_ctxt.Source
+    oCmd.Description = ""
+    oCmd.Tooltip = ""
+    oCmd.SetFlag(c.siSupportsKeyAssignment, False)
+    oCmd.SetFlag(c.siCannotBeUsedInBatch, True)
+
+    return true
+
+
+def AddCyclesLightLinking_Init(in_ctxt):
     oCmd = in_ctxt.Source
     oCmd.Description = ""
     oCmd.Tooltip = ""
@@ -213,7 +225,6 @@ def AddCyclesPointcloud_Execute():
 def AddCyclesBake_Execute():
     Application.LogMessage("AddCyclesBake_Execute called", c.siVerbose)
 
-    # we should add the property to selected pointcloud object
     oSel = Application.Selection
     if oSel is not None and len(oSel) > 0:
         for i in range(len(oSel)):
@@ -228,6 +239,27 @@ def AddCyclesBake_Execute():
                 lm("This property can be applied only to the polygonmesh object", c.siWarning)
     else:
         lm("This property can be applied only to the polygonmesh object", c.siWarning)
+
+    return True
+
+
+def AddCyclesLightLinking_Execute():
+    Application.LogMessage("AddCyclesLightLinking_Execute called", c.siVerbose)
+
+    oSel = Application.Selection
+    if oSel is not None and len(oSel) > 0:
+        for i in range(len(oSel)):
+            o = oSel[i]
+            if o.Type == "polymsh" or o.Type == "light" or o.Type == "VDBPrimitive" or o.Type == "hair" or o.Type == "pointcloud" or o.Type == "cyclesPoint" or o.Type == "cyclesSun" or o.Type == "cyclesSpot" or o.Type == "cyclesArea":
+                if o.GetPropertyFromName2("CyclesLightLinking"):
+                    prop = o.GetPropertyFromName2("CyclesLightLinking")
+                else:
+                    prop = o.AddProperty("CyclesLightLinking")
+                Application.InspectObj(prop)
+            else:
+                lm("LightLinking property can be applied only to the following objects: polygonmesh, light, VDBPrimitive, pointcloud, Cycles native lights", c.siWarning)
+    else:
+        lm("Select scene object to add LightLinking property", c.siWarning)
 
     return True
 
@@ -304,7 +336,7 @@ def CyclesBake_Define(in_ctxt):
     oProp.AddParameter3("baking_filter_glossy", c.siBool, 1, 0, 1, False, False)
     oProp.AddParameter3("baking_filter_transmission", c.siBool, 1, 0, 1, False, False)
     oProp.AddParameter3("baking_filter_emission", c.siBool, 1, 0, 1, False, False)
-    
+
     oProp.AddParameter3("output_folder", c.siString, "")
     oProp.AddParameter3("output_name", c.siString, "rendermap")
     oProp.AddParameter3("output_extension", c.siString, "png")
@@ -312,6 +344,13 @@ def CyclesBake_Define(in_ctxt):
 
     oProp.AddParameter3("baking_view", c.siInt2, 0, 0, 1, False, False)
 
+    return true
+
+
+def CyclesLightLinking_Define(in_ctxt):
+    prop = in_ctxt.Source
+    prop.AddParameter3("light_group_name", c.siString, "")
+    prop.AddParameter3("shadow_group_name", c.siString, "")
     return true
 
 
@@ -328,6 +367,10 @@ def CyclesVolume_DefineLayout(in_ctxt):
 
 
 def CyclesPointcloud_DefineLayout(in_ctxt):
+    return True
+
+
+def CyclesLightLinking_DefineLayout(in_ctxt):
     return True
 
 
@@ -419,7 +462,7 @@ def cycles_bake_property_build_ui():
     oLayout.AddEnumControl("uv_index", object_uvs, "Baking UV")
     oLayout.AddEnumControl("baking_shader", baking_shaders, "Bake Type")
     oLayout.AddEnumControl("baking_view", baking_view_enum, "View From")
-    
+
     oLayout.AddItem("baking_filter_color", "Color")
     oLayout.AddRow()
     oLayout.AddItem("baking_filter_direct", "Direct")
@@ -650,6 +693,37 @@ def CyclesPointcloud_primitive_pc_OnChanged():
     return
 
 
+def recursive_groups_search(obj, out_array):
+    if obj.Type == "#model":
+        model_groups = obj.Groups
+        for g in model_groups:
+            out_array.append(g.FullName)
+
+    obj_children = obj.Children
+    for ch in obj_children:
+        recursive_groups_search(ch, out_array)
+
+
+def cycleslight_linking_property_build_ui():
+    prop = PPG.Inspected(0)
+    layout = PPG.PPGLayout
+    layout.Clear()
+
+    # form list of all available groups
+    root = Application.ActiveProject.ActiveScene.Root
+
+    all_groups = [""]  # add default empty group with empty name
+    recursive_groups_search(root, all_groups)
+    groups_enum = [val for val in all_groups for _ in (0, 1)]
+
+    layout.AddGroup("Groups")
+    layout.AddEnumControl("light_group_name", groups_enum, "Light")
+    layout.AddEnumControl("shadow_group_name", groups_enum, "Shadow")
+    layout.EndGroup()
+
+    PPG.Refresh()
+
+
 def CyclesMesh_OnInit():
     mesh_property_build_ui()
     return True
@@ -675,6 +749,11 @@ def CyclesBake_OnInit():
     return True
 
 
+def CyclesLightLinking_OnInit():
+    cycleslight_linking_property_build_ui()
+    return True
+
+
 def CyclesMesh_OnClosed():
     Application.LogMessage("CyclesMesh_OnClosed called", c.siVerbose)
 
@@ -692,3 +771,7 @@ def CyclesPointcloud_OnClosed():
 
 def CyclesBake_OnClosed():
     Application.LogMessage("CyclesBake_OnClosed called", c.siVerbose)
+
+
+def CyclesLightLinking_OnClosed():
+    Application.LogMessage("CyclesLightLinking_OnClosed called", c.siVerbose)

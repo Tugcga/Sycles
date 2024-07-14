@@ -45,3 +45,5 @@ XSI::CString to_string_flot4(const ccl::float4 &value);  // to_string name exist
 XSI::CString to_string(const ccl::array<int>& array);
 XSI::CString to_string(const ccl::vector<size_t>& array);
 XSI::CString to_string_int2(const ccl::int2 &value);
+
+XSI::CString bitmask_to_string(uint64_t mask);

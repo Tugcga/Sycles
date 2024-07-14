@@ -79,3 +79,6 @@ void sync_transform(ccl::Object* object, UpdateContext* update_context, const XS
 void sync_transforms(ccl::Object* object, const std::vector<XSI::MATH::CTransformation>& xsi_tfms_array, size_t main_motion_step);
 XSI::CStatus sync_geometry_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object);
 std::vector<XSI::MATH::CTransformation> build_transforms_array(const XSI::KinematicState& xsi_kine, bool need_motion, const std::vector<double>& motion_times, const XSI::CTime& eval_time);
+
+// cyc_light_linking
+void sync_light_linking(ccl::Scene* scene, UpdateContext* update_context);

@@ -251,7 +251,8 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	}
 	
 	// if original time or frame rate is differ from the new one, then recreate the scene
-	if (original_format != eval_format || std::abs(original_frame_rate - pc_frame_rate) > 0.001 || std::abs(original_frame - pc_current) > 0.001)
+	// WARNING: in some cases fps from render context is 29.97, but play control fps is 30.0
+	if (original_format != eval_format || std::abs(original_frame_rate - pc_frame_rate) > 0.5 || std::abs(original_frame - pc_current) > 0.5)
 	{
 		activate_force_recreate_scene("change the frame");
 	}
@@ -272,7 +273,7 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 
 	if (camera.GetObjectID() != prev_camera_id)
 	{
-		activate_force_recreate_scene("change hte camera");
+		activate_force_recreate_scene("change the camera");
 	}
 
 	//get pathes to save images
@@ -755,6 +756,10 @@ XSI::CStatus RenderEngineBase::scene_process()
 						else if (property_type == "CyclesVolume")
 						{
 							update_status = update_scene(xsi_3d_obj, UpdateType_VolumeProperty);
+						}
+						else if (property_type == "CyclesLightLinking")
+						{
+							update_status = update_scene(xsi_3d_obj, UpdateType_LightLinkingProperty);
 						}
 						else
 						{

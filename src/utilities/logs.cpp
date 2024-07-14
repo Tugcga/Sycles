@@ -391,3 +391,23 @@ XSI::CString to_string_int2(const ccl::int2& value)
 {
 	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";
 }
+
+XSI::CString bitmask_to_string(uint64_t mask)
+{
+	XSI::CString str = "";
+	uint64_t value = mask;
+	for (size_t i = 0; i < 64; i++)
+	{
+		str += XSI::CString(value % 2);
+		value = value / 2;
+	}
+
+	// reverse output
+	XSI::CString to_return = "";
+	for (size_t i = 0; i < str.Length(); i++)
+	{
+		to_return += str[str.Length() - 1 - i];
+	}
+
+	return to_return;
+}
