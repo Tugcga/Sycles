@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_wireframe.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_wireframe.oso
 shader node_wireframe
 param	string	bump_offset	"center"		%read{75,158} %write{2147483647,-1}
 param	int	use_pixel_size	0		%read{33,195} %write{2147483647,-1}
@@ -8,18 +8,18 @@ param	float	Size	0.00999999978		%read{48,210} %write{2147483647,-1}
 oparam	float	Fac	0		%read{154,240} %write{3,240}
 global	point	P	%read{34,234} %write{78,161} %derivs
 global	vector	I	%read{36,205} %write{2147483647,-1}
-local	int	___330_np	%read{23,234} %write{5,184}
-local	point[64]	___330_p	%read{53,234} %write{10,188}
-local	float	___330_pixelWidth	%read{49,234} %write{6,212}
-local	float	___333_pixelWidthX	%read{46,208} %write{39,201}
-local	float	___333_pixelWidthY	%read{46,208} %write{45,207}
-local	int	___334_i	%read{53,234} %write{52,234}
-local	int	___335_i2	%read{53,234} %write{53,234}
-local	vector	___335_dir	%read{53,234} %write{53,234}
-local	vector	___335_edge	%read{53,234} %write{53,234}
-local	vector	___335_crs	%read{53,234} %write{53,234}
-local	point	___380_dx	%read{78,155} %write{77,77} %derivs
-local	point	___381_dy	%read{161,238} %write{160,160} %derivs
+local	int	___344_np	%read{23,234} %write{5,184}
+local	point[64]	___344_p	%read{53,234} %write{10,188}
+local	float	___344_pixelWidth	%read{49,234} %write{6,212}
+local	float	___347_pixelWidthX	%read{46,208} %write{39,201}
+local	float	___347_pixelWidthY	%read{46,208} %write{45,207}
+local	int	___348_i	%read{53,234} %write{52,234}
+local	int	___349_i2	%read{53,234} %write{53,234}
+local	vector	___349_dir	%read{53,234} %write{53,234}
+local	vector	___349_edge	%read{53,234} %write{53,234}
+local	vector	___349_crs	%read{53,234} %write{53,234}
+local	point	___374_dx	%read{78,155} %write{77,77} %derivs
+local	point	___375_dy	%read{161,238} %write{160,160} %derivs
 const	string	$const1	"triangles"		%read{7,180} %write{2147483647,-1}
 const	string	$const2	"wireframe"		%read{0,162} %write{2147483647,-1}
 temp	int	$tmp1	%read{2,2} %write{1,1}
@@ -155,38 +155,38 @@ temp	float	$tmp116	%read{239,239} %write{237,237}
 temp	float	$tmp117	%read{239,239} %write{238,238}
 temp	float	$tmp118	%read{240,240} %write{239,239}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:12
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:13
 #   Fac = wireframe("triangles", Size, use_pixel_size);
-	functioncall	$const2 75 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl"} %line{12} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:16
+	functioncall	$const2 75 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl"} %line{13} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:16
 #    if (raytype("path:diffuse")) return 0.0;
-	raytype		$tmp1 $const3 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h"} %line{16} %argrw{"wr"}
+	raytype		$tmp1 $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h"} %line{16} %argrw{"wr"}
 	if		$tmp1 5 5 	%argrw{"r"}
 	assign		Fac $const4 	%argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:18
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:18
 #    int np = 0;
-	assign		___330_np $const5 	%line{18} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:20
+	assign		___344_np $const5 	%line{18} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:20
 #    float pixelWidth = 1;
-	assign		___330_pixelWidth $const6 	%line{20} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:22
+	assign		___344_pixelWidth $const6 	%line{20} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:22
 #    if (edge_type == "triangles")
 	eq		$tmp2 $const1 $const1 	%line{22} %argrw{"wrr"}
 	if		$tmp2 15 33 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:24
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:24
 #       np = 3;
-	assign		___330_np $const7 	%line{24} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:25
+	assign		___344_np $const7 	%line{24} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:25
 #       if (!getattribute("geom:trianglevertices", p))
-	getattribute	$tmp3 $const8 ___330_p 	%line{25} %argrw{"wrw"}
+	getattribute	$tmp3 $const8 ___344_p 	%line{25} %argrw{"wrw"}
 	eq		$tmp4 $tmp3 $const5 	%argrw{"wrr"}
 	if		$tmp4 15 15 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:26
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:26
 #          return 0.0;
 	assign		Fac $const4 	%line{26} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:28
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:28
 #    else if (edge_type == "polygons" || edge_type == "patches")
 	eq		$tmp5 $const1 $const9 	%line{28} %argrw{"wrr"}
 	neq		$tmp6 $tmp5 $const5 	%argrw{"wrr"}
@@ -195,137 +195,137 @@ code ___main___
 	neq		$tmp8 $tmp7 $const5 	%argrw{"wrr"}
 	assign		$tmp6 $tmp8 	%argrw{"wr"}
 	if		$tmp6 33 33 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:30
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:30
 #       getattribute("geom:numpolyvertices", np);
-	getattribute	$tmp9 $const11 ___330_np 	%line{30} %argrw{"wrw"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:31
+	getattribute	$tmp9 $const11 ___344_np 	%line{30} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:31
 #       if (np < 3 || !getattribute("geom:polyvertices", p))
-	lt		$tmp10 ___330_np $const7 	%line{31} %argrw{"wrr"}
+	lt		$tmp10 ___344_np $const7 	%line{31} %argrw{"wrr"}
 	neq		$tmp11 $tmp10 $const5 	%argrw{"wrr"}
 	if		$tmp11 26 30 	%argrw{"r"}
-	getattribute	$tmp12 $const12 ___330_p 	%argrw{"wrw"}
+	getattribute	$tmp12 $const12 ___344_p 	%argrw{"wrw"}
 	eq		$tmp13 $tmp12 $const5 	%argrw{"wrr"}
 	neq		$tmp14 $tmp13 $const5 	%argrw{"wrr"}
 	assign		$tmp11 $tmp14 	%argrw{"wr"}
 	if		$tmp11 33 33 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:32
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:32
 #          return 0.0;
 	assign		Fac $const4 	%line{32} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:35
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:35
 #    if (raster)
 	if		use_pixel_size 48 48 	%line{35} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:39
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:39
 #       float pixelWidthX = length(Dx(P) - dot(Dx(P), I) * I);
 	Dx		$tmp15 P 	%line{39} %argrw{"wr"} %argderivs{1}
 	Dx		$tmp17 P 	%argrw{"wr"} %argderivs{1}
 	dot		$tmp16 $tmp17 I 	%argrw{"wrr"}
 	mul		$tmp18 $tmp16 I 	%argrw{"wrr"}
 	sub		$tmp19 $tmp15 $tmp18 	%argrw{"wrr"}
-	length		___333_pixelWidthX $tmp19 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:40
+	length		___347_pixelWidthX $tmp19 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:40
 #       float pixelWidthY = length(Dy(P) - dot(Dy(P), I) * I);
 	Dy		$tmp20 P 	%line{40} %argrw{"wr"} %argderivs{1}
 	Dy		$tmp22 P 	%argrw{"wr"} %argderivs{1}
 	dot		$tmp21 $tmp22 I 	%argrw{"wrr"}
 	mul		$tmp23 $tmp21 I 	%argrw{"wrr"}
 	sub		$tmp24 $tmp20 $tmp23 	%argrw{"wrr"}
-	length		___333_pixelWidthY $tmp24 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:42
+	length		___347_pixelWidthY $tmp24 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:42
 #       pixelWidth = (pixelWidthX + pixelWidthY) / 2;
-	add		$tmp25 ___333_pixelWidthX ___333_pixelWidthY 	%line{42} %argrw{"wrr"}
-	div		___330_pixelWidth $tmp25 $const14 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:47
+	add		$tmp25 ___347_pixelWidthX ___347_pixelWidthY 	%line{42} %argrw{"wrr"}
+	div		___344_pixelWidth $tmp25 $const14 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:47
 #    pixelWidth *= 0.5 * line_width;
 	mul		$tmp26 $const15 Size 	%line{47} %argrw{"wrr"}
-	mul		___330_pixelWidth ___330_pixelWidth $tmp26 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:48
+	mul		___344_pixelWidth ___344_pixelWidth $tmp26 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:48
 #    pixelWidth *= pixelWidth;
-	mul		___330_pixelWidth ___330_pixelWidth ___330_pixelWidth 	%line{48} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:49
+	mul		___344_pixelWidth ___344_pixelWidth ___344_pixelWidth 	%line{48} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:49
 #    for (int i = 0; i < np; i++)
 	for		$tmp28 53 55 71 73 	%line{49} %argrw{"r"}
-	assign		___334_i $const5 	%argrw{"wr"}
-	lt		$tmp27 ___334_i ___330_np 	%argrw{"wrr"}
+	assign		___348_i $const5 	%argrw{"wr"}
+	lt		$tmp27 ___348_i ___344_np 	%argrw{"wrr"}
 	neq		$tmp28 $tmp27 $const5 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:51
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:51
 #       int i2 = i ? i - 1 : np - 1;
-	if		___334_i 57 58 	%line{51} %argrw{"r"}
-	sub		___335_i2 ___334_i $const6 	%argrw{"wrr"}
-	sub		___335_i2 ___330_np $const6 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:52
+	if		___348_i 57 58 	%line{51} %argrw{"r"}
+	sub		___349_i2 ___348_i $const6 	%argrw{"wrr"}
+	sub		___349_i2 ___344_np $const6 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:52
 #       vector dir = P - p[i];
-	aref		$tmp29 ___330_p ___334_i 	%line{52} %argrw{"wrr"}
-	sub		___335_dir P $tmp29 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:53
+	aref		$tmp29 ___344_p ___348_i 	%line{52} %argrw{"wrr"}
+	sub		___349_dir P $tmp29 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:53
 #       vector edge = p[i] - p[i2];
-	aref		$tmp30 ___330_p ___334_i 	%line{53} %argrw{"wrr"}
-	aref		$tmp31 ___330_p ___335_i2 	%argrw{"wrr"}
-	sub		___335_edge $tmp30 $tmp31 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:54
+	aref		$tmp30 ___344_p ___348_i 	%line{53} %argrw{"wrr"}
+	aref		$tmp31 ___344_p ___349_i2 	%argrw{"wrr"}
+	sub		___349_edge $tmp30 $tmp31 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:54
 #       vector crs = cross(edge, dir);
-	cross		___335_crs ___335_edge ___335_dir 	%line{54} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:58
+	cross		___349_crs ___349_edge ___349_dir 	%line{54} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:58
 #       if (dot(crs, crs) < (dot(edge, edge) * pixelWidth))
-	dot		$tmp32 ___335_crs ___335_crs 	%line{58} %argrw{"wrr"}
-	dot		$tmp33 ___335_edge ___335_edge 	%argrw{"wrr"}
-	mul		$tmp34 $tmp33 ___330_pixelWidth 	%argrw{"wrr"}
+	dot		$tmp32 ___349_crs ___349_crs 	%line{58} %argrw{"wrr"}
+	dot		$tmp33 ___349_edge ___349_edge 	%argrw{"wrr"}
+	mul		$tmp34 $tmp33 ___344_pixelWidth 	%argrw{"wrr"}
 	lt		$tmp35 $tmp32 $tmp34 	%argrw{"wrr"}
 	if		$tmp35 71 71 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:59
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:59
 #          return 1;
 	assign		Fac $const6 	%line{59} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:49
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:49
 #    for (int i = 0; i < np; i++)
-	assign		$tmp36 ___334_i 	%line{49} %argrw{"wr"}
-	add		___334_i ___334_i $const6 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:61
+	assign		$tmp36 ___348_i 	%line{49} %argrw{"wr"}
+	add		___348_i ___348_i $const6 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:61
 #    return 0;
 	assign		Fac $const5 	%line{61} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:17
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:18
 #   if (bump_offset == "dx") {
-	eq		$tmp37 bump_offset $const16 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl"} %line{17} %argrw{"wrr"}
+	eq		$tmp37 bump_offset $const16 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl"} %line{18} %argrw{"wrr"}
 	if		$tmp37 158 241 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:18
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:19
 #     point dx = Dx(P);
-	Dx		___380_dx P 	%line{18} %argrw{"wr"} %argderivs{1}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:19
+	Dx		___374_dx P 	%line{19} %argrw{"wr"} %argderivs{1}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:20
 #     P -= dx;
-	sub		P P ___380_dx 	%line{19} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:20
+	sub		P P ___374_dx 	%line{20} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:21
 #     Fac += (Fac - wireframe("triangles", Size, use_pixel_size)) / length(dx);
-	functioncall	$const2 154 	%line{20} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:16
+	functioncall	$const2 154 	%line{21} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:16
 #    if (raytype("path:diffuse")) return 0.0;
-	raytype		$tmp39 $const3 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h"} %line{16} %argrw{"wr"}
+	raytype		$tmp39 $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h"} %line{16} %argrw{"wr"}
 	if		$tmp39 84 84 	%argrw{"r"}
 	assign		$tmp38 $const4 	%argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:18
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:18
 #    int np = 0;
-	assign		___330_np $const5 	%line{18} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:20
+	assign		___344_np $const5 	%line{18} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:20
 #    float pixelWidth = 1;
-	assign		___330_pixelWidth $const6 	%line{20} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:22
+	assign		___344_pixelWidth $const6 	%line{20} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:22
 #    if (edge_type == "triangles")
 	eq		$tmp40 $const1 $const1 	%line{22} %argrw{"wrr"}
 	if		$tmp40 94 112 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:24
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:24
 #       np = 3;
-	assign		___330_np $const7 	%line{24} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:25
+	assign		___344_np $const7 	%line{24} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:25
 #       if (!getattribute("geom:trianglevertices", p))
-	getattribute	$tmp41 $const8 ___330_p 	%line{25} %argrw{"wrw"}
+	getattribute	$tmp41 $const8 ___344_p 	%line{25} %argrw{"wrw"}
 	eq		$tmp42 $tmp41 $const5 	%argrw{"wrr"}
 	if		$tmp42 94 94 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:26
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:26
 #          return 0.0;
 	assign		$tmp38 $const4 	%line{26} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:28
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:28
 #    else if (edge_type == "polygons" || edge_type == "patches")
 	eq		$tmp43 $const1 $const9 	%line{28} %argrw{"wrr"}
 	neq		$tmp44 $tmp43 $const5 	%argrw{"wrr"}
@@ -334,143 +334,143 @@ code ___main___
 	neq		$tmp46 $tmp45 $const5 	%argrw{"wrr"}
 	assign		$tmp44 $tmp46 	%argrw{"wr"}
 	if		$tmp44 112 112 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:30
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:30
 #       getattribute("geom:numpolyvertices", np);
-	getattribute	$tmp47 $const11 ___330_np 	%line{30} %argrw{"wrw"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:31
+	getattribute	$tmp47 $const11 ___344_np 	%line{30} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:31
 #       if (np < 3 || !getattribute("geom:polyvertices", p))
-	lt		$tmp48 ___330_np $const7 	%line{31} %argrw{"wrr"}
+	lt		$tmp48 ___344_np $const7 	%line{31} %argrw{"wrr"}
 	neq		$tmp49 $tmp48 $const5 	%argrw{"wrr"}
 	if		$tmp49 105 109 	%argrw{"r"}
-	getattribute	$tmp50 $const12 ___330_p 	%argrw{"wrw"}
+	getattribute	$tmp50 $const12 ___344_p 	%argrw{"wrw"}
 	eq		$tmp51 $tmp50 $const5 	%argrw{"wrr"}
 	neq		$tmp52 $tmp51 $const5 	%argrw{"wrr"}
 	assign		$tmp49 $tmp52 	%argrw{"wr"}
 	if		$tmp49 112 112 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:32
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:32
 #          return 0.0;
 	assign		$tmp38 $const4 	%line{32} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:35
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:35
 #    if (raster)
 	if		use_pixel_size 127 127 	%line{35} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:39
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:39
 #       float pixelWidthX = length(Dx(P) - dot(Dx(P), I) * I);
 	Dx		$tmp53 P 	%line{39} %argrw{"wr"} %argderivs{1}
 	Dx		$tmp55 P 	%argrw{"wr"} %argderivs{1}
 	dot		$tmp54 $tmp55 I 	%argrw{"wrr"}
 	mul		$tmp56 $tmp54 I 	%argrw{"wrr"}
 	sub		$tmp57 $tmp53 $tmp56 	%argrw{"wrr"}
-	length		___333_pixelWidthX $tmp57 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:40
+	length		___347_pixelWidthX $tmp57 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:40
 #       float pixelWidthY = length(Dy(P) - dot(Dy(P), I) * I);
 	Dy		$tmp58 P 	%line{40} %argrw{"wr"} %argderivs{1}
 	Dy		$tmp60 P 	%argrw{"wr"} %argderivs{1}
 	dot		$tmp59 $tmp60 I 	%argrw{"wrr"}
 	mul		$tmp61 $tmp59 I 	%argrw{"wrr"}
 	sub		$tmp62 $tmp58 $tmp61 	%argrw{"wrr"}
-	length		___333_pixelWidthY $tmp62 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:42
+	length		___347_pixelWidthY $tmp62 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:42
 #       pixelWidth = (pixelWidthX + pixelWidthY) / 2;
-	add		$tmp63 ___333_pixelWidthX ___333_pixelWidthY 	%line{42} %argrw{"wrr"}
-	div		___330_pixelWidth $tmp63 $const14 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:47
+	add		$tmp63 ___347_pixelWidthX ___347_pixelWidthY 	%line{42} %argrw{"wrr"}
+	div		___344_pixelWidth $tmp63 $const14 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:47
 #    pixelWidth *= 0.5 * line_width;
 	mul		$tmp64 $const15 Size 	%line{47} %argrw{"wrr"}
-	mul		___330_pixelWidth ___330_pixelWidth $tmp64 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:48
+	mul		___344_pixelWidth ___344_pixelWidth $tmp64 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:48
 #    pixelWidth *= pixelWidth;
-	mul		___330_pixelWidth ___330_pixelWidth ___330_pixelWidth 	%line{48} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:49
+	mul		___344_pixelWidth ___344_pixelWidth ___344_pixelWidth 	%line{48} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:49
 #    for (int i = 0; i < np; i++)
 	for		$tmp66 132 134 150 152 	%line{49} %argrw{"r"}
-	assign		___334_i $const5 	%argrw{"wr"}
-	lt		$tmp65 ___334_i ___330_np 	%argrw{"wrr"}
+	assign		___348_i $const5 	%argrw{"wr"}
+	lt		$tmp65 ___348_i ___344_np 	%argrw{"wrr"}
 	neq		$tmp66 $tmp65 $const5 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:51
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:51
 #       int i2 = i ? i - 1 : np - 1;
-	if		___334_i 136 137 	%line{51} %argrw{"r"}
-	sub		___335_i2 ___334_i $const6 	%argrw{"wrr"}
-	sub		___335_i2 ___330_np $const6 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:52
+	if		___348_i 136 137 	%line{51} %argrw{"r"}
+	sub		___349_i2 ___348_i $const6 	%argrw{"wrr"}
+	sub		___349_i2 ___344_np $const6 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:52
 #       vector dir = P - p[i];
-	aref		$tmp67 ___330_p ___334_i 	%line{52} %argrw{"wrr"}
-	sub		___335_dir P $tmp67 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:53
+	aref		$tmp67 ___344_p ___348_i 	%line{52} %argrw{"wrr"}
+	sub		___349_dir P $tmp67 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:53
 #       vector edge = p[i] - p[i2];
-	aref		$tmp68 ___330_p ___334_i 	%line{53} %argrw{"wrr"}
-	aref		$tmp69 ___330_p ___335_i2 	%argrw{"wrr"}
-	sub		___335_edge $tmp68 $tmp69 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:54
+	aref		$tmp68 ___344_p ___348_i 	%line{53} %argrw{"wrr"}
+	aref		$tmp69 ___344_p ___349_i2 	%argrw{"wrr"}
+	sub		___349_edge $tmp68 $tmp69 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:54
 #       vector crs = cross(edge, dir);
-	cross		___335_crs ___335_edge ___335_dir 	%line{54} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:58
+	cross		___349_crs ___349_edge ___349_dir 	%line{54} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:58
 #       if (dot(crs, crs) < (dot(edge, edge) * pixelWidth))
-	dot		$tmp70 ___335_crs ___335_crs 	%line{58} %argrw{"wrr"}
-	dot		$tmp71 ___335_edge ___335_edge 	%argrw{"wrr"}
-	mul		$tmp72 $tmp71 ___330_pixelWidth 	%argrw{"wrr"}
+	dot		$tmp70 ___349_crs ___349_crs 	%line{58} %argrw{"wrr"}
+	dot		$tmp71 ___349_edge ___349_edge 	%argrw{"wrr"}
+	mul		$tmp72 $tmp71 ___344_pixelWidth 	%argrw{"wrr"}
 	lt		$tmp73 $tmp70 $tmp72 	%argrw{"wrr"}
 	if		$tmp73 150 150 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:59
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:59
 #          return 1;
 	assign		$tmp38 $const6 	%line{59} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:49
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:49
 #    for (int i = 0; i < np; i++)
-	assign		$tmp74 ___334_i 	%line{49} %argrw{"wr"}
-	add		___334_i ___334_i $const6 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:61
+	assign		$tmp74 ___348_i 	%line{49} %argrw{"wr"}
+	add		___348_i ___348_i $const6 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:61
 #    return 0;
 	assign		$tmp38 $const5 	%line{61} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:20
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:21
 #     Fac += (Fac - wireframe("triangles", Size, use_pixel_size)) / length(dx);
-	sub		$tmp75 Fac $tmp38 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl"} %line{20} %argrw{"wrr"}
-	length		$tmp76 ___380_dx 	%argrw{"wr"}
+	sub		$tmp75 Fac $tmp38 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl"} %line{21} %argrw{"wrr"}
+	length		$tmp76 ___374_dx 	%argrw{"wr"}
 	div		$tmp77 $tmp75 $tmp76 	%argrw{"wrr"}
 	add		Fac Fac $tmp77 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:23
 #   else if (bump_offset == "dy") {
-	eq		$tmp78 bump_offset $const17 	%line{22} %argrw{"wrr"}
+	eq		$tmp78 bump_offset $const17 	%line{23} %argrw{"wrr"}
 	if		$tmp78 241 241 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:23
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:24
 #     point dy = Dy(P);
-	Dy		___381_dy P 	%line{23} %argrw{"wr"} %argderivs{1}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:24
+	Dy		___375_dy P 	%line{24} %argrw{"wr"} %argderivs{1}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:25
 #     P -= dy;
-	sub		P P ___381_dy 	%line{24} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:25
+	sub		P P ___375_dy 	%line{25} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:26
 #     Fac += (Fac - wireframe("triangles", Size, use_pixel_size)) / length(dy);
-	functioncall	$const2 237 	%line{25} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:16
+	functioncall	$const2 237 	%line{26} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:16
 #    if (raytype("path:diffuse")) return 0.0;
-	raytype		$tmp80 $const3 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h"} %line{16} %argrw{"wr"}
+	raytype		$tmp80 $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h"} %line{16} %argrw{"wr"}
 	if		$tmp80 167 167 	%argrw{"r"}
 	assign		$tmp79 $const4 	%argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:18
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:18
 #    int np = 0;
-	assign		___330_np $const5 	%line{18} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:20
+	assign		___344_np $const5 	%line{18} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:20
 #    float pixelWidth = 1;
-	assign		___330_pixelWidth $const6 	%line{20} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:22
+	assign		___344_pixelWidth $const6 	%line{20} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:22
 #    if (edge_type == "triangles")
 	eq		$tmp81 $const1 $const1 	%line{22} %argrw{"wrr"}
 	if		$tmp81 177 195 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:24
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:24
 #       np = 3;
-	assign		___330_np $const7 	%line{24} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:25
+	assign		___344_np $const7 	%line{24} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:25
 #       if (!getattribute("geom:trianglevertices", p))
-	getattribute	$tmp82 $const8 ___330_p 	%line{25} %argrw{"wrw"}
+	getattribute	$tmp82 $const8 ___344_p 	%line{25} %argrw{"wrw"}
 	eq		$tmp83 $tmp82 $const5 	%argrw{"wrr"}
 	if		$tmp83 177 177 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:26
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:26
 #          return 0.0;
 	assign		$tmp79 $const4 	%line{26} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:28
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:28
 #    else if (edge_type == "polygons" || edge_type == "patches")
 	eq		$tmp84 $const1 $const9 	%line{28} %argrw{"wrr"}
 	neq		$tmp85 $tmp84 $const5 	%argrw{"wrr"}
@@ -479,99 +479,99 @@ code ___main___
 	neq		$tmp87 $tmp86 $const5 	%argrw{"wrr"}
 	assign		$tmp85 $tmp87 	%argrw{"wr"}
 	if		$tmp85 195 195 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:30
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:30
 #       getattribute("geom:numpolyvertices", np);
-	getattribute	$tmp88 $const11 ___330_np 	%line{30} %argrw{"wrw"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:31
+	getattribute	$tmp88 $const11 ___344_np 	%line{30} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:31
 #       if (np < 3 || !getattribute("geom:polyvertices", p))
-	lt		$tmp89 ___330_np $const7 	%line{31} %argrw{"wrr"}
+	lt		$tmp89 ___344_np $const7 	%line{31} %argrw{"wrr"}
 	neq		$tmp90 $tmp89 $const5 	%argrw{"wrr"}
 	if		$tmp90 188 192 	%argrw{"r"}
-	getattribute	$tmp91 $const12 ___330_p 	%argrw{"wrw"}
+	getattribute	$tmp91 $const12 ___344_p 	%argrw{"wrw"}
 	eq		$tmp92 $tmp91 $const5 	%argrw{"wrr"}
 	neq		$tmp93 $tmp92 $const5 	%argrw{"wrr"}
 	assign		$tmp90 $tmp93 	%argrw{"wr"}
 	if		$tmp90 195 195 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:32
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:32
 #          return 0.0;
 	assign		$tmp79 $const4 	%line{32} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:35
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:35
 #    if (raster)
 	if		use_pixel_size 210 210 	%line{35} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:39
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:39
 #       float pixelWidthX = length(Dx(P) - dot(Dx(P), I) * I);
 	Dx		$tmp94 P 	%line{39} %argrw{"wr"} %argderivs{1}
 	Dx		$tmp96 P 	%argrw{"wr"} %argderivs{1}
 	dot		$tmp95 $tmp96 I 	%argrw{"wrr"}
 	mul		$tmp97 $tmp95 I 	%argrw{"wrr"}
 	sub		$tmp98 $tmp94 $tmp97 	%argrw{"wrr"}
-	length		___333_pixelWidthX $tmp98 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:40
+	length		___347_pixelWidthX $tmp98 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:40
 #       float pixelWidthY = length(Dy(P) - dot(Dy(P), I) * I);
 	Dy		$tmp99 P 	%line{40} %argrw{"wr"} %argderivs{1}
 	Dy		$tmp101 P 	%argrw{"wr"} %argderivs{1}
 	dot		$tmp100 $tmp101 I 	%argrw{"wrr"}
 	mul		$tmp102 $tmp100 I 	%argrw{"wrr"}
 	sub		$tmp103 $tmp99 $tmp102 	%argrw{"wrr"}
-	length		___333_pixelWidthY $tmp103 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:42
+	length		___347_pixelWidthY $tmp103 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:42
 #       pixelWidth = (pixelWidthX + pixelWidthY) / 2;
-	add		$tmp104 ___333_pixelWidthX ___333_pixelWidthY 	%line{42} %argrw{"wrr"}
-	div		___330_pixelWidth $tmp104 $const14 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:47
+	add		$tmp104 ___347_pixelWidthX ___347_pixelWidthY 	%line{42} %argrw{"wrr"}
+	div		___344_pixelWidth $tmp104 $const14 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:47
 #    pixelWidth *= 0.5 * line_width;
 	mul		$tmp105 $const15 Size 	%line{47} %argrw{"wrr"}
-	mul		___330_pixelWidth ___330_pixelWidth $tmp105 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:48
+	mul		___344_pixelWidth ___344_pixelWidth $tmp105 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:48
 #    pixelWidth *= pixelWidth;
-	mul		___330_pixelWidth ___330_pixelWidth ___330_pixelWidth 	%line{48} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:49
+	mul		___344_pixelWidth ___344_pixelWidth ___344_pixelWidth 	%line{48} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:49
 #    for (int i = 0; i < np; i++)
 	for		$tmp107 215 217 233 235 	%line{49} %argrw{"r"}
-	assign		___334_i $const5 	%argrw{"wr"}
-	lt		$tmp106 ___334_i ___330_np 	%argrw{"wrr"}
+	assign		___348_i $const5 	%argrw{"wr"}
+	lt		$tmp106 ___348_i ___344_np 	%argrw{"wrr"}
 	neq		$tmp107 $tmp106 $const5 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:51
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:51
 #       int i2 = i ? i - 1 : np - 1;
-	if		___334_i 219 220 	%line{51} %argrw{"r"}
-	sub		___335_i2 ___334_i $const6 	%argrw{"wrr"}
-	sub		___335_i2 ___330_np $const6 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:52
+	if		___348_i 219 220 	%line{51} %argrw{"r"}
+	sub		___349_i2 ___348_i $const6 	%argrw{"wrr"}
+	sub		___349_i2 ___344_np $const6 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:52
 #       vector dir = P - p[i];
-	aref		$tmp108 ___330_p ___334_i 	%line{52} %argrw{"wrr"}
-	sub		___335_dir P $tmp108 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:53
+	aref		$tmp108 ___344_p ___348_i 	%line{52} %argrw{"wrr"}
+	sub		___349_dir P $tmp108 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:53
 #       vector edge = p[i] - p[i2];
-	aref		$tmp109 ___330_p ___334_i 	%line{53} %argrw{"wrr"}
-	aref		$tmp110 ___330_p ___335_i2 	%argrw{"wrr"}
-	sub		___335_edge $tmp109 $tmp110 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:54
+	aref		$tmp109 ___344_p ___348_i 	%line{53} %argrw{"wrr"}
+	aref		$tmp110 ___344_p ___349_i2 	%argrw{"wrr"}
+	sub		___349_edge $tmp109 $tmp110 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:54
 #       vector crs = cross(edge, dir);
-	cross		___335_crs ___335_edge ___335_dir 	%line{54} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:58
+	cross		___349_crs ___349_edge ___349_dir 	%line{54} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:58
 #       if (dot(crs, crs) < (dot(edge, edge) * pixelWidth))
-	dot		$tmp111 ___335_crs ___335_crs 	%line{58} %argrw{"wrr"}
-	dot		$tmp112 ___335_edge ___335_edge 	%argrw{"wrr"}
-	mul		$tmp113 $tmp112 ___330_pixelWidth 	%argrw{"wrr"}
+	dot		$tmp111 ___349_crs ___349_crs 	%line{58} %argrw{"wrr"}
+	dot		$tmp112 ___349_edge ___349_edge 	%argrw{"wrr"}
+	mul		$tmp113 $tmp112 ___344_pixelWidth 	%argrw{"wrr"}
 	lt		$tmp114 $tmp111 $tmp113 	%argrw{"wrr"}
 	if		$tmp114 233 233 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:59
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:59
 #          return 1;
 	assign		$tmp79 $const6 	%line{59} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:49
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:49
 #    for (int i = 0; i < np; i++)
-	assign		$tmp115 ___334_i 	%line{49} %argrw{"wr"}
-	add		___334_i ___334_i $const6 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders\\oslutil.h:61
+	assign		$tmp115 ___348_i 	%line{49} %argrw{"wr"}
+	add		___348_i ___348_i $const6 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders\\oslutil.h:61
 #    return 0;
 	assign		$tmp79 $const5 	%line{61} %argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl:26
 #     Fac += (Fac - wireframe("triangles", Size, use_pixel_size)) / length(dy);
-	sub		$tmp116 Fac $tmp79 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wireframe.osl"} %line{25} %argrw{"wrr"}
-	length		$tmp117 ___381_dy 	%argrw{"wr"}
+	sub		$tmp116 Fac $tmp79 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wireframe.osl"} %line{26} %argrw{"wrr"}
+	length		$tmp117 ___375_dy 	%argrw{"wr"}
 	div		$tmp118 $tmp116 $tmp117 	%argrw{"wrr"}
 	add		Fac Fac $tmp118 	%argrw{"wrr"}
 	end

@@ -152,42 +152,42 @@ SICALLBACK CyclesRenderer_Quality(XSI::CRef &in_ctxt)
 
 SICALLBACK CyclesRenderer_Query(XSI::CRef &in_ctxt)
 {
-	XSI::RendererContext ctxt(in_ctxt);
+	XSI::Context ctxt(in_ctxt);
 	const int type = ctxt.GetAttribute("QueryType");
 	switch (type)
 	{
-	case XSI::siRenderQueryArchiveIsValid:
-	{
-		break;
-	}
-	case XSI::siRenderQueryWantDirtyList:
-	{
-		ctxt.PutAttribute("WantDirtyList", true);
-		break;
-	}
-	case XSI::siRenderQueryDisplayBitDepths:
-	{
-		XSI::CLongArray bitDepths;
-		bitDepths.Add(XSI::siImageBitDepthInteger8);
-		bitDepths.Add(XSI::siImageBitDepthInteger16);
-
-		XSI::CString softimage_version_string = XSI::Application().GetVersion();
-		XSI::CStringArray softimage_version = softimage_version_string.Split(".");
-		if (atoi(softimage_version[0].GetAsciiString()) >= 10)
+		case XSI::siRenderQueryArchiveIsValid:
 		{
-			bitDepths.Add(XSI::siImageBitDepthFloat32);
+			break;
 		}
+		case XSI::siRenderQueryWantDirtyList:
+		{
+			ctxt.PutAttribute("WantDirtyList", true);
+			break;
+		}
+		case XSI::siRenderQueryDisplayBitDepths:
+		{
+			XSI::CLongArray bitDepths;
+			bitDepths.Add(XSI::siImageBitDepthInteger8);
+			bitDepths.Add(XSI::siImageBitDepthInteger16);
 
-		ctxt.PutAttribute("BitDepths", bitDepths);
-		break;
-	}
+			XSI::CString softimage_version_string = XSI::Application().GetVersion();
+			XSI::CStringArray softimage_version = softimage_version_string.Split(".");
+			if (atoi(softimage_version[0].GetAsciiString()) >= 10)
+			{
+				bitDepths.Add(XSI::siImageBitDepthFloat32);
+			}
+
+			ctxt.PutAttribute("BitDepths", bitDepths);
+			break;
+		}
 	default:;
 #if XSISDK_VERSION > 11000
-	case XSI::siRenderQueryHasPreMulAlphaOutput:
-	{
-		ctxt.PutAttribute("HasPreMulAlphaOutput", false);
-		break;
-	}
+		case XSI::siRenderQueryHasPreMulAlphaOutput:
+		{
+			ctxt.PutAttribute("HasPreMulAlphaOutput", false);
+			break;
+		}
 #endif      
 	}
 
@@ -254,10 +254,6 @@ XSI::CStatus end_render_event(XSI::RendererContext& ctxt, XSI::CStringArray& out
 
 	return status;
 }
-
-// this is for test only
-// remove when it will be not necessary
-size_t process_counter = 0;
 
 SICALLBACK CyclesRenderer_Process(XSI::CRef &in_ctxt)
 {

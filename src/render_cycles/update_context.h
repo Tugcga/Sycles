@@ -32,8 +32,10 @@ public:
 	void reset();
 
 	void set_is_update_scene(bool value);
+	void set_is_update_light_linking(bool value);
 
 	bool get_is_update_scene();
+	bool get_is_update_light_linking();
 
 	// return true if only color management parameters changed in render settings
 	bool is_changed_render_parameters_only_cm(const std::unordered_set<std::string>& parameters);
@@ -76,10 +78,10 @@ public:
 	void set_motion_rolling(bool value);
 	float get_motion_rolling_duration();
 	void set_motion_rolling_duration(float value);
-	float get_motion_fisrt_time();
-	float get_motion_last_time();
-	std::vector<float> get_motion_times();
-	float get_motion_time(size_t step);
+	double get_motion_fisrt_time();
+	double get_motion_last_time();
+	std::vector<double> get_motion_times();
+	double get_motion_time(size_t step);
 	size_t get_main_motion_step();  // retun index with respect to selected position (0 if at start, last if at end and middle if at center), 0 if there is no motion
 
 	void set_render_type(RenderType value);
@@ -95,6 +97,7 @@ public:
 	void add_light_index(ULONG xsi_light_id, size_t cyc_light_index);
 	bool is_xsi_light_exists(ULONG xsi_id);
 	std::vector<size_t> get_xsi_light_cycles_indexes(ULONG xsi_id);
+	std::vector<ULONG> get_xsi_light_ids();
 
 	void add_geometry_index(ULONG xsi_id, size_t cyc_geo_index);
 	bool is_geometry_exists(ULONG xsi_id);
@@ -103,6 +106,7 @@ public:
 	void add_object_index(ULONG xsi_id, size_t cyc_index);
 	bool is_object_exists(ULONG xsi_id);
 	std::vector<size_t> get_object_cycles_indexes(ULONG xsi_id);
+	std::vector<ULONG> get_xsi_object_ids();
 
 	bool get_use_background_light();
 	void set_use_background_light(size_t shader_index, ULONG material_id);  // activate use backgound light
@@ -161,6 +165,8 @@ private:
 	// if it false, then we should not render, because the visual buffer already contains rendered image
 	bool is_update_scene;
 
+	bool is_update_light_linking;
+
 	// set true if we change something in the scene and this may effect to the backgound
 	// set false in every pre scene process
 	bool need_update_background;
@@ -183,8 +189,8 @@ private:
 
 	bool use_denoising;
 	MotionSettingsType motion_type;
-	float motion_shutter_time;
-	std::vector<float> motion_times;
+	double motion_shutter_time;
+	std::vector<double> motion_times;
 	MotionSettingsPosition motion_position;
 	bool motion_rolling;  // false means None
 	float motion_rolling_duration;  // only for rolling true

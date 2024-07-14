@@ -155,8 +155,7 @@ void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, cc
 	light->set_is_enabled(true);
 
 	light->set_light_type(ccl::LightType::LIGHT_AREA);
-	light->set_axisu(ccl::make_float3(xsi_matrix.GetValue(0, 0), xsi_matrix.GetValue(0, 1), xsi_matrix.GetValue(0, 2)));
-	light->set_axisv(ccl::make_float3(xsi_matrix.GetValue(1, 0), xsi_matrix.GetValue(1, 1), xsi_matrix.GetValue(1, 2)));
+	light->set_tfm(xsi_matrix_to_transform(xsi_matrix));
 	light->set_size(1);
 	light->set_is_portal(false);
 	light->set_spread(M_PI);
@@ -174,9 +173,6 @@ void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, cc
 	light->set_use_transmission(true);
 	light->set_use_scatter(true);
 	light->set_is_shadow_catcher(false);
-
-	light->set_dir(ccl::make_float3(-1 * xsi_matrix.GetValue(2, 0), -1 * xsi_matrix.GetValue(2, 1), -1 * xsi_matrix.GetValue(2, 2)));
-	light->set_co(ccl::make_float3(xsi_matrix.GetValue(3, 0), xsi_matrix.GetValue(3, 1), xsi_matrix.GetValue(3, 2)));
 }
 
 void sync_shaderball_light(ccl::Scene* scene, ShaderballType shaderball_type)

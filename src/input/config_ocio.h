@@ -25,4 +25,5 @@ struct OCIOConfig
 
 	size_t default_display;
 	size_t default_view;
+	size_t max_view;
 };

@@ -10,6 +10,7 @@
 #include "../../../render_cycles/cyc_primitives/vdb_primitive.h"
 #include "../../../utilities/math.h"
 #include "../../../utilities/strings.h"
+#include "../../../utilities/arrays.h"
 
 void add_vdb_to_volume(ccl::Scene* scene, ccl::Volume* volume_geom, const XSI::CTime& eval_time, const XSI::X3DObject& xsi_object, const VDBData& vdb_data, ULONG index, int frame, const XSI::CString& file_path,
 	bool is_std, ccl::AttributeStandard std, const ccl::ustring& attr_name, bool is_vector)
@@ -52,60 +53,136 @@ void sync_vdb_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, U
 	XSI::CTime eval_time = update_context->get_time();
 
 	sync_volume_parameters(volume_geom, xsi_object, eval_time);
+	// read velocity scale
+	XSI::CustomPrimitive xsi_prim(xsi_object.GetActivePrimitive(eval_time));
+	XSI::CParameterRefArray& xsi_prim_params = xsi_prim.GetParameters();
+	float velocity_scale = xsi_prim_params.GetValue("velocty_scale");
+	// and setup it
+	volume_geom->set_velocity_scale(velocity_scale);
+
+	// read velocity grid names
+	XSI::CString velocity_name = xsi_prim_params.GetValue("velocity_name");
+	XSI::CString velocity_x_name = xsi_prim_params.GetValue("velocity_x_name");
+	XSI::CString velocity_y_name = xsi_prim_params.GetValue("velocity_y_name");
+	XSI::CString velocity_z_name = xsi_prim_params.GetValue("velocity_z_name");
+
+	bool force_load_all_grids = xsi_prim_params.GetValue("force_load_grids");
 
 	int frame = get_frame(eval_time);
+	std::vector<XSI::CString> loaded_grid_names(0);
 
-	if (volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_DENSITY))
+	if (force_load_all_grids || volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_DENSITY))
 	{
-		int index = vdb_data.get_grid_index(XSI::CString("density"));
+		int index = vdb_data.get_grid_index(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_DENSITY));
 		if (index >= 0)
 		{
 			add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, index, frame, file_path, true, ccl::ATTR_STD_VOLUME_DENSITY, ccl::ustring(""), false);
+			loaded_grid_names.push_back(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_DENSITY));
 		}
 	}
 
-	if (volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_COLOR))
+	if (force_load_all_grids || volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_COLOR))
 	{
-		int index = vdb_data.get_grid_index(XSI::CString("color"));
+		int index = vdb_data.get_grid_index(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_COLOR));
 		if (index >= 0)
 		{
 			add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, index, frame, file_path, true, ccl::ATTR_STD_VOLUME_COLOR, ccl::ustring(""), false);
+			loaded_grid_names.push_back(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_COLOR));
 		}
 	}
 
-	if (volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_FLAME))
+	if (force_load_all_grids || volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_FLAME))
 	{
-		int index = vdb_data.get_grid_index(XSI::CString("flame"));
+		int index = vdb_data.get_grid_index(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_FLAME));
 		if (index >= 0)
 		{
 			add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, index, frame, file_path, true, ccl::ATTR_STD_VOLUME_FLAME, ccl::ustring(""), false);
+			loaded_grid_names.push_back(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_FLAME));
 		}
 	}
 
-	if (volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_HEAT))
+	if (force_load_all_grids || volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_HEAT))
 	{
-		int index = vdb_data.get_grid_index(XSI::CString("heat"));
+		int index = vdb_data.get_grid_index(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_HEAT));
 		if (index >= 0)
 		{
 			add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, index, frame, file_path, true, ccl::ATTR_STD_VOLUME_HEAT, ccl::ustring(""), false);
+			loaded_grid_names.push_back(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_HEAT));
 		}
 	}
 
-	if (volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_TEMPERATURE))
+	if (force_load_all_grids || volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_TEMPERATURE))
 	{
-		int index = vdb_data.get_grid_index(XSI::CString("temperature"));
+		int index = vdb_data.get_grid_index(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_TEMPERATURE));
 		if (index >= 0)
 		{
 			add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, index, frame, file_path, true, ccl::ATTR_STD_VOLUME_TEMPERATURE, ccl::ustring(""), false);
+			loaded_grid_names.push_back(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_TEMPERATURE));
 		}
 	}
 
-	if (volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_VELOCITY))
+	if (force_load_all_grids || volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_VELOCITY))
 	{
-		int index = vdb_data.get_grid_index(XSI::CString("velocity"));
+		int index = vdb_data.get_grid_index(velocity_name);
+		XSI::CString loaded_name = velocity_name;
+		if (index == -1)
+		{// no grid with the custom velocity name
+			// try to find grid with the default velocity name
+			index = vdb_data.get_grid_index(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_VELOCITY));
+			loaded_name = ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_VELOCITY);
+		}
+
 		if (index >= 0)
 		{
 			add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, index, frame, file_path, true, ccl::ATTR_STD_VOLUME_VELOCITY, ccl::ustring(""), false);
+			loaded_grid_names.push_back(loaded_name);
+		}
+	}
+
+	// also for different velocity components
+	if (force_load_all_grids || volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_VELOCITY_X))
+	{
+		int index = vdb_data.get_grid_index(velocity_x_name);
+		XSI::CString loaded_name = velocity_x_name;
+		if (index == -1)
+		{
+			index = vdb_data.get_grid_index(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_VELOCITY_X));
+			loaded_name = ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_VELOCITY_X);
+		}
+		if (index >= 0)
+		{
+			add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, index, frame, file_path, true, ccl::ATTR_STD_VOLUME_VELOCITY_X, ccl::ustring(""), false);
+			loaded_grid_names.push_back(loaded_name);
+		}
+	}
+	if (force_load_all_grids || volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_VELOCITY_Y))
+	{
+		int index = vdb_data.get_grid_index(velocity_y_name);
+		XSI::CString loaded_name = velocity_y_name;
+		if (index == -1)
+		{
+			index = vdb_data.get_grid_index(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_VELOCITY_Y));
+			loaded_name = ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_VELOCITY_Y);
+		}
+		if (index >= 0)
+		{
+			add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, index, frame, file_path, true, ccl::ATTR_STD_VOLUME_VELOCITY_Y, ccl::ustring(""), false);
+			loaded_grid_names.push_back(loaded_name);
+		}
+	}
+	if (force_load_all_grids || volume_geom->need_attribute(scene, ccl::ATTR_STD_VOLUME_VELOCITY_Z))
+	{
+		int index = vdb_data.get_grid_index(velocity_z_name);
+		XSI::CString loaded_name = velocity_z_name;
+		if (index == -1)
+		{
+			index = vdb_data.get_grid_index(ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_VELOCITY_Z));
+			loaded_name = ccl::Attribute::standard_name(ccl::ATTR_STD_VOLUME_VELOCITY_Z);
+		}
+		if (index >= 0)
+		{
+			add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, index, frame, file_path, true, ccl::ATTR_STD_VOLUME_VELOCITY_Z, ccl::ustring(""), false);
+			loaded_grid_names.push_back(loaded_name);
 		}
 	}
 
@@ -113,12 +190,13 @@ void sync_vdb_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, U
 	for (ULONG i = 0; i < vdb_data.grids_count; i++)
 	{
 		XSI::CString attr_name = vdb_data.grid_names[i];
-		if (attr_name != XSI::CString("density") && attr_name != XSI::CString("color") && attr_name != XSI::CString("flame") && attr_name != XSI::CString("heat") && attr_name != XSI::CString("temperature") && attr_name != XSI::CString("velocity"))
+		if (!is_contains(loaded_grid_names, attr_name))
 		{
 			ccl::ustring a_name = ccl::ustring(attr_name.GetAsciiString());
-			if (volume_geom->need_attribute(scene, a_name))
+			if (force_load_all_grids || volume_geom->need_attribute(scene, a_name))
 			{
 				add_vdb_to_volume(scene, volume_geom, eval_time, xsi_object, vdb_data, i, frame, file_path, false, ccl::ATTR_STD_NONE, a_name, is_vector_type(vdb_data.grids[i]));
+				loaded_grid_names.push_back(attr_name);
 			}
 		}
 	}

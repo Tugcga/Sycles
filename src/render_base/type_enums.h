@@ -30,7 +30,8 @@ enum UpdateType
 	UpdateType_MeshProperty,
 	UpdateType_HairProperty,
 	UpdateType_PointcloudProperty,
-	UpdateType_VolumeProperty
+	UpdateType_VolumeProperty,
+	UpdateType_LightLinkingProperty
 };
 
 enum CameraType

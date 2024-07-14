@@ -1,24 +1,24 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_layer_weight.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_layer_weight.oso
 shader node_layer_weight
 param	float	Blend	0.5		%read{1,3} %write{2147483647,-1}
 param	normal	Normal	0 0 0		%read{2,2} %write{0,0} %initexpr
 oparam	float	Fresnel	0		%read{2147483647,-1} %write{33,33}
-oparam	float	Facing	0		%read{46,47} %write{34,47}
+oparam	float	Facing	0		%read{45,46} %write{34,46}
 global	vector	I	%read{2,2} %write{2147483647,-1}
 global	normal	N	%read{0,0} %write{2147483647,-1}
-local	float	___330_c	%read{12,24} %write{9,9}
-local	float	___330_g	%read{14,23} %write{13,16}
-local	float	___330_result	%read{33,33} %write{31,32}
-local	float	___331_A	%read{27,28} %write{19,19}
-local	float	___331_B	%read{29,29} %write{26,26}
-local	float	blend	%read{35,46} %write{1,45}
+local	float	___344_c	%read{12,24} %write{9,9}
+local	float	___344_g	%read{14,23} %write{13,16}
+local	float	___344_result	%read{33,33} %write{31,32}
+local	float	___345_A	%read{27,28} %write{19,19}
+local	float	___345_B	%read{29,29} %write{26,26}
+local	float	blend	%read{35,45} %write{1,44}
 local	float	cosi	%read{9,34} %write{2,2}
 local	float	eta	%read{7,10} %write{4,7}
-const	float	$const1	1		%read{3,47} %write{2147483647,-1}
+const	float	$const1	1		%read{3,46} %write{2147483647,-1}
 temp	float	$tmp1	%read{4,4} %write{3,3}
-const	float	$const2	9.99999975e-06		%read{4,37} %write{2147483647,-1}
+const	float	$const2	9.99999975e-06		%read{4,4} %write{2147483647,-1}
 temp	int	$tmp2	%read{6,6} %write{5,5}
 const	string	$const3	"fresnel_dielectric_cos"		%read{8,8} %write{2147483647,-1}
 temp	float	$tmp3	%read{11,11} %write{10,10}
@@ -34,111 +34,110 @@ temp	float	$tmp11	%read{26,26} %write{22,22}
 temp	float	$tmp12	%read{24,24} %write{23,23}
 temp	float	$tmp13	%read{25,25} %write{24,24}
 temp	float	$tmp14	%read{26,26} %write{25,25}
-const	float	$const6	0.5		%read{27,45} %write{2147483647,-1}
+const	float	$const6	0.5		%read{27,44} %write{2147483647,-1}
 temp	float	$tmp15	%read{28,28} %write{27,27}
 temp	float	$tmp16	%read{31,31} %write{28,28}
 temp	float	$tmp17	%read{30,30} %write{29,29}
 temp	float	$tmp18	%read{31,31} %write{30,30}
 temp	int	$tmp19	%read{36,36} %write{35,35}
-const	float	$const7	0		%read{40,40} %write{2147483647,-1}
-temp	float	$tmp20	%read{39,39} %write{37,37}
-const	string	$const8	"clamp"		%read{38,38} %write{2147483647,-1}
-temp	float	$tmp21	%read{40,40} %write{39,39}
-temp	int	$tmp22	%read{42,42} %write{41,41}
-const	float	$const9	2		%read{43,43} %write{2147483647,-1}
-temp	float	$tmp23	%read{45,45} %write{44,44}
+const	float	$const7	0		%read{39,39} %write{2147483647,-1}
+const	float	$const8	0.999989986		%read{38,38} %write{2147483647,-1}
+const	string	$const9	"clamp"		%read{37,37} %write{2147483647,-1}
+temp	float	$tmp20	%read{39,39} %write{38,38}
+temp	int	$tmp21	%read{41,41} %write{40,40}
+const	float	$const10	2		%read{42,42} %write{2147483647,-1}
+temp	float	$tmp22	%read{44,44} %write{43,43}
 code Normal
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:8
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:9
 #                          normal Normal = N,
-	assign		Normal N 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl"} %line{8} %argrw{"wr"}
+	assign		Normal N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl"} %line{9} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:12
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:13
 #   float blend = Blend;
-	assign		blend Blend 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl"} %line{12} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:13
+	assign		blend Blend 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl"} %line{13} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:14
 #   float cosi = dot(I, Normal);
-	dot		cosi I Normal 	%line{13} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:16
+	dot		cosi I Normal 	%line{14} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:17
 #   float eta = max(1.0 - Blend, 1e-5);
-	sub		$tmp1 $const1 Blend 	%line{16} %argrw{"wrr"}
+	sub		$tmp1 $const1 Blend 	%line{17} %argrw{"wrr"}
 	max		eta $tmp1 $const2 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:17
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:18
 #   eta = backfacing() ? eta : 1.0 / eta;
-	backfacing	$tmp2 	%line{17} %argrw{"w"}
+	backfacing	$tmp2 	%line{18} %argrw{"w"}
 	if		$tmp2 7 8 	%argrw{"r"}
 	div		eta $const1 eta 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:18
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:19
 #   Fresnel = fresnel_dielectric_cos(cosi, eta);
-	functioncall	$const3 34 	%line{18} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:13
+	functioncall	$const3 34 	%line{19} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:12
 #   float c = fabs(cosi);
-	fabs		___330_c cosi 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{13} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:14
+	fabs		___344_c cosi 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{12} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:13
 #   float g = eta * eta - 1 + c * c;
-	mul		$tmp3 eta eta 	%line{14} %argrw{"wrr"}
+	mul		$tmp3 eta eta 	%line{13} %argrw{"wrr"}
 	sub		$tmp4 $tmp3 $const1 	%argrw{"wrr"}
-	mul		$tmp5 ___330_c ___330_c 	%argrw{"wrr"}
-	add		___330_g $tmp4 $tmp5 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:17
+	mul		$tmp5 ___344_c ___344_c 	%argrw{"wrr"}
+	add		___344_g $tmp4 $tmp5 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:16
 #   if (g > 0) {
-	gt		$tmp6 ___330_g $const5 	%line{17} %argrw{"wrr"}
+	gt		$tmp6 ___344_g $const5 	%line{16} %argrw{"wrr"}
 	if		$tmp6 32 33 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:18
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:17
 #     g = sqrt(g);
-	sqrt		___330_g ___330_g 	%line{18} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:19
+	sqrt		___344_g ___344_g 	%line{17} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:18
 #     float A = (g - c) / (g + c);
-	sub		$tmp7 ___330_g ___330_c 	%line{19} %argrw{"wrr"}
-	add		$tmp8 ___330_g ___330_c 	%argrw{"wrr"}
-	div		___331_A $tmp7 $tmp8 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:20
+	sub		$tmp7 ___344_g ___344_c 	%line{18} %argrw{"wrr"}
+	add		$tmp8 ___344_g ___344_c 	%argrw{"wrr"}
+	div		___345_A $tmp7 $tmp8 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:19
 #     float B = (c * (g + c) - 1) / (c * (g - c) + 1);
-	add		$tmp9 ___330_g ___330_c 	%line{20} %argrw{"wrr"}
-	mul		$tmp10 ___330_c $tmp9 	%argrw{"wrr"}
+	add		$tmp9 ___344_g ___344_c 	%line{19} %argrw{"wrr"}
+	mul		$tmp10 ___344_c $tmp9 	%argrw{"wrr"}
 	sub		$tmp11 $tmp10 $const1 	%argrw{"wrr"}
-	sub		$tmp12 ___330_g ___330_c 	%argrw{"wrr"}
-	mul		$tmp13 ___330_c $tmp12 	%argrw{"wrr"}
+	sub		$tmp12 ___344_g ___344_c 	%argrw{"wrr"}
+	mul		$tmp13 ___344_c $tmp12 	%argrw{"wrr"}
 	add		$tmp14 $tmp13 $const1 	%argrw{"wrr"}
-	div		___331_B $tmp11 $tmp14 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:21
+	div		___345_B $tmp11 $tmp14 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:20
 #     result = 0.5 * A * A * (1 + B * B);
-	mul		$tmp15 $const6 ___331_A 	%line{21} %argrw{"wrr"}
-	mul		$tmp16 $tmp15 ___331_A 	%argrw{"wrr"}
-	mul		$tmp17 ___331_B ___331_B 	%argrw{"wrr"}
+	mul		$tmp15 $const6 ___345_A 	%line{20} %argrw{"wrr"}
+	mul		$tmp16 $tmp15 ___345_A 	%argrw{"wrr"}
+	mul		$tmp17 ___345_B ___345_B 	%argrw{"wrr"}
 	add		$tmp18 $const1 $tmp17 	%argrw{"wrr"}
-	mul		___330_result $tmp16 $tmp18 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:24
+	mul		___344_result $tmp16 $tmp18 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:23
 #     result = 1.0; /* TIR (no refracted component) */
-	assign		___330_result $const1 	%line{24} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_fresnel.h:26
+	assign		___344_result $const1 	%line{23} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:26
 #   return result;
-	assign		Fresnel ___330_result 	%line{26} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:21
+	assign		Fresnel ___344_result 	%line{26} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:22
 #   Facing = fabs(cosi);
-	fabs		Facing cosi 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl"} %line{21} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:23
+	fabs		Facing cosi 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl"} %line{22} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:24
 #   if (blend != 0.5) {
-	neq		$tmp19 blend $const6 	%line{23} %argrw{"wrr"}
-	if		$tmp19 47 47 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:24
+	neq		$tmp19 blend $const6 	%line{24} %argrw{"wrr"}
+	if		$tmp19 46 46 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:25
 #     blend = clamp(blend, 0.0, 1.0 - 1e-5);
-	sub		$tmp20 $const1 $const2 	%line{24} %argrw{"wrr"}
-	functioncall	$const8 41 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:141
+	functioncall	$const9 40 	%line{25} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp21 blend $tmp20 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
-	max		blend $tmp21 $const7 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:25
+	min		$tmp20 blend $const8 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	max		blend $tmp20 $const7 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:26
 #     blend = (blend < 0.5) ? 2.0 * blend : 0.5 / (1.0 - blend);
-	lt		$tmp22 blend $const6 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl"} %line{25} %argrw{"wrr"}
-	if		$tmp22 44 46 	%argrw{"r"}
-	mul		blend $const9 blend 	%argrw{"wrr"}
-	sub		$tmp23 $const1 blend 	%argrw{"wrr"}
-	div		blend $const6 $tmp23 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:27
+	lt		$tmp21 blend $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl"} %line{26} %argrw{"wrr"}
+	if		$tmp21 43 45 	%argrw{"r"}
+	mul		blend $const10 blend 	%argrw{"wrr"}
+	sub		$tmp22 $const1 blend 	%argrw{"wrr"}
+	div		blend $const6 $tmp22 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:28
 #     Facing = pow(Facing, blend);
-	pow		Facing Facing blend 	%line{27} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:30
+	pow		Facing Facing blend 	%line{28} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_layer_weight.osl:31
 #   Facing = 1.0 - Facing;
-	sub		Facing $const1 Facing 	%line{30} %argrw{"wrr"}
+	sub		Facing $const1 Facing 	%line{31} %argrw{"wrr"}
 	end

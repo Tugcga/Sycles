@@ -171,6 +171,15 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\cyc_gltf_shaders.cpp">
       <Filter>render_cycles\cyc_scene\cyc_materials</Filter>
     </ClCompile>
+    <ClCompile Include="render_base\write_tile_pixel.cpp">
+      <Filter>render_base</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_light_linking.cpp">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities\maps.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -352,6 +361,12 @@
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_primitives\vdb_primitive.h">
       <Filter>render_cycles\cyc_primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="render_base\write_tile_pixel.h">
+      <Filter>render_base</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities\maps.h">
+      <Filter>utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

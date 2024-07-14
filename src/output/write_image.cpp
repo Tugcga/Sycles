@@ -13,6 +13,7 @@
 #include "../render_cycles/cyc_session/cyc_pass_utils.h"
 #include "../utilities/files_io.h"
 #include "../utilities/io_exr.h"
+#include "../utilities/strings.h"
 #include "write_image.h"
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -129,10 +130,15 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 	for (size_t i = 0; i < output_context->get_output_passes_count(); i++)
 	{
 		ccl::PassType pass_type = output_context->get_output_pass_type(i);
+		ccl::ustring pass_name = output_context->get_output_pass_name(i);
 		// does not save cryptomatte passes here, we will save it separately
 		// also these passes does not contain proper extension and file path
 		// also skip denoising data passes
-		if (pass_type == ccl::PASS_CRYPTOMATTE || pass_type == ccl::PASS_DENOISING_NORMAL || pass_type == ccl::PASS_DENOISING_ALBEDO || pass_type == ccl::PASS_DENOISING_DEPTH)
+		if (pass_type == ccl::PASS_CRYPTOMATTE || 
+			pass_type == ccl::PASS_DENOISING_NORMAL || 
+			pass_type == ccl::PASS_DENOISING_ALBEDO || 
+			pass_type == ccl::PASS_DENOISING_DEPTH ||
+			pass_name == noisy_combined_name())
 		{
 			continue;
 		}
@@ -197,7 +203,7 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 		}
 		else
 		{
-			log_message("Output path for the channel " + XSI::CString(output_context->get_output_pass_name(i).c_str()) + " is empty, this is not ok.", XSI::siWarningMsg);
+			log_message("Output path for the channel " + XSI::CString(output_context->get_output_pass_name(i).c_str()) + " is empty, it is not ok.", XSI::siWarningMsg);
 		}
 
 		// clear output pixels
@@ -307,7 +313,7 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 				{
 					pass_name = remove_prefix_from_aov_name(pass_name.c_str()).GetAsciiString();
 				}
-				else if (pass_type == ccl::PASS_COMBINED && pass_name.size() >= 9)
+				else if (pass_type == ccl::PASS_COMBINED && is_start_from(ccl::ustring(pass_name.c_str()), ccl::ustring("Combined_")))
 				{
 					pass_name = remove_prefix_from_lightgroup_name(pass_name.c_str()).GetAsciiString();
 				}
@@ -404,10 +410,6 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 			a_starts.clear();
 			a_starts.shrink_to_fit();
 		}
-		else
-		{
-			log_message("Fails to extract common path to save multilayer exr file, skip it.", XSI::siWarningMsg);
-		}
 	}
 }
 
@@ -419,7 +421,7 @@ void write_cryptomatte_exr(size_t width, size_t height, OutputContext *output_co
 	XSI::CString common_path = output_context->get_common_path();
 	if (common_path.Length() > 0)
 	{
-		std::string to_save_path = first_path.substr(0, last_slash + 1) + common_path.GetAsciiString() + +"Cryptomatte." + std::to_string(output_context->get_render_frame()) + ".exr";
+		std::string to_save_path = first_path.substr(0, last_slash + 1) + common_path.GetAsciiString() + "Cryptomatte." + std::to_string(output_context->get_render_frame()) + ".exr";
 
 		// get indices of crypto buffers inside output context
 		// we should read pixels from these buffers and save it as layers in exr file

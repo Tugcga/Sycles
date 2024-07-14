@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_convert_from_float.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_convert_from_float.oso
 shader node_convert_from_float
 param	float	value_float	0		%read{0,4} %write{2147483647,-1}
 oparam	string	value_string	""		%read{2147483647,-1} %write{2147483647,-1}
@@ -10,19 +10,19 @@ oparam	vector	value_vector	0 0 0		%read{2147483647,-1} %write{2,2}
 oparam	point	value_point	0 0 0		%read{2147483647,-1} %write{3,3}
 oparam	normal	value_normal	0 0 0		%read{2147483647,-1} %write{4,4}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:14
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:15
 #   value_int = (int)value_float;
-	assign		value_int value_float 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl"} %line{14} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:15
+	assign		value_int value_float 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl"} %line{15} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:16
 #   value_color = color(value_float, value_float, value_float);
-	color		value_color value_float value_float value_float 	%line{15} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:16
+	color		value_color value_float value_float value_float 	%line{16} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:17
 #   value_vector = vector(value_float, value_float, value_float);
-	vector		value_vector value_float value_float value_float 	%line{16} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:17
+	vector		value_vector value_float value_float value_float 	%line{17} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:18
 #   value_point = point(value_float, value_float, value_float);
-	point		value_point value_float value_float value_float 	%line{17} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:18
+	point		value_point value_float value_float value_float 	%line{18} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_float.osl:19
 #   value_normal = normal(value_float, value_float, value_float);
-	normal		value_normal value_float value_float value_float 	%line{18} %argrw{"wrrr"}
+	normal		value_normal value_float value_float value_float 	%line{19} %argrw{"wrrr"}
 	end

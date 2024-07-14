@@ -85,7 +85,7 @@ XSI::CStatus sync_geometry_transform(ccl::Scene* scene, UpdateContext* update_co
 	return XSI::CStatus::OK;
 }
 
-std::vector<XSI::MATH::CTransformation> build_transforms_array(const XSI::KinematicState &xsi_kine, bool need_motion, const std::vector<float> &motion_times, const XSI::CTime &eval_time)
+std::vector<XSI::MATH::CTransformation> build_transforms_array(const XSI::KinematicState &xsi_kine, bool need_motion, const std::vector<double> &motion_times, const XSI::CTime &eval_time)
 {
 	if (need_motion)
 	{

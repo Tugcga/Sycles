@@ -85,7 +85,7 @@ void RenderEngineCyc::clear_session()
 	}
 }
 
-// this method calls from output driver when nex tile is come
+// this method calls from output driver when next tile is come
 // we should read pixels for all passes and save it into output array
 void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 {
@@ -101,6 +101,11 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	// create pixel buffer
 	// we will use it for all passes
 	std::vector<float> pixels((size_t)tile_width * tile_height * 4, 0.0f);
+	// TODO: here is a problem when use tile rendering
+	// more details in cycles_ui.cpp:133
+	// shortly, tile contains some strange additional padding near actual tile pixels and required array with bigger size
+	// and this padding has no constant size, so, it's hard properly extract actual pixels
+
 	// we should get from tile pixels for each pass and save pixels into buffers (visual or output)
 	bool is_get = false;
 	if (render_type != RenderType::RenderType_Rendermap)
@@ -108,7 +113,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		// use visual only for non baking render
 		// get at first pixels for visual
 		int visual_components = visual_buffer->get_components();
-		is_get = tile.get_pass_pixels(visual_buffer->get_pass_name(), visual_components, &pixels[0]);
+		is_get = tile.get_pass_pixels(visual_buffer->get_pass_name(), visual_components, pixels.data());
 		if (is_get)
 		{
 			visual_buffer->add_pixels(tile_roi, pixels);
@@ -137,7 +142,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 	{
 		ccl::PassType pass_type = output_context->get_output_pass_type(i);
 		ccl::ustring pass_name = output_context->get_output_pass_name(i);
-		int pass_components = get_pass_components(pass_type, pass_type == ccl::PASS_COMBINED && pass_name.size() >= 9);  // because lightgroup pass has the name Combined_... (length >= 9)
+		int pass_components = get_pass_components(pass_type, pass_type == ccl::PASS_COMBINED && is_start_from(pass_name, ccl::ustring("Combined_")));  // because lightgroup pass has the name Combined_... (length >= 9)
 		is_get = tile.get_pass_pixels(pass_name, pass_components, &pixels[0]);
 		if (is_get)
 		{
@@ -199,11 +204,15 @@ void RenderEngineCyc::read_render_tile(const ccl::OutputDriver::Tile& tile)
 
 	// PASS_BAKE_PRIMITIVE
 	baking_context->get_buffer_primitive_id()->get_pixels(rect, &pixels[0]);
-	bool is_primitive = tile.set_pass_pixels("BakePrimitive", 4, &pixels[0]);
+	bool is_primitive = tile.set_pass_pixels("BakePrimitive", 3, &pixels[0]);
 
 	// PASS_BAKE_DIFFERENTIAL
 	baking_context->get_buffer_differencial()->get_pixels(rect, &pixels[0]);
 	bool is_differential = tile.set_pass_pixels("BakeDifferential", 4, &pixels[0]);
+
+	// PASS_BAKE_SEED
+	baking_context->get_buffer_seed()->get_pixels(rect, &pixels[0]);
+	bool is_seed = tile.set_pass_pixels("BakeSeed", 1, &pixels[0]);
 
 	pixels.clear();
 	pixels.shrink_to_fit();
@@ -521,9 +530,16 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	// create temp folder
 	// we will setup it to the session params later after scene is created
 	// because this will be the common moment as for scene updates and creating from scratch
-	// TODO: there is a bug somewhere, even if we setup the temp directory into session parameters, it crashes when render small tiles
-	// so, try to fix it later, for now simply disable tiling
-	// temp_path = create_temp_path();
+	bool use_tiles = m_render_parameters.GetValue("performance_memory_use_auto_tile", eval_time);
+	if (use_tiles)
+	{
+		temp_path = create_temp_path();
+	}
+	else
+	{
+		temp_path == "";
+	}
+	
 
 	// if recreate session, then automaticaly say that the scene is also new
 	// this parameter used in post_scene, for example
@@ -657,6 +673,11 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	{
 		is_update = update_volume_property(session->scene, update_context, xsi_object);
 	}
+	else if (update_type == UpdateType::UpdateType_LightLinkingProperty)
+	{
+		// we change collection on some light linking property, so, we should recalculate it for the whole scene
+		update_context->set_is_update_light_linking(true);
+	}
 
 	update_context->set_is_update_scene(true);
 
@@ -776,8 +797,8 @@ XSI::CStatus RenderEngineCyc::update_scene_render()
 XSI::CStatus RenderEngineCyc::create_scene()
 {
 	clear_session();
-
 	session = create_session(session_params, scene_params);
+
 	is_session = true;
 	create_new_scene = true;
 
@@ -824,6 +845,12 @@ XSI::CStatus RenderEngineCyc::create_scene()
 // if return Abort, then the engine will recreate the scene
 XSI::CStatus RenderEngineCyc::post_scene()
 {
+	if (update_context->get_is_update_light_linking())
+	{
+		sync_light_linking(session->scene, update_context);
+	}
+	update_context->set_is_update_light_linking(false);
+
 	call_abort_render = false;
 	make_render = true;
 
@@ -907,10 +934,20 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			sync_shader_settings(session->scene, m_render_parameters, render_type, get_shaderball_displacement_method(), eval_time);
 		}
 
-		// TODO: try to fix this bug
 		// set temp directory for session parameters
-		// session->params.temp_dir = temp_path.GetAsciiString();
-
+		if (session->params.use_auto_tile && temp_path.Length() > 0)
+		{
+			session->params.temp_dir = temp_path.GetAsciiString();
+		}
+		else
+		{
+			if (session->params.use_auto_tile)
+			{
+				log_message("Render use tiles mode, but temp directory is not defined. Disabled this mode.", XSI::siWarningMsg);
+			}
+			session->params.use_auto_tile = false;
+		}
+		
 		update_context->set_logging(m_render_parameters.GetValue("options_logging_log_rendertime", eval_time), m_render_parameters.GetValue("options_logging_log_details", eval_time));
 	}
 
@@ -990,8 +1027,8 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 		}
 	}
 
-	// TODO: fix crash when using tiling rendering
-	// remove_temp_path(temp_path);
+	// remove temp directory (if it exists)
+	remove_temp_path(temp_path);
 
 	// clear output context object
 	output_context->reset();

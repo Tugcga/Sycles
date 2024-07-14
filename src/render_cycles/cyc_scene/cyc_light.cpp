@@ -92,17 +92,7 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 // common method as for xsi lights and custom lights
 void sync_light_tfm(ccl::Light* light, const XSI::MATH::CMatrix4 &xsi_tfm_matrix)
 {
-	XSI::MATH::CVector3 xsi_tfm_position = XSI::MATH::CVector3(xsi_tfm_matrix.GetValue(3, 0), xsi_tfm_matrix.GetValue(3, 1), xsi_tfm_matrix.GetValue(3, 2));
-	XSI::MATH::CVector3 xsi_tfm_direction = XSI::MATH::CVector3(-1 * xsi_tfm_matrix.GetValue(2, 0), -1 * xsi_tfm_matrix.GetValue(2, 1), -1 * xsi_tfm_matrix.GetValue(2, 2));
-
-	light->set_dir(vector3_to_float3(xsi_tfm_direction));
-	light->set_co(vector3_to_float3(xsi_tfm_position));
-
-	// also here set axis u and v
-	XSI::MATH::CVector3 xsi_axis_u = XSI::MATH::CVector3(xsi_tfm_matrix.GetValue(0, 0), xsi_tfm_matrix.GetValue(0, 1), xsi_tfm_matrix.GetValue(0, 2));
-	XSI::MATH::CVector3 xsi_axis_v = XSI::MATH::CVector3(xsi_tfm_matrix.GetValue(1, 0), xsi_tfm_matrix.GetValue(1, 1), xsi_tfm_matrix.GetValue(1, 2));
-	light->set_axisu(vector3_to_float3(xsi_axis_u));
-	light->set_axisv(vector3_to_float3(xsi_axis_v));
+	light->set_tfm(xsi_matrix_to_transform(xsi_tfm_matrix));
 }
 
 XSI::MATH::CTransformation tweak_xsi_light_transform(const XSI::MATH::CTransformation &xsi_tfm, const XSI::Light& xsi_light, const XSI::CTime& eval_time)

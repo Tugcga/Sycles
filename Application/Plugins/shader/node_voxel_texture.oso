@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_voxel_texture.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_voxel_texture.oso
 shader node_voxel_texture
 param	string	filename	""		%read{44,44} %write{2147483647,-1}
 param	string	interpolation	"linear"		%read{44,44} %write{2147483647,-1}
@@ -11,7 +11,7 @@ oparam	float	Density	0		%read{2147483647,-1} %write{42,44}
 oparam	color	Color	0 0 0		%read{2147483647,-1} %write{43,44}
 global	point	P	%read{0,0} %write{2147483647,-1} %derivs
 local	point	p	%read{3,44} %write{1,8} %derivs
-local	matrix	___369_tfm	%read{8,8} %write{6,6} %derivs
+local	matrix	___363_tfm	%read{8,8} %write{6,6} %derivs
 const	string	$const1	"object"		%read{5,5} %write{2147483647,-1}
 const	string	$const2	"transform"		%read{4,4} %write{2147483647,-1}
 const	string	$const3	"common"		%read{5,5} %write{2147483647,-1}
@@ -50,35 +50,35 @@ const	string	$const12	"periodic"		%read{44,44} %write{2147483647,-1}
 const	string	$const13	"interp"		%read{44,44} %write{2147483647,-1}
 const	string	$const14	"alpha"		%read{44,44} %write{2147483647,-1}
 code Vector
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:10
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:11
 #                           point Vector = P,
-	assign		Vector P 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl"} %line{10} %argrw{"wr"}
+	assign		Vector P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl"} %line{11} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:14
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:15
 #   point p = Vector;
-	assign		p Vector 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl"} %line{14} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:15
+	assign		p Vector 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl"} %line{15} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:16
 #   if (use_mapping) {
-	if		use_mapping 4 9 	%line{15} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:16
+	if		use_mapping 4 9 	%line{16} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:17
 #     p = transform(mapping, p);
-	transform	p mapping p 	%line{16} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:19
+	transform	p mapping p 	%line{17} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:20
 #     p = transform("object", Vector);
-	functioncall	$const2 6 	%line{19} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:263
+	functioncall	$const2 6 	%line{20} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:263
 # point  transform (string to, point p)  { return transform("common",to,p); }
-	transform	p $const3 $const1 Vector 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{263} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:21
+	transform	p $const3 $const1 Vector 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{263} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:22
 #     if (getattribute("geom:generated_transform", tfm))
-	getattribute	$tmp1 $const4 ___369_tfm 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl"} %line{21} %argrw{"wrw"}
+	getattribute	$tmp1 $const4 ___363_tfm 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl"} %line{22} %argrw{"wrw"}
 	if		$tmp1 9 9 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:23
 #       p = transform(tfm, p);
-	transform	p ___369_tfm p 	%line{22} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:24
+	transform	p ___363_tfm p 	%line{23} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:25
 #   if (p[0] < 0.0 || p[1] < 0.0 || p[2] < 0.0 || p[0] > 1.0 || p[1] > 1.0 || p[2] > 1.0) {
-	compref		$tmp2 p $const5 	%line{24} %argrw{"wrr"}
+	compref		$tmp2 p $const5 	%line{25} %argrw{"wrr"}
 	lt		$tmp3 $tmp2 $const6 	%argrw{"wrr"}
 	neq		$tmp4 $tmp3 $const5 	%argrw{"wrr"}
 	if		$tmp4 13 17 	%argrw{"r"}
@@ -111,13 +111,13 @@ code ___main___
 	neq		$tmp23 $tmp22 $const5 	%argrw{"wrr"}
 	assign		$tmp20 $tmp23 	%argrw{"wr"}
 	if		$tmp20 44 45 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:26
 #     Density = 0;
-	assign		Density $const5 	%line{25} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:26
+	assign		Density $const5 	%line{26} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:27
 #     Color = color(0, 0, 0);
-	assign		Color $const10 	%line{26} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:29
+	assign		Color $const10 	%line{27} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture.osl:30
 #     Color = (color)texture3d(
-	texture3d	Color filename p $const11 $const12 $const13 interpolation $const14 Density 	%line{29} %argrw{"wrrrrrrrw"} %argderivs{2}
+	texture3d	Color filename p $const11 $const12 $const13 interpolation $const14 Density 	%line{30} %argrw{"wrrrrrrrw"} %argderivs{2}
 	end

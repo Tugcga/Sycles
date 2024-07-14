@@ -85,7 +85,7 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 	// next object settings
 	if (full_update)
 	{
-		object->name = xsi_object.GetName().GetAsciiString();
+		object->name = xsi_object.GetFullName().GetAsciiString();
 		object->set_asset_name(OIIO::ustring(get_asset_name(xsi_object)));
 		object->set_color(vector3_to_float3(get_object_color(xsi_object, eval_time)));
 		object->set_alpha(1.0);
@@ -159,7 +159,7 @@ void sync_vdb_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3D
 	// next object settings
 	if (full_update)
 	{
-		object->name = xsi_object.GetName().GetAsciiString();
+		object->name = xsi_object.GetFullName().GetAsciiString();
 		object->set_asset_name(OIIO::ustring(get_asset_name(xsi_object)));
 		object->set_color(vector3_to_float3(get_object_color(xsi_object, eval_time)));
 		object->set_alpha(1.0);

@@ -7,6 +7,7 @@
 #include "../../input/input_devices.h"
 #include "../cyc_scene/cyc_scene.h"
 #include "cyc_session.h"
+#include "../../utilities/files_io.h"
 
 void set_session_samples(ccl::SessionParams &session_params, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
 {
@@ -33,21 +34,21 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 		session_params.pixel_size = 1;
 		session_params.use_auto_tile = false;
 
-		bool use_ocl = true;
+		bool use_osl = true;
 		int samples = 32;
 		bool use_gpu = false;
 		InputConfig input_config = get_input_config();
 		if (input_config.is_init)
 		{
 			ConfigShaderball config_shaderball = input_config.shaderball;
-			use_ocl = config_shaderball.use_ocl;
+			use_osl = config_shaderball.use_osl;
 			use_gpu = config_shaderball.use_gpu;
 
-			if (use_ocl && use_gpu)
+			if (use_osl && use_gpu)
 			{
-				// for now use ocl rendering only at cpu device
+				// for now use osl rendering only at cpu device
 				// so, disable gpu
-				// svm/ocl is more important than cpu/gpu
+				// svm/osl is more important than cpu/gpu
 				use_gpu = false;
 			}
 			samples = config_shaderball.samples;
@@ -87,7 +88,12 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 		}
 
 		// set shading system by using shaderball config
-		session_params.shadingsystem = use_ocl ? ccl::SHADINGSYSTEM_OSL : ccl::SHADINGSYSTEM_SVM;
+#ifdef WITH_OSL
+		session_params.shadingsystem = use_osl ? ccl::SHADINGSYSTEM_OSL : ccl::SHADINGSYSTEM_SVM;
+#else
+		session_params.shadingsystem = ccl::SHADINGSYSTEM_SVM;
+#endif // WITH_OSL
+
 		session_params.use_profiling = false;
 		session_params.samples = samples;
 	}
@@ -173,7 +179,6 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 
 			use_cpu = false;
 		}
-
 		session_params.experimental = true;
 		set_session_samples(session_params, render_parameters, eval_time);
 
@@ -183,6 +188,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 
 		int shading_system = render_parameters.GetValue("options_shaders_system", eval_time);
 		bool client_want_osl = shading_system == 1;
+#ifdef WITH_OSL
 		if (use_cpu && client_want_osl)
 		{
 			session_params.shadingsystem = ccl::ShadingSystem::SHADINGSYSTEM_OSL;
@@ -191,6 +197,10 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 		{
 			session_params.shadingsystem = ccl::ShadingSystem::SHADINGSYSTEM_SVM;
 		}
+#else
+		session_params.shadingsystem = ccl::ShadingSystem::SHADINGSYSTEM_SVM;
+#endif // WITH_OSL
+
 		if (client_want_osl && !use_cpu)
 		{
 			log_message(XSI::CString("OSL shading system supports only for CPU-rendering. Switched to SVM shading system."), XSI::siWarningMsg);

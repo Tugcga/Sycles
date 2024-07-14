@@ -130,7 +130,13 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("performance_threads_count", "Threads");
 	layout.EndGroup();
 
-	// TODO: try to fix the bug with crash when we render small tiles
+	// TODO: with activated tile rendering there are some problems to obtain pixels from the tile
+	// it adds some padding to the tile segment, and pixels of the tile have empty spaces
+	// so, pass pixels array to the tile.get_pass_pixels does not work, because it requires more pixels than size of the tile
+	// NOTE: in test console app all works fine, the tile does not contains any padding in pixels
+	// why it happens here?
+	// so, for now hode option for tile rendering from the UI
+	// by default it's false
 	// layout.AddGroup("Memory");
 	// layout.AddItem("performance_memory_use_auto_tile", "Use Tiling");
 	// layout.AddItem("performance_memory_tile_size", "Tile Size");
@@ -253,7 +259,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 	layout.AddGroup("Multilayer EXR");
 	layout.AddItem("output_exr_combine_passes", "Combine Render Passes To Single EXR");
-	layout.AddItem("output_exr_denoising_data", "Include Denoising Data");
+	layout.AddItem("output_exr_denoising_data", "Include Denoising Passes");
 	layout.AddItem("output_exr_render_separate_passes", "Save Separate Passes");
 	layout.EndGroup();
 
@@ -319,29 +325,50 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("background_ray_visibility_scatter", "Volume Scatter");
 	layout.EndGroup();
 
-	layout.AddTab("Denoise");
-	layout.AddGroup("Denoise");
 	bool is_optix = is_optix_available();
-	XSI::CValueArray denoise_mode_enum(is_optix ? 6 : 4);
-	// we set universal oidn as first denoiser, optix as the second (because optix is not allowed everywhere)
-	denoise_mode_enum[0] = "Disable"; denoise_mode_enum[1] = 0;
-	denoise_mode_enum[2] = "OpenImageDenoise"; denoise_mode_enum[3] = 1;
-	if (is_optix)
+	bool is_oidn = false;
+#ifdef WITH_OPENIMAGEDENOISE
+	is_oidn = true;
+#endif // WITH_OPENIMAGEDENOISE
+
+	if (is_optix || is_oidn)
 	{
-		denoise_mode_enum[4] = "OptiX"; denoise_mode_enum[5] = 2;
+		// if both optix and oidn are not allowed, then nothing to show
+		layout.AddTab("Denoise");
+		layout.AddGroup("Denoise");
+		XSI::CValueArray denoise_mode_enum(is_optix ? (is_oidn ? 6 : 4) : (is_oidn ? 4 : 2));
+		denoise_mode_enum[0] = "Disable"; denoise_mode_enum[1] = 0;
+		size_t mode_index = 1;
+		if (is_oidn)
+		{
+			denoise_mode_enum[2 * mode_index] = "OpenImageDenoise"; denoise_mode_enum[2 * mode_index + 1] = 1;
+			mode_index++;
+		}
+		if (is_optix)
+		{
+			denoise_mode_enum[2 * mode_index] = "OptiX"; denoise_mode_enum[2 * mode_index + 1] = 2;
+		}
+
+		// in any case show denoise channels
+		layout.AddEnumControl("denoise_mode", denoise_mode_enum, "Denoise Mode", XSI::siControlCombo);
+		XSI::CValueArray denoise_channels_enum(6);
+		denoise_channels_enum[0] = "None"; denoise_channels_enum[1] = 0;
+		denoise_channels_enum[2] = "Albedo"; denoise_channels_enum[3] = 1;
+		denoise_channels_enum[4] = "Albedo and Normal"; denoise_channels_enum[5] = 2;
+		layout.AddEnumControl("denoise_channels", denoise_channels_enum, "Passes", XSI::siControlCombo);
+
+		if (is_oidn)
+		{
+			// prefilter mode only for oidn
+			XSI::CValueArray denoise_prefilter_enum(6);
+			denoise_prefilter_enum[0] = "None"; denoise_prefilter_enum[1] = 0;
+			denoise_prefilter_enum[2] = "Fast"; denoise_prefilter_enum[3] = 1;
+			denoise_prefilter_enum[4] = "Accurate"; denoise_prefilter_enum[5] = 2;
+			layout.AddEnumControl("denoise_prefilter", denoise_prefilter_enum, "Prefilter", XSI::siControlCombo);
+		}
+		layout.EndGroup();
 	}
-	layout.AddEnumControl("denoise_mode", denoise_mode_enum, "Denoise Mode", XSI::siControlCombo);
-	XSI::CValueArray denoise_channels_enum(6);
-	denoise_channels_enum[0] = "None"; denoise_channels_enum[1] = 0;
-	denoise_channels_enum[2] = "Albedo"; denoise_channels_enum[3] = 1;
-	denoise_channels_enum[4] = "Albedo and Normal"; denoise_channels_enum[5] = 2;
-	layout.AddEnumControl("denoise_channels", denoise_channels_enum, "Passes", XSI::siControlCombo);
-	XSI::CValueArray denoise_prefilter_enum(6);
-	denoise_prefilter_enum[0] = "None"; denoise_prefilter_enum[1] = 0;
-	denoise_prefilter_enum[2] = "Fast"; denoise_prefilter_enum[3] = 1;
-	denoise_prefilter_enum[4] = "Accurate"; denoise_prefilter_enum[5] = 2;
-	layout.AddEnumControl("denoise_prefilter", denoise_prefilter_enum, "Prefilter", XSI::siControlCombo);
-	layout.EndGroup();
+	
 
 	layout.AddTab("Options");
 	layout.AddGroup("Shaders");
@@ -353,10 +380,12 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	emission_sampling_combo[8] = "Front and Back"; emission_sampling_combo[9] = 4;
 	layout.AddEnumControl("options_shaders_emission_sampling", emission_sampling_combo, "Emission Sampling", XSI::siControlCombo);
 	layout.AddItem("options_shaders_transparent_shadows", "Transparent Shadows");
+#ifdef WITH_OSL
 	XSI::CValueArray shader_system_combo(4);
 	shader_system_combo[0] = "SVM"; shader_system_combo[1] = 0;
 	shader_system_combo[2] = "OSL"; shader_system_combo[3] = 1;
 	layout.AddEnumControl("options_shaders_system", shader_system_combo, "Shading System", XSI::siControlCombo);
+#endif
 	layout.EndGroup();
 
 	layout.AddGroup("Update");
@@ -664,6 +693,33 @@ void set_colormanagement(XSI::CustomProperty& prop)
 
 	XSI::Parameter cm_gamma = prop_array.GetItem("cm_gamma");
 	cm_gamma.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
+
+	// for sRGB display set AgX (index = 2), for other displays - Standart (index = 0)
+	OCIOConfig ocio_config = get_ocio_config();
+	int display_index = cm_display_index.GetValue();
+	if (display_index == 0)
+	{
+		if (ocio_config.displays_count > display_index)
+		{
+			OCIODisplay ocio_display = ocio_config.displays[display_index];
+			if (ocio_display.views_count > 2)
+			{
+				cm_view_index.PutValue(2);
+			}
+			else
+			{
+				cm_view_index.PutValue(0);
+			}
+		}
+		else
+		{
+			cm_view_index.PutValue(0);
+		}
+	}
+	else
+	{
+		cm_view_index.PutValue(0);
+	}
 }
 
 void set_logging(XSI::CustomProperty& prop)
@@ -917,11 +973,12 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("performance_simplify_cull_distance_margin", XSI::CValue::siFloat, caps, "", "", 50.0, 0.0, FLT_MAX, 0.0, 100.0, param);
 
 	// color management tab
+	OCIOConfig ocio_config = get_ocio_config();
 	property.AddParameter("cm_apply_to_ldr", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("cm_mode", XSI::CValue::siInt4, caps, "", "", 0, param);
 	property.AddParameter("cm_display_index", XSI::CValue::siInt4, caps, "", "", 0, param);  // <-- default device index
-	property.AddParameter("cm_view_index", XSI::CValue::siInt4, caps, "", "", 1, 0, 4, 0, 4, param);
-	property.AddParameter("cm_look_index", XSI::CValue::siInt4, caps, "", "", 0, 0, 14, 0, 14, param);
+	property.AddParameter("cm_view_index", XSI::CValue::siInt4, caps, "", "", 2, param);  // by deafult set AgX, the maximum nuber of view transforms are different for different devices
+	property.AddParameter("cm_look_index", XSI::CValue::siInt4, caps, "", "", 0, param);
 	property.AddParameter("cm_exposure", XSI::CValue::siFloat, caps, "", "", 0.0, -1024.0, 1024.0, -10.0, 10.0, param);
 	property.AddParameter("cm_gamma", XSI::CValue::siFloat, caps, "", "", 1.0, 0.0, 1024.0, 0.0, 5.0, param);
 

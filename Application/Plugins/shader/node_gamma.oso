@@ -1,12 +1,12 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_gamma.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_gamma.oso
 shader node_gamma
 param	color	ColorIn	0.800000012 0.800000012 0.800000012		%read{0,0} %write{2147483647,-1}
 param	float	Gamma	1		%read{0,0} %write{2147483647,-1}
 oparam	color	ColorOut	0 0 0		%read{2147483647,-1} %write{0,0}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_gamma.osl:8
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gamma.osl:9
 #   ColorOut = pow(ColorIn, Gamma);
-	pow		ColorOut ColorIn Gamma 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_gamma.osl"} %line{8} %argrw{"wrr"}
+	pow		ColorOut ColorIn Gamma 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_gamma.osl"} %line{9} %argrw{"wrr"}
 	end

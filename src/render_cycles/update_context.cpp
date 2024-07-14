@@ -27,6 +27,7 @@ void UpdateContext::reset()
 	// set to true, because reset called when we create the scene
 	// in this case we say that the scene is new and render should be done
 	is_update_scene = true;
+	is_update_light_linking = true;
 
 	prev_dispaly_pass_name = "";
 
@@ -72,9 +73,19 @@ void UpdateContext::reset()
 	xsi_displacement_materials.clear();
 }
 
+void UpdateContext::set_is_update_light_linking(bool value)
+{
+	is_update_light_linking = value;
+}
+
 void UpdateContext::set_is_update_scene(bool value)
 {
 	is_update_scene = value;
+}
+
+bool UpdateContext::get_is_update_light_linking()
+{
+	return is_update_light_linking;
 }
 
 bool UpdateContext::get_is_update_scene()
@@ -273,7 +284,8 @@ XSI::Camera UpdateContext::get_camera()
 
 void UpdateContext::set_time(const XSI::CTime& time)
 {
-	eval_time = time;
+	eval_time.PutFormat(time.GetFormat(), time.GetFrameRate());
+	eval_time.PutTime(time.GetTime());
 }
 
 XSI::CTime UpdateContext::get_time()
@@ -316,7 +328,7 @@ void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters,
 	// as in Cycles, for pass we use constant shutter time
 	if (motion_type == MotionType_Pass)
 	{
-		motion_shutter_time = 2.0f;
+		motion_shutter_time = 2.0;
 	}
 	motion_rolling = film_motion_rolling_type == 1;
 	motion_rolling_duration = render_parameters.GetValue("film_motion_rolling_duration", eval_time);
@@ -324,27 +336,27 @@ void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters,
 	int motion_steps = (2 << (film_motion_steps - 1)) + 1;
 	motion_position = film_motion_position == 0 ? MotionPosition_Start : (film_motion_position == 1 ? MotionPosition_Center : MotionPosition_End);
 	
-	motion_times.resize(motion_steps, 0.0f);
+	motion_times.resize(motion_steps, 0.0);
 	// calculate actual frames for motion steps
 	double center_time = eval_time.GetTime();
-	float center_delta = 0.0;
+	double center_delta = 0.0;
 	// use motion position parameter only for motion blur mode (for motion pass always use center)
 	if (motion_type != MotionType_Pass)
 	{
 		if (motion_position == MotionPosition_End)
 		{
-			center_delta = -motion_shutter_time * 0.5f;
+			center_delta = -motion_shutter_time * 0.5;
 		}
 		else if (motion_position == MotionPosition_Start)
 		{
-			center_delta = motion_shutter_time * 0.5f;
+			center_delta = motion_shutter_time * 0.5;
 		}
 	}
-	float frame_time = center_time + center_delta;
-	float step_time = motion_shutter_time / (float)(motion_steps - 1);
+	double frame_time = center_time + center_delta;
+	double step_time = motion_shutter_time / (double)(motion_steps - 1);
 	for (size_t i = 0; i < motion_steps; i++)
 	{
-		float moment_time = frame_time - 0.5 * motion_shutter_time + i * step_time;
+		double moment_time = frame_time - 0.5 * motion_shutter_time + (double)i * step_time;
 		motion_times[i] = moment_time;
 	}
 }
@@ -399,17 +411,17 @@ void UpdateContext::set_motion_rolling_duration(float value)
 	motion_rolling_duration = value;
 }
 
-float UpdateContext::get_motion_fisrt_time()
+double UpdateContext::get_motion_fisrt_time()
 {
 	return motion_times[0];
 }
 
-float UpdateContext::get_motion_last_time()
+double UpdateContext::get_motion_last_time()
 {
 	return motion_times[motion_times.size() - 1];
 }
 
-std::vector<float> UpdateContext::get_motion_times()
+std::vector<double> UpdateContext::get_motion_times()
 {
 	if (get_need_motion())
 	{
@@ -421,7 +433,7 @@ std::vector<float> UpdateContext::get_motion_times()
 	}
 }
 
-float UpdateContext::get_motion_time(size_t step)
+double UpdateContext::get_motion_time(size_t step)
 {
 	return motion_times[step];
 }
@@ -482,6 +494,18 @@ std::vector<size_t> UpdateContext::get_xsi_light_cycles_indexes(ULONG xsi_id)
 	return lights_xsi_to_cyc[xsi_id];
 }
 
+std::vector<ULONG> UpdateContext::get_xsi_light_ids()
+{
+	std::vector<ULONG> xsi_ids;
+	xsi_ids.reserve(lights_xsi_to_cyc.size());
+
+	for (auto kv : lights_xsi_to_cyc)
+	{
+		xsi_ids.push_back(kv.first);
+	}
+	return xsi_ids;
+}
+
 void UpdateContext::add_geometry_index(ULONG xsi_id, size_t cyc_geo_index)
 {
 	geometry_xsi_to_cyc[xsi_id] = cyc_geo_index;
@@ -517,6 +541,18 @@ bool UpdateContext::is_object_exists(ULONG xsi_id)
 std::vector<size_t> UpdateContext::get_object_cycles_indexes(ULONG xsi_id)
 {
 	return object_xsi_to_cyc[xsi_id];
+}
+
+std::vector<ULONG> UpdateContext::get_xsi_object_ids()
+{
+	std::vector<ULONG> xsi_ids;
+	xsi_ids.reserve(object_xsi_to_cyc.size());
+
+	for (auto kv : object_xsi_to_cyc)
+	{
+		xsi_ids.push_back(kv.first);
+	}
+	return xsi_ids;
 }
 
 bool UpdateContext::get_use_background_light()

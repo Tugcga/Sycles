@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_mapping.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_mapping.oso
 shader node_mapping
 param	string	mapping_type	"point"		%read{0,173} %write{2147483647,-1}
 param	point	VectorIn	0 0 0		%read{47,238} %write{2147483647,-1}
@@ -8,13 +8,13 @@ param	point	Location	0 0 0		%read{49,98} %write{2147483647,-1}
 param	point	Rotation	0 0 0		%read{3,186} %write{2147483647,-1}
 param	point	Scale	1 1 1		%read{47,239} %write{2147483647,-1}
 oparam	point	VectorOut	0 0 0		%read{2147483647,-1} %write{49,245}
-local	float	___369_cx	%read{24,217} %write{4,177}
-local	float	___369_cy	%read{16,217} %write{6,179}
-local	float	___369_cz	%read{16,214} %write{8,181}
-local	float	___369_sx	%read{22,214} %write{10,183}
-local	float	___369_sy	%read{20,212} %write{12,185}
-local	float	___369_sz	%read{18,213} %write{14,187}
-local	matrix	___369_mat	%read{46,219} %write{15,218}
+local	float	___363_cx	%read{24,217} %write{4,177}
+local	float	___363_cy	%read{16,217} %write{6,179}
+local	float	___363_cz	%read{16,214} %write{8,181}
+local	float	___363_sx	%read{22,214} %write{10,183}
+local	float	___363_sy	%read{20,212} %write{12,185}
+local	float	___363_sz	%read{18,213} %write{14,187}
+local	matrix	___363_mat	%read{46,219} %write{15,218}
 const	string	$const1	"point"		%read{0,0} %write{2147483647,-1}
 temp	int	$tmp1	%read{1,1} %write{0,0}
 temp	point	$tmp2	%read{49,49} %write{48,48}
@@ -183,435 +183,435 @@ temp	float	$tmp154	%read{240,240} %write{239,239}
 const	string	$const12	"%s"		%read{246,246} %write{2147483647,-1}
 const	string	$const13	"Unknown Mapping vector type!"		%read{246,246} %write{2147483647,-1}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:44
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:45
 #   if (mapping_type == "point") {
-	eq		$tmp1 mapping_type $const1 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl"} %line{44} %argrw{"wrr"}
+	eq		$tmp1 mapping_type $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl"} %line{45} %argrw{"wrr"}
 	if		$tmp1 50 247 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:45
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:46
 #     VectorOut = transform(euler_to_mat(Rotation), (VectorIn * Scale)) + Location;
-	functioncall	$const2 47 	%line{45} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:15
+	functioncall	$const2 47 	%line{46} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:16
 #   float cx = cos(euler[0]);
-	compref		$tmp4 Rotation $const3 	%line{15} %argrw{"wrr"}
-	cos		___369_cx $tmp4 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:16
+	compref		$tmp4 Rotation $const3 	%line{16} %argrw{"wrr"}
+	cos		___363_cx $tmp4 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:17
 #   float cy = cos(euler[1]);
-	compref		$tmp5 Rotation $const4 	%line{16} %argrw{"wrr"}
-	cos		___369_cy $tmp5 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:17
+	compref		$tmp5 Rotation $const4 	%line{17} %argrw{"wrr"}
+	cos		___363_cy $tmp5 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:18
 #   float cz = cos(euler[2]);
-	compref		$tmp6 Rotation $const5 	%line{17} %argrw{"wrr"}
-	cos		___369_cz $tmp6 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:18
+	compref		$tmp6 Rotation $const5 	%line{18} %argrw{"wrr"}
+	cos		___363_cz $tmp6 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:19
 #   float sx = sin(euler[0]);
-	compref		$tmp7 Rotation $const3 	%line{18} %argrw{"wrr"}
-	sin		___369_sx $tmp7 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:19
+	compref		$tmp7 Rotation $const3 	%line{19} %argrw{"wrr"}
+	sin		___363_sx $tmp7 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:20
 #   float sy = sin(euler[1]);
-	compref		$tmp8 Rotation $const4 	%line{19} %argrw{"wrr"}
-	sin		___369_sy $tmp8 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:20
+	compref		$tmp8 Rotation $const4 	%line{20} %argrw{"wrr"}
+	sin		___363_sy $tmp8 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:21
 #   float sz = sin(euler[2]);
-	compref		$tmp9 Rotation $const5 	%line{20} %argrw{"wrr"}
-	sin		___369_sz $tmp9 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:22
+	compref		$tmp9 Rotation $const5 	%line{21} %argrw{"wrr"}
+	sin		___363_sz $tmp9 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:23
 #   matrix mat = matrix(1.0);
-	assign		___369_mat $const6 	%line{22} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:23
+	assign		___363_mat $const6 	%line{23} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:24
 #   mat[0][0] = cy * cz;
-	mul		$tmp10 ___369_cy ___369_cz 	%line{23} %argrw{"wrr"}
-	mxcompassign	___369_mat $const3 $const3 $tmp10 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:24
+	mul		$tmp10 ___363_cy ___363_cz 	%line{24} %argrw{"wrr"}
+	mxcompassign	___363_mat $const3 $const3 $tmp10 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:25
 #   mat[0][1] = cy * sz;
-	mul		$tmp11 ___369_cy ___369_sz 	%line{24} %argrw{"wrr"}
-	mxcompassign	___369_mat $const3 $const4 $tmp11 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:25
+	mul		$tmp11 ___363_cy ___363_sz 	%line{25} %argrw{"wrr"}
+	mxcompassign	___363_mat $const3 $const4 $tmp11 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:26
 #   mat[0][2] = -sy;
-	neg		$tmp12 ___369_sy 	%line{25} %argrw{"wr"}
-	mxcompassign	___369_mat $const3 $const5 $tmp12 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:27
+	neg		$tmp12 ___363_sy 	%line{26} %argrw{"wr"}
+	mxcompassign	___363_mat $const3 $const5 $tmp12 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:28
 #   mat[1][0] = sy * sx * cz - cx * sz;
-	mul		$tmp13 ___369_sy ___369_sx 	%line{27} %argrw{"wrr"}
-	mul		$tmp14 $tmp13 ___369_cz 	%argrw{"wrr"}
-	mul		$tmp15 ___369_cx ___369_sz 	%argrw{"wrr"}
+	mul		$tmp13 ___363_sy ___363_sx 	%line{28} %argrw{"wrr"}
+	mul		$tmp14 $tmp13 ___363_cz 	%argrw{"wrr"}
+	mul		$tmp15 ___363_cx ___363_sz 	%argrw{"wrr"}
 	sub		$tmp16 $tmp14 $tmp15 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const3 $tmp16 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:28
+	mxcompassign	___363_mat $const4 $const3 $tmp16 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:29
 #   mat[1][1] = sy * sx * sz + cx * cz;
-	mul		$tmp17 ___369_sy ___369_sx 	%line{28} %argrw{"wrr"}
-	mul		$tmp18 $tmp17 ___369_sz 	%argrw{"wrr"}
-	mul		$tmp19 ___369_cx ___369_cz 	%argrw{"wrr"}
+	mul		$tmp17 ___363_sy ___363_sx 	%line{29} %argrw{"wrr"}
+	mul		$tmp18 $tmp17 ___363_sz 	%argrw{"wrr"}
+	mul		$tmp19 ___363_cx ___363_cz 	%argrw{"wrr"}
 	add		$tmp20 $tmp18 $tmp19 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const4 $tmp20 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:29
+	mxcompassign	___363_mat $const4 $const4 $tmp20 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:30
 #   mat[1][2] = cy * sx;
-	mul		$tmp21 ___369_cy ___369_sx 	%line{29} %argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const5 $tmp21 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:31
+	mul		$tmp21 ___363_cy ___363_sx 	%line{30} %argrw{"wrr"}
+	mxcompassign	___363_mat $const4 $const5 $tmp21 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:32
 #   mat[2][0] = sy * cx * cz + sx * sz;
-	mul		$tmp22 ___369_sy ___369_cx 	%line{31} %argrw{"wrr"}
-	mul		$tmp23 $tmp22 ___369_cz 	%argrw{"wrr"}
-	mul		$tmp24 ___369_sx ___369_sz 	%argrw{"wrr"}
+	mul		$tmp22 ___363_sy ___363_cx 	%line{32} %argrw{"wrr"}
+	mul		$tmp23 $tmp22 ___363_cz 	%argrw{"wrr"}
+	mul		$tmp24 ___363_sx ___363_sz 	%argrw{"wrr"}
 	add		$tmp25 $tmp23 $tmp24 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const3 $tmp25 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:32
+	mxcompassign	___363_mat $const5 $const3 $tmp25 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:33
 #   mat[2][1] = sy * cx * sz - sx * cz;
-	mul		$tmp26 ___369_sy ___369_cx 	%line{32} %argrw{"wrr"}
-	mul		$tmp27 $tmp26 ___369_sz 	%argrw{"wrr"}
-	mul		$tmp28 ___369_sx ___369_cz 	%argrw{"wrr"}
+	mul		$tmp26 ___363_sy ___363_cx 	%line{33} %argrw{"wrr"}
+	mul		$tmp27 $tmp26 ___363_sz 	%argrw{"wrr"}
+	mul		$tmp28 ___363_sx ___363_cz 	%argrw{"wrr"}
 	sub		$tmp29 $tmp27 $tmp28 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const4 $tmp29 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:33
+	mxcompassign	___363_mat $const5 $const4 $tmp29 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:34
 #   mat[2][2] = cy * cx;
-	mul		$tmp30 ___369_cy ___369_cx 	%line{33} %argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const5 $tmp30 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:34
+	mul		$tmp30 ___363_cy ___363_cx 	%line{34} %argrw{"wrr"}
+	mxcompassign	___363_mat $const5 $const5 $tmp30 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:35
 #   return mat;
-	assign		$tmp3 ___369_mat 	%line{34} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:45
+	assign		$tmp3 ___363_mat 	%line{35} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:46
 #     VectorOut = transform(euler_to_mat(Rotation), (VectorIn * Scale)) + Location;
-	mul		$tmp31 VectorIn Scale 	%line{45} %argrw{"wrr"}
+	mul		$tmp31 VectorIn Scale 	%line{46} %argrw{"wrr"}
 	transform	$tmp2 $tmp3 $tmp31 	%argrw{"wrr"}
 	add		VectorOut $tmp2 Location 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:47
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:48
 #   else if (mapping_type == "texture") {
-	eq		$tmp32 mapping_type $const7 	%line{47} %argrw{"wrr"}
+	eq		$tmp32 mapping_type $const7 	%line{48} %argrw{"wrr"}
 	if		$tmp32 124 247 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:48
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:49
 #     VectorOut = safe_divide(transform(transpose(euler_to_mat(Rotation)), (VectorIn - Location)),
-	functioncall	$const2 97 	%line{48} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:15
+	functioncall	$const2 97 	%line{49} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:16
 #   float cx = cos(euler[0]);
-	compref		$tmp36 Rotation $const3 	%line{15} %argrw{"wrr"}
-	cos		___369_cx $tmp36 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:16
+	compref		$tmp36 Rotation $const3 	%line{16} %argrw{"wrr"}
+	cos		___363_cx $tmp36 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:17
 #   float cy = cos(euler[1]);
-	compref		$tmp37 Rotation $const4 	%line{16} %argrw{"wrr"}
-	cos		___369_cy $tmp37 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:17
+	compref		$tmp37 Rotation $const4 	%line{17} %argrw{"wrr"}
+	cos		___363_cy $tmp37 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:18
 #   float cz = cos(euler[2]);
-	compref		$tmp38 Rotation $const5 	%line{17} %argrw{"wrr"}
-	cos		___369_cz $tmp38 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:18
+	compref		$tmp38 Rotation $const5 	%line{18} %argrw{"wrr"}
+	cos		___363_cz $tmp38 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:19
 #   float sx = sin(euler[0]);
-	compref		$tmp39 Rotation $const3 	%line{18} %argrw{"wrr"}
-	sin		___369_sx $tmp39 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:19
+	compref		$tmp39 Rotation $const3 	%line{19} %argrw{"wrr"}
+	sin		___363_sx $tmp39 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:20
 #   float sy = sin(euler[1]);
-	compref		$tmp40 Rotation $const4 	%line{19} %argrw{"wrr"}
-	sin		___369_sy $tmp40 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:20
+	compref		$tmp40 Rotation $const4 	%line{20} %argrw{"wrr"}
+	sin		___363_sy $tmp40 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:21
 #   float sz = sin(euler[2]);
-	compref		$tmp41 Rotation $const5 	%line{20} %argrw{"wrr"}
-	sin		___369_sz $tmp41 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:22
+	compref		$tmp41 Rotation $const5 	%line{21} %argrw{"wrr"}
+	sin		___363_sz $tmp41 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:23
 #   matrix mat = matrix(1.0);
-	assign		___369_mat $const6 	%line{22} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:23
+	assign		___363_mat $const6 	%line{23} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:24
 #   mat[0][0] = cy * cz;
-	mul		$tmp42 ___369_cy ___369_cz 	%line{23} %argrw{"wrr"}
-	mxcompassign	___369_mat $const3 $const3 $tmp42 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:24
+	mul		$tmp42 ___363_cy ___363_cz 	%line{24} %argrw{"wrr"}
+	mxcompassign	___363_mat $const3 $const3 $tmp42 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:25
 #   mat[0][1] = cy * sz;
-	mul		$tmp43 ___369_cy ___369_sz 	%line{24} %argrw{"wrr"}
-	mxcompassign	___369_mat $const3 $const4 $tmp43 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:25
+	mul		$tmp43 ___363_cy ___363_sz 	%line{25} %argrw{"wrr"}
+	mxcompassign	___363_mat $const3 $const4 $tmp43 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:26
 #   mat[0][2] = -sy;
-	neg		$tmp44 ___369_sy 	%line{25} %argrw{"wr"}
-	mxcompassign	___369_mat $const3 $const5 $tmp44 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:27
+	neg		$tmp44 ___363_sy 	%line{26} %argrw{"wr"}
+	mxcompassign	___363_mat $const3 $const5 $tmp44 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:28
 #   mat[1][0] = sy * sx * cz - cx * sz;
-	mul		$tmp45 ___369_sy ___369_sx 	%line{27} %argrw{"wrr"}
-	mul		$tmp46 $tmp45 ___369_cz 	%argrw{"wrr"}
-	mul		$tmp47 ___369_cx ___369_sz 	%argrw{"wrr"}
+	mul		$tmp45 ___363_sy ___363_sx 	%line{28} %argrw{"wrr"}
+	mul		$tmp46 $tmp45 ___363_cz 	%argrw{"wrr"}
+	mul		$tmp47 ___363_cx ___363_sz 	%argrw{"wrr"}
 	sub		$tmp48 $tmp46 $tmp47 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const3 $tmp48 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:28
+	mxcompassign	___363_mat $const4 $const3 $tmp48 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:29
 #   mat[1][1] = sy * sx * sz + cx * cz;
-	mul		$tmp49 ___369_sy ___369_sx 	%line{28} %argrw{"wrr"}
-	mul		$tmp50 $tmp49 ___369_sz 	%argrw{"wrr"}
-	mul		$tmp51 ___369_cx ___369_cz 	%argrw{"wrr"}
+	mul		$tmp49 ___363_sy ___363_sx 	%line{29} %argrw{"wrr"}
+	mul		$tmp50 $tmp49 ___363_sz 	%argrw{"wrr"}
+	mul		$tmp51 ___363_cx ___363_cz 	%argrw{"wrr"}
 	add		$tmp52 $tmp50 $tmp51 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const4 $tmp52 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:29
+	mxcompassign	___363_mat $const4 $const4 $tmp52 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:30
 #   mat[1][2] = cy * sx;
-	mul		$tmp53 ___369_cy ___369_sx 	%line{29} %argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const5 $tmp53 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:31
+	mul		$tmp53 ___363_cy ___363_sx 	%line{30} %argrw{"wrr"}
+	mxcompassign	___363_mat $const4 $const5 $tmp53 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:32
 #   mat[2][0] = sy * cx * cz + sx * sz;
-	mul		$tmp54 ___369_sy ___369_cx 	%line{31} %argrw{"wrr"}
-	mul		$tmp55 $tmp54 ___369_cz 	%argrw{"wrr"}
-	mul		$tmp56 ___369_sx ___369_sz 	%argrw{"wrr"}
+	mul		$tmp54 ___363_sy ___363_cx 	%line{32} %argrw{"wrr"}
+	mul		$tmp55 $tmp54 ___363_cz 	%argrw{"wrr"}
+	mul		$tmp56 ___363_sx ___363_sz 	%argrw{"wrr"}
 	add		$tmp57 $tmp55 $tmp56 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const3 $tmp57 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:32
+	mxcompassign	___363_mat $const5 $const3 $tmp57 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:33
 #   mat[2][1] = sy * cx * sz - sx * cz;
-	mul		$tmp58 ___369_sy ___369_cx 	%line{32} %argrw{"wrr"}
-	mul		$tmp59 $tmp58 ___369_sz 	%argrw{"wrr"}
-	mul		$tmp60 ___369_sx ___369_cz 	%argrw{"wrr"}
+	mul		$tmp58 ___363_sy ___363_cx 	%line{33} %argrw{"wrr"}
+	mul		$tmp59 $tmp58 ___363_sz 	%argrw{"wrr"}
+	mul		$tmp60 ___363_sx ___363_cz 	%argrw{"wrr"}
 	sub		$tmp61 $tmp59 $tmp60 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const4 $tmp61 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:33
+	mxcompassign	___363_mat $const5 $const4 $tmp61 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:34
 #   mat[2][2] = cy * cx;
-	mul		$tmp62 ___369_cy ___369_cx 	%line{33} %argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const5 $tmp62 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:34
+	mul		$tmp62 ___363_cy ___363_cx 	%line{34} %argrw{"wrr"}
+	mxcompassign	___363_mat $const5 $const5 $tmp62 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:35
 #   return mat;
-	assign		$tmp35 ___369_mat 	%line{34} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:48
+	assign		$tmp35 ___363_mat 	%line{35} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:49
 #     VectorOut = safe_divide(transform(transpose(euler_to_mat(Rotation)), (VectorIn - Location)),
-	transpose	$tmp34 $tmp35 	%line{48} %argrw{"wr"}
+	transpose	$tmp34 $tmp35 	%line{49} %argrw{"wr"}
 	sub		$tmp63 VectorIn Location 	%argrw{"wrr"}
 	transformv	$tmp33 $tmp34 $tmp63 	%argrw{"wrr"}
 	functioncall	$const8 124 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:8
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:9
 #   return point((b[0] != 0.0) ? a[0] / b[0] : 0.0,
-	compref		$tmp65 Scale $const3 	%line{8} %argrw{"wrr"}
+	compref		$tmp65 Scale $const3 	%line{9} %argrw{"wrr"}
 	neq		$tmp66 $tmp65 $const9 	%argrw{"wrr"}
 	if		$tmp66 107 108 	%argrw{"r"}
 	compref		$tmp67 $tmp33 $const3 	%argrw{"wrr"}
 	compref		$tmp68 Scale $const3 	%argrw{"wrr"}
 	div		$tmp64 $tmp67 $tmp68 	%argrw{"wrr"}
 	assign		$tmp64 $const9 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:9
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:10
 #                (b[1] != 0.0) ? a[1] / b[1] : 0.0,
-	compref		$tmp70 Scale $const4 	%line{9} %argrw{"wrr"}
+	compref		$tmp70 Scale $const4 	%line{10} %argrw{"wrr"}
 	neq		$tmp71 $tmp70 $const9 	%argrw{"wrr"}
 	if		$tmp71 114 115 	%argrw{"r"}
 	compref		$tmp72 $tmp33 $const4 	%argrw{"wrr"}
 	compref		$tmp73 Scale $const4 	%argrw{"wrr"}
 	div		$tmp69 $tmp72 $tmp73 	%argrw{"wrr"}
 	assign		$tmp69 $const9 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:10
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:11
 #                (b[2] != 0.0) ? a[2] / b[2] : 0.0);
-	compref		$tmp75 Scale $const5 	%line{10} %argrw{"wrr"}
+	compref		$tmp75 Scale $const5 	%line{11} %argrw{"wrr"}
 	neq		$tmp76 $tmp75 $const9 	%argrw{"wrr"}
 	if		$tmp76 121 122 	%argrw{"r"}
 	compref		$tmp77 $tmp33 $const5 	%argrw{"wrr"}
 	compref		$tmp78 Scale $const5 	%argrw{"wrr"}
 	div		$tmp74 $tmp77 $tmp78 	%argrw{"wrr"}
 	assign		$tmp74 $const9 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:8
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:9
 #   return point((b[0] != 0.0) ? a[0] / b[0] : 0.0,
-	point		VectorOut $tmp64 $tmp69 $tmp74 	%line{8} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:10
+	point		VectorOut $tmp64 $tmp69 $tmp74 	%line{9} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:11
 #                (b[2] != 0.0) ? a[2] / b[2] : 0.0);
-	return	%line{10}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:51
+	return	%line{11}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:52
 #   else if (mapping_type == "vector") {
-	eq		$tmp79 mapping_type $const10 	%line{51} %argrw{"wrr"}
+	eq		$tmp79 mapping_type $const10 	%line{52} %argrw{"wrr"}
 	if		$tmp79 173 247 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:52
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:53
 #     VectorOut = transform(euler_to_mat(Rotation), (VectorIn * Scale));
-	functioncall	$const2 171 	%line{52} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:15
+	functioncall	$const2 171 	%line{53} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:16
 #   float cx = cos(euler[0]);
-	compref		$tmp81 Rotation $const3 	%line{15} %argrw{"wrr"}
-	cos		___369_cx $tmp81 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:16
+	compref		$tmp81 Rotation $const3 	%line{16} %argrw{"wrr"}
+	cos		___363_cx $tmp81 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:17
 #   float cy = cos(euler[1]);
-	compref		$tmp82 Rotation $const4 	%line{16} %argrw{"wrr"}
-	cos		___369_cy $tmp82 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:17
+	compref		$tmp82 Rotation $const4 	%line{17} %argrw{"wrr"}
+	cos		___363_cy $tmp82 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:18
 #   float cz = cos(euler[2]);
-	compref		$tmp83 Rotation $const5 	%line{17} %argrw{"wrr"}
-	cos		___369_cz $tmp83 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:18
+	compref		$tmp83 Rotation $const5 	%line{18} %argrw{"wrr"}
+	cos		___363_cz $tmp83 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:19
 #   float sx = sin(euler[0]);
-	compref		$tmp84 Rotation $const3 	%line{18} %argrw{"wrr"}
-	sin		___369_sx $tmp84 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:19
+	compref		$tmp84 Rotation $const3 	%line{19} %argrw{"wrr"}
+	sin		___363_sx $tmp84 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:20
 #   float sy = sin(euler[1]);
-	compref		$tmp85 Rotation $const4 	%line{19} %argrw{"wrr"}
-	sin		___369_sy $tmp85 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:20
+	compref		$tmp85 Rotation $const4 	%line{20} %argrw{"wrr"}
+	sin		___363_sy $tmp85 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:21
 #   float sz = sin(euler[2]);
-	compref		$tmp86 Rotation $const5 	%line{20} %argrw{"wrr"}
-	sin		___369_sz $tmp86 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:22
+	compref		$tmp86 Rotation $const5 	%line{21} %argrw{"wrr"}
+	sin		___363_sz $tmp86 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:23
 #   matrix mat = matrix(1.0);
-	assign		___369_mat $const6 	%line{22} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:23
+	assign		___363_mat $const6 	%line{23} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:24
 #   mat[0][0] = cy * cz;
-	mul		$tmp87 ___369_cy ___369_cz 	%line{23} %argrw{"wrr"}
-	mxcompassign	___369_mat $const3 $const3 $tmp87 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:24
+	mul		$tmp87 ___363_cy ___363_cz 	%line{24} %argrw{"wrr"}
+	mxcompassign	___363_mat $const3 $const3 $tmp87 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:25
 #   mat[0][1] = cy * sz;
-	mul		$tmp88 ___369_cy ___369_sz 	%line{24} %argrw{"wrr"}
-	mxcompassign	___369_mat $const3 $const4 $tmp88 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:25
+	mul		$tmp88 ___363_cy ___363_sz 	%line{25} %argrw{"wrr"}
+	mxcompassign	___363_mat $const3 $const4 $tmp88 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:26
 #   mat[0][2] = -sy;
-	neg		$tmp89 ___369_sy 	%line{25} %argrw{"wr"}
-	mxcompassign	___369_mat $const3 $const5 $tmp89 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:27
+	neg		$tmp89 ___363_sy 	%line{26} %argrw{"wr"}
+	mxcompassign	___363_mat $const3 $const5 $tmp89 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:28
 #   mat[1][0] = sy * sx * cz - cx * sz;
-	mul		$tmp90 ___369_sy ___369_sx 	%line{27} %argrw{"wrr"}
-	mul		$tmp91 $tmp90 ___369_cz 	%argrw{"wrr"}
-	mul		$tmp92 ___369_cx ___369_sz 	%argrw{"wrr"}
+	mul		$tmp90 ___363_sy ___363_sx 	%line{28} %argrw{"wrr"}
+	mul		$tmp91 $tmp90 ___363_cz 	%argrw{"wrr"}
+	mul		$tmp92 ___363_cx ___363_sz 	%argrw{"wrr"}
 	sub		$tmp93 $tmp91 $tmp92 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const3 $tmp93 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:28
+	mxcompassign	___363_mat $const4 $const3 $tmp93 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:29
 #   mat[1][1] = sy * sx * sz + cx * cz;
-	mul		$tmp94 ___369_sy ___369_sx 	%line{28} %argrw{"wrr"}
-	mul		$tmp95 $tmp94 ___369_sz 	%argrw{"wrr"}
-	mul		$tmp96 ___369_cx ___369_cz 	%argrw{"wrr"}
+	mul		$tmp94 ___363_sy ___363_sx 	%line{29} %argrw{"wrr"}
+	mul		$tmp95 $tmp94 ___363_sz 	%argrw{"wrr"}
+	mul		$tmp96 ___363_cx ___363_cz 	%argrw{"wrr"}
 	add		$tmp97 $tmp95 $tmp96 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const4 $tmp97 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:29
+	mxcompassign	___363_mat $const4 $const4 $tmp97 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:30
 #   mat[1][2] = cy * sx;
-	mul		$tmp98 ___369_cy ___369_sx 	%line{29} %argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const5 $tmp98 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:31
+	mul		$tmp98 ___363_cy ___363_sx 	%line{30} %argrw{"wrr"}
+	mxcompassign	___363_mat $const4 $const5 $tmp98 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:32
 #   mat[2][0] = sy * cx * cz + sx * sz;
-	mul		$tmp99 ___369_sy ___369_cx 	%line{31} %argrw{"wrr"}
-	mul		$tmp100 $tmp99 ___369_cz 	%argrw{"wrr"}
-	mul		$tmp101 ___369_sx ___369_sz 	%argrw{"wrr"}
+	mul		$tmp99 ___363_sy ___363_cx 	%line{32} %argrw{"wrr"}
+	mul		$tmp100 $tmp99 ___363_cz 	%argrw{"wrr"}
+	mul		$tmp101 ___363_sx ___363_sz 	%argrw{"wrr"}
 	add		$tmp102 $tmp100 $tmp101 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const3 $tmp102 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:32
+	mxcompassign	___363_mat $const5 $const3 $tmp102 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:33
 #   mat[2][1] = sy * cx * sz - sx * cz;
-	mul		$tmp103 ___369_sy ___369_cx 	%line{32} %argrw{"wrr"}
-	mul		$tmp104 $tmp103 ___369_sz 	%argrw{"wrr"}
-	mul		$tmp105 ___369_sx ___369_cz 	%argrw{"wrr"}
+	mul		$tmp103 ___363_sy ___363_cx 	%line{33} %argrw{"wrr"}
+	mul		$tmp104 $tmp103 ___363_sz 	%argrw{"wrr"}
+	mul		$tmp105 ___363_sx ___363_cz 	%argrw{"wrr"}
 	sub		$tmp106 $tmp104 $tmp105 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const4 $tmp106 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:33
+	mxcompassign	___363_mat $const5 $const4 $tmp106 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:34
 #   mat[2][2] = cy * cx;
-	mul		$tmp107 ___369_cy ___369_cx 	%line{33} %argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const5 $tmp107 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:34
+	mul		$tmp107 ___363_cy ___363_cx 	%line{34} %argrw{"wrr"}
+	mxcompassign	___363_mat $const5 $const5 $tmp107 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:35
 #   return mat;
-	assign		$tmp80 ___369_mat 	%line{34} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:52
+	assign		$tmp80 ___363_mat 	%line{35} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:53
 #     VectorOut = transform(euler_to_mat(Rotation), (VectorIn * Scale));
-	mul		$tmp108 VectorIn Scale 	%line{52} %argrw{"wrr"}
+	mul		$tmp108 VectorIn Scale 	%line{53} %argrw{"wrr"}
 	transform	VectorOut $tmp80 $tmp108 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:54
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:55
 #   else if (mapping_type == "normal") {
-	eq		$tmp109 mapping_type $const11 	%line{54} %argrw{"wrr"}
+	eq		$tmp109 mapping_type $const11 	%line{55} %argrw{"wrr"}
 	if		$tmp109 246 247 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:55
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:56
 #     VectorOut = normalize((vector)transform(euler_to_mat(Rotation), safe_divide(VectorIn, Scale)));
-	functioncall	$const2 220 	%line{55} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:15
+	functioncall	$const2 220 	%line{56} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:16
 #   float cx = cos(euler[0]);
-	compref		$tmp112 Rotation $const3 	%line{15} %argrw{"wrr"}
-	cos		___369_cx $tmp112 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:16
+	compref		$tmp112 Rotation $const3 	%line{16} %argrw{"wrr"}
+	cos		___363_cx $tmp112 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:17
 #   float cy = cos(euler[1]);
-	compref		$tmp113 Rotation $const4 	%line{16} %argrw{"wrr"}
-	cos		___369_cy $tmp113 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:17
+	compref		$tmp113 Rotation $const4 	%line{17} %argrw{"wrr"}
+	cos		___363_cy $tmp113 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:18
 #   float cz = cos(euler[2]);
-	compref		$tmp114 Rotation $const5 	%line{17} %argrw{"wrr"}
-	cos		___369_cz $tmp114 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:18
+	compref		$tmp114 Rotation $const5 	%line{18} %argrw{"wrr"}
+	cos		___363_cz $tmp114 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:19
 #   float sx = sin(euler[0]);
-	compref		$tmp115 Rotation $const3 	%line{18} %argrw{"wrr"}
-	sin		___369_sx $tmp115 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:19
+	compref		$tmp115 Rotation $const3 	%line{19} %argrw{"wrr"}
+	sin		___363_sx $tmp115 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:20
 #   float sy = sin(euler[1]);
-	compref		$tmp116 Rotation $const4 	%line{19} %argrw{"wrr"}
-	sin		___369_sy $tmp116 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:20
+	compref		$tmp116 Rotation $const4 	%line{20} %argrw{"wrr"}
+	sin		___363_sy $tmp116 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:21
 #   float sz = sin(euler[2]);
-	compref		$tmp117 Rotation $const5 	%line{20} %argrw{"wrr"}
-	sin		___369_sz $tmp117 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:22
+	compref		$tmp117 Rotation $const5 	%line{21} %argrw{"wrr"}
+	sin		___363_sz $tmp117 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:23
 #   matrix mat = matrix(1.0);
-	assign		___369_mat $const6 	%line{22} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:23
+	assign		___363_mat $const6 	%line{23} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:24
 #   mat[0][0] = cy * cz;
-	mul		$tmp118 ___369_cy ___369_cz 	%line{23} %argrw{"wrr"}
-	mxcompassign	___369_mat $const3 $const3 $tmp118 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:24
+	mul		$tmp118 ___363_cy ___363_cz 	%line{24} %argrw{"wrr"}
+	mxcompassign	___363_mat $const3 $const3 $tmp118 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:25
 #   mat[0][1] = cy * sz;
-	mul		$tmp119 ___369_cy ___369_sz 	%line{24} %argrw{"wrr"}
-	mxcompassign	___369_mat $const3 $const4 $tmp119 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:25
+	mul		$tmp119 ___363_cy ___363_sz 	%line{25} %argrw{"wrr"}
+	mxcompassign	___363_mat $const3 $const4 $tmp119 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:26
 #   mat[0][2] = -sy;
-	neg		$tmp120 ___369_sy 	%line{25} %argrw{"wr"}
-	mxcompassign	___369_mat $const3 $const5 $tmp120 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:27
+	neg		$tmp120 ___363_sy 	%line{26} %argrw{"wr"}
+	mxcompassign	___363_mat $const3 $const5 $tmp120 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:28
 #   mat[1][0] = sy * sx * cz - cx * sz;
-	mul		$tmp121 ___369_sy ___369_sx 	%line{27} %argrw{"wrr"}
-	mul		$tmp122 $tmp121 ___369_cz 	%argrw{"wrr"}
-	mul		$tmp123 ___369_cx ___369_sz 	%argrw{"wrr"}
+	mul		$tmp121 ___363_sy ___363_sx 	%line{28} %argrw{"wrr"}
+	mul		$tmp122 $tmp121 ___363_cz 	%argrw{"wrr"}
+	mul		$tmp123 ___363_cx ___363_sz 	%argrw{"wrr"}
 	sub		$tmp124 $tmp122 $tmp123 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const3 $tmp124 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:28
+	mxcompassign	___363_mat $const4 $const3 $tmp124 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:29
 #   mat[1][1] = sy * sx * sz + cx * cz;
-	mul		$tmp125 ___369_sy ___369_sx 	%line{28} %argrw{"wrr"}
-	mul		$tmp126 $tmp125 ___369_sz 	%argrw{"wrr"}
-	mul		$tmp127 ___369_cx ___369_cz 	%argrw{"wrr"}
+	mul		$tmp125 ___363_sy ___363_sx 	%line{29} %argrw{"wrr"}
+	mul		$tmp126 $tmp125 ___363_sz 	%argrw{"wrr"}
+	mul		$tmp127 ___363_cx ___363_cz 	%argrw{"wrr"}
 	add		$tmp128 $tmp126 $tmp127 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const4 $tmp128 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:29
+	mxcompassign	___363_mat $const4 $const4 $tmp128 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:30
 #   mat[1][2] = cy * sx;
-	mul		$tmp129 ___369_cy ___369_sx 	%line{29} %argrw{"wrr"}
-	mxcompassign	___369_mat $const4 $const5 $tmp129 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:31
+	mul		$tmp129 ___363_cy ___363_sx 	%line{30} %argrw{"wrr"}
+	mxcompassign	___363_mat $const4 $const5 $tmp129 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:32
 #   mat[2][0] = sy * cx * cz + sx * sz;
-	mul		$tmp130 ___369_sy ___369_cx 	%line{31} %argrw{"wrr"}
-	mul		$tmp131 $tmp130 ___369_cz 	%argrw{"wrr"}
-	mul		$tmp132 ___369_sx ___369_sz 	%argrw{"wrr"}
+	mul		$tmp130 ___363_sy ___363_cx 	%line{32} %argrw{"wrr"}
+	mul		$tmp131 $tmp130 ___363_cz 	%argrw{"wrr"}
+	mul		$tmp132 ___363_sx ___363_sz 	%argrw{"wrr"}
 	add		$tmp133 $tmp131 $tmp132 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const3 $tmp133 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:32
+	mxcompassign	___363_mat $const5 $const3 $tmp133 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:33
 #   mat[2][1] = sy * cx * sz - sx * cz;
-	mul		$tmp134 ___369_sy ___369_cx 	%line{32} %argrw{"wrr"}
-	mul		$tmp135 $tmp134 ___369_sz 	%argrw{"wrr"}
-	mul		$tmp136 ___369_sx ___369_cz 	%argrw{"wrr"}
+	mul		$tmp134 ___363_sy ___363_cx 	%line{33} %argrw{"wrr"}
+	mul		$tmp135 $tmp134 ___363_sz 	%argrw{"wrr"}
+	mul		$tmp136 ___363_sx ___363_cz 	%argrw{"wrr"}
 	sub		$tmp137 $tmp135 $tmp136 	%argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const4 $tmp137 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:33
+	mxcompassign	___363_mat $const5 $const4 $tmp137 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:34
 #   mat[2][2] = cy * cx;
-	mul		$tmp138 ___369_cy ___369_cx 	%line{33} %argrw{"wrr"}
-	mxcompassign	___369_mat $const5 $const5 $tmp138 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:34
+	mul		$tmp138 ___363_cy ___363_cx 	%line{34} %argrw{"wrr"}
+	mxcompassign	___363_mat $const5 $const5 $tmp138 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:35
 #   return mat;
-	assign		$tmp111 ___369_mat 	%line{34} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:55
+	assign		$tmp111 ___363_mat 	%line{35} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:56
 #     VectorOut = normalize((vector)transform(euler_to_mat(Rotation), safe_divide(VectorIn, Scale)));
-	functioncall	$const8 244 	%line{55} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:8
+	functioncall	$const8 244 	%line{56} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:9
 #   return point((b[0] != 0.0) ? a[0] / b[0] : 0.0,
-	compref		$tmp141 Scale $const3 	%line{8} %argrw{"wrr"}
+	compref		$tmp141 Scale $const3 	%line{9} %argrw{"wrr"}
 	neq		$tmp142 $tmp141 $const9 	%argrw{"wrr"}
 	if		$tmp142 227 228 	%argrw{"r"}
 	compref		$tmp143 VectorIn $const3 	%argrw{"wrr"}
 	compref		$tmp144 Scale $const3 	%argrw{"wrr"}
 	div		$tmp140 $tmp143 $tmp144 	%argrw{"wrr"}
 	assign		$tmp140 $const9 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:9
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:10
 #                (b[1] != 0.0) ? a[1] / b[1] : 0.0,
-	compref		$tmp146 Scale $const4 	%line{9} %argrw{"wrr"}
+	compref		$tmp146 Scale $const4 	%line{10} %argrw{"wrr"}
 	neq		$tmp147 $tmp146 $const9 	%argrw{"wrr"}
 	if		$tmp147 234 235 	%argrw{"r"}
 	compref		$tmp148 VectorIn $const4 	%argrw{"wrr"}
 	compref		$tmp149 Scale $const4 	%argrw{"wrr"}
 	div		$tmp145 $tmp148 $tmp149 	%argrw{"wrr"}
 	assign		$tmp145 $const9 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:10
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:11
 #                (b[2] != 0.0) ? a[2] / b[2] : 0.0);
-	compref		$tmp151 Scale $const5 	%line{10} %argrw{"wrr"}
+	compref		$tmp151 Scale $const5 	%line{11} %argrw{"wrr"}
 	neq		$tmp152 $tmp151 $const9 	%argrw{"wrr"}
 	if		$tmp152 241 242 	%argrw{"r"}
 	compref		$tmp153 VectorIn $const5 	%argrw{"wrr"}
 	compref		$tmp154 Scale $const5 	%argrw{"wrr"}
 	div		$tmp150 $tmp153 $tmp154 	%argrw{"wrr"}
 	assign		$tmp150 $const9 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:8
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:9
 #   return point((b[0] != 0.0) ? a[0] / b[0] : 0.0,
-	point		$tmp139 $tmp140 $tmp145 $tmp150 	%line{8} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:10
+	point		$tmp139 $tmp140 $tmp145 $tmp150 	%line{9} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:11
 #                (b[2] != 0.0) ? a[2] / b[2] : 0.0);
-	return	%line{10}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:55
+	return	%line{11}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:56
 #     VectorOut = normalize((vector)transform(euler_to_mat(Rotation), safe_divide(VectorIn, Scale)));
-	transform	$tmp110 $tmp111 $tmp139 	%line{55} %argrw{"wrr"}
+	transform	$tmp110 $tmp111 $tmp139 	%line{56} %argrw{"wrr"}
 	normalize	VectorOut $tmp110 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_mapping.osl:58
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mapping.osl:59
 #     warning("%s", "Unknown Mapping vector type!");
-	warning		$const12 $const13 	%line{58} %argrw{"rr"}
+	warning		$const12 $const13 	%line{59} %argrw{"rr"}
 	end

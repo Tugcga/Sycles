@@ -3,6 +3,7 @@
 #include "session/session.h"
 #include "scene/integrator.h"
 #include "util/hash.h"
+#include "scene/light.h"
 
 #include "../../render_cycles/update_context.h"
 #include "../../utilities/math.h"
@@ -17,6 +18,14 @@ ccl::DenoiseParams get_denoise_params(const XSI::CParameterRefArray &render_para
 	int denoise_mode = render_parameters.GetValue("denoise_mode", eval_time);
 	denoising.use = denoise_mode != 0;
 	denoising.type = denoise_mode == 2 ? ccl::DenoiserType::DENOISER_OPTIX : ccl::DenoiserType::DENOISER_OPENIMAGEDENOISE;
+	denoising.use_gpu = false;  // it looks like this parameter important only for OIDN
+
+	int denoise_prefilter = render_parameters.GetValue("denoise_prefilter", eval_time);
+	denoising.prefilter = denoise_prefilter == 2 ? ccl::DENOISER_PREFILTER_ACCURATE :
+		(denoise_prefilter == 1 ? ccl::DENOISER_PREFILTER_FAST : ccl::DENOISER_PREFILTER_NONE);
+
+	denoising.quality = ccl::DENOISER_QUALITY_BALANCED;
+
 	denoising.use_pass_albedo = false;
 	denoising.use_pass_normal = false;
 
@@ -30,10 +39,6 @@ ccl::DenoiseParams get_denoise_params(const XSI::CParameterRefArray &render_para
 		denoising.use_pass_albedo = true;
 		denoising.use_pass_normal = true;
 	}
-
-	int denoise_prefilter = render_parameters.GetValue("denoise_prefilter", eval_time);
-	denoising.prefilter = denoise_prefilter == 2 ? ccl::DENOISER_PREFILTER_ACCURATE :
-		(denoise_prefilter == 1 ? ccl::DENOISER_PREFILTER_FAST : ccl::DENOISER_PREFILTER_NONE);
 
 	return denoising;
 }
@@ -106,10 +111,12 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		if (denoise_params.use)
 		{
 			integrator->set_denoiser_type(denoise_params.type);
+			integrator->set_denoise_use_gpu(denoise_params.use_gpu);
 			integrator->set_denoise_start_sample(denoise_params.start_sample);
 			integrator->set_use_denoise_pass_albedo(denoise_params.use_pass_albedo);
 			integrator->set_use_denoise_pass_normal(denoise_params.use_pass_normal);
 			integrator->set_denoiser_prefilter(denoise_params.prefilter);
+			integrator->set_denoiser_quality(denoise_params.quality);
 		}
 
 		float scrambling_distance = render_parameters.GetValue("sampling_advanced_scrambling_multiplier", eval_time);
@@ -130,16 +137,19 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		int fast_method = render_parameters.GetValue("paths_fastgi_method", eval_time);
 		if (use_fast_ao)
 		{
-			integrator->set_ao_bounces(render_parameters.GetValue("paths_fastgi_ao_bouncess", eval_time));
+			float ao_factor = render_parameters.GetValue("paths_fastgi_ao_factor", eval_time);
+			int ao_bounces = render_parameters.GetValue("paths_fastgi_ao_bouncess", eval_time);
+			integrator->set_ao_bounces(ao_bounces);
+			
 			if (fast_method == 0)
 			{// replace 
-				integrator->set_ao_factor(render_parameters.GetValue("paths_fastgi_ao_factor", eval_time));
+				integrator->set_ao_factor(ao_factor);
 				integrator->set_ao_additive_factor(0.0f);
 			}
 			else
 			{// add
 				integrator->set_ao_factor(0.0f);
-				integrator->set_ao_additive_factor(render_parameters.GetValue("paths_fastgi_ao_factor", eval_time));
+				integrator->set_ao_additive_factor(ao_factor);
 			}
 		}
 		else
@@ -148,12 +158,26 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 			integrator->set_ao_additive_factor(0.0f);
 			integrator->set_ao_bounces(0);
 		}
-		integrator->set_ao_distance(render_parameters.GetValue("paths_fastgi_ao_distance", eval_time));
+		float ao_distance = render_parameters.GetValue("paths_fastgi_ao_distance", eval_time);
+		integrator->set_ao_distance(ao_distance);
 
-		integrator->set_use_guiding(render_parameters.GetValue("sampling_path_guiding_use", eval_time));
-		integrator->set_use_surface_guiding(render_parameters.GetValue("sampling_path_guiding_surface", eval_time));
-		integrator->set_use_volume_guiding(render_parameters.GetValue("sampling_path_guiding_volume", eval_time));
-		integrator->set_guiding_training_samples(render_parameters.GetValue("sampling_path_guiding_training_samples", eval_time));
+		ccl::DeviceInfo render_device = session->params.device;
+		if (render_device.type == ccl::DeviceType::DEVICE_CPU)
+		{
+			integrator->set_use_guiding(render_parameters.GetValue("sampling_path_guiding_use", eval_time));
+			integrator->set_use_surface_guiding(render_parameters.GetValue("sampling_path_guiding_surface", eval_time));
+			integrator->set_use_volume_guiding(render_parameters.GetValue("sampling_path_guiding_volume", eval_time));
+			integrator->set_guiding_training_samples(render_parameters.GetValue("sampling_path_guiding_training_samples", eval_time));
+		}
+		else
+		{
+			bool sampling_path_guiding_use = render_parameters.GetValue("sampling_path_guiding_use", eval_time);
+			if (sampling_path_guiding_use)
+			{
+				log_message("Path guiding available only with CPU render device. Disable it.", XSI::siWarningMsg);
+			}
+			integrator->set_use_guiding(false);
+		}
 	}
 
 	if (render_type == RenderType::RenderType_Rendermap && baking_context->get_is_valid())

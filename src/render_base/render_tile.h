@@ -5,14 +5,7 @@
 
 #include "../utilities/math.h"
 #include "../utilities/logs.h"
-
-struct RGBA
-{
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	unsigned char a;
-};
+#include "write_tile_pixel.h"
 
 class RenderTile : public XSI::RendererImageFragment
 {
@@ -33,57 +26,27 @@ public:
 	unsigned int GetWidth() const { return(width); }
 	unsigned int GetHeight() const { return(height); }
 
-	bool GetScanlineRGBA(unsigned int in_uiRow, XSI::siImageBitDepth in_eBitDepth, unsigned char *out_pScanline) const
+	bool GetScanlineRGBA(unsigned int in_row, XSI::siImageBitDepth in_bit_depth, unsigned char *out_scanline) const
 	{
-		RGBA* pScanline = (RGBA*)out_pScanline;
+		int pixel_size = 0;
+
+		// one line store pixels channels (all four r, g, b and a)
+		// so, each ixels contains four components
+		if (in_bit_depth == XSI::siImageBitDepthInteger8) { pixel_size = 4; }  // if one component spend 1 byte, then pixel is 4 bytes
+		else if (in_bit_depth == XSI::siImageBitDepthInteger16) { pixel_size = 8; }  // 16 bit integer is 2 bytes, so the pixel is 8 bytes
+		else if (in_bit_depth == XSI::siImageBitDepthFloat32) { pixel_size = 16; }  // 32 bit float is 4 bytes, so the pixels is 16 bytes
+		else { return false; }
+
+		void* scanline;
+		size_t index_shift = static_cast<size_t>(in_row) * width;  // start of the tile pixels line
 		for (unsigned int i = 0; i < width; i++)
 		{
-			size_t indexShift = static_cast<size_t>(in_uiRow) * width;
-			pScanline[i].a = components == 4 ? static_cast<unsigned char>(pixels[4 * (indexShift + i) + 3] * 255.0) : static_cast<unsigned char>(255.0);
-			if (is_srgb)
-			{
-				if (components == 4)
-				{
-					pScanline[i].r = linear_to_srgb(pixels[4 * (indexShift + i)]);
-					pScanline[i].g = linear_to_srgb(pixels[4 * (indexShift + i) + 1]);
-					pScanline[i].b = linear_to_srgb(pixels[4 * (indexShift + i) + 2]);
-				}
-				else if (components == 3)
-				{
-					pScanline[i].r = linear_to_srgb(pixels[3 * (indexShift + i)]);
-					pScanline[i].g = linear_to_srgb(pixels[3 * (indexShift + i) + 1]);
-					pScanline[i].b = linear_to_srgb(pixels[3 * (indexShift + i) + 2]);
-				}
-				else
-				{
-					float v = linear_to_srgb(pixels[indexShift + i]);
-					pScanline[i].r = static_cast<unsigned char>(v);
-					pScanline[i].g = static_cast<unsigned char>(v);
-					pScanline[i].b = static_cast<unsigned char>(v);
-				}
-			}
-			else
-			{
-				if (components == 4)
-				{
-					pScanline[i].r = linear_clamp(pixels[4 * (indexShift + i)]);
-					pScanline[i].g = linear_clamp(pixels[4 * (indexShift + i) + 1]);
-					pScanline[i].b = linear_clamp(pixels[4 * (indexShift + i) + 2]);
-				}
-				else if (components == 3)
-				{
-					pScanline[i].r = linear_clamp(pixels[3 * (indexShift + i)]);
-					pScanline[i].g = linear_clamp(pixels[3 * (indexShift + i) + 1]);
-					pScanline[i].b = linear_clamp(pixels[3 * (indexShift + i) + 2]);
-				}
-				else
-				{
-					float v = linear_clamp(pixels[indexShift + i]);
-					pScanline[i].r = static_cast<unsigned char>(v);
-					pScanline[i].g = static_cast<unsigned char>(v);
-					pScanline[i].b = static_cast<unsigned char>(v);
-				}
-			}
+			scanline = (void*)(&out_scanline[pixel_size * i]);
+			// scanline is a pointer to the start of the pixels data
+			size_t index = index_shift + i;
+			if (in_bit_depth == XSI::siImageBitDepthInteger8) {write_int8_pixel(scanline, index, pixels, is_srgb, components); }
+			else if (in_bit_depth == XSI::siImageBitDepthInteger16) { write_int16_pixel(scanline, index, pixels, is_srgb, components); }
+			else if (in_bit_depth == XSI::siImageBitDepthFloat32) { write_float32_pixel(scanline, index, pixels, is_srgb, components); }
 		}
 
 		return true;

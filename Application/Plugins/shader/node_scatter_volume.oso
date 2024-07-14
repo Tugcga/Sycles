@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_scatter_volume.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_scatter_volume.oso
 shader node_scatter_volume
 param	color	Color	0.800000012 0.800000012 0.800000012		%read{2,2} %write{2147483647,-1}
 param	float	Density	1		%read{1,1} %write{2147483647,-1}
@@ -12,9 +12,9 @@ temp	float	$tmp2	%read{2,2} %write{1,1}
 const	float	$const2	0		%read{1,1} %write{2147483647,-1}
 temp	color	$tmp3	%read{3,3} %write{2,2}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_scatter_volume.osl:11
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_scatter_volume.osl:12
 #   Volume = (Color * max(Density, 0.0)) * henyey_greenstein(Anisotropy);
-	closure		$tmp1 $const1 Anisotropy 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_scatter_volume.osl"} %line{11} %argrw{"wrr"}
+	closure		$tmp1 $const1 Anisotropy 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_scatter_volume.osl"} %line{12} %argrw{"wrr"}
 	max		$tmp2 Density $const2 	%argrw{"wrr"}
 	mul		$tmp3 Color $tmp2 	%argrw{"wrr"}
 	mul		Volume $tmp1 $tmp3 	%argrw{"wrr"}

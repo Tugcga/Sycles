@@ -375,6 +375,24 @@ bool is_ends_with(const OIIO::ustring& input_string, const XSI::CString& end_fra
 	return true;
 }
 
+bool is_start_from(const OIIO::ustring& str, const OIIO::ustring& prefix)
+{
+	if (str.size() < prefix.size())
+	{
+		return false;
+	}
+
+	for (size_t i = 0; i < prefix.size(); i++)
+	{
+		if (str[i] != prefix[i])
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 // get from OpenVDB for Softimage sources (VDB_GridIO.cpp:37)
 inline std::string parse_file_name(const std::string& in_filename, int frame)
 {
@@ -439,20 +457,20 @@ XSI::CString combine_names(const XSI::CString &prefix, const XSI::CString &postf
 
 XSI::CString combine_geometry_name(const XSI::X3DObject &xsi_object, const XSI::PolygonMesh &xsi_polymesh)
 {
-	return combine_names(xsi_object.GetName(), xsi_polymesh.GetName());
+	return combine_names(xsi_object.GetFullName(), xsi_polymesh.GetName());
 }
 
 XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::HairPrimitive& xsi_hair)
 {
-	return combine_names(xsi_object.GetName(), xsi_hair.GetName());
+	return combine_names(xsi_object.GetFullName(), xsi_hair.GetName());
 }
 
 XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::Primitive& xsi_primitive)
 {
-	return combine_names(xsi_object.GetName(), xsi_primitive.GetName());
+	return combine_names(xsi_object.GetFullName(), xsi_primitive.GetName());
 }
 
 XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::CString &name)
 {
-	return combine_names(xsi_object.GetName(), name);
+	return combine_names(xsi_object.GetFullName(), name);
 }

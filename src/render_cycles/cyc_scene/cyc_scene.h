@@ -70,7 +70,7 @@ void sync_shaderball_camera(ccl::Scene* scene, UpdateContext* update_context, Sh
 
 // cyc_isntance
 XSI::MATH::CTransformation calc_instance_object_tfm(const XSI::MATH::CTransformation& master_root_tfm, const XSI::MATH::CTransformation& master_object_tfm, const XSI::MATH::CTransformation& instance_root_tfm);
-std::vector<XSI::MATH::CTransformation> calc_instance_object_tfm(const XSI::KinematicState& master_root, const XSI::KinematicState& master_object, const std::vector<XSI::MATH::CTransformation>& instance_root_tfm_array, bool need_motion, const std::vector<float> &motion_times, const XSI::CTime& eval_time);
+std::vector<XSI::MATH::CTransformation> calc_instance_object_tfm(const XSI::KinematicState& master_root, const XSI::KinematicState& master_object, const std::vector<XSI::MATH::CTransformation>& instance_root_tfm_array, bool need_motion, const std::vector<double> &motion_times, const XSI::CTime& eval_time);
 XSI::CStatus update_instance_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::Model& xsi_model);
 XSI::CStatus update_instance_transform_from_master_object(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
@@ -78,4 +78,7 @@ XSI::CStatus update_instance_transform_from_master_object(ccl::Scene* scene, Upd
 void sync_transform(ccl::Object* object, UpdateContext* update_context, const XSI::KinematicState &xsi_kine);
 void sync_transforms(ccl::Object* object, const std::vector<XSI::MATH::CTransformation>& xsi_tfms_array, size_t main_motion_step);
 XSI::CStatus sync_geometry_transform(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object);
-std::vector<XSI::MATH::CTransformation> build_transforms_array(const XSI::KinematicState& xsi_kine, bool need_motion, const std::vector<float>& motion_times, const XSI::CTime& eval_time);
+std::vector<XSI::MATH::CTransformation> build_transforms_array(const XSI::KinematicState& xsi_kine, bool need_motion, const std::vector<double>& motion_times, const XSI::CTime& eval_time);
+
+// cyc_light_linking
+void sync_light_linking(ccl::Scene* scene, UpdateContext* update_context);

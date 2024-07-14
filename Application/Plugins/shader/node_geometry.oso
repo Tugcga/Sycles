@@ -1,156 +1,183 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_geometry.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_geometry.oso
 shader node_geometry
-param	normal	NormalIn	0 0 0		%read{2,2} %write{0,0} %initexpr
-param	string	bump_offset	"center"		%read{10,40} %write{2147483647,-1}
-oparam	point	Position	0 0 0		%read{12,19} %write{1,19} %derivs
-oparam	normal	Normal	0 0 0		%read{31,33} %write{2,2}
-oparam	normal	Tangent	0 0 0		%read{2147483647,-1} %write{33,34}
-oparam	normal	TrueNormal	0 0 0		%read{2147483647,-1} %write{3,3}
-oparam	vector	Incoming	0 0 0		%read{2147483647,-1} %write{4,4}
-oparam	point	Parametric	0 0 0		%read{14,21} %write{7,21} %derivs
-oparam	float	Backfacing	0		%read{2147483647,-1} %write{9,9}
-oparam	float	Pointiness	0		%read{38,43} %write{35,43} %derivs
-oparam	float	RandomPerIsland	0		%read{2147483647,-1} %write{44,44}
-global	point	P	%read{1,1} %write{2147483647,-1} %derivs
-global	vector	I	%read{4,4} %write{2147483647,-1}
-global	normal	N	%read{0,0} %write{2147483647,-1}
-global	normal	Ng	%read{3,3} %write{2147483647,-1}
-global	float	u	%read{5,7} %write{2147483647,-1} %derivs
-global	float	v	%read{6,6} %write{2147483647,-1} %derivs
-global	vector	dPdu	%read{34,34} %write{2147483647,-1}
-local	point	generated	%read{24,27} %write{22,22}
-local	normal	___370_data	%read{30,30} %write{29,29}
-local	vector	___370_T	%read{31,31} %write{30,30}
-const	float	$const1	1		%read{5,5} %write{2147483647,-1}
-temp	float	$tmp1	%read{6,6} %write{5,5} %derivs
-temp	float	$tmp2	%read{7,7} %write{6,6} %derivs
-const	float	$const2	0		%read{7,29} %write{2147483647,-1}
-temp	int	$tmp3	%read{9,9} %write{8,8}
-const	string	$const3	"dx"		%read{10,36} %write{2147483647,-1}
-temp	int	$tmp4	%read{11,11} %write{10,10}
-temp	vector	$tmp5	%read{13,13} %write{12,12} %derivs
-temp	vector	$tmp6	%read{15,15} %write{14,14} %derivs
-const	string	$const4	"dy"		%read{16,40} %write{2147483647,-1}
-temp	int	$tmp7	%read{17,17} %write{16,16}
-temp	vector	$tmp8	%read{19,19} %write{18,18} %derivs
-temp	vector	$tmp9	%read{21,21} %write{20,20} %derivs
-temp	int	$tmp10	%read{23,23} %write{22,22}
-const	string	$const5	"geom:generated"		%read{22,22} %write{2147483647,-1}
-const	int	$const6	1		%read{24,24} %write{2147483647,-1}
-temp	float	$tmp11	%read{25,25} %write{24,24}
-const	float	$const7	0.5		%read{25,28} %write{2147483647,-1}
-temp	float	$tmp12	%read{26,26} %write{25,25}
-temp	float	$tmp13	%read{29,29} %write{26,26}
-const	int	$const8	0		%read{27,27} %write{2147483647,-1}
-temp	float	$tmp14	%read{28,28} %write{27,27}
-temp	float	$tmp15	%read{29,29} %write{28,28}
-const	string	$const9	"object"		%read{30,30} %write{2147483647,-1}
-const	string	$const10	"world"		%read{30,30} %write{2147483647,-1}
-temp	vector	$tmp16	%read{33,33} %write{32,32}
-temp	vector	$tmp17	%read{32,32} %write{31,31}
-temp	int	$tmp18	%read{2147483647,-1} %write{35,35}
-const	string	$const11	"geom:pointiness"		%read{35,35} %write{2147483647,-1}
-temp	int	$tmp19	%read{37,37} %write{36,36}
-temp	float	$tmp20	%read{39,39} %write{38,38} %derivs
-temp	int	$tmp21	%read{41,41} %write{40,40}
-temp	float	$tmp22	%read{43,43} %write{42,42} %derivs
-temp	int	$tmp23	%read{2147483647,-1} %write{44,44}
-const	string	$const12	"geom:random_per_island"		%read{44,44} %write{2147483647,-1}
-code NormalIn
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:6
-# shader node_geometry(normal NormalIn = N,
-	assign		NormalIn N 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl"} %line{6} %argrw{"wr"}
+param	string	bump_offset	"center"		%read{9,52} %write{2147483647,-1}
+oparam	point	Position	0 0 0		%read{11,18} %write{0,18} %derivs
+oparam	normal	Normal	0 0 0		%read{43,45} %write{1,1}
+oparam	normal	Tangent	0 0 0		%read{2147483647,-1} %write{45,46}
+oparam	normal	TrueNormal	0 0 0		%read{2147483647,-1} %write{2,2}
+oparam	vector	Incoming	0 0 0		%read{2147483647,-1} %write{3,3}
+oparam	point	Parametric	0 0 0		%read{13,20} %write{6,20} %derivs
+oparam	float	Backfacing	0		%read{2147483647,-1} %write{8,8}
+oparam	float	Pointiness	0		%read{50,55} %write{47,55} %derivs
+oparam	float	RandomPerIsland	0		%read{2147483647,-1} %write{56,56}
+global	point	P	%read{0,0} %write{2147483647,-1} %derivs
+global	vector	I	%read{3,3} %write{2147483647,-1}
+global	normal	N	%read{1,1} %write{2147483647,-1}
+global	normal	Ng	%read{2,2} %write{2147483647,-1}
+global	float	u	%read{4,6} %write{2147483647,-1} %derivs
+global	float	v	%read{5,5} %write{2147483647,-1} %derivs
+global	vector	dPdu	%read{46,46} %write{2147483647,-1}
+local	point	generated	%read{36,39} %write{32,32}
+local	float	IsCurve	%read{25,25} %write{21,23}
+local	float	IsPoint	%read{27,27} %write{22,24}
+local	normal	___364_data	%read{42,42} %write{41,41}
+local	vector	___364_T	%read{43,43} %write{42,42}
+const	float	$const1	1		%read{4,4} %write{2147483647,-1}
+temp	float	$tmp1	%read{5,5} %write{4,4} %derivs
+temp	float	$tmp2	%read{6,6} %write{5,5} %derivs
+const	float	$const2	0		%read{6,41} %write{2147483647,-1}
+temp	int	$tmp3	%read{8,8} %write{7,7}
+const	string	$const3	"dx"		%read{9,48} %write{2147483647,-1}
+temp	int	$tmp4	%read{10,10} %write{9,9}
+temp	vector	$tmp5	%read{12,12} %write{11,11} %derivs
+temp	vector	$tmp6	%read{14,14} %write{13,13} %derivs
+const	string	$const4	"dy"		%read{15,52} %write{2147483647,-1}
+temp	int	$tmp7	%read{16,16} %write{15,15}
+temp	vector	$tmp8	%read{18,18} %write{17,17} %derivs
+temp	vector	$tmp9	%read{20,20} %write{19,19} %derivs
+const	int	$const5	0		%read{21,39} %write{2147483647,-1}
+temp	int	$tmp10	%read{2147483647,-1} %write{23,23}
+const	string	$const6	"geom:is_curve"		%read{23,23} %write{2147483647,-1}
+temp	int	$tmp11	%read{2147483647,-1} %write{24,24}
+const	string	$const7	"geom:is_point"		%read{24,24} %write{2147483647,-1}
+temp	int	$tmp12	%read{26,29} %write{25,28}
+temp	int	$tmp13	%read{28,28} %write{27,27}
+temp	int	$tmp14	%read{30,30} %write{29,29}
+temp	int	$tmp15	%read{31,35} %write{30,34}
+temp	int	$tmp16	%read{33,33} %write{32,32}
+const	string	$const8	"geom:generated"		%read{32,32} %write{2147483647,-1}
+temp	int	$tmp17	%read{34,34} %write{33,33}
+const	int	$const9	1		%read{36,36} %write{2147483647,-1}
+temp	float	$tmp18	%read{37,37} %write{36,36}
+const	float	$const10	0.5		%read{37,40} %write{2147483647,-1}
+temp	float	$tmp19	%read{38,38} %write{37,37}
+temp	float	$tmp20	%read{41,41} %write{38,38}
+temp	float	$tmp21	%read{40,40} %write{39,39}
+temp	float	$tmp22	%read{41,41} %write{40,40}
+const	string	$const11	"object"		%read{42,42} %write{2147483647,-1}
+const	string	$const12	"world"		%read{42,42} %write{2147483647,-1}
+temp	vector	$tmp23	%read{45,45} %write{44,44}
+temp	vector	$tmp24	%read{44,44} %write{43,43}
+temp	int	$tmp25	%read{2147483647,-1} %write{47,47}
+const	string	$const13	"geom:pointiness"		%read{47,47} %write{2147483647,-1}
+temp	int	$tmp26	%read{49,49} %write{48,48}
+temp	float	$tmp27	%read{51,51} %write{50,50} %derivs
+temp	int	$tmp28	%read{53,53} %write{52,52}
+temp	float	$tmp29	%read{55,55} %write{54,54} %derivs
+temp	int	$tmp30	%read{2147483647,-1} %write{56,56}
+const	string	$const14	"geom:random_per_island"		%read{56,56} %write{2147483647,-1}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:19
 #   Position = P;
-	assign		Position P 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl"} %line{19} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:20
-#   Normal = NormalIn;
-	assign		Normal NormalIn 	%line{20} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:21
+	assign		Position P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl"} %line{19} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:20
+#   Normal = N;
+	assign		Normal N 	%line{20} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:21
 #   TrueNormal = Ng;
 	assign		TrueNormal Ng 	%line{21} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:22
 #   Incoming = I;
 	assign		Incoming I 	%line{22} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:23
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:23
 #   Parametric = point(1.0 - u - v, u, 0.0);
 	sub		$tmp1 $const1 u 	%line{23} %argrw{"wrr"}
 	sub		$tmp2 $tmp1 v 	%argrw{"wrr"}
 	point		Parametric $tmp2 u $const2 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:24
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:24
 #   Backfacing = backfacing();
 	backfacing	$tmp3 	%line{24} %argrw{"w"}
 	assign		Backfacing $tmp3 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:26
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:26
 #   if (bump_offset == "dx") {
 	eq		$tmp4 bump_offset $const3 	%line{26} %argrw{"wrr"}
-	if		$tmp4 16 22 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:27
+	if		$tmp4 15 21 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:27
 #     Position += Dx(Position);
 	Dx		$tmp5 Position 	%line{27} %argrw{"wr"} %argderivs{1}
 	add		Position Position $tmp5 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:28
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:28
 #     Parametric += Dx(Parametric);
 	Dx		$tmp6 Parametric 	%line{28} %argrw{"wr"} %argderivs{1}
 	add		Parametric Parametric $tmp6 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:30
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:30
 #   else if (bump_offset == "dy") {
 	eq		$tmp7 bump_offset $const4 	%line{30} %argrw{"wrr"}
-	if		$tmp7 22 22 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:31
+	if		$tmp7 21 21 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:31
 #     Position += Dy(Position);
 	Dy		$tmp8 Position 	%line{31} %argrw{"wr"} %argderivs{1}
 	add		Position Position $tmp8 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:32
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:32
 #     Parametric += Dy(Parametric);
 	Dy		$tmp9 Parametric 	%line{32} %argrw{"wr"} %argderivs{1}
 	add		Parametric Parametric $tmp9 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:39
-#   if (getattribute("geom:generated", generated)) {
-	getattribute	$tmp10 $const5 generated 	%line{39} %argrw{"wrw"}
-	if		$tmp10 34 35 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:40
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:36
+#   float IsCurve = 0;
+	assign		IsCurve $const5 	%line{36} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:37
+#   float IsPoint = 0;
+	assign		IsPoint $const5 	%line{37} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:38
+#   getattribute("geom:is_curve", IsCurve);
+	getattribute	$tmp10 $const6 IsCurve 	%line{38} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:39
+#   getattribute("geom:is_point", IsPoint);
+	getattribute	$tmp11 $const7 IsPoint 	%line{39} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:43
+#   if (!(IsCurve || IsPoint) && getattribute("geom:generated", generated)) {
+	neq		$tmp12 IsCurve $const2 	%line{43} %argrw{"wrr"}
+	if		$tmp12 27 29 	%argrw{"r"}
+	neq		$tmp13 IsPoint $const2 	%argrw{"wrr"}
+	assign		$tmp12 $tmp13 	%argrw{"wr"}
+	eq		$tmp14 $tmp12 $const5 	%argrw{"wrr"}
+	neq		$tmp15 $tmp14 $const5 	%argrw{"wrr"}
+	if		$tmp15 35 35 	%argrw{"r"}
+	getattribute	$tmp16 $const8 generated 	%argrw{"wrw"}
+	neq		$tmp17 $tmp16 $const5 	%argrw{"wrr"}
+	assign		$tmp15 $tmp17 	%argrw{"wr"}
+	if		$tmp15 46 47 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:44
 #     normal data = normal(-(generated[1] - 0.5), (generated[0] - 0.5), 0.0);
-	compref		$tmp11 generated $const6 	%line{40} %argrw{"wrr"}
-	sub		$tmp12 $tmp11 $const7 	%argrw{"wrr"}
-	neg		$tmp13 $tmp12 	%argrw{"wr"}
-	compref		$tmp14 generated $const8 	%argrw{"wrr"}
-	sub		$tmp15 $tmp14 $const7 	%argrw{"wrr"}
-	normal		___370_data $tmp13 $tmp15 $const2 	%argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:41
+	compref		$tmp18 generated $const9 	%line{44} %argrw{"wrr"}
+	sub		$tmp19 $tmp18 $const10 	%argrw{"wrr"}
+	neg		$tmp20 $tmp19 	%argrw{"wr"}
+	compref		$tmp21 generated $const5 	%argrw{"wrr"}
+	sub		$tmp22 $tmp21 $const10 	%argrw{"wrr"}
+	normal		___364_data $tmp20 $tmp22 $const2 	%argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:45
 #     vector T = transform("object", "world", data);
-	transformn	___370_T $const9 $const10 ___370_data 	%line{41} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:42
+	transformn	___364_T $const11 $const12 ___364_data 	%line{45} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:46
 #     Tangent = cross(Normal, normalize(cross(T, Normal)));
-	cross		$tmp17 ___370_T Normal 	%line{42} %argrw{"wrr"}
-	normalize	$tmp16 $tmp17 	%argrw{"wr"}
-	cross		Tangent Normal $tmp16 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:46
+	cross		$tmp24 ___364_T Normal 	%line{46} %argrw{"wrr"}
+	normalize	$tmp23 $tmp24 	%argrw{"wr"}
+	cross		Tangent Normal $tmp23 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:50
 #     Tangent = normalize(dPdu);
-	normalize	Tangent dPdu 	%line{46} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:49
+	normalize	Tangent dPdu 	%line{50} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:53
 #   getattribute("geom:pointiness", Pointiness);
-	getattribute	$tmp18 $const11 Pointiness 	%line{49} %argrw{"wrw"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:50
+	getattribute	$tmp25 $const13 Pointiness 	%line{53} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:54
 #   if (bump_offset == "dx") {
-	eq		$tmp19 bump_offset $const3 	%line{50} %argrw{"wrr"}
-	if		$tmp19 40 44 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:51
+	eq		$tmp26 bump_offset $const3 	%line{54} %argrw{"wrr"}
+	if		$tmp26 52 56 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:55
 #     Pointiness += Dx(Pointiness);
-	Dx		$tmp20 Pointiness 	%line{51} %argrw{"wr"} %argderivs{1}
-	add		Pointiness Pointiness $tmp20 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:53
+	Dx		$tmp27 Pointiness 	%line{55} %argrw{"wr"} %argderivs{1}
+	add		Pointiness Pointiness $tmp27 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:57
 #   else if (bump_offset == "dy") {
-	eq		$tmp21 bump_offset $const4 	%line{53} %argrw{"wrr"}
-	if		$tmp21 44 44 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:54
+	eq		$tmp28 bump_offset $const4 	%line{57} %argrw{"wrr"}
+	if		$tmp28 56 56 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:58
 #     Pointiness += Dy(Pointiness);
-	Dy		$tmp22 Pointiness 	%line{54} %argrw{"wr"} %argderivs{1}
-	add		Pointiness Pointiness $tmp22 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_geometry.osl:57
+	Dy		$tmp29 Pointiness 	%line{58} %argrw{"wr"} %argderivs{1}
+	add		Pointiness Pointiness $tmp29 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_geometry.osl:61
 #   getattribute("geom:random_per_island", RandomPerIsland);
-	getattribute	$tmp23 $const12 RandomPerIsland 	%line{57} %argrw{"wrw"}
+	getattribute	$tmp30 $const14 RandomPerIsland 	%line{61} %argrw{"wrw"}
 	end

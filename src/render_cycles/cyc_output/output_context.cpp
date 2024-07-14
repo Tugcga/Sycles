@@ -475,6 +475,10 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 
 		ccl::PassType denoising_depth = ccl::PASS_DENOISING_DEPTH;
 		add_one_pass_data(denoising_depth, pass_to_name(denoising_depth), get_pass_components(denoising_depth, false), -1, "");
+
+		// and also nosy combined pass
+		ccl::PassType noisy_combined = ccl::PASS_COMBINED;
+		add_one_pass_data(noisy_combined, noisy_combined_name().c_str(), get_pass_components(noisy_combined, false), -1, "");
 	}
 
 	// next add cryptomatte passes

@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_camera.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_camera.oso
 shader node_camera
 oparam	vector	ViewVector	0 0 0		%read{1,4} %write{0,4}
 oparam	float	ViewZDepth	0		%read{2147483647,-1} %write{2,2}
@@ -11,17 +11,17 @@ const	string	$const2	"camera"		%read{0,0} %write{2147483647,-1}
 const	int	$const3	2		%read{1,1} %write{2147483647,-1}
 temp	float	$tmp1	%read{2,2} %write{1,1}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_camera.osl:10
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_camera.osl:11
 #   ViewVector = (vector)transform("world", "camera", P);
-	transform	ViewVector $const1 $const2 P 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_camera.osl"} %line{10} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_camera.osl:12
+	transform	ViewVector $const1 $const2 P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_camera.osl"} %line{11} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_camera.osl:13
 #   ViewZDepth = fabs(ViewVector[2]);
-	compref		$tmp1 ViewVector $const3 	%line{12} %argrw{"wrr"}
+	compref		$tmp1 ViewVector $const3 	%line{13} %argrw{"wrr"}
 	fabs		ViewZDepth $tmp1 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_camera.osl:13
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_camera.osl:14
 #   ViewDistance = length(ViewVector);
-	length		ViewDistance ViewVector 	%line{13} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_camera.osl:15
+	length		ViewDistance ViewVector 	%line{14} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_camera.osl:16
 #   ViewVector = normalize(ViewVector);
-	normalize	ViewVector ViewVector 	%line{15} %argrw{"wr"}
+	normalize	ViewVector ViewVector 	%line{16} %argrw{"wr"}
 	end

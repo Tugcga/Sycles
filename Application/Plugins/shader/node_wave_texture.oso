@@ -1,59 +1,59 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_wave_texture.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_wave_texture.oso
 shader node_wave_texture
 param	int	use_mapping	0		%read{2,2} %write{2147483647,-1}
 param	matrix	mapping	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0		%read{3,3} %write{2147483647,-1}
 param	string	wave_type	"bands"		%read{9,29} %write{2147483647,-1}
 param	string	bands_direction	"x"		%read{11,19} %write{2147483647,-1}
 param	string	rings_direction	"x"		%read{32,38} %write{2147483647,-1}
-param	string	profile	"sine"		%read{106,113} %write{2147483647,-1}
+param	string	profile	"sine"		%read{136,143} %write{2147483647,-1}
 param	float	Scale	5		%read{4,4} %write{2147483647,-1}
-param	float	Distortion	0		%read{44,104} %write{2147483647,-1}
-param	float	Detail	2		%read{53,53} %write{2147483647,-1}
+param	float	Distortion	0		%read{44,134} %write{2147483647,-1}
+param	float	Detail	2		%read{55,88} %write{2147483647,-1}
 param	float	DetailScale	1		%read{46,46} %write{2147483647,-1}
-param	float	DetailRoughness	0.5		%read{72,72} %write{2147483647,-1}
+param	float	DetailRoughness	0.5		%read{83,83} %write{2147483647,-1}
 param	float	PhaseOffset	0		%read{43,43} %write{2147483647,-1}
 param	point	Vector	0 0 0		%read{1,1} %write{0,0} %initexpr
-oparam	float	Fac	0		%read{126,126} %write{111,124}
-oparam	color	Color	0 0 0		%read{2147483647,-1} %write{126,126}
+oparam	float	Fac	0		%read{156,156} %write{141,154}
+oparam	color	Color	0 0 0		%read{2147483647,-1} %write{156,156}
 global	point	P	%read{0,0} %write{2147483647,-1}
-local	float	___444_f	%read{58,89} %write{58,84}
-local	float	___460_fscale	%read{58,82} %write{48,77}
-local	float	___460_amp	%read{58,93} %write{49,77}
-local	float	___460_maxamp	%read{58,100} %write{50,77}
-local	float	___460_sum	%read{58,100} %write{51,92}
-local	float	___460_octaves	%read{55,79} %write{54,54}
-local	int	___460_n	%read{58,77} %write{55,55}
-local	int	___461_i	%read{58,77} %write{57,77}
-local	float	___462_t	%read{58,77} %write{58,77}
-local	float	___460_rmd	%read{80,97} %write{79,79}
-local	float	___463_t	%read{90,90} %write{87,89}
-local	float	___463_sum2	%read{94,97} %write{91,94}
-local	point	___508_p	%read{13,46} %write{7,7}
-local	float	___508_n	%read{43,122} %write{8,119}
-local	point	___514_rp	%read{34,41} %write{31,40}
+local	point	___462_precision_correction	%read{55,111} %write{55,109}
+local	point	___462_p	%read{55,112} %write{55,111}
+local	point	___474_p	%read{55,91} %write{48,48}
+local	float	___474_fscale	%read{55,91} %write{49,86}
+local	float	___474_amp	%read{55,120} %write{50,86}
+local	float	___474_maxamp	%read{55,128} %write{51,86}
+local	float	___474_sum	%read{55,130} %write{52,86}
+local	int	___475_i	%read{55,86} %write{54,86}
+local	float	___476_t	%read{55,86} %write{55,86}
+local	float	___474_rmd	%read{89,124} %write{88,88}
+local	float	___477_t	%read{113,113} %write{112,112}
+local	float	___477_sum2	%read{119,124} %write{114,114}
+local	point	___570_p	%read{13,46} %write{7,7}
+local	float	___570_n	%read{43,152} %write{8,149}
+local	point	___576_rp	%read{34,41} %write{31,40}
 local	point	p	%read{3,4} %write{1,3}
 temp	point	$tmp1	%read{6,6} %write{4,4}
 const	string	$const1	"wave"		%read{5,5} %write{2147483647,-1}
 const	float	$const2	9.99999997e-07		%read{6,6} %write{2147483647,-1}
 temp	point	$tmp2	%read{7,7} %write{6,6}
 const	float	$const3	0.999998987		%read{7,7} %write{2147483647,-1}
-const	float	$const4	0		%read{8,80} %write{2147483647,-1}
+const	float	$const4	0		%read{8,89} %write{2147483647,-1}
 const	string	$const5	"bands"		%read{9,9} %write{2147483647,-1}
 temp	int	$tmp3	%read{10,10} %write{9,9}
 const	string	$const6	"x"		%read{11,32} %write{2147483647,-1}
 temp	int	$tmp4	%read{12,12} %write{11,11}
-const	int	$const7	0		%read{13,59} %write{2147483647,-1}
+const	int	$const7	0		%read{13,93} %write{2147483647,-1}
 temp	float	$tmp5	%read{14,14} %write{13,13}
 const	float	$const8	20		%read{14,42} %write{2147483647,-1}
 const	string	$const9	"y"		%read{15,35} %write{2147483647,-1}
 temp	int	$tmp6	%read{16,16} %write{15,15}
-const	int	$const10	1		%read{17,77} %write{2147483647,-1}
+const	int	$const10	1		%read{17,126} %write{2147483647,-1}
 temp	float	$tmp7	%read{18,18} %write{17,17}
 const	string	$const11	"z"		%read{19,38} %write{2147483647,-1}
 temp	int	$tmp8	%read{20,20} %write{19,19}
-const	int	$const12	2		%read{21,26} %write{2147483647,-1}
+const	int	$const12	2		%read{21,103} %write{2147483647,-1}
 temp	float	$tmp9	%read{22,22} %write{21,21}
 temp	float	$tmp10	%read{25,25} %write{23,23}
 temp	float	$tmp11	%read{25,25} %write{24,24}
@@ -71,314 +71,345 @@ temp	int	$tmp20	%read{39,39} %write{38,38}
 const	point	$const17	1 1 0		%read{40,40} %write{2147483647,-1}
 temp	float	$tmp22	%read{42,42} %write{41,41}
 temp	int	$tmp23	%read{45,45} %write{44,44}
-temp	float	$tmp24	%read{102,102} %write{98,100}
-temp	point	$tmp25	%read{58,82} %write{46,46}
-const	string	$const18	"fractal_noise"		%read{47,47} %write{2147483647,-1}
-const	float	$const19	1		%read{48,103} %write{2147483647,-1}
-const	float	$const20	15		%read{53,53} %write{2147483647,-1}
-const	string	$const21	"clamp"		%read{52,71} %write{2147483647,-1}
-temp	float	$tmp26	%read{54,54} %write{53,53}
-temp	int	$tmp27	%read{58,77} %write{58,77}
-temp	int	$tmp28	%read{56,77} %write{57,77}
-temp	point	$tmp29	%read{58,77} %write{58,77}
-const	string	$const22	"safe_noise"		%read{61,83} %write{2147483647,-1}
-const	string	$const23	"noise"		%read{62,84} %write{2147483647,-1}
-temp	int	$tmp30	%read{58,77} %write{58,77}
-const	float	$const24	0.5		%read{65,120} %write{2147483647,-1}
-temp	float	$tmp31	%read{58,77} %write{58,77}
-temp	float	$tmp32	%read{58,77} %write{58,77}
-temp	float	$tmp33	%read{58,77} %write{58,77}
-const	float	$const25	2		%read{75,124} %write{2147483647,-1}
-temp	int	$tmp34	%read{2147483647,-1} %write{58,77}
-temp	float	$tmp35	%read{79,79} %write{78,78}
-temp	int	$tmp36	%read{81,81} %write{80,80}
-temp	point	$tmp37	%read{84,84} %write{82,82}
-temp	int	$tmp38	%read{86,86} %write{85,85}
-temp	float	$tmp39	%read{91,91} %write{90,90}
-temp	float	$tmp40	%read{94,94} %write{93,93}
-temp	float	$tmp41	%read{96,96} %write{95,95}
-temp	float	$tmp42	%read{98,98} %write{96,96}
-temp	float	$tmp43	%read{98,98} %write{97,97}
-temp	float	$tmp44	%read{103,103} %write{102,102}
-temp	float	$tmp45	%read{104,104} %write{103,103}
-temp	float	$tmp46	%read{105,105} %write{104,104}
-const	string	$const26	"sine"		%read{106,106} %write{2147483647,-1}
-temp	int	$tmp47	%read{107,107} %write{106,106}
-temp	float	$tmp48	%read{110,110} %write{109,109}
-const	float	$const27	1.57079637		%read{108,108} %write{2147483647,-1}
-temp	float	$tmp49	%read{109,109} %write{108,108}
-temp	float	$tmp50	%read{111,111} %write{110,110}
-const	string	$const28	"saw"		%read{113,113} %write{2147483647,-1}
-temp	int	$tmp51	%read{114,114} %write{113,113}
-const	float	$const29	6.28318548		%read{115,119} %write{2147483647,-1}
-temp	float	$tmp52	%read{117,117} %write{116,116}
-temp	float	$tmp53	%read{124,124} %write{123,123}
-temp	float	$tmp54	%read{122,122} %write{121,121}
-temp	float	$tmp55	%read{121,121} %write{120,120}
-temp	float	$tmp56	%read{123,123} %write{122,122}
+temp	float	$tmp24	%read{132,132} %write{123,130}
+temp	point	$tmp25	%read{48,48} %write{46,46}
+const	float	$const18	2		%read{84,154} %write{2147483647,-1}
+const	string	$const19	"noise_fbm"		%read{47,47} %write{2147483647,-1}
+const	float	$const20	1		%read{49,133} %write{2147483647,-1}
+temp	int	$tmp26	%read{55,86} %write{55,86}
+temp	int	$tmp27	%read{55,86} %write{55,86}
+temp	int	$tmp28	%read{53,86} %write{54,86}
+temp	point	$tmp29	%read{55,86} %write{55,86}
+const	string	$const21	"safe_snoise"		%read{59,92} %write{2147483647,-1}
+const	float	$const22	0.5		%read{76,150} %write{2147483647,-1}
+temp	point	$tmp30	%read{55,86} %write{55,86}
+temp	float	$tmp31	%read{55,86} %write{55,86}
+temp	float	$tmp32	%read{55,86} %write{55,86}
+temp	float	$tmp33	%read{55,86} %write{55,86}
+const	float	$const23	1000000		%read{62,105} %write{2147483647,-1}
+temp	int	$tmp34	%read{55,86} %write{55,86}
+temp	float	$tmp35	%read{55,86} %write{55,86}
+temp	float	$tmp36	%read{55,86} %write{55,86}
+temp	float	$tmp37	%read{55,86} %write{55,86}
+temp	float	$tmp38	%read{55,86} %write{55,86}
+temp	int	$tmp39	%read{55,86} %write{55,86}
+temp	float	$tmp40	%read{55,86} %write{55,86}
+temp	float	$tmp41	%read{55,86} %write{55,86}
+temp	float	$tmp42	%read{55,86} %write{55,86}
+temp	float	$tmp43	%read{55,86} %write{55,86}
+temp	int	$tmp44	%read{55,86} %write{55,86}
+temp	float	$tmp45	%read{55,86} %write{55,86}
+temp	point	$tmp46	%read{55,86} %write{55,86}
+const	float	$const24	100000		%read{77,110} %write{2147483647,-1}
+const	string	$const25	"snoise"		%read{79,112} %write{2147483647,-1}
+temp	float	$tmp47	%read{55,86} %write{55,86}
+temp	int	$tmp48	%read{2147483647,-1} %write{55,86}
+temp	float	$tmp49	%read{88,88} %write{87,87}
+temp	int	$tmp50	%read{90,90} %write{89,89}
+temp	point	$tmp51	%read{93,110} %write{91,91}
+temp	point	$tmp52	%read{109,109} %write{108,108}
+temp	float	$tmp53	%read{108,108} %write{97,97}
+temp	float	$tmp54	%read{95,95} %write{94,94}
+temp	float	$tmp55	%read{94,94} %write{93,93}
+temp	int	$tmp56	%read{96,96} %write{95,95}
+temp	float	$tmp57	%read{97,97} %write{96,96}
+temp	float	$tmp58	%read{108,108} %write{102,102}
+temp	float	$tmp59	%read{100,100} %write{99,99}
+temp	float	$tmp60	%read{99,99} %write{98,98}
+temp	int	$tmp61	%read{101,101} %write{100,100}
+temp	float	$tmp62	%read{102,102} %write{101,101}
+temp	float	$tmp63	%read{108,108} %write{107,107}
+temp	float	$tmp64	%read{105,105} %write{104,104}
+temp	float	$tmp65	%read{104,104} %write{103,103}
+temp	int	$tmp66	%read{106,106} %write{105,105}
+temp	float	$tmp67	%read{107,107} %write{106,106}
+temp	point	$tmp68	%read{111,111} %write{110,110}
+temp	float	$tmp69	%read{114,114} %write{113,113}
+temp	float	$tmp70	%read{117,117} %write{116,116}
+temp	float	$tmp71	%read{118,118} %write{117,117}
+temp	float	$tmp72	%read{123,123} %write{118,118}
+temp	float	$tmp73	%read{121,121} %write{119,119}
+temp	float	$tmp74	%read{121,121} %write{120,120}
+temp	float	$tmp75	%read{122,122} %write{121,121}
+temp	float	$tmp76	%read{123,123} %write{122,122}
+temp	float	$tmp77	%read{128,128} %write{127,127}
+temp	float	$tmp78	%read{129,129} %write{128,128}
+temp	float	$tmp79	%read{133,133} %write{132,132}
+temp	float	$tmp80	%read{134,134} %write{133,133}
+temp	float	$tmp81	%read{135,135} %write{134,134}
+const	string	$const26	"sine"		%read{136,136} %write{2147483647,-1}
+temp	int	$tmp82	%read{137,137} %write{136,136}
+temp	float	$tmp83	%read{140,140} %write{139,139}
+const	float	$const27	1.57079637		%read{138,138} %write{2147483647,-1}
+temp	float	$tmp84	%read{139,139} %write{138,138}
+temp	float	$tmp85	%read{141,141} %write{140,140}
+const	string	$const28	"saw"		%read{143,143} %write{2147483647,-1}
+temp	int	$tmp86	%read{144,144} %write{143,143}
+const	float	$const29	6.28318548		%read{145,149} %write{2147483647,-1}
+temp	float	$tmp87	%read{147,147} %write{146,146}
+temp	float	$tmp88	%read{154,154} %write{153,153}
+temp	float	$tmp89	%read{152,152} %write{151,151}
+temp	float	$tmp90	%read{151,151} %write{150,150}
+temp	float	$tmp91	%read{153,153} %write{152,152}
 code Vector
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:86
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:87
 #                          point Vector = P,
-	assign		Vector P 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl"} %line{86} %argrw{"wr"}
+	assign		Vector P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl"} %line{87} %argrw{"wr"}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:90
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:91
 #   point p = Vector;
-	assign		p Vector 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl"} %line{90} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:92
+	assign		p Vector 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl"} %line{91} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:93
 #   if (use_mapping)
-	if		use_mapping 4 4 	%line{92} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:93
+	if		use_mapping 4 4 	%line{93} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:94
 #     p = transform(mapping, p);
-	transform	p mapping p 	%line{93} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:95
+	transform	p mapping p 	%line{94} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:96
 #   Fac = wave(p * Scale,
-	mul		$tmp1 p Scale 	%line{95} %argrw{"wrr"}
-	functioncall	$const1 126 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:21
+	mul		$tmp1 p Scale 	%line{96} %argrw{"wrr"}
+	functioncall	$const1 156 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:22
 #   point p = (p_input + 0.000001) * 0.999999;
-	add		$tmp2 $tmp1 $const2 	%line{21} %argrw{"wrr"}
-	mul		___508_p $tmp2 $const3 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:23
+	add		$tmp2 $tmp1 $const2 	%line{22} %argrw{"wrr"}
+	mul		___570_p $tmp2 $const3 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:24
 #   float n = 0.0;
-	assign		___508_n $const4 	%line{23} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:25
+	assign		___570_n $const4 	%line{24} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:26
 #   if (type == "bands") {
-	eq		$tmp3 wave_type $const5 	%line{25} %argrw{"wrr"}
+	eq		$tmp3 wave_type $const5 	%line{26} %argrw{"wrr"}
 	if		$tmp3 29 43 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:26
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:27
 #     if (bands_direction == "x") {
-	eq		$tmp4 bands_direction $const6 	%line{26} %argrw{"wrr"}
+	eq		$tmp4 bands_direction $const6 	%line{27} %argrw{"wrr"}
 	if		$tmp4 15 29 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:27
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:28
 #       n = p[0] * 20.0;
-	compref		$tmp5 ___508_p $const7 	%line{27} %argrw{"wrr"}
-	mul		___508_n $tmp5 $const8 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:29
+	compref		$tmp5 ___570_p $const7 	%line{28} %argrw{"wrr"}
+	mul		___570_n $tmp5 $const8 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:30
 #     else if (bands_direction == "y") {
-	eq		$tmp6 bands_direction $const9 	%line{29} %argrw{"wrr"}
+	eq		$tmp6 bands_direction $const9 	%line{30} %argrw{"wrr"}
 	if		$tmp6 19 29 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:30
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:31
 #       n = p[1] * 20.0;
-	compref		$tmp7 ___508_p $const10 	%line{30} %argrw{"wrr"}
-	mul		___508_n $tmp7 $const8 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:32
+	compref		$tmp7 ___570_p $const10 	%line{31} %argrw{"wrr"}
+	mul		___570_n $tmp7 $const8 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:33
 #     else if (bands_direction == "z") {
-	eq		$tmp8 bands_direction $const11 	%line{32} %argrw{"wrr"}
+	eq		$tmp8 bands_direction $const11 	%line{33} %argrw{"wrr"}
 	if		$tmp8 23 29 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:33
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:34
 #       n = p[2] * 20.0;
-	compref		$tmp9 ___508_p $const12 	%line{33} %argrw{"wrr"}
-	mul		___508_n $tmp9 $const8 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:36
+	compref		$tmp9 ___570_p $const12 	%line{34} %argrw{"wrr"}
+	mul		___570_n $tmp9 $const8 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:37
 #       n = (p[0] + p[1] + p[2]) * 10.0;
-	compref		$tmp10 ___508_p $const7 	%line{36} %argrw{"wrr"}
-	compref		$tmp11 ___508_p $const10 	%argrw{"wrr"}
+	compref		$tmp10 ___570_p $const7 	%line{37} %argrw{"wrr"}
+	compref		$tmp11 ___570_p $const10 	%argrw{"wrr"}
 	add		$tmp12 $tmp10 $tmp11 	%argrw{"wrr"}
-	compref		$tmp13 ___508_p $const12 	%argrw{"wrr"}
+	compref		$tmp13 ___570_p $const12 	%argrw{"wrr"}
 	add		$tmp14 $tmp12 $tmp13 	%argrw{"wrr"}
-	mul		___508_n $tmp14 $const13 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:39
+	mul		___570_n $tmp14 $const13 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:40
 #   else if (type == "rings") {
-	eq		$tmp15 wave_type $const14 	%line{39} %argrw{"wrr"}
+	eq		$tmp15 wave_type $const14 	%line{40} %argrw{"wrr"}
 	if		$tmp15 43 43 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:40
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:41
 #     point rp = p;
-	assign		___514_rp ___508_p 	%line{40} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:41
+	assign		___576_rp ___570_p 	%line{41} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:42
 #     if (rings_direction == "x") {
-	eq		$tmp16 rings_direction $const6 	%line{41} %argrw{"wrr"}
+	eq		$tmp16 rings_direction $const6 	%line{42} %argrw{"wrr"}
 	if		$tmp16 35 41 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:42
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:43
 #       rp *= point(0.0, 1.0, 1.0);
-	mul		___514_rp ___514_rp $const15 	%line{42} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:44
+	mul		___576_rp ___576_rp $const15 	%line{43} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:45
 #     else if (rings_direction == "y") {
-	eq		$tmp18 rings_direction $const9 	%line{44} %argrw{"wrr"}
+	eq		$tmp18 rings_direction $const9 	%line{45} %argrw{"wrr"}
 	if		$tmp18 38 41 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:45
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:46
 #       rp *= point(1.0, 0.0, 1.0);
-	mul		___514_rp ___514_rp $const16 	%line{45} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:47
+	mul		___576_rp ___576_rp $const16 	%line{46} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:48
 #     else if (rings_direction == "z") {
-	eq		$tmp20 rings_direction $const11 	%line{47} %argrw{"wrr"}
+	eq		$tmp20 rings_direction $const11 	%line{48} %argrw{"wrr"}
 	if		$tmp20 41 41 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:48
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:49
 #       rp *= point(1.0, 1.0, 0.0);
-	mul		___514_rp ___514_rp $const17 	%line{48} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:52
+	mul		___576_rp ___576_rp $const17 	%line{49} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:53
 #     n = length(rp) * 20.0;
-	length		$tmp22 ___514_rp 	%line{52} %argrw{"wr"}
-	mul		___508_n $tmp22 $const8 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:55
+	length		$tmp22 ___576_rp 	%line{53} %argrw{"wr"}
+	mul		___570_n $tmp22 $const8 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:56
 #   n += phase;
-	add		___508_n ___508_n PhaseOffset 	%line{55} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:57
+	add		___570_n ___570_n PhaseOffset 	%line{56} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:58
 #   if (distortion != 0.0) {
-	neq		$tmp23 Distortion $const4 	%line{57} %argrw{"wrr"}
-	if		$tmp23 106 106 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:58
-#     n = n + (distortion * (fractal_noise(p * dscale, detail, droughness) * 2.0 - 1.0));
-	mul		$tmp25 ___508_p DetailScale 	%line{58} %argrw{"wrr"}
-	functioncall	$const18 102 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:134
-#   float fscale = 1.0;
-	assign		___460_fscale $const19 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h"} %line{134} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:135
-#   float amp = 1.0;
-	assign		___460_amp $const19 	%line{135} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:136
-#   float maxamp = 0.0;
-	assign		___460_maxamp $const4 	%line{136} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:137
-#   float sum = 0.0;
-	assign		___460_sum $const4 	%line{137} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:138
-#   float octaves = clamp(details, 0.0, 15.0);
-	functioncall	$const21 55 	%line{138} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:141
-# float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp26 Detail $const20 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
-	max		___460_octaves $tmp26 $const4 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:139
-#   int n = (int)octaves;
-	assign		___460_n ___460_octaves 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h"} %line{139} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:140
-#   for (int i = 0; i <= n; i++) {
-	for		$tmp28 58 60 76 78 	%line{140} %argrw{"r"}
-	assign		___461_i $const7 	%argrw{"wr"}
-	le		$tmp27 ___461_i ___460_n 	%argrw{"wrr"}
+	neq		$tmp23 Distortion $const4 	%line{58} %argrw{"wrr"}
+	if		$tmp23 136 136 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:59
+#     n = n + (distortion * (noise_fbm(p * dscale, detail, droughness, 2.0, 1) * 2.0 - 1.0));
+	mul		$tmp25 ___570_p DetailScale 	%line{59} %argrw{"wrr"}
+	functioncall	$const19 132 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:246
+# NOISE_FBM(vector3)
+	assign		___474_p $tmp25 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h"} %line{246} %argrw{"wr"}
+	assign		___474_fscale $const20 	%argrw{"wr"}
+	assign		___474_amp $const20 	%argrw{"wr"}
+	assign		___474_maxamp $const4 	%argrw{"wr"}
+	assign		___474_sum $const4 	%argrw{"wr"}
+	for		$tmp28 55 58 85 87 	%argrw{"r"}
+	assign		___475_i $const7 	%argrw{"wr"}
+	assign		$tmp26 Detail 	%argrw{"wr"}
+	le		$tmp27 ___475_i $tmp26 	%argrw{"wrr"}
 	neq		$tmp28 $tmp27 $const7 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:141
-#     float t = safe_noise(fscale * p);
-	mul		$tmp29 ___460_fscale $tmp25 	%line{141} %argrw{"wrr"}
-	functioncall	$const22 68 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:27
-#   float f = noise("noise", p);
-	noise		___444_f $const23 $tmp29 	%line{27} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:28
-#   if (isinf(f))
-	isinf		$tmp30 ___444_f 	%line{28} %argrw{"wr"}
-	if		$tmp30 67 67 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:29
-#     return 0.5;
-	assign		___462_t $const24 	%line{29} %argrw{"wr"}
+	mul		$tmp29 ___474_fscale ___474_p 	%argrw{"wrr"}
+	functioncall	$const21 80 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:83
+#   vector3 precision_correction = 0.5 * vector3(float(fabs(co.x) >= 1000000.0),
+	compref		$tmp33 $tmp29 $const7 	%line{83} %argrw{"wrr"}
+	fabs		$tmp32 $tmp33 	%argrw{"wr"}
+	ge		$tmp34 $tmp32 $const23 	%argrw{"wrr"}
+	assign		$tmp35 $tmp34 	%argrw{"wr"}
+	assign		$tmp31 $tmp35 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:84
+#                                                float(fabs(co.y) >= 1000000.0),
+	compref		$tmp38 $tmp29 $const10 	%line{84} %argrw{"wrr"}
+	fabs		$tmp37 $tmp38 	%argrw{"wr"}
+	ge		$tmp39 $tmp37 $const23 	%argrw{"wrr"}
+	assign		$tmp40 $tmp39 	%argrw{"wr"}
+	assign		$tmp36 $tmp40 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:85
+#                                                float(fabs(co.z) >= 1000000.0));
+	compref		$tmp43 $tmp29 $const12 	%line{85} %argrw{"wrr"}
+	fabs		$tmp42 $tmp43 	%argrw{"wr"}
+	ge		$tmp44 $tmp42 $const23 	%argrw{"wrr"}
+	assign		$tmp45 $tmp44 	%argrw{"wr"}
+	assign		$tmp41 $tmp45 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:83
+#   vector3 precision_correction = 0.5 * vector3(float(fabs(co.x) >= 1000000.0),
+	point		$tmp30 $tmp31 $tmp36 $tmp41 	%line{83} %argrw{"wrrr"}
+	mul		___462_precision_correction $const22 $tmp30 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:89
+#   vector3 p = fmod(co, 100000.0) + precision_correction;
+	fmod		$tmp46 $tmp29 $const24 	%line{89} %argrw{"wrr"}
+	add		___462_p $tmp46 ___462_precision_correction 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:91
+#   return noise("snoise", p);
+	noise		___476_t $const25 ___462_p 	%line{91} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:246
+# NOISE_FBM(vector3)
+	mul		$tmp47 ___476_t ___474_amp 	%line{246} %argrw{"wrr"}
+	add		___474_sum ___474_sum $tmp47 	%argrw{"wrr"}
+	add		___474_maxamp ___474_maxamp ___474_amp 	%argrw{"wrr"}
+	mul		___474_amp ___474_amp DetailRoughness 	%argrw{"wrr"}
+	mul		___474_fscale ___474_fscale $const18 	%argrw{"wrr"}
+	assign		$tmp48 ___475_i 	%argrw{"wr"}
+	add		___475_i ___475_i $const10 	%argrw{"wrr"}
+	floor		$tmp49 Detail 	%argrw{"wr"}
+	sub		___474_rmd Detail $tmp49 	%argrw{"wrr"}
+	neq		$tmp50 ___474_rmd $const4 	%argrw{"wrr"}
+	if		$tmp50 126 132 	%argrw{"r"}
+	mul		$tmp51 ___474_fscale ___474_p 	%argrw{"wrr"}
+	functioncall	$const21 113 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:83
+#   vector3 precision_correction = 0.5 * vector3(float(fabs(co.x) >= 1000000.0),
+	compref		$tmp55 $tmp51 $const7 	%line{83} %argrw{"wrr"}
+	fabs		$tmp54 $tmp55 	%argrw{"wr"}
+	ge		$tmp56 $tmp54 $const23 	%argrw{"wrr"}
+	assign		$tmp57 $tmp56 	%argrw{"wr"}
+	assign		$tmp53 $tmp57 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:84
+#                                                float(fabs(co.y) >= 1000000.0),
+	compref		$tmp60 $tmp51 $const10 	%line{84} %argrw{"wrr"}
+	fabs		$tmp59 $tmp60 	%argrw{"wr"}
+	ge		$tmp61 $tmp59 $const23 	%argrw{"wrr"}
+	assign		$tmp62 $tmp61 	%argrw{"wr"}
+	assign		$tmp58 $tmp62 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:85
+#                                                float(fabs(co.z) >= 1000000.0));
+	compref		$tmp65 $tmp51 $const12 	%line{85} %argrw{"wrr"}
+	fabs		$tmp64 $tmp65 	%argrw{"wr"}
+	ge		$tmp66 $tmp64 $const23 	%argrw{"wrr"}
+	assign		$tmp67 $tmp66 	%argrw{"wr"}
+	assign		$tmp63 $tmp67 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:83
+#   vector3 precision_correction = 0.5 * vector3(float(fabs(co.x) >= 1000000.0),
+	point		$tmp52 $tmp53 $tmp58 $tmp63 	%line{83} %argrw{"wrrr"}
+	mul		___462_precision_correction $const22 $tmp52 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:89
+#   vector3 p = fmod(co, 100000.0) + precision_correction;
+	fmod		$tmp68 $tmp51 $const24 	%line{89} %argrw{"wrr"}
+	add		___462_p $tmp68 ___462_precision_correction 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:91
+#   return noise("snoise", p);
+	noise		___477_t $const25 ___462_p 	%line{91} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:246
+# NOISE_FBM(vector3)
+	mul		$tmp69 ___477_t ___474_amp 	%line{246} %argrw{"wrr"}
+	add		___477_sum2 ___474_sum $tmp69 	%argrw{"wrr"}
+	if		$const10 124 125 	%argrw{"r"}
+	mul		$tmp70 $const22 ___474_sum 	%argrw{"wrr"}
+	div		$tmp71 $tmp70 ___474_maxamp 	%argrw{"wrr"}
+	add		$tmp72 $tmp71 $const22 	%argrw{"wrr"}
+	mul		$tmp73 $const22 ___477_sum2 	%argrw{"wrr"}
+	add		$tmp74 ___474_maxamp ___474_amp 	%argrw{"wrr"}
+	div		$tmp75 $tmp73 $tmp74 	%argrw{"wrr"}
+	add		$tmp76 $tmp75 $const22 	%argrw{"wrr"}
+	mix		$tmp24 $tmp72 $tmp76 ___474_rmd 	%argrw{"wrrr"}
+	mix		$tmp24 ___474_sum ___477_sum2 ___474_rmd 	%argrw{"wrrr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:30
-#   return f;
-	assign		___462_t ___444_f 	%line{30} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:142
-#     sum += t * amp;
-	mul		$tmp31 ___462_t ___460_amp 	%line{142} %argrw{"wrr"}
-	add		___460_sum ___460_sum $tmp31 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:143
-#     maxamp += amp;
-	add		___460_maxamp ___460_maxamp ___460_amp 	%line{143} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:144
-#     amp *= clamp(roughness, 0.0, 1.0);
-	functioncall	$const21 74 	%line{144} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:141
-# float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp33 DetailRoughness $const19 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
-	max		$tmp32 $tmp33 $const4 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:144
-#     amp *= clamp(roughness, 0.0, 1.0);
-	mul		___460_amp ___460_amp $tmp32 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h"} %line{144} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:145
-#     fscale *= 2.0;
-	mul		___460_fscale ___460_fscale $const25 	%line{145} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:140
-#   for (int i = 0; i <= n; i++) {
-	assign		$tmp34 ___461_i 	%line{140} %argrw{"wr"}
-	add		___461_i ___461_i $const10 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:147
-#   float rmd = octaves - floor(octaves);
-	floor		$tmp35 ___460_octaves 	%line{147} %argrw{"wr"}
-	sub		___460_rmd ___460_octaves $tmp35 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:148
-#   if (rmd != 0.0) {
-	neq		$tmp36 ___460_rmd $const4 	%line{148} %argrw{"wrr"}
-	if		$tmp36 100 102 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:149
-#     float t = safe_noise(fscale * p);
-	mul		$tmp37 ___460_fscale $tmp25 	%line{149} %argrw{"wrr"}
-	functioncall	$const22 90 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:27
-#   float f = noise("noise", p);
-	noise		___444_f $const23 $tmp37 	%line{27} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:28
-#   if (isinf(f))
-	isinf		$tmp38 ___444_f 	%line{28} %argrw{"wr"}
-	if		$tmp38 89 89 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:29
-#     return 0.5;
-	assign		___463_t $const24 	%line{29} %argrw{"wr"}
+	if		$const10 130 131 	%argrw{"r"}
+	mul		$tmp77 $const22 ___474_sum 	%argrw{"wrr"}
+	div		$tmp78 $tmp77 ___474_maxamp 	%argrw{"wrr"}
+	add		$tmp24 $tmp78 $const22 	%argrw{"wrr"}
+	assign		$tmp24 ___474_sum 	%argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:30
-#   return f;
-	assign		___463_t ___444_f 	%line{30} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:150
-#     float sum2 = sum + t * amp;
-	mul		$tmp39 ___463_t ___460_amp 	%line{150} %argrw{"wrr"}
-	add		___463_sum2 ___460_sum $tmp39 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:151
-#     sum /= maxamp;
-	div		___460_sum ___460_sum ___460_maxamp 	%line{151} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:152
-#     sum2 /= maxamp + amp;
-	add		$tmp40 ___460_maxamp ___460_amp 	%line{152} %argrw{"wrr"}
-	div		___463_sum2 ___463_sum2 $tmp40 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:153
-#     return (1.0 - rmd) * sum + rmd * sum2;
-	sub		$tmp41 $const19 ___460_rmd 	%line{153} %argrw{"wrr"}
-	mul		$tmp42 $tmp41 ___460_sum 	%argrw{"wrr"}
-	mul		$tmp43 ___460_rmd ___463_sum2 	%argrw{"wrr"}
-	add		$tmp24 $tmp42 $tmp43 	%argrw{"wrr"}
-	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_noise.h:156
-#     return sum / maxamp;
-	div		$tmp24 ___460_sum ___460_maxamp 	%line{156} %argrw{"wrr"}
-	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:58
-#     n = n + (distortion * (fractal_noise(p * dscale, detail, droughness) * 2.0 - 1.0));
-	mul		$tmp44 $tmp24 $const25 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl"} %line{58} %argrw{"wrr"}
-	sub		$tmp45 $tmp44 $const19 	%argrw{"wrr"}
-	mul		$tmp46 Distortion $tmp45 	%argrw{"wrr"}
-	add		___508_n ___508_n $tmp46 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:61
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:59
+#     n = n + (distortion * (noise_fbm(p * dscale, detail, droughness, 2.0, 1) * 2.0 - 1.0));
+	mul		$tmp79 $tmp24 $const18 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl"} %line{59} %argrw{"wrr"}
+	sub		$tmp80 $tmp79 $const20 	%argrw{"wrr"}
+	mul		$tmp81 Distortion $tmp80 	%argrw{"wrr"}
+	add		___570_n ___570_n $tmp81 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:62
 #   if (profile == "sine") {
-	eq		$tmp47 profile $const26 	%line{61} %argrw{"wrr"}
-	if		$tmp47 113 126 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:62
+	eq		$tmp82 profile $const26 	%line{62} %argrw{"wrr"}
+	if		$tmp82 143 156 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:63
 #     return 0.5 + 0.5 * sin(n - M_PI_2);
-	sub		$tmp49 ___508_n $const27 	%line{62} %argrw{"wrr"}
-	sin		$tmp48 $tmp49 	%argrw{"wr"}
-	mul		$tmp50 $const24 $tmp48 	%argrw{"wrr"}
-	add		Fac $const24 $tmp50 	%argrw{"wrr"}
+	sub		$tmp84 ___570_n $const27 	%line{63} %argrw{"wrr"}
+	sin		$tmp83 $tmp84 	%argrw{"wr"}
+	mul		$tmp85 $const22 $tmp83 	%argrw{"wrr"}
+	add		Fac $const22 $tmp85 	%argrw{"wrr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:64
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:65
 #   else if (profile == "saw") {
-	eq		$tmp51 profile $const28 	%line{64} %argrw{"wrr"}
-	if		$tmp51 119 126 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:65
+	eq		$tmp86 profile $const28 	%line{65} %argrw{"wrr"}
+	if		$tmp86 149 156 	%argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:66
 #     n /= M_2PI;
-	div		___508_n ___508_n $const29 	%line{65} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:66
+	div		___570_n ___570_n $const29 	%line{66} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:67
 #     return n - floor(n);
-	floor		$tmp52 ___508_n 	%line{66} %argrw{"wr"}
-	sub		Fac ___508_n $tmp52 	%argrw{"wrr"}
+	floor		$tmp87 ___570_n 	%line{67} %argrw{"wr"}
+	sub		Fac ___570_n $tmp87 	%argrw{"wrr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:69
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:70
 #     n /= M_2PI;
-	div		___508_n ___508_n $const29 	%line{69} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:70
+	div		___570_n ___570_n $const29 	%line{70} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:71
 #     return abs(n - floor(n + 0.5)) * 2.0;
-	add		$tmp55 ___508_n $const24 	%line{70} %argrw{"wrr"}
-	floor		$tmp54 $tmp55 	%argrw{"wr"}
-	sub		$tmp56 ___508_n $tmp54 	%argrw{"wrr"}
-	abs		$tmp53 $tmp56 	%argrw{"wr"}
-	mul		Fac $tmp53 $const25 	%argrw{"wrr"}
+	add		$tmp90 ___570_n $const22 	%line{71} %argrw{"wrr"}
+	floor		$tmp89 $tmp90 	%argrw{"wr"}
+	sub		$tmp91 ___570_n $tmp89 	%argrw{"wrr"}
+	abs		$tmp88 $tmp91 	%argrw{"wr"}
+	mul		Fac $tmp88 $const18 	%argrw{"wrr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:105
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:106
 #   Color = Fac;
-	assign		Color Fac 	%line{105} %argrw{"wr"}
+	assign		Color Fac 	%line{106} %argrw{"wr"}
 	end

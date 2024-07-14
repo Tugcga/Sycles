@@ -225,6 +225,38 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 	m_render_parameters = m_render_property.GetParameters();
 	//current time
 	eval_time = render_context.GetTime();
+
+	XSI::CString render_type_str = render_context.GetAttribute("RenderType");
+	render_type = render_type_str == XSI::CString("Pass") ? RenderType_Pass :
+				 (render_type_str == XSI::CString("Region") ? RenderType_Region : (
+				  render_type_str == XSI::CString("Shaderball") ? RenderType_Shaderball : RenderType_Rendermap));
+	
+	// tweak by playcontrol
+	XSI::Project prj = XSI::Application().GetActiveProject();
+	XSI::CRefArray proplist = prj.GetProperties();
+	XSI::Property playctrl(proplist.GetItem("Play Control"));
+	LONG pc_format = playctrl.GetParameterValue("Format");
+	double pc_frame_rate = playctrl.GetParameterValue("Rate");
+	double pc_current = playctrl.GetParameterValue("Current");
+
+	double original_frame_rate = eval_time.GetFrameRate();
+	double original_frame = eval_time.GetTime();
+	XSI::CTime::Format original_format = eval_time.GetFormat();
+	
+	XSI::CTime::Format eval_format = XSI::CTime::ConvertFromPlayControlFormat(pc_format);
+	eval_time.PutFormat(eval_format, pc_frame_rate);
+	if (render_type == RenderType_Region)
+	{
+		eval_time.PutTime(pc_current);
+	}
+	
+	// if original time or frame rate is differ from the new one, then recreate the scene
+	// WARNING: in some cases fps from render context is 29.97, but play control fps is 30.0
+	if (original_format != eval_format || std::abs(original_frame_rate - pc_frame_rate) > 0.5 || std::abs(original_frame - pc_current) > 0.5)
+	{
+		activate_force_recreate_scene("change the frame");
+	}
+
 	start_prepare_render_time = clock();
 
 	//camera
@@ -241,16 +273,11 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 
 	if (camera.GetObjectID() != prev_camera_id)
 	{
-		activate_force_recreate_scene();
+		activate_force_recreate_scene("change the camera");
 	}
 
 	//get pathes to save images
 	output_paths.Clear();
-
-	XSI::CString render_type_str = render_context.GetAttribute("RenderType");
-	render_type = render_type_str == XSI::CString("Pass") ? RenderType_Pass :
-		(render_type_str == XSI::CString("Region") ? RenderType_Region : (
-			render_type_str == XSI::CString("Shaderball") ? RenderType_Shaderball : RenderType_Rendermap));
 
 	archive_folder = render_context.GetAttribute("ArchiveFileName");
 	if (render_type == RenderType_Pass && archive_folder.Length() > 0)
@@ -730,6 +757,10 @@ XSI::CStatus RenderEngineBase::scene_process()
 						{
 							update_status = update_scene(xsi_3d_obj, UpdateType_VolumeProperty);
 						}
+						else if (property_type == "CyclesLightLinking")
+						{
+							update_status = update_scene(xsi_3d_obj, UpdateType_LightLinkingProperty);
+						}
 						else
 						{
 							//get parent object, and if this is a pointcloud, hair or mesh - update it
@@ -754,7 +785,7 @@ XSI::CStatus RenderEngineBase::scene_process()
 							{
 								update_status = update_scene(xsi_3d_obj, UpdateType_Camera);
 							}
-							else
+							else if (xsi_3d_obj_type != "")
 							{
 								//update unknown property
 								log_message("update unknown property " + property_type + " for object type " + xsi_3d_obj_type);
@@ -896,27 +927,29 @@ XSI::CStatus RenderEngineBase::post_render()
 	return status;
 }
 
-void RenderEngineBase::activate_force_recreate_scene()
+void RenderEngineBase::activate_force_recreate_scene(const XSI::CString &message)
 {
 	force_recreate_scene = true;
+	if (false && message.Length() > 0)  // disable logging
+	{
+		log_message(XSI::CString("Force recreate scene: ") + message);
+	}
 }
 
 void RenderEngineBase::on_object_add(XSI::CRef& in_ctxt)
 {
-	activate_force_recreate_scene();
+	activate_force_recreate_scene("on object add");
 }
 
 void RenderEngineBase::on_object_remove(XSI::CRef& in_ctxt)
 {
-	activate_force_recreate_scene();
+	activate_force_recreate_scene("on object remove");
 }
 
 void RenderEngineBase::on_nested_objects_changed(XSI::CRef& in_ctx)
 {
-	activate_force_recreate_scene();
+	activate_force_recreate_scene("on nested object changed");
 }
-
-
 
 void RenderEngineBase::abort_render()
 {

@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_uv_map.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_uv_map.oso
 shader node_uv_map
 param	int	from_dupli	0		%read{0,14} %write{2147483647,-1}
 param	string	attribute	""		%read{2,5} %write{2147483647,-1} %derivs
@@ -23,44 +23,44 @@ temp	int	$tmp8	%read{13,13} %write{12,12}
 temp	int	$tmp9	%read{15,15} %write{14,14}
 temp	vector	$tmp10	%read{17,17} %write{16,16} %derivs
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:11
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:12
 #   if (from_dupli) {
-	if		from_dupli 2 6 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl"} %line{11} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:12
+	if		from_dupli 2 6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl"} %line{12} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:13
 #     getattribute("geom:dupli_uv", UV);
-	getattribute	$tmp1 $const1 UV 	%line{12} %argrw{"wrw"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:15
+	getattribute	$tmp1 $const1 UV 	%line{13} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:16
 #     if (attribute == "")
-	eq		$tmp2 attribute $const2 	%line{15} %argrw{"wrr"}
+	eq		$tmp2 attribute $const2 	%line{16} %argrw{"wrr"}
 	if		$tmp2 5 6 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:17
 #       getattribute("geom:uv", UV);
-	getattribute	$tmp3 $const3 UV 	%line{16} %argrw{"wrw"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:18
+	getattribute	$tmp3 $const3 UV 	%line{17} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:19
 #       getattribute(attribute, UV);
-	getattribute	$tmp4 attribute UV 	%line{18} %argrw{"wrw"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:21
+	getattribute	$tmp4 attribute UV 	%line{19} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:22
 #   if (bump_offset == "dx") {
-	eq		$tmp5 bump_offset $const4 	%line{21} %argrw{"wrr"}
+	eq		$tmp5 bump_offset $const4 	%line{22} %argrw{"wrr"}
 	if		$tmp5 12 18 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:23
 #     if (!from_dupli) {
-	eq		$tmp6 from_dupli $const5 	%line{22} %argrw{"wrr"}
+	eq		$tmp6 from_dupli $const5 	%line{23} %argrw{"wrr"}
 	if		$tmp6 12 12 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:23
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:24
 #       UV += Dx(UV);
-	Dx		$tmp7 UV 	%line{23} %argrw{"wr"} %argderivs{1}
+	Dx		$tmp7 UV 	%line{24} %argrw{"wr"} %argderivs{1}
 	add		UV UV $tmp7 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:26
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:27
 #   else if (bump_offset == "dy") {
-	eq		$tmp8 bump_offset $const6 	%line{26} %argrw{"wrr"}
+	eq		$tmp8 bump_offset $const6 	%line{27} %argrw{"wrr"}
 	if		$tmp8 18 18 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:27
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:28
 #     if (!from_dupli) {
-	eq		$tmp9 from_dupli $const5 	%line{27} %argrw{"wrr"}
+	eq		$tmp9 from_dupli $const5 	%line{28} %argrw{"wrr"}
 	if		$tmp9 18 18 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_uv_map.osl:28
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_uv_map.osl:29
 #       UV += Dy(UV);
-	Dy		$tmp10 UV 	%line{28} %argrw{"wr"} %argderivs{1}
+	Dy		$tmp10 UV 	%line{29} %argrw{"wr"} %argderivs{1}
 	add		UV UV $tmp10 	%argrw{"wrr"}
 	end

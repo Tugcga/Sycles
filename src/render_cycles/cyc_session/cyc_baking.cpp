@@ -17,7 +17,7 @@ BakingContext::BakingContext()
 {
 	buffer_primitive_id = new ImageBuffer();
 	buffer_differencial = new ImageBuffer();
-	buffer_uv = new ImageBuffer();
+	buffer_seed = new ImageBuffer();
 
 	reset();
 }
@@ -30,14 +30,14 @@ BakingContext::~BakingContext()
 	buffer_differencial->reset();
 	delete buffer_differencial;
 
-	buffer_uv->reset();
-	delete buffer_uv;
+	buffer_seed->reset();
+	delete buffer_seed;
 }
 void BakingContext::reset()
 {
 	buffer_primitive_id->reset();
 	buffer_differencial->reset();
-	buffer_uv->reset();
+	buffer_seed->reset();
 
 	is_valid = false;
 	key_is_direct = false;
@@ -58,23 +58,21 @@ void BakingContext::setup(ULONG in_width, ULONG in_height)
 	height = in_height;
 	size_t pixles_count = in_width * in_height;
 
-	//OIIO::ImageSpec input_spec = OIIO::ImageSpec(width, height, 4, OIIO::TypeDesc(OIIO::TypeDesc::FLOAT));
-	//OIIO::ImageSpec uv_spec = OIIO::ImageSpec(width, height, 2, OIIO::TypeDesc(OIIO::TypeDesc::FLOAT));
-
-	buffer_primitive_id = new ImageBuffer(width, height, 4);
+	buffer_primitive_id = new ImageBuffer(width, height, 3);
 	buffer_differencial = new ImageBuffer(width, height, 4);
-	buffer_uv = new ImageBuffer(width, height, 2);
+	buffer_seed = new ImageBuffer(width, height, 1);
 }
 
 void BakingContext::set(int x, int y, int seed, int primitive_id, ccl::float2 uv, float du_dx, float du_dy, float dv_dx, float dv_dy)
 {
-	float prim[4] = { ccl::__int_as_float(seed), ccl::__int_as_float(primitive_id), uv.x, uv.y };
-	buffer_primitive_id->set_pixel(x, y, prim, 4);
+	float prim[3] = { uv.x, uv.y, ccl::__int_as_float(primitive_id) };
+	buffer_primitive_id->set_pixel(x, y, prim, 3);
 
 	float diff[4] = { du_dx, du_dy, dv_dx, dv_dy };
 	buffer_differencial->set_pixel(x, y, diff, 4);
 
-	buffer_uv->set_pixel(x, y, &uv.x, 2);
+	float s[1] = { ccl::__int_as_float(seed) };
+	buffer_seed->set_pixel(x, y, s, 1);
 }
 
 ImageBuffer* BakingContext::get_buffer_primitive_id()
@@ -85,6 +83,11 @@ ImageBuffer* BakingContext::get_buffer_primitive_id()
 ImageBuffer* BakingContext::get_buffer_differencial()
 {
 	return buffer_differencial;
+}
+
+ImageBuffer* BakingContext::get_buffer_seed()
+{
+	return buffer_seed;
 }
 
 void BakingContext::make_invalid()
@@ -626,9 +629,8 @@ size_t get_uv_attribute_index(ccl::Mesh* mesh, const ccl::ustring &uv_name)
 
 void sync_baking(ccl::Scene* scene, UpdateContext* update_context, BakingContext* baking_context, XSI::X3DObject& bake_object, const XSI::CString& baking_uv_name, ULONG bake_width, ULONG bake_height)
 {
-	XSI::CString baking_object_name = bake_object.GetName();
 	ULONG baking_object_id = bake_object.GetObjectID();
-
+	
 	ccl::Object* object = NULL;
 	// again, chek that bake object is polymesh
 	if (bake_object.GetType() == XSI::siPolyMeshType)
@@ -655,7 +657,7 @@ void sync_baking(ccl::Scene* scene, UpdateContext* update_context, BakingContext
 			}
 		}
 	}
-
+	
 	if (object)
 	{
 		ccl::Mesh* mesh = (ccl::Mesh*)object->get_geometry();

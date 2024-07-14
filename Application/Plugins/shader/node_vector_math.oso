@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.11.17
-# options: -q -O2 -IF:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders -IF:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders -o F:/Repositories/blenderRepo/build_windows_Full_x64_vc16_Release/intern/cycles/kernel/osl/shaders/node_vector_math.oso
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_vector_math.oso
 shader node_vector_math
 param	string	math_type	"add"		%read{0,208} %write{2147483647,-1}
 param	vector	Vector1	0 0 0		%read{2,210} %write{2147483647,-1}
@@ -11,8 +11,8 @@ oparam	float	Value	0		%read{2147483647,-1} %write{92,98}
 oparam	vector	Vector	0 0 0		%read{2147483647,-1} %write{2,210}
 local	float	___240_IdotN	%read{63,71} %write{61,61}
 local	float	___240_k	%read{67,72} %write{66,66}
-local	float	___340_lenSquared	%read{42,45} %write{41,41}
-local	float	___342_range	%read{151,184} %write{150,178}
+local	float	___355_lenSquared	%read{42,45} %write{41,41}
+local	float	___357_range	%read{151,184} %write{150,178}
 const	string	$const1	"add"		%read{0,0} %write{2147483647,-1}
 temp	int	$tmp1	%read{1,1} %write{0,0}
 const	string	$const2	"subtract"		%read{3,3} %write{2147483647,-1}
@@ -160,126 +160,126 @@ temp	int	$tmp108	%read{209,209} %write{208,208}
 const	string	$const37	"%s"		%read{211,211} %write{2147483647,-1}
 const	string	$const38	"Unknown vector math operator!"		%read{211,211} %write{2147483647,-1}
 code ___main___
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:15
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:16
 #   if (math_type == "add") {
-	eq		$tmp1 math_type $const1 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{15} %argrw{"wrr"}
+	eq		$tmp1 math_type $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{16} %argrw{"wrr"}
 	if		$tmp1 3 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:17
 #     Vector = Vector1 + Vector2;
-	add		Vector Vector1 Vector2 	%line{16} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:18
+	add		Vector Vector1 Vector2 	%line{17} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:19
 #   else if (math_type == "subtract") {
-	eq		$tmp2 math_type $const2 	%line{18} %argrw{"wrr"}
+	eq		$tmp2 math_type $const2 	%line{19} %argrw{"wrr"}
 	if		$tmp2 6 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:20
 #     Vector = Vector1 - Vector2;
-	sub		Vector Vector1 Vector2 	%line{19} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:21
+	sub		Vector Vector1 Vector2 	%line{20} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:22
 #   else if (math_type == "multiply") {
-	eq		$tmp3 math_type $const3 	%line{21} %argrw{"wrr"}
+	eq		$tmp3 math_type $const3 	%line{22} %argrw{"wrr"}
 	if		$tmp3 9 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:23
 #     Vector = Vector1 * Vector2;
-	mul		Vector Vector1 Vector2 	%line{22} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:24
+	mul		Vector Vector1 Vector2 	%line{23} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:25
 #   else if (math_type == "divide") {
-	eq		$tmp4 math_type $const4 	%line{24} %argrw{"wrr"}
+	eq		$tmp4 math_type $const4 	%line{25} %argrw{"wrr"}
 	if		$tmp4 35 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:26
 #     Vector = safe_divide(Vector1, Vector2);
-	functioncall	$const5 35 	%line{25} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:11
+	functioncall	$const5 35 	%line{26} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:12
 #   return vector((b[0] != 0.0) ? a[0] / b[0] : 0.0,
-	compref		$tmp6 Vector2 $const6 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{11} %argrw{"wrr"}
+	compref		$tmp6 Vector2 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{12} %argrw{"wrr"}
 	neq		$tmp7 $tmp6 $const7 	%argrw{"wrr"}
 	if		$tmp7 18 19 	%argrw{"r"}
 	compref		$tmp8 Vector1 $const6 	%argrw{"wrr"}
 	compref		$tmp9 Vector2 $const6 	%argrw{"wrr"}
 	div		$tmp5 $tmp8 $tmp9 	%argrw{"wrr"}
 	assign		$tmp5 $const7 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:12
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:13
 #                 (b[1] != 0.0) ? a[1] / b[1] : 0.0,
-	compref		$tmp11 Vector2 $const8 	%line{12} %argrw{"wrr"}
+	compref		$tmp11 Vector2 $const8 	%line{13} %argrw{"wrr"}
 	neq		$tmp12 $tmp11 $const7 	%argrw{"wrr"}
 	if		$tmp12 25 26 	%argrw{"r"}
 	compref		$tmp13 Vector1 $const8 	%argrw{"wrr"}
 	compref		$tmp14 Vector2 $const8 	%argrw{"wrr"}
 	div		$tmp10 $tmp13 $tmp14 	%argrw{"wrr"}
 	assign		$tmp10 $const7 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:13
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:14
 #                 (b[2] != 0.0) ? a[2] / b[2] : 0.0);
-	compref		$tmp16 Vector2 $const9 	%line{13} %argrw{"wrr"}
+	compref		$tmp16 Vector2 $const9 	%line{14} %argrw{"wrr"}
 	neq		$tmp17 $tmp16 $const7 	%argrw{"wrr"}
 	if		$tmp17 32 33 	%argrw{"r"}
 	compref		$tmp18 Vector1 $const9 	%argrw{"wrr"}
 	compref		$tmp19 Vector2 $const9 	%argrw{"wrr"}
 	div		$tmp15 $tmp18 $tmp19 	%argrw{"wrr"}
 	assign		$tmp15 $const7 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:11
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:12
 #   return vector((b[0] != 0.0) ? a[0] / b[0] : 0.0,
-	vector		Vector $tmp5 $tmp10 $tmp15 	%line{11} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:13
+	vector		Vector $tmp5 $tmp10 $tmp15 	%line{12} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:14
 #                 (b[2] != 0.0) ? a[2] / b[2] : 0.0);
-	return	%line{13}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:27
+	return	%line{14}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:28
 #   else if (math_type == "cross_product") {
-	eq		$tmp20 math_type $const10 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{27} %argrw{"wrr"}
+	eq		$tmp20 math_type $const10 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{28} %argrw{"wrr"}
 	if		$tmp20 38 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:28
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:29
 #     Vector = cross(Vector1, Vector2);
-	cross		Vector Vector1 Vector2 	%line{28} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:30
+	cross		Vector Vector1 Vector2 	%line{29} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:31
 #   else if (math_type == "project") {
-	eq		$tmp21 math_type $const11 	%line{30} %argrw{"wrr"}
+	eq		$tmp21 math_type $const11 	%line{31} %argrw{"wrr"}
 	if		$tmp21 49 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:31
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:32
 #     Vector = project(Vector1, Vector2);
-	functioncall	$const11 49 	%line{31} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:55
+	functioncall	$const11 49 	%line{32} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:61
 #   float lenSquared = dot(v_proj, v_proj);
-	dot		___340_lenSquared Vector2 Vector2 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{55} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:56
+	dot		___355_lenSquared Vector2 Vector2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{61} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:62
 #   return (lenSquared != 0.0) ? (dot(v, v_proj) / lenSquared) * v_proj : vector(0.0);
-	neq		$tmp22 ___340_lenSquared $const7 	%line{56} %argrw{"wrr"}
+	neq		$tmp22 ___355_lenSquared $const7 	%line{62} %argrw{"wrr"}
 	if		$tmp22 47 48 	%argrw{"r"}
 	dot		$tmp23 Vector1 Vector2 	%argrw{"wrr"}
-	div		$tmp24 $tmp23 ___340_lenSquared 	%argrw{"wrr"}
+	div		$tmp24 $tmp23 ___355_lenSquared 	%argrw{"wrr"}
 	mul		Vector $tmp24 Vector2 	%argrw{"wrr"}
 	assign		Vector $const12 	%argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:33
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:34
 #   else if (math_type == "reflect") {
-	eq		$tmp25 math_type $const13 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{33} %argrw{"wrr"}
+	eq		$tmp25 math_type $const13 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{34} %argrw{"wrr"}
 	if		$tmp25 57 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:34
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:35
 #     Vector = reflect(Vector1, normalize(Vector2));
-	normalize	$tmp26 Vector2 	%line{34} %argrw{"wr"}
+	normalize	$tmp26 Vector2 	%line{35} %argrw{"wr"}
 	functioncall	$const13 57 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:212
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:212
 # vector reflect (vector I, vector N) { return I - 2*dot(N,I)*N; }
-	dot		$tmp27 $tmp26 Vector1 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{212} %argrw{"wrr"}
+	dot		$tmp27 $tmp26 Vector1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{212} %argrw{"wrr"}
 	mul		$tmp28 $const14 $tmp27 	%argrw{"wrr"}
 	mul		$tmp29 $tmp28 $tmp26 	%argrw{"wrr"}
 	sub		Vector Vector1 $tmp29 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:36
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:37
 #   else if (math_type == "refract") {
-	eq		$tmp30 math_type $const15 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{36} %argrw{"wrr"}
+	eq		$tmp30 math_type $const15 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{37} %argrw{"wrr"}
 	if		$tmp30 77 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:37
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:38
 #     Vector = refract(Vector1, normalize(Vector2), Scale);
-	normalize	$tmp31 Vector2 	%line{37} %argrw{"wr"}
+	normalize	$tmp31 Vector2 	%line{38} %argrw{"wr"}
 	functioncall	$const15 77 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:214
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:214
 #     float IdotN = dot (I, N);
-	dot		___240_IdotN Vector1 $tmp31 	%filename{"F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h"} %line{214} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:215
+	dot		___240_IdotN Vector1 $tmp31 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{214} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:215
 #     float k = 1 - eta*eta * (1 - IdotN*IdotN);
 	mul		$tmp32 Scale Scale 	%line{215} %argrw{"wrr"}
 	mul		$tmp33 ___240_IdotN ___240_IdotN 	%argrw{"wrr"}
 	sub		$tmp34 $const16 $tmp33 	%argrw{"wrr"}
 	mul		$tmp35 $tmp32 $tmp34 	%argrw{"wrr"}
 	sub		___240_k $const16 $tmp35 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/../lib/win64_vc15/osl/share/OSL/shaders/stdosl.h:216
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:216
 #     return (k < 0) ? vector(0,0,0) : (eta*I - N * (eta*IdotN + sqrt(k)));
 	lt		$tmp36 ___240_k $const6 	%line{216} %argrw{"wrr"}
 	if		$tmp36 70 76 	%argrw{"r"}
@@ -291,253 +291,253 @@ code ___main___
 	mul		$tmp41 $tmp31 $tmp40 	%argrw{"wrr"}
 	sub		Vector $tmp37 $tmp41 	%argrw{"wrr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:39
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:40
 #   else if (math_type == "faceforward") {
-	eq		$tmp42 math_type $const17 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{39} %argrw{"wrr"}
+	eq		$tmp42 math_type $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{40} %argrw{"wrr"}
 	if		$tmp42 86 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:40
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:41
 #     Vector = compatible_faceforward(Vector1, Vector2, Vector3);
-	functioncall	$const18 86 	%line{40} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:82
+	functioncall	$const18 86 	%line{41} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:88
 #   return dot(reference, incident) < 0.0 ? vec : -vec;
-	dot		$tmp43 Vector3 Vector2 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{82} %argrw{"wrr"}
+	dot		$tmp43 Vector3 Vector2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{88} %argrw{"wrr"}
 	lt		$tmp44 $tmp43 $const7 	%argrw{"wrr"}
 	if		$tmp44 84 85 	%argrw{"r"}
 	assign		Vector Vector1 	%argrw{"wr"}
 	neg		Vector Vector1 	%argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:42
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:43
 #   else if (math_type == "multiply_add") {
-	eq		$tmp45 math_type $const19 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{42} %argrw{"wrr"}
+	eq		$tmp45 math_type $const19 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{43} %argrw{"wrr"}
 	if		$tmp45 90 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:43
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:44
 #     Vector = Vector1 * Vector2 + Vector3;
-	mul		$tmp46 Vector1 Vector2 	%line{43} %argrw{"wrr"}
+	mul		$tmp46 Vector1 Vector2 	%line{44} %argrw{"wrr"}
 	add		Vector $tmp46 Vector3 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:45
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:46
 #   else if (math_type == "dot_product") {
-	eq		$tmp47 math_type $const20 	%line{45} %argrw{"wrr"}
+	eq		$tmp47 math_type $const20 	%line{46} %argrw{"wrr"}
 	if		$tmp47 93 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:46
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:47
 #     Value = dot(Vector1, Vector2);
-	dot		Value Vector1 Vector2 	%line{46} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:48
+	dot		Value Vector1 Vector2 	%line{47} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:49
 #   else if (math_type == "distance") {
-	eq		$tmp48 math_type $const21 	%line{48} %argrw{"wrr"}
+	eq		$tmp48 math_type $const21 	%line{49} %argrw{"wrr"}
 	if		$tmp48 96 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:49
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:50
 #     Value = distance(Vector1, Vector2);
-	distance	Value Vector1 Vector2 	%line{49} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:51
+	distance	Value Vector1 Vector2 	%line{50} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:52
 #   else if (math_type == "length") {
-	eq		$tmp49 math_type $const22 	%line{51} %argrw{"wrr"}
+	eq		$tmp49 math_type $const22 	%line{52} %argrw{"wrr"}
 	if		$tmp49 99 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:52
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:53
 #     Value = length(Vector1);
-	length		Value Vector1 	%line{52} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:54
+	length		Value Vector1 	%line{53} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:55
 #   else if (math_type == "scale") {
-	eq		$tmp50 math_type $const23 	%line{54} %argrw{"wrr"}
+	eq		$tmp50 math_type $const23 	%line{55} %argrw{"wrr"}
 	if		$tmp50 102 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:55
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:56
 #     Vector = Vector1 * Scale;
-	mul		Vector Vector1 Scale 	%line{55} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:57
+	mul		Vector Vector1 Scale 	%line{56} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:58
 #   else if (math_type == "normalize") {
-	eq		$tmp51 math_type $const24 	%line{57} %argrw{"wrr"}
+	eq		$tmp51 math_type $const24 	%line{58} %argrw{"wrr"}
 	if		$tmp51 105 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:58
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:59
 #     Vector = normalize(Vector1);
-	normalize	Vector Vector1 	%line{58} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:60
+	normalize	Vector Vector1 	%line{59} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:61
 #   else if (math_type == "snap") {
-	eq		$tmp52 math_type $const25 	%line{60} %argrw{"wrr"}
+	eq		$tmp52 math_type $const25 	%line{61} %argrw{"wrr"}
 	if		$tmp52 134 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:61
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:62
 #     Vector = snap(Vector1, Vector2);
-	functioncall	$const25 134 	%line{61} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:61
+	functioncall	$const25 134 	%line{62} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:67
 #   return floor(safe_divide(a, b)) * b;
-	functioncall	$const5 132 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h"} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:11
+	functioncall	$const5 132 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{67} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:12
 #   return vector((b[0] != 0.0) ? a[0] / b[0] : 0.0,
-	compref		$tmp56 Vector2 $const6 	%line{11} %argrw{"wrr"}
+	compref		$tmp56 Vector2 $const6 	%line{12} %argrw{"wrr"}
 	neq		$tmp57 $tmp56 $const7 	%argrw{"wrr"}
 	if		$tmp57 115 116 	%argrw{"r"}
 	compref		$tmp58 Vector1 $const6 	%argrw{"wrr"}
 	compref		$tmp59 Vector2 $const6 	%argrw{"wrr"}
 	div		$tmp55 $tmp58 $tmp59 	%argrw{"wrr"}
 	assign		$tmp55 $const7 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:12
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:13
 #                 (b[1] != 0.0) ? a[1] / b[1] : 0.0,
-	compref		$tmp61 Vector2 $const8 	%line{12} %argrw{"wrr"}
+	compref		$tmp61 Vector2 $const8 	%line{13} %argrw{"wrr"}
 	neq		$tmp62 $tmp61 $const7 	%argrw{"wrr"}
 	if		$tmp62 122 123 	%argrw{"r"}
 	compref		$tmp63 Vector1 $const8 	%argrw{"wrr"}
 	compref		$tmp64 Vector2 $const8 	%argrw{"wrr"}
 	div		$tmp60 $tmp63 $tmp64 	%argrw{"wrr"}
 	assign		$tmp60 $const7 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:13
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:14
 #                 (b[2] != 0.0) ? a[2] / b[2] : 0.0);
-	compref		$tmp66 Vector2 $const9 	%line{13} %argrw{"wrr"}
+	compref		$tmp66 Vector2 $const9 	%line{14} %argrw{"wrr"}
 	neq		$tmp67 $tmp66 $const7 	%argrw{"wrr"}
 	if		$tmp67 129 130 	%argrw{"r"}
 	compref		$tmp68 Vector1 $const9 	%argrw{"wrr"}
 	compref		$tmp69 Vector2 $const9 	%argrw{"wrr"}
 	div		$tmp65 $tmp68 $tmp69 	%argrw{"wrr"}
 	assign		$tmp65 $const7 	%argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:11
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:12
 #   return vector((b[0] != 0.0) ? a[0] / b[0] : 0.0,
-	vector		$tmp54 $tmp55 $tmp60 $tmp65 	%line{11} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:13
+	vector		$tmp54 $tmp55 $tmp60 $tmp65 	%line{12} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:14
 #                 (b[2] != 0.0) ? a[2] / b[2] : 0.0);
-	return	%line{13}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:61
+	return	%line{14}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:67
 #   return floor(safe_divide(a, b)) * b;
-	floor		$tmp53 $tmp54 	%line{61} %argrw{"wr"}
+	floor		$tmp53 $tmp54 	%line{67} %argrw{"wr"}
 	mul		Vector $tmp53 Vector2 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:63
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:64
 #   else if (math_type == "floor") {
-	eq		$tmp70 math_type $const26 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{63} %argrw{"wrr"}
+	eq		$tmp70 math_type $const26 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{64} %argrw{"wrr"}
 	if		$tmp70 137 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:64
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:65
 #     Vector = floor(Vector1);
-	floor		Vector Vector1 	%line{64} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:66
+	floor		Vector Vector1 	%line{65} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:67
 #   else if (math_type == "ceil") {
-	eq		$tmp71 math_type $const27 	%line{66} %argrw{"wrr"}
+	eq		$tmp71 math_type $const27 	%line{67} %argrw{"wrr"}
 	if		$tmp71 140 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:67
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:68
 #     Vector = ceil(Vector1);
-	ceil		Vector Vector1 	%line{67} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:69
+	ceil		Vector Vector1 	%line{68} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:70
 #   else if (math_type == "modulo") {
-	eq		$tmp72 math_type $const28 	%line{69} %argrw{"wrr"}
+	eq		$tmp72 math_type $const28 	%line{70} %argrw{"wrr"}
 	if		$tmp72 143 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:70
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:71
 #     Vector = fmod(Vector1, Vector2);
-	fmod		Vector Vector1 Vector2 	%line{70} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:72
+	fmod		Vector Vector1 Vector2 	%line{71} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:73
 #   else if (math_type == "wrap") {
-	eq		$tmp73 math_type $const29 	%line{72} %argrw{"wrr"}
+	eq		$tmp73 math_type $const29 	%line{73} %argrw{"wrr"}
 	if		$tmp73 189 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:73
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:74
 #     Vector = wrap(Vector1, Vector2, Vector3);
-	functioncall	$const29 189 	%line{73} %argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:73
+	functioncall	$const29 189 	%line{74} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:79
 #   return point(wrap(value[0], max[0], min[0]),
-	compref		$tmp75 Vector1 $const6 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h"} %argrw{"wrr"}
+	compref		$tmp75 Vector1 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{79} %argrw{"wrr"}
 	compref		$tmp76 Vector2 $const6 	%argrw{"wrr"}
 	compref		$tmp77 Vector3 $const6 	%argrw{"wrr"}
 	functioncall	$const29 160 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:67
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:73
 #   float range = max - min;
-	sub		___342_range $tmp76 $tmp77 	%line{67} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:68
+	sub		___357_range $tmp76 $tmp77 	%line{73} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:74
 #   return (range != 0.0) ? value - (range * floor((value - min) / range)) : min;
-	neq		$tmp78 ___342_range $const7 	%line{68} %argrw{"wrr"}
+	neq		$tmp78 ___357_range $const7 	%line{74} %argrw{"wrr"}
 	if		$tmp78 158 159 	%argrw{"r"}
 	sub		$tmp80 $tmp75 $tmp77 	%argrw{"wrr"}
-	div		$tmp81 $tmp80 ___342_range 	%argrw{"wrr"}
+	div		$tmp81 $tmp80 ___357_range 	%argrw{"wrr"}
 	floor		$tmp79 $tmp81 	%argrw{"wr"}
-	mul		$tmp82 ___342_range $tmp79 	%argrw{"wrr"}
+	mul		$tmp82 ___357_range $tmp79 	%argrw{"wrr"}
 	sub		$tmp74 $tmp75 $tmp82 	%argrw{"wrr"}
 	assign		$tmp74 $tmp77 	%argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:74
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:80
 #                wrap(value[1], max[1], min[1]),
-	compref		$tmp84 Vector1 $const8 	%line{74} %argrw{"wrr"}
+	compref		$tmp84 Vector1 $const8 	%line{80} %argrw{"wrr"}
 	compref		$tmp85 Vector2 $const8 	%argrw{"wrr"}
 	compref		$tmp86 Vector3 $const8 	%argrw{"wrr"}
 	functioncall	$const29 174 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:67
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:73
 #   float range = max - min;
-	sub		___342_range $tmp85 $tmp86 	%line{67} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:68
+	sub		___357_range $tmp85 $tmp86 	%line{73} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:74
 #   return (range != 0.0) ? value - (range * floor((value - min) / range)) : min;
-	neq		$tmp87 ___342_range $const7 	%line{68} %argrw{"wrr"}
+	neq		$tmp87 ___357_range $const7 	%line{74} %argrw{"wrr"}
 	if		$tmp87 172 173 	%argrw{"r"}
 	sub		$tmp89 $tmp84 $tmp86 	%argrw{"wrr"}
-	div		$tmp90 $tmp89 ___342_range 	%argrw{"wrr"}
+	div		$tmp90 $tmp89 ___357_range 	%argrw{"wrr"}
 	floor		$tmp88 $tmp90 	%argrw{"wr"}
-	mul		$tmp91 ___342_range $tmp88 	%argrw{"wrr"}
+	mul		$tmp91 ___357_range $tmp88 	%argrw{"wrr"}
 	sub		$tmp83 $tmp84 $tmp91 	%argrw{"wrr"}
 	assign		$tmp83 $tmp86 	%argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:75
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:81
 #                wrap(value[2], max[2], min[2]));
-	compref		$tmp93 Vector1 $const9 	%line{75} %argrw{"wrr"}
+	compref		$tmp93 Vector1 $const9 	%line{81} %argrw{"wrr"}
 	compref		$tmp94 Vector2 $const9 	%argrw{"wrr"}
 	compref		$tmp95 Vector3 $const9 	%argrw{"wrr"}
 	functioncall	$const29 188 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:67
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:73
 #   float range = max - min;
-	sub		___342_range $tmp94 $tmp95 	%line{67} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:68
+	sub		___357_range $tmp94 $tmp95 	%line{73} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:74
 #   return (range != 0.0) ? value - (range * floor((value - min) / range)) : min;
-	neq		$tmp96 ___342_range $const7 	%line{68} %argrw{"wrr"}
+	neq		$tmp96 ___357_range $const7 	%line{74} %argrw{"wrr"}
 	if		$tmp96 186 187 	%argrw{"r"}
 	sub		$tmp98 $tmp93 $tmp95 	%argrw{"wrr"}
-	div		$tmp99 $tmp98 ___342_range 	%argrw{"wrr"}
+	div		$tmp99 $tmp98 ___357_range 	%argrw{"wrr"}
 	floor		$tmp97 $tmp99 	%argrw{"wr"}
-	mul		$tmp100 ___342_range $tmp97 	%argrw{"wrr"}
+	mul		$tmp100 ___357_range $tmp97 	%argrw{"wrr"}
 	sub		$tmp92 $tmp93 $tmp100 	%argrw{"wrr"}
 	assign		$tmp92 $tmp95 	%argrw{"wr"}
 	return
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders\\node_math.h:73
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:79
 #   return point(wrap(value[0], max[0], min[0]),
-	point		Vector $tmp74 $tmp83 $tmp92 	%line{73} %argrw{"wrrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:75
+	point		Vector $tmp74 $tmp83 $tmp92 	%line{79} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:76
 #   else if (math_type == "fraction") {
-	eq		$tmp101 math_type $const30 	%filename{"F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{75} %argrw{"wrr"}
+	eq		$tmp101 math_type $const30 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl"} %line{76} %argrw{"wrr"}
 	if		$tmp101 193 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:76
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:77
 #     Vector = Vector1 - floor(Vector1);
-	floor		$tmp102 Vector1 	%line{76} %argrw{"wr"}
+	floor		$tmp102 Vector1 	%line{77} %argrw{"wr"}
 	sub		Vector Vector1 $tmp102 	%argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:78
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:79
 #   else if (math_type == "absolute") {
-	eq		$tmp103 math_type $const31 	%line{78} %argrw{"wrr"}
+	eq		$tmp103 math_type $const31 	%line{79} %argrw{"wrr"}
 	if		$tmp103 196 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:79
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:80
 #     Vector = abs(Vector1);
-	abs		Vector Vector1 	%line{79} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:81
+	abs		Vector Vector1 	%line{80} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:82
 #   else if (math_type == "minimum") {
-	eq		$tmp104 math_type $const32 	%line{81} %argrw{"wrr"}
+	eq		$tmp104 math_type $const32 	%line{82} %argrw{"wrr"}
 	if		$tmp104 199 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:82
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:83
 #     Vector = min(Vector1, Vector2);
-	min		Vector Vector1 Vector2 	%line{82} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:84
+	min		Vector Vector1 Vector2 	%line{83} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:85
 #   else if (math_type == "maximum") {
-	eq		$tmp105 math_type $const33 	%line{84} %argrw{"wrr"}
+	eq		$tmp105 math_type $const33 	%line{85} %argrw{"wrr"}
 	if		$tmp105 202 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:85
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:86
 #     Vector = max(Vector1, Vector2);
-	max		Vector Vector1 Vector2 	%line{85} %argrw{"wrr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:87
+	max		Vector Vector1 Vector2 	%line{86} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:88
 #   else if (math_type == "sine") {
-	eq		$tmp106 math_type $const34 	%line{87} %argrw{"wrr"}
+	eq		$tmp106 math_type $const34 	%line{88} %argrw{"wrr"}
 	if		$tmp106 205 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:88
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:89
 #     Vector = sin(Vector1);
-	sin		Vector Vector1 	%line{88} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:90
+	sin		Vector Vector1 	%line{89} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:91
 #   else if (math_type == "cosine") {
-	eq		$tmp107 math_type $const35 	%line{90} %argrw{"wrr"}
+	eq		$tmp107 math_type $const35 	%line{91} %argrw{"wrr"}
 	if		$tmp107 208 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:91
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:92
 #     Vector = cos(Vector1);
-	cos		Vector Vector1 	%line{91} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:93
+	cos		Vector Vector1 	%line{92} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:94
 #   else if (math_type == "tangent") {
-	eq		$tmp108 math_type $const36 	%line{93} %argrw{"wrr"}
+	eq		$tmp108 math_type $const36 	%line{94} %argrw{"wrr"}
 	if		$tmp108 211 212 	%argrw{"r"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:94
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:95
 #     Vector = tan(Vector1);
-	tan		Vector Vector1 	%line{94} %argrw{"wr"}
-# F:/Repositories/blenderRepo/blender/intern/cycles/kernel/osl/shaders/node_vector_math.osl:97
+	tan		Vector Vector1 	%line{95} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_math.osl:98
 #     warning("%s", "Unknown vector math operator!");
-	warning		$const37 $const38 	%line{97} %argrw{"rr"}
+	warning		$const37 $const38 	%line{98} %argrw{"rr"}
 	end

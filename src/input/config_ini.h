@@ -10,7 +10,7 @@ struct ConfigShaderball
 	ULONG transmission_bounces;
 	ULONG transparent_bounces;
 	ULONG volume_bounces;
-	bool use_ocl;
+	bool use_osl;
 	float clamp_direct;
 	float clamp_indirect;
 	ULONG displacement_method;

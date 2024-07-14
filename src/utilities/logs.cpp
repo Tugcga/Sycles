@@ -304,6 +304,32 @@ XSI::CString to_string(const ccl::array<ccl::float2>& array)
 	return to_return;
 }
 
+XSI::CString to_string(const ccl::array<ccl::float3>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ", " + XSI::CString(array[i].z) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
+XSI::CString to_string(const ccl::array<ccl::float4>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ", " + XSI::CString(array[i].z) + ", " + XSI::CString(array[i].w) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
 XSI::CString to_string(const ccl::vector<ccl::float3>& array)
 {
 	XSI::CString to_return = "[";
@@ -357,6 +383,31 @@ XSI::CString to_string(const ccl::vector<size_t>& array)
 	}
 
 	to_return += "]";
+
+	return to_return;
+}
+
+XSI::CString to_string_int2(const ccl::int2& value)
+{
+	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";
+}
+
+XSI::CString bitmask_to_string(uint64_t mask)
+{
+	XSI::CString str = "";
+	uint64_t value = mask;
+	for (size_t i = 0; i < 64; i++)
+	{
+		str += XSI::CString(value % 2);
+		value = value / 2;
+	}
+
+	// reverse output
+	XSI::CString to_return = "";
+	for (size_t i = 0; i < str.Length(); i++)
+	{
+		to_return += str[str.Length() - 1 - i];
+	}
 
 	return to_return;
 }
