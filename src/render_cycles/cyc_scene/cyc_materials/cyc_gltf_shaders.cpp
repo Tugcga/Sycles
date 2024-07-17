@@ -128,7 +128,7 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 		emission_mix->set_mix_type(ccl::NodeMix::NODE_MIX_MUL);
 		emission_mix->set_fac(1.0f);
 
-		shader_graph->connect(emission_mix->output("Color"), bsdf_node->input("Emission"));
+		shader_graph->connect(emission_mix->output("Color"), bsdf_node->input("Emission Color"));
 
 		// normals
 		// check is normal map is connected
