@@ -127,6 +127,7 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 		emission_mix->set_color2(color4_to_float3(xsi_emissive_color));
 		emission_mix->set_mix_type(ccl::NodeMix::NODE_MIX_MUL);
 		emission_mix->set_fac(1.0f);
+		bsdf_node->set_emission_strength(1.0f);
 
 		shader_graph->connect(emission_mix->output("Color"), bsdf_node->input("Emission Color"));
 
