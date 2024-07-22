@@ -214,11 +214,15 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 		layout.AddEnumControl("cm_view_index", cm_views_combo, "View", XSI::siControlCombo);
 		XSI::Parameter cm_view_index_parameter = parameters.GetItem("cm_view_index");
 		int cm_view_index = cm_view_index_parameter.GetValue();
-		if (cm_view_index < 0 || cm_view_index >= display_views_count)
+		if (cm_view_index < 0)
 		{
-			cm_view_index = ocio_config.default_view;
+			cm_view_index = 0;
 		}
-		cm_view_index = std::min(cm_view_index, (int)display_views_count - 1);
+
+		if (cm_view_index >= display_views_count)
+		{
+			cm_view_index = display_views_count - 1;
+		}
 		cm_view_index_parameter.PutValue(cm_view_index);
 
 		// looks
@@ -694,31 +698,13 @@ void set_colormanagement(XSI::CustomProperty& prop)
 	XSI::Parameter cm_gamma = prop_array.GetItem("cm_gamma");
 	cm_gamma.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
 
-	// for sRGB display set AgX (index = 2), for other displays - Standart (index = 0)
 	OCIOConfig ocio_config = get_ocio_config();
 	int display_index = cm_display_index.GetValue();
-	if (display_index == 0)
+	OCIODisplay ocio_display = ocio_config.displays[display_index];
+	int views_count = ocio_display.views_count;
+	if ((int)cm_view_index.GetValue() >= views_count)
 	{
-		if (ocio_config.displays_count > display_index)
-		{
-			OCIODisplay ocio_display = ocio_config.displays[display_index];
-			if (ocio_display.views_count > 2)
-			{
-				cm_view_index.PutValue(2);
-			}
-			else
-			{
-				cm_view_index.PutValue(0);
-			}
-		}
-		else
-		{
-			cm_view_index.PutValue(0);
-		}
-	}
-	else
-	{
-		cm_view_index.PutValue(0);
+		cm_view_index.PutValue(views_count - 1);
 	}
 }
 
