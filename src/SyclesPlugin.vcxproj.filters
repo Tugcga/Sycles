@@ -180,6 +180,9 @@
     <ClCompile Include="utilities\maps.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_output\denoising.cpp">
+      <Filter>render_cycles\cyc_output</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -367,6 +370,9 @@
     </ClInclude>
     <ClInclude Include="utilities\maps.h">
       <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_output\denoising.h">
+      <Filter>render_cycles\cyc_output</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -28,6 +28,7 @@ OutputContext::OutputContext()
 	output_pass_write_components.resize(0);
 	output_pass_bits.resize(0);
 
+	output_ignore.resize(0);
 	output_buffers.resize(0);
 
 	output_passes_count = 0;
@@ -79,6 +80,9 @@ void OutputContext::reset()
 	output_pass_write_components.shrink_to_fit();
 	output_pass_bits.clear();
 	output_pass_bits.shrink_to_fit();
+
+	output_ignore.clear();
+	output_ignore.shrink_to_fit();
 
 	for (size_t i = 0; i < output_buffers.size(); i++)
 	{
@@ -174,6 +178,11 @@ int OutputContext::get_output_pass_components(int index)
 int OutputContext::get_output_pass_bits(int index)
 {
 	return output_pass_bits[index];
+}
+
+bool OutputContext::get_output_ignore(int index)
+{
+	return output_ignore[index];
 }
 
 float* OutputContext::get_output_pass_pixels(int index)
@@ -343,7 +352,7 @@ void OutputContext::add_cryptomatte_metadata(std::string name, std::string manif
 	crypto_values.push_back(manifest);
 }
 
-void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CString &pass_name, int pass_components, int index, const XSI::CString &output_path)
+void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CString &pass_name, int pass_components, int index, const XSI::CString &output_path, bool ignore)
 {
 	// add data to arrays
 	output_pass_types.push_back(pass_type);
@@ -364,6 +373,7 @@ void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CStrin
 		output_pass_write_components.push_back(4);  // always 4 components
 		output_pass_bits.push_back(21);  // always float 32
 	}
+	output_ignore.push_back(ignore);
 	
 	output_passes_count++;
 }
@@ -372,7 +382,15 @@ void OutputContext::add_one_pass_data(ccl::PassType pass_type, const XSI::CStrin
 // data from the object after this method is used for setting all render passes
 // if store_denoising is true, then we should add all passes, used for denoising (without path)
 // these passes will be saved into combined exr
-void OutputContext::set_output_passes(BakingContext* baking_context, MotionSettingsType motion_type, bool store_denoising, const XSI::CStringArray& aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names)
+void OutputContext::set_output_passes(
+	BakingContext* baking_context, 
+	MotionSettingsType motion_type, 
+	bool store_denoising, 
+	bool store_denoising_albedo,
+	bool store_denoising_normal,
+	const XSI::CStringArray& aov_color_names, 
+	const XSI::CStringArray& aov_value_names,
+	const XSI::CStringArray& lightgroup_names)
 {
 	output_passes_count = 0;
 	output_pass_types.clear();
@@ -383,6 +401,7 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 	output_pass_write_components.clear();
 	output_pass_bits.clear();
 
+	output_ignore.clear();
 	output_buffers.clear();
 
 	crypto_keys.clear();
@@ -432,7 +451,7 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 					int pass_components = get_pass_components(pass_type, false);
 
 					// we should modify output pass, add at the end the name of the pass (original name, not modified)
-					add_one_pass_data(pass_type, aov_name, pass_components, i, add_aov_name_to_path(output_paths[i], aov_names[aov_index]));
+					add_one_pass_data(pass_type, aov_name, pass_components, i, add_aov_name_to_path(output_paths[i], aov_names[aov_index]), false);
 				}
 			}
 			else if (pass_type == ccl::PASS_COMBINED && is_lightgroup)
@@ -442,13 +461,13 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 					XSI::CString lg_name = add_prefix_to_lightgroup_name(lightgroup_names[lg_index]);
 					int pass_components = get_pass_components(pass_type, true);
 
-					add_one_pass_data(pass_type, lg_name, pass_components, i, add_aov_name_to_path(output_paths[i], lightgroup_names[lg_index]));
+					add_one_pass_data(pass_type, lg_name, pass_components, i, add_aov_name_to_path(output_paths[i], lightgroup_names[lg_index]), false);
 				}
 			}
 			else
 			{
 				// if pass is not aov or lightgroup, then use it default name
-				add_one_pass_data(pass_type, pass_name, pass_components, i, output_paths[i]);
+				add_one_pass_data(pass_type, pass_name, pass_components, i, output_paths[i], false);
 			}
 		}
 		else
@@ -467,18 +486,23 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 
 	if (store_denoising)
 	{
-		ccl::PassType denoising_normal = ccl::PASS_DENOISING_NORMAL;
-		add_one_pass_data(denoising_normal, pass_to_name(denoising_normal), get_pass_components(denoising_normal, false), -1, "");
-
-		ccl::PassType denoising_albedo = ccl::PASS_DENOISING_ALBEDO;
-		add_one_pass_data(denoising_albedo, pass_to_name(denoising_albedo), get_pass_components(denoising_albedo, false), -1, "");
-
+		// and denoising depth
 		ccl::PassType denoising_depth = ccl::PASS_DENOISING_DEPTH;
-		add_one_pass_data(denoising_depth, pass_to_name(denoising_depth), get_pass_components(denoising_depth, false), -1, "");
+		add_one_pass_data(denoising_depth, pass_to_name(denoising_depth), get_pass_components(denoising_depth, false), -1, "", false);
+	}
 
-		// and also nosy combined pass
-		ccl::PassType noisy_combined = ccl::PASS_COMBINED;
-		add_one_pass_data(noisy_combined, noisy_combined_name().c_str(), get_pass_components(noisy_combined, false), -1, "");
+	if (store_denoising_albedo)
+	{
+		ccl::PassType denoising_albedo = ccl::PASS_DENOISING_ALBEDO;
+		add_one_pass_data(denoising_albedo, pass_to_name(denoising_albedo), get_pass_components(denoising_albedo, false), -1, "", !store_denoising);
+		// if store_denoising is false, then we should ignore save the pass into mulilayer exr
+		// if it true, then this pass shold be output
+	}
+
+	if (store_denoising_normal)
+	{
+		ccl::PassType denoising_normal = ccl::PASS_DENOISING_NORMAL;
+		add_one_pass_data(denoising_normal, pass_to_name(denoising_normal), get_pass_components(denoising_normal, false), -1, "", !store_denoising);
 	}
 
 	// next add cryptomatte passes
@@ -494,7 +518,7 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 			for (int i = 0; i < crypto_depth; i++)
 			{
 				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Object%02d", i)).c_str());
-				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
+				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "", false);
 				crypto_buffer_indices.push_back(output_passes_count - 1);
 			}
 			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_OBJECT);
@@ -505,7 +529,7 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 			for (int i = 0; i < crypto_depth; i++)
 			{
 				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Material%02d", i)).c_str());
-				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
+				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "", false);
 				crypto_buffer_indices.push_back(output_passes_count - 1);
 			}
 			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_MATERIAL);
@@ -516,7 +540,7 @@ void OutputContext::set_output_passes(BakingContext* baking_context, MotionSetti
 			for (int i = 0; i < crypto_depth; i++)
 			{
 				XSI::CString pass_name = XSI::CString((cryptomatte_prefix + ccl::string_printf("Asset%02d", i)).c_str());
-				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "");
+				add_one_pass_data(ccl::PASS_CRYPTOMATTE, pass_name, crypto_components, -1, "", false);
 				crypto_buffer_indices.push_back(output_passes_count - 1);
 			}
 			crypto_passes = (ccl::CryptomatteType)(crypto_passes | ccl::CRYPT_ASSET);

@@ -42,6 +42,8 @@ public:
 	size_t get_pixel_index(size_t x, size_t y);
 
 	std::vector<float> get_pixels();  // create the copy
+	std::vector<float> convert_channel_pixels(size_t in_channels);  // convert pixels of the image buffer to input component number, for example, convert from 4 channels to 3 (forget alpha)
+	void redefine_rgb(const std::vector<float> &rgb_pixels);  // we assume that the dimension of the rgb pixels is the same as in original image
 	float* get_pixels_pointer();
 
 private:

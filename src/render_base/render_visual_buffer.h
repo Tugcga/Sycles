@@ -146,6 +146,15 @@ public:
 		return components;
 	}
 
+	std::vector<float> convert_channel_pixels(size_t in_channels)
+	{
+		return buffer->convert_channel_pixels(in_channels);
+	}
+	void redefine_rgb(const std::vector<float>& rgb_pixels)
+	{
+		buffer->redefine_rgb(rgb_pixels);
+	}
+
 private:
 	unsigned int full_width, full_height;  // full frame size, used when we create a frame before render starts
 	unsigned int corner_x, corner_y;  // coordinates of the left bottom corner

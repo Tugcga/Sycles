@@ -106,6 +106,56 @@ bool ImageBuffer::set_pixel(size_t x, size_t y, const float* data, size_t in_cha
 	return true;
 }
 
+std::vector<float> ImageBuffer::convert_channel_pixels(size_t in_channels)
+{
+	std::vector<float> to_return(width * height * in_channels, 0.0f);
+
+	for (size_t y = 0; y < height; y++)
+	{
+		for (size_t x = 0; x < width; x++)
+		{
+			size_t channels_min = std::min(channels, in_channels);
+			size_t p = y * width + x;
+			// copy alowed channels
+			for (size_t c = 0; c < channels_min; c++)
+			{
+				to_return[p * in_channels + c] = pixels[p * channels + c];
+			}
+			// if original buffer contains more channels, nothing to do
+			// for other case, we convert from 3 channels to 4, for example (or from 1 to 3)
+			if (in_channels > channels)
+			{
+				// for original 1-channel image copy it to other channels
+				// the first we already set
+				if (channels == 1)
+				{
+					for (size_t c = 1; c < in_channels; c++)
+					{
+						to_return[p * in_channels + c] = pixels[p * channels];
+					}
+				}
+			}
+		}
+	}
+
+	return to_return;
+}
+
+void ImageBuffer::redefine_rgb(const std::vector<float>& rgb_pixels)
+{
+	for (size_t y = 0; y < height; y++)
+	{
+		for (size_t x = 0; x < width; x++)
+		{
+			size_t p = y * width + x;
+			for (size_t c = 0; c < std::min(channels, (size_t)3); c++)
+			{
+				pixels[p * channels + c] = rgb_pixels[p * 3 + c];
+			}
+		}
+	}
+}
+
 size_t ImageBuffer::get_pixels_count() { return pixels_count; }
 size_t ImageBuffer::get_channels_count() { return channels; }
 size_t ImageBuffer::get_buffer_size() { return pixels.size(); }

@@ -390,6 +390,8 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
 
     bool store_denoising = false;
     bool use_denoising = update_context->get_use_denoising();
+    bool use_denoising_albedo = update_context->get_use_denoising_albedo();
+    bool use_denoising_normal = update_context->get_use_denoising_normal();
 
     if (update_context->get_render_type() == RenderType::RenderType_Pass && (bool)render_parameters.GetValue("output_exr_combine_passes", eval_time))
     {
@@ -405,9 +407,9 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
         store_denoising = store_denoising & use_denoising;
     }
 
-    // here we call the main method in output contexå
+    // here we call the main method in output context
     // and setup all output passes, buffers, pixels and so on
-    output_context->set_output_passes(baking_context, motion_type, store_denoising, aov_color_names, aov_value_names, lightgroups);
+    output_context->set_output_passes(baking_context, motion_type, store_denoising, use_denoising_albedo, use_denoising_normal, aov_color_names, aov_value_names, lightgroups);
 
     // sync passes
     bool use_shadow_catcher = false;
@@ -419,13 +421,6 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
     ccl::ustring combined_name = ccl::ustring(pass_to_name(ccl::PASS_COMBINED).GetAsciiString());
     exported_names.insert(combined_name);
     pass_add(scene, ccl::PASS_COMBINED, combined_name, ccl::PassMode::DENOISED);
-
-    if (store_denoising)
-    {
-        ccl::ustring combined_noisy_name = noisy_combined_name();  // this name should be the same as in output contex
-        exported_names.insert(combined_noisy_name);
-        pass_add(scene, ccl::PASS_COMBINED, combined_noisy_name, ccl::PassMode::NOISY);
-    }
 
     // next visual
     ccl::ustring visual_name = visual_buffer->get_pass_name();
