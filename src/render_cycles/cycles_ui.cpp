@@ -41,11 +41,6 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddGroup("Advanced");
 	layout.AddItem("sampling_advanced_seed", "Seed");
 	layout.AddItem("sampling_advanced_animate_seed", "Animate Seed");
-	// does not show pattern, always use tabulated sobol ( = 1)
-	// XSI::CValueArray pattern_combo(4);
-	// pattern_combo[0] = "Sobol Burley"; pattern_combo[1] = LONG(0);
-	// pattern_combo[2] = "Tabulated Sobo"; pattern_combo[3] = LONG(1);
-	// layout.AddEnumControl("sampling_advanced_pattern", pattern_combo, "Pattern", XSI::siControlCombo);
 	layout.AddItem("sampling_advanced_offset", "Sample Offset");
 	layout.AddItem("sampling_advanced_scrambling_distance", "Auto Scrambling Distance");
 	layout.AddItem("sampling_advanced_scrambling_multiplier", "Scrambling Distance Multiplier");
@@ -159,19 +154,6 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddEnumControl("performance_curves_type", curves_type_combo, "Shape", XSI::siControlCombo);
 	layout.AddItem("performance_curves_subdivs", "Curve Subdivisions");
 	layout.EndGroup();
-
-	// does not show culling parameters
-	// because there are no sufficient effect when use these settings
-	/*layout.AddGroup("Culling");
-	XSI::CValueArray culling_mode_combo(4);
-	culling_mode_combo[0] = "Camera or Distance"; culling_mode_combo[1] = 0;
-	culling_mode_combo[2] = "Camera and Distance"; culling_mode_combo[3] = 1;
-	layout.AddEnumControl("simplify_cull_mode", culling_mode_combo, "Culling Mode", XSI::siControlCombo);
-	layout.AddItem("performance_simplify_cull_camera", "Use Camera Cull");
-	layout.AddItem("performance_simplify_cull_distance", "Use Distance Cull");
-	layout.AddItem("performance_simplify_cull_camera_margin", "Camera Cull Margin");
-	layout.AddItem("performance_simplify_cull_distance_margin", "Distance");
-	layout.EndGroup();*/
 
 	layout.AddTab("Color Managements");
 	layout.AddGroup("Color Management");
@@ -366,17 +348,6 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 		denoise_channels_enum[2] = "Albedo"; denoise_channels_enum[3] = 1;
 		denoise_channels_enum[4] = "Albedo and Normal"; denoise_channels_enum[5] = 2;
 		layout.AddEnumControl("denoise_channels", denoise_channels_enum, "Passes", XSI::siControlCombo);
-
-		// does not use prefilter, because it for buil-in version of the oidn
-		if (is_oidn && false)
-		{
-			// prefilter mode only for oidn
-			XSI::CValueArray denoise_prefilter_enum(6);
-			denoise_prefilter_enum[0] = "None"; denoise_prefilter_enum[1] = 0;
-			denoise_prefilter_enum[2] = "Fast"; denoise_prefilter_enum[3] = 1;
-			denoise_prefilter_enum[4] = "Accurate"; denoise_prefilter_enum[5] = 2;
-			layout.AddEnumControl("denoise_prefilter", denoise_prefilter_enum, "Prefilter", XSI::siControlCombo);
-		}
 		layout.EndGroup();
 	}
 	
@@ -673,10 +644,6 @@ void set_denoising(XSI::CustomProperty& prop)
 
 	XSI::Parameter denoise_channels = prop_array.GetItem("denoise_channels");
 	denoise_channels.PutCapabilityFlag(block_mode, mode == 0);
-
-	// does not use prefilter
-	// XSI::Parameter denoise_prefilter = prop_array.GetItem("denoise_prefilter");
-	// denoise_prefilter.PutCapabilityFlag(block_mode, mode != 1);
 }
 
 void set_colormanagement(XSI::CustomProperty& prop)
@@ -1033,7 +1000,6 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	// denoising tab
 	property.AddParameter("denoise_mode", XSI::CValue::siInt4, caps, "", "", 0, 0, 2, 0, 2, param);
 	property.AddParameter("denoise_channels", XSI::CValue::siInt4, caps, "", "", 2, 0, 2, 0, 2, param);  // for Optix and OIDenoise modes
-	// property.AddParameter("denoise_prefilter", XSI::CValue::siInt4, caps, "", "", 2, 0, 2, 0, 2, param);  // for OIDenoise, used in Cycles
 
 	// options tab
 	// shaders

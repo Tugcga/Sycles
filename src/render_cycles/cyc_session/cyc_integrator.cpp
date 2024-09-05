@@ -21,11 +21,6 @@ ccl::DenoiseParams get_denoise_params(const XSI::CParameterRefArray &render_para
 	denoising.type = denoise_mode == 2 ? ccl::DenoiserType::DENOISER_OPTIX : ccl::DenoiserType::DENOISER_OPENIMAGEDENOISE;
 	denoising.use_gpu = false;  // it looks like this parameter important only for OIDN
 
-	// we use custom oidn implementation
-	// no additional prefilter
-	// int denoise_prefilter = render_parameters.GetValue("denoise_prefilter", eval_time);
-	// denoising.prefilter = denoise_prefilter == 2 ? ccl::DENOISER_PREFILTER_ACCURATE :
-	// 	(denoise_prefilter == 1 ? ccl::DENOISER_PREFILTER_FAST : ccl::DENOISER_PREFILTER_NONE);
 	denoising.prefilter = ccl::DENOISER_PREFILTER_NONE;
 
 	denoising.quality = ccl::DENOISER_QUALITY_BALANCED;

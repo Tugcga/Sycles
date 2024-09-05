@@ -228,7 +228,7 @@ bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_
 		"sampling_advanced_scrambling_distance", "sampling_advanced_scrambling_multiplier"
 		"paths_fastgi_use", "paths_fastgi_ao_factor", "paths_fastgi_ao_distance", "paths_fastgi_method", "paths_fastgi_ao_bounces",
 		"sampling_path_guiding_use", "sampling_path_guiding_surface", "sampling_path_guiding_volume", "sampling_path_guiding_training_samples",
-		"denoise_mode", "denoise_channels", "denoise_prefilter"
+		"denoise_mode", "denoise_channels"
 	};
 
 	return is_set_contains_from_array(parameters, integrator_parameters);
