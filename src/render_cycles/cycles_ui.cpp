@@ -258,7 +258,10 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddGroup("Passes");
 	layout.AddItem("output_pass_alpha_threshold", "Alpha Threshold");
 	layout.AddItem("output_pass_assign_unique_pass_id", "Assign Unique Object Pass Id");
-	layout.AddItem("output_pass_preview_name", "Preview AOV Pass Name");
+	layout.AddGroup("Preview AOV/Lightgroup Name");
+	XSI::PPGItem item = layout.AddItem("output_pass_preview_name", "");
+	item.PutAttribute("NoLabel", true);
+	layout.EndGroup();
 	layout.EndGroup();
 
 	layout.AddGroup("Multilayer EXR");
