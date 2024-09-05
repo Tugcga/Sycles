@@ -75,6 +75,7 @@
     <ClCompile Include="render_cycles\cycles_ui.cpp" />
     <ClCompile Include="render_cycles\cyc_output\color_transform_context.cpp" />
     <ClCompile Include="render_cycles\cyc_output\denoising.cpp" />
+    <ClCompile Include="render_cycles\cyc_output\denoising_oidn.cpp" />
     <ClCompile Include="render_cycles\cyc_output\output_context.cpp" />
     <ClCompile Include="render_cycles\cyc_output\output_drivers.cpp" />
     <ClCompile Include="render_cycles\cyc_output\series_context.cpp" />

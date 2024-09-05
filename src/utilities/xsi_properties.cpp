@@ -102,7 +102,7 @@ bool obtain_subsub_directions(const XSI::Shader &xsi_shader, float &sun_x, float
 	return false;
 }
 
-// TODO: this function should return the first model, contained input object
+// This function return the first model, contained input object
 // if this model is root, then return the name of the object
 std::string get_asset_name(const XSI::X3DObject& xsi_object)
 {

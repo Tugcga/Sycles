@@ -183,6 +183,9 @@
     <ClCompile Include="render_cycles\cyc_output\denoising.cpp">
       <Filter>render_cycles\cyc_output</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_output\denoising_oidn.cpp">
+      <Filter>render_cycles\cyc_output</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
