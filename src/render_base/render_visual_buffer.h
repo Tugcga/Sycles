@@ -64,11 +64,11 @@ public:
 		is_create = false;
 	};
 
-	void add_pixels(const ImageRectangle &roi, std::vector<float>& pixels)
+	void add_pixels(const ImageRectangle &roi, const std::vector<float>& pixels)
 	{
-		if (is_create && buffer->get_buffer_size() >= pixels.size())
+		if (is_create && buffer->get_buffer_size() <= pixels.size())
 		{
-			buffer->set_pixels(roi, &pixels[0]);
+			buffer->set_pixels(roi, pixels);
 		}
 	}
 
@@ -150,9 +150,15 @@ public:
 	{
 		return buffer->convert_channel_pixels(in_channels);
 	}
+
 	void redefine_rgb(const std::vector<float>& rgb_pixels)
 	{
 		buffer->redefine_rgb(rgb_pixels);
+	}
+
+	ImageBuffer* get_buffer()
+	{
+		return buffer;
 	}
 
 private:

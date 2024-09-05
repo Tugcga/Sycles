@@ -144,7 +144,6 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		ccl::PassType pass_type = output_context->get_output_pass_type(i);
 		ccl::ustring pass_name = output_context->get_output_pass_name(i);
 
-		log_message(XSI::CString(pass_name.c_str()) + " " + XSI::CString(pass_type));
 		int pass_components = get_pass_components(pass_type, pass_type == ccl::PASS_COMBINED && is_start_from(pass_name, ccl::ustring("Combined_")));  // because lightgroup pass has the name Combined_... (length >= 9)
 		is_get = tile.get_pass_pixels(pass_name, pass_components, &pixels[0]);
 		if (is_get)
@@ -224,7 +223,8 @@ void RenderEngineCyc::read_render_tile(const ccl::OutputDriver::Tile& tile)
 void RenderEngineCyc::postrender_visual_output()
 {
 	// overlay labels and apply color correction only for combined pass
-	if (visual_buffer->get_pass_type() == ccl::PASS_COMBINED && render_type != RenderType_Shaderball && render_type != RenderType_Rendermap && visual_buffer->get_pass_name() == "Combined")
+	// for the pass name we get substraing [0:8], because lightgroup pass name is Combined_...
+	if (visual_buffer->get_pass_type() == ccl::PASS_COMBINED && render_type != RenderType_Shaderball && render_type != RenderType_Rendermap && visual_buffer->get_pass_name().substr(0, 8) == "Combined")
 	{
 		ULONG visual_width = visual_buffer->get_width();
 		ULONG visual_height = visual_buffer->get_height();
@@ -234,20 +234,21 @@ void RenderEngineCyc::postrender_visual_output()
 			std::vector<float> visual_pixels = visual_buffer->get_buffer_pixels();
 			size_t components = visual_buffer->get_components();
 
+			// make correction and overlay lebels only for 4-component combined pass (beauty pass)
 			// make color correction
-			if (color_transform_context->get_use_correction())
+			if (components == 4 && color_transform_context->get_use_correction())
 			{
 				color_transform_context->apply(visual_width, visual_height, components, &visual_pixels[0]);
 			}
 
 			// add labels
-			if (output_context->get_is_labels())
+			if (components == 4 && output_context->get_is_labels())
 			{
 				overlay_pixels(visual_width, visual_height, output_context->get_labels_pixels(), &visual_pixels[0]);
 			}
 
 			// set render fragment
-			m_render_context.NewFragment(RenderTile(image_corner_x, image_corner_y, visual_width, visual_height, visual_pixels, false, components));  // combined always have 4 components
+			m_render_context.NewFragment(RenderTile(image_corner_x, image_corner_y, visual_width, visual_height, visual_pixels, false, components));  // combined always have 4 components, lightgroups - only 3 components
 
 			// clear vector
 			visual_pixels.clear();
@@ -258,7 +259,6 @@ void RenderEngineCyc::postrender_visual_output()
 			log_message("The size of visual buffer and labels buffer are different, this is not ok", XSI::siWarningMsg);
 		}
 	}
-
 }
 
 // in this callback we can show the actual progress of the render process
@@ -991,7 +991,13 @@ void RenderEngineCyc::render()
 XSI::CStatus RenderEngineCyc::post_render_engine()
 {
 	// denoising rendered buffers
-	denoise_visual(visual_buffer, output_context, denoise_mode_enum(m_render_parameters.GetValue("denoise_mode", eval_time)), update_context->get_use_denoising_albedo(), update_context->get_use_denoising_normal());
+	DenoiseMode denoise_mode = denoise_mode_enum(m_render_parameters.GetValue("denoise_mode", eval_time));
+	if (render_type == RenderType::RenderType_Pass || render_type == RenderType::RenderType_Region || render_type == RenderType::RenderType_Shaderball)
+	{
+		denoise_visual(visual_buffer, output_context, denoise_mode, update_context->get_use_denoising_albedo(), update_context->get_use_denoising_normal());
+	}
+
+	denoise_outputs(output_context, denoise_mode, update_context->get_use_denoising_albedo(), update_context->get_use_denoising_normal());
 
 	// get render time
 	// here we count only actual (in Cycles) render time, without prepare stage

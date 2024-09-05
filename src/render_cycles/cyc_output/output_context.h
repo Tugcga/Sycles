@@ -50,7 +50,7 @@ public:
 
 	XSI::CString get_first_nonempty_path();
 
-	bool add_output_pixels(const ImageRectangle& roi, int index, std::vector<float> &pixels);
+	bool add_output_pixels(const ImageRectangle& roi, int index, const std::vector<float> &pixels);
 
 	void set_output_size(ULONG width, ULONG height);
 	void set_output_formats(const XSI::CStringArray& paths, const XSI::CStringArray& formats, const XSI::CStringArray& data_types, const XSI::CStringArray& channels, const std::vector<int>& bits, const XSI::CTime& eval_time);
@@ -96,7 +96,7 @@ private:
 	ccl::vector<ccl::ustring> output_pass_formats;  // jpg or png and so on
 	ccl::vector<int> output_pass_write_components;  // how many components selected for save image (get as length of the string RGB or RGBA)
 	ccl::vector<int> output_pass_bits;  // selected bit depth of the image to save
-	ccl::vector<bool> output_ignore;  // if corresponding flag is false, then ignore it in the output (even in multilayer exr)
+	ccl::vector<bool> output_ignore;  // if corresponding flag is true, then ignore it in the output (even in multilayer exr), used for rendering denoising passes
 	ccl::vector<ImageBuffer*> output_buffers;  // store here buffers with pixels for each output pass
 
 	std::vector<std::string> crypto_keys;

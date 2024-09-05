@@ -1,5 +1,7 @@
 #include "image_buffer.h"
 
+#include "../utilities/logs.h"
+
 ImageRectangle::ImageRectangle(size_t in_x_start, size_t in_x_end, size_t in_y_start, size_t in_y_end)
 {
 	x_start = in_x_start;
@@ -60,6 +62,21 @@ void ImageBuffer::recreate(size_t in_width, size_t in_height, size_t in_channels
 	pixels.resize(pixels_count * channels, 0.0f);
 }
 
+size_t ImageBuffer::get_width()
+{
+	return width;
+}
+
+size_t ImageBuffer::get_height()
+{
+	return height;
+}
+
+size_t ImageBuffer::get_channels()
+{
+	return channels;
+}
+
 bool ImageBuffer::get_pixels(const ImageRectangle& rect, float* out_pixels)
 {
 	for (size_t y = rect.get_y_start(); y < rect.get_y_end(); y++)
@@ -77,8 +94,9 @@ bool ImageBuffer::get_pixels(const ImageRectangle& rect, float* out_pixels)
 	return true;
 }
 
-bool ImageBuffer::set_pixels(const ImageRectangle& rect, float* in_pixels)
+bool ImageBuffer::set_pixels(const ImageRectangle& rect, const std::vector<float> &in_pixels)
 {
+	size_t iterator = 0;
 	for (size_t y = rect.get_y_start(); y < rect.get_y_end(); y++)
 	{
 		for (size_t x = rect.get_x_start(); x < rect.get_x_end(); x++)
@@ -86,8 +104,8 @@ bool ImageBuffer::set_pixels(const ImageRectangle& rect, float* in_pixels)
 			size_t  p = y * width + x;
 			for (size_t c = 0; c < channels; c++)
 			{
-				pixels[channels * p + c] = *in_pixels;
-				in_pixels++;
+				pixels[channels * p + c] = in_pixels[iterator];
+				iterator++;
 			}
 		}
 	}

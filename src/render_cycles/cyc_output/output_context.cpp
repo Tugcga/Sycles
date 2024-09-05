@@ -218,9 +218,9 @@ float* OutputContext::get_labels_pixels()
 	return labels_buffer->get_pixels_pointer();
 }
 
-bool OutputContext::add_output_pixels(const ImageRectangle &roi, int index, std::vector<float>& pixels)
+bool OutputContext::add_output_pixels(const ImageRectangle &roi, int index, const std::vector<float>& pixels)
 {
-	return output_buffers[index]->set_pixels(roi, &pixels[0]);
+	return output_buffers[index]->set_pixels(roi, pixels);
 }
 
 void OutputContext::set_render_type(RenderType type)

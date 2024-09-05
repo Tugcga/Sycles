@@ -33,8 +33,12 @@ public:
 	void reset();
 	void recreate(size_t in_width, size_t in_height, size_t in_channels);
 
+	size_t get_width();
+	size_t get_height();
+	size_t get_channels();
+
 	bool get_pixels(const ImageRectangle &rect, float* out_pixels);
-	bool set_pixels(const ImageRectangle &rect, float* in_pixels);
+	bool set_pixels(const ImageRectangle &rect, const std::vector<float>& in_pixels);
 	bool set_pixel(size_t x, size_t y, const float* data, size_t in_channels);
 	size_t get_pixels_count();
 	size_t get_channels_count();
