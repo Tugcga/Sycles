@@ -5,7 +5,7 @@
 
 void add_symbol(ImageBuffer* buffer, size_t bottom_row, const float* array, size_t height, size_t width, size_t shift, const float* color)
 {
-	size_t channels = buffer->get_channels_count();
+	size_t channels = buffer->get_channels();
 	float* buffer_pixels = buffer->get_pixels_pointer();
 	size_t label_point_iterator = 0;
 	for (size_t y = 4 + bottom_row; y < height + 4 + bottom_row; y++)

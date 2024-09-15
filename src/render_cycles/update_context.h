@@ -87,8 +87,12 @@ public:
 	void set_render_type(RenderType value);
 	RenderType get_render_type();
 
-	void set_use_denoising(bool value);
+	bool denoising_channel_enum_to_albedo(int channels_enum);
+	bool denoising_channel_enum_to_normal(int channels_enum);
+	void set_use_denoising(bool value, int channels_enum);
 	bool get_use_denoising();
+	bool get_use_denoising_albedo();
+	bool get_use_denoising_normal();
 
 	void reset_need_update_background();
 	void activate_need_update_background();
@@ -188,6 +192,8 @@ private:
 	bool log_details;
 
 	bool use_denoising;
+	bool use_denoising_albedo;
+	bool use_denoising_normal;
 	MotionSettingsType motion_type;
 	double motion_shutter_time;
 	std::vector<double> motion_times;

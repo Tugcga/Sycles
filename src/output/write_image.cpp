@@ -257,6 +257,11 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 					// we will save these pases separately
 					continue;
 				}
+				bool is_ignore = output_context->get_output_ignore(i);
+				if (is_ignore)
+				{
+					continue;
+				}
 				int components_count = output_context->get_output_pass_components(i);
 				r_starts[i] = r_channels;
 				g_starts[i] = g_channels;
@@ -303,6 +308,11 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 				if (pass_type == ccl::PASS_CRYPTOMATTE)
 				{
 					// again, skip cryptomatte passes
+					continue;
+				}
+				bool is_ignore = output_context->get_output_ignore(i);
+				if (is_ignore)
+				{
 					continue;
 				}
 

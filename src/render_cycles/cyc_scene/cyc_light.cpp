@@ -294,7 +294,7 @@ void sync_custom_light_object(ccl::Light* light, const XSI::CString &xsi_name, C
 	else if (light_type == CustomLightType_Sun)
 	{
 		light->set_light_type(ccl::LightType::LIGHT_DISTANT);
-		light->set_angle(xsi_parameters.GetValue("angle", eval_time));
+		light->set_angle((float)xsi_parameters.GetValue("angle", eval_time) * XSI::MATH::PI / 180.0f);
 	}
 	else if (light_type == CustomLightType_Spot)
 	{

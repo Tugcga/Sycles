@@ -93,14 +93,42 @@ bool UpdateContext::get_is_update_scene()
 	return is_update_scene;
 }
 
-void UpdateContext::set_use_denoising(bool value)
+// use these methods to convert denoising channels enum to actual boolean flags for albedo and normal passes
+bool UpdateContext::denoising_channel_enum_to_albedo(int channels_enum)
+{
+	return channels_enum == 1 || channels_enum == 2;
+}
+
+bool UpdateContext::denoising_channel_enum_to_normal(int channels_enum)
+{
+	return channels_enum == 2;
+}
+
+// channels_enum is a raw value 0, 1, 2, defined in ui (cycles_ui.cpp, parameter denoise_channels)
+// 0 - no additional channels for denoising
+// 1 - use only albedo
+// 2 - use albedo and normal
+void UpdateContext::set_use_denoising(bool value, int channels_enum)
 {
 	use_denoising = value;
+
+	use_denoising_albedo = denoising_channel_enum_to_albedo(channels_enum) && use_denoising;
+	use_denoising_normal = denoising_channel_enum_to_normal(channels_enum) && use_denoising;
 }
 
 bool UpdateContext::get_use_denoising()
 {
 	return use_denoising;
+}
+
+bool UpdateContext::get_use_denoising_albedo()
+{
+	return use_denoising_albedo;
+}
+
+bool UpdateContext::get_use_denoising_normal()
+{
+	return use_denoising_normal;
 }
 
 void UpdateContext::set_current_render_parameters(const XSI::CParameterRefArray& render_parameters)
@@ -200,7 +228,7 @@ bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_
 		"sampling_advanced_scrambling_distance", "sampling_advanced_scrambling_multiplier"
 		"paths_fastgi_use", "paths_fastgi_ao_factor", "paths_fastgi_ao_distance", "paths_fastgi_method", "paths_fastgi_ao_bounces",
 		"sampling_path_guiding_use", "sampling_path_guiding_surface", "sampling_path_guiding_volume", "sampling_path_guiding_training_samples",
-		"denoise_mode", "denoise_channels", "denoise_prefilter"
+		"denoise_mode", "denoise_channels"
 	};
 
 	return is_set_contains_from_array(parameters, integrator_parameters);

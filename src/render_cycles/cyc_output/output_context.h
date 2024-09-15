@@ -19,7 +19,7 @@ public:
 
 	void add_cryptomatte_metadata(std::string name, std::string manifest);
 	void set_render_type(RenderType type);
-	void set_output_passes(BakingContext* baking_context, MotionSettingsType motion_type, bool store_denoising, const XSI::CStringArray &aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names);
+	void set_output_passes(BakingContext* baking_context, MotionSettingsType motion_type, bool store_denoising, bool store_denoising_albedo, bool store_denoising_normal, const XSI::CStringArray &aov_color_names, const XSI::CStringArray& aov_value_names, const XSI::CStringArray& lightgroup_names);
 	void set_cryptomatte_settings(bool object, bool material, bool asset, int levels);
 	RenderType get_render_type();
 	int get_output_passes_count();
@@ -34,6 +34,7 @@ public:
 	int get_output_pass_write_components(int index);
 	int get_output_pass_components(int index);
 	int get_output_pass_bits(int index);
+	bool get_output_ignore(int index);
 	float* get_output_pass_pixels(int index);
 	float* get_labels_pixels();
 	void extract_output_channel(int index, int channel, float* output, bool flip_verticaly = false);
@@ -49,7 +50,7 @@ public:
 
 	XSI::CString get_first_nonempty_path();
 
-	bool add_output_pixels(const ImageRectangle& roi, int index, std::vector<float> &pixels);
+	bool add_output_pixels(const ImageRectangle& roi, int index, const std::vector<float> &pixels);
 
 	void set_output_size(ULONG width, ULONG height);
 	void set_output_formats(const XSI::CStringArray& paths, const XSI::CStringArray& formats, const XSI::CStringArray& data_types, const XSI::CStringArray& channels, const std::vector<int>& bits, const XSI::CTime& eval_time);
@@ -57,7 +58,7 @@ public:
 	void overlay_labels();  // this method bake labels into each combined output pass, it should be called after all saves before output separate images
 
 private:
-	void add_one_pass_data(ccl::PassType pass_type, const XSI::CString& pass_name, int pass_components, int i, const XSI::CString& output_path);
+	void add_one_pass_data(ccl::PassType pass_type, const XSI::CString& pass_name, int pass_components, int i, const XSI::CString& output_path, bool ignore);
 
 	ULONG image_width;  // these sizes contains full size (without crop)
 	ULONG image_height;  // for preview rendering these values does not used, but for pass rendeering it contains full image
@@ -95,9 +96,8 @@ private:
 	ccl::vector<ccl::ustring> output_pass_formats;  // jpg or png and so on
 	ccl::vector<int> output_pass_write_components;  // how many components selected for save image (get as length of the string RGB or RGBA)
 	ccl::vector<int> output_pass_bits;  // selected bit depth of the image to save
+	ccl::vector<bool> output_ignore;  // if corresponding flag is true, then ignore it in the output (even in multilayer exr), used for rendering denoising passes
 	ccl::vector<ImageBuffer*> output_buffers;  // store here buffers with pixels for each output pass
-	//std::vector<float> output_pixels;  // store pixels for all output passes in one array, buffers wraps different sections of this array
-	//std::vector<size_t> output_buffer_pixels_start;  // contains the first index in the common pixels array of pixels for the current buffer
 
 	std::vector<std::string> crypto_keys;
 	std::vector<std::string> crypto_values;
