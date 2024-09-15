@@ -1,6 +1,5 @@
 #include "OpenImageDenoise/oidn.hpp"
 
-
 #include "denoising.h"
 
 void log_oidn_error(const char* message)
@@ -25,6 +24,8 @@ std::vector<float> denoise_buffer_oidn(ImageBuffer* buffer, OutputContext* outpu
 	if (device.getError(error_message) != oidn::Error::None)
 	{
 		log_oidn_error(error_message);
+
+		return buffer->get_pixels();
 	}
 
 	device.set("setAffinity", false);

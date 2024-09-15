@@ -156,6 +156,11 @@ public:
 		buffer->redefine_rgb(rgb_pixels);
 	}
 
+	void set_pixels(const std::vector<float> &new_pixels)
+	{
+		buffer->set_pixels(ImageRectangle(0, width, 0, height), new_pixels);
+	}
+
 	ImageBuffer* get_buffer()
 	{
 		return buffer;

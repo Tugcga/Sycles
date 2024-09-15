@@ -41,7 +41,6 @@ public:
 	bool set_pixels(const ImageRectangle &rect, const std::vector<float>& in_pixels);
 	bool set_pixel(size_t x, size_t y, const float* data, size_t in_channels);
 	size_t get_pixels_count();
-	size_t get_channels_count();
 	size_t get_buffer_size();  // return the size of the pixels array (inf fact pixels_count * channels)
 	size_t get_pixel_index(size_t x, size_t y);
 

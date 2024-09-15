@@ -19,3 +19,6 @@ void denoise_visual(RenderVisualBuffer* visual_buffer, OutputContext* output_con
 
 // denoising_oidn
 std::vector<float> denoise_buffer_oidn(ImageBuffer* buffer, OutputContext* output_context, bool use_albedo, bool use_normal);
+
+// denoising_optix
+std::vector<float> denoise_buffer_optix(ImageBuffer* buffer, OutputContext* output_context, bool use_albedo, bool use_normal);

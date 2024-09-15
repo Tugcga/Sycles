@@ -175,7 +175,6 @@ void ImageBuffer::redefine_rgb(const std::vector<float>& rgb_pixels)
 }
 
 size_t ImageBuffer::get_pixels_count() { return pixels_count; }
-size_t ImageBuffer::get_channels_count() { return channels; }
 size_t ImageBuffer::get_buffer_size() { return pixels.size(); }
 size_t ImageBuffer::get_pixel_index(size_t x, size_t y) { return y * width + x; }
 std::vector<float> ImageBuffer::get_pixels() { return pixels; }
