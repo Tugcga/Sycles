@@ -880,6 +880,14 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		}
 	},
 	{
+		"CyclesShadersPlugin.CyclesColorCurves.1.0", {
+			{"Fac", "Fac"},
+			{"Color", "Color"},
+
+			{"outColor", "Color"}
+		}
+	},
+	{
 		"CyclesShadersPlugin.CyclesVectorCurves.1.0", {
 			{"Fac", "Fac"},
 			{"Vector", "Vector"},
