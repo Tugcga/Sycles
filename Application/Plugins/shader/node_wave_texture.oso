@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_wave_texture.oso
+# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_wave_texture.oso
 shader node_wave_texture
 param	int	use_mapping	0		%read{2,2} %write{2147483647,-1}
 param	matrix	mapping	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0		%read{3,3} %write{2147483647,-1}
@@ -30,9 +30,9 @@ local	float	___476_t	%read{55,86} %write{55,86}
 local	float	___474_rmd	%read{89,124} %write{88,88}
 local	float	___477_t	%read{113,113} %write{112,112}
 local	float	___477_sum2	%read{119,124} %write{114,114}
-local	point	___570_p	%read{13,46} %write{7,7}
-local	float	___570_n	%read{43,152} %write{8,149}
-local	point	___576_rp	%read{34,41} %write{31,40}
+local	point	___573_p	%read{13,46} %write{7,7}
+local	float	___573_n	%read{43,152} %write{8,149}
+local	point	___579_rp	%read{34,41} %write{31,40}
 local	point	p	%read{3,4} %write{1,3}
 temp	point	$tmp1	%read{6,6} %write{4,4}
 const	string	$const1	"wave"		%read{5,5} %write{2147483647,-1}
@@ -152,112 +152,112 @@ temp	float	$tmp89	%read{152,152} %write{151,151}
 temp	float	$tmp90	%read{151,151} %write{150,150}
 temp	float	$tmp91	%read{153,153} %write{152,152}
 code Vector
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:87
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:87
 #                          point Vector = P,
-	assign		Vector P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl"} %line{87} %argrw{"wr"}
+	assign		Vector P 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl"} %line{87} %argrw{"wr"}
 code ___main___
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:91
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:91
 #   point p = Vector;
-	assign		p Vector 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl"} %line{91} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:93
+	assign		p Vector 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl"} %line{91} %argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:93
 #   if (use_mapping)
 	if		use_mapping 4 4 	%line{93} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:94
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:94
 #     p = transform(mapping, p);
 	transform	p mapping p 	%line{94} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:96
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:96
 #   Fac = wave(p * Scale,
 	mul		$tmp1 p Scale 	%line{96} %argrw{"wrr"}
 	functioncall	$const1 156 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:22
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:22
 #   point p = (p_input + 0.000001) * 0.999999;
 	add		$tmp2 $tmp1 $const2 	%line{22} %argrw{"wrr"}
-	mul		___570_p $tmp2 $const3 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:24
+	mul		___573_p $tmp2 $const3 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:24
 #   float n = 0.0;
-	assign		___570_n $const4 	%line{24} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:26
+	assign		___573_n $const4 	%line{24} %argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:26
 #   if (type == "bands") {
 	eq		$tmp3 wave_type $const5 	%line{26} %argrw{"wrr"}
 	if		$tmp3 29 43 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:27
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:27
 #     if (bands_direction == "x") {
 	eq		$tmp4 bands_direction $const6 	%line{27} %argrw{"wrr"}
 	if		$tmp4 15 29 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:28
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:28
 #       n = p[0] * 20.0;
-	compref		$tmp5 ___570_p $const7 	%line{28} %argrw{"wrr"}
-	mul		___570_n $tmp5 $const8 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:30
+	compref		$tmp5 ___573_p $const7 	%line{28} %argrw{"wrr"}
+	mul		___573_n $tmp5 $const8 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:30
 #     else if (bands_direction == "y") {
 	eq		$tmp6 bands_direction $const9 	%line{30} %argrw{"wrr"}
 	if		$tmp6 19 29 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:31
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:31
 #       n = p[1] * 20.0;
-	compref		$tmp7 ___570_p $const10 	%line{31} %argrw{"wrr"}
-	mul		___570_n $tmp7 $const8 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:33
+	compref		$tmp7 ___573_p $const10 	%line{31} %argrw{"wrr"}
+	mul		___573_n $tmp7 $const8 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:33
 #     else if (bands_direction == "z") {
 	eq		$tmp8 bands_direction $const11 	%line{33} %argrw{"wrr"}
 	if		$tmp8 23 29 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:34
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:34
 #       n = p[2] * 20.0;
-	compref		$tmp9 ___570_p $const12 	%line{34} %argrw{"wrr"}
-	mul		___570_n $tmp9 $const8 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:37
+	compref		$tmp9 ___573_p $const12 	%line{34} %argrw{"wrr"}
+	mul		___573_n $tmp9 $const8 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:37
 #       n = (p[0] + p[1] + p[2]) * 10.0;
-	compref		$tmp10 ___570_p $const7 	%line{37} %argrw{"wrr"}
-	compref		$tmp11 ___570_p $const10 	%argrw{"wrr"}
+	compref		$tmp10 ___573_p $const7 	%line{37} %argrw{"wrr"}
+	compref		$tmp11 ___573_p $const10 	%argrw{"wrr"}
 	add		$tmp12 $tmp10 $tmp11 	%argrw{"wrr"}
-	compref		$tmp13 ___570_p $const12 	%argrw{"wrr"}
+	compref		$tmp13 ___573_p $const12 	%argrw{"wrr"}
 	add		$tmp14 $tmp12 $tmp13 	%argrw{"wrr"}
-	mul		___570_n $tmp14 $const13 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:40
+	mul		___573_n $tmp14 $const13 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:40
 #   else if (type == "rings") {
 	eq		$tmp15 wave_type $const14 	%line{40} %argrw{"wrr"}
 	if		$tmp15 43 43 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:41
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:41
 #     point rp = p;
-	assign		___576_rp ___570_p 	%line{41} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:42
+	assign		___579_rp ___573_p 	%line{41} %argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:42
 #     if (rings_direction == "x") {
 	eq		$tmp16 rings_direction $const6 	%line{42} %argrw{"wrr"}
 	if		$tmp16 35 41 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:43
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:43
 #       rp *= point(0.0, 1.0, 1.0);
-	mul		___576_rp ___576_rp $const15 	%line{43} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:45
+	mul		___579_rp ___579_rp $const15 	%line{43} %argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:45
 #     else if (rings_direction == "y") {
 	eq		$tmp18 rings_direction $const9 	%line{45} %argrw{"wrr"}
 	if		$tmp18 38 41 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:46
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:46
 #       rp *= point(1.0, 0.0, 1.0);
-	mul		___576_rp ___576_rp $const16 	%line{46} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:48
+	mul		___579_rp ___579_rp $const16 	%line{46} %argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:48
 #     else if (rings_direction == "z") {
 	eq		$tmp20 rings_direction $const11 	%line{48} %argrw{"wrr"}
 	if		$tmp20 41 41 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:49
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:49
 #       rp *= point(1.0, 1.0, 0.0);
-	mul		___576_rp ___576_rp $const17 	%line{49} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:53
+	mul		___579_rp ___579_rp $const17 	%line{49} %argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:53
 #     n = length(rp) * 20.0;
-	length		$tmp22 ___576_rp 	%line{53} %argrw{"wr"}
-	mul		___570_n $tmp22 $const8 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:56
+	length		$tmp22 ___579_rp 	%line{53} %argrw{"wr"}
+	mul		___573_n $tmp22 $const8 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:56
 #   n += phase;
-	add		___570_n ___570_n PhaseOffset 	%line{56} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:58
+	add		___573_n ___573_n PhaseOffset 	%line{56} %argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:58
 #   if (distortion != 0.0) {
 	neq		$tmp23 Distortion $const4 	%line{58} %argrw{"wrr"}
 	if		$tmp23 136 136 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:59
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:59
 #     n = n + (distortion * (noise_fbm(p * dscale, detail, droughness, 2.0, 1) * 2.0 - 1.0));
-	mul		$tmp25 ___570_p DetailScale 	%line{59} %argrw{"wrr"}
+	mul		$tmp25 ___573_p DetailScale 	%line{59} %argrw{"wrr"}
 	functioncall	$const19 132 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:246
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:246
 # NOISE_FBM(vector3)
-	assign		___474_p $tmp25 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h"} %line{246} %argrw{"wr"}
+	assign		___474_p $tmp25 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h"} %line{246} %argrw{"wr"}
 	assign		___474_fscale $const20 	%argrw{"wr"}
 	assign		___474_amp $const20 	%argrw{"wr"}
 	assign		___474_maxamp $const4 	%argrw{"wr"}
@@ -269,39 +269,39 @@ code ___main___
 	neq		$tmp28 $tmp27 $const7 	%argrw{"wrr"}
 	mul		$tmp29 ___474_fscale ___474_p 	%argrw{"wrr"}
 	functioncall	$const21 80 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:83
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:83
 #   vector3 precision_correction = 0.5 * vector3(float(fabs(co.x) >= 1000000.0),
 	compref		$tmp33 $tmp29 $const7 	%line{83} %argrw{"wrr"}
 	fabs		$tmp32 $tmp33 	%argrw{"wr"}
 	ge		$tmp34 $tmp32 $const23 	%argrw{"wrr"}
 	assign		$tmp35 $tmp34 	%argrw{"wr"}
 	assign		$tmp31 $tmp35 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:84
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:84
 #                                                float(fabs(co.y) >= 1000000.0),
 	compref		$tmp38 $tmp29 $const10 	%line{84} %argrw{"wrr"}
 	fabs		$tmp37 $tmp38 	%argrw{"wr"}
 	ge		$tmp39 $tmp37 $const23 	%argrw{"wrr"}
 	assign		$tmp40 $tmp39 	%argrw{"wr"}
 	assign		$tmp36 $tmp40 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:85
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:85
 #                                                float(fabs(co.z) >= 1000000.0));
 	compref		$tmp43 $tmp29 $const12 	%line{85} %argrw{"wrr"}
 	fabs		$tmp42 $tmp43 	%argrw{"wr"}
 	ge		$tmp44 $tmp42 $const23 	%argrw{"wrr"}
 	assign		$tmp45 $tmp44 	%argrw{"wr"}
 	assign		$tmp41 $tmp45 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:83
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:83
 #   vector3 precision_correction = 0.5 * vector3(float(fabs(co.x) >= 1000000.0),
 	point		$tmp30 $tmp31 $tmp36 $tmp41 	%line{83} %argrw{"wrrr"}
 	mul		___462_precision_correction $const22 $tmp30 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:89
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:89
 #   vector3 p = fmod(co, 100000.0) + precision_correction;
 	fmod		$tmp46 $tmp29 $const24 	%line{89} %argrw{"wrr"}
 	add		___462_p $tmp46 ___462_precision_correction 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:91
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:91
 #   return noise("snoise", p);
 	noise		___476_t $const25 ___462_p 	%line{91} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:246
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:246
 # NOISE_FBM(vector3)
 	mul		$tmp47 ___476_t ___474_amp 	%line{246} %argrw{"wrr"}
 	add		___474_sum ___474_sum $tmp47 	%argrw{"wrr"}
@@ -316,39 +316,39 @@ code ___main___
 	if		$tmp50 126 132 	%argrw{"r"}
 	mul		$tmp51 ___474_fscale ___474_p 	%argrw{"wrr"}
 	functioncall	$const21 113 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:83
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:83
 #   vector3 precision_correction = 0.5 * vector3(float(fabs(co.x) >= 1000000.0),
 	compref		$tmp55 $tmp51 $const7 	%line{83} %argrw{"wrr"}
 	fabs		$tmp54 $tmp55 	%argrw{"wr"}
 	ge		$tmp56 $tmp54 $const23 	%argrw{"wrr"}
 	assign		$tmp57 $tmp56 	%argrw{"wr"}
 	assign		$tmp53 $tmp57 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:84
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:84
 #                                                float(fabs(co.y) >= 1000000.0),
 	compref		$tmp60 $tmp51 $const10 	%line{84} %argrw{"wrr"}
 	fabs		$tmp59 $tmp60 	%argrw{"wr"}
 	ge		$tmp61 $tmp59 $const23 	%argrw{"wrr"}
 	assign		$tmp62 $tmp61 	%argrw{"wr"}
 	assign		$tmp58 $tmp62 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:85
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:85
 #                                                float(fabs(co.z) >= 1000000.0));
 	compref		$tmp65 $tmp51 $const12 	%line{85} %argrw{"wrr"}
 	fabs		$tmp64 $tmp65 	%argrw{"wr"}
 	ge		$tmp66 $tmp64 $const23 	%argrw{"wrr"}
 	assign		$tmp67 $tmp66 	%argrw{"wr"}
 	assign		$tmp63 $tmp67 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:83
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:83
 #   vector3 precision_correction = 0.5 * vector3(float(fabs(co.x) >= 1000000.0),
 	point		$tmp52 $tmp53 $tmp58 $tmp63 	%line{83} %argrw{"wrrr"}
 	mul		___462_precision_correction $const22 $tmp52 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:89
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:89
 #   vector3 p = fmod(co, 100000.0) + precision_correction;
 	fmod		$tmp68 $tmp51 $const24 	%line{89} %argrw{"wrr"}
 	add		___462_p $tmp68 ___462_precision_correction 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:91
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:91
 #   return noise("snoise", p);
 	noise		___477_t $const25 ___462_p 	%line{91} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_noise.h:246
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_noise.h:246
 # NOISE_FBM(vector3)
 	mul		$tmp69 ___477_t ___474_amp 	%line{246} %argrw{"wrr"}
 	add		___477_sum2 ___474_sum $tmp69 	%argrw{"wrr"}
@@ -369,47 +369,47 @@ code ___main___
 	add		$tmp24 $tmp78 $const22 	%argrw{"wrr"}
 	assign		$tmp24 ___474_sum 	%argrw{"wr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:59
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:59
 #     n = n + (distortion * (noise_fbm(p * dscale, detail, droughness, 2.0, 1) * 2.0 - 1.0));
-	mul		$tmp79 $tmp24 $const18 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl"} %line{59} %argrw{"wrr"}
+	mul		$tmp79 $tmp24 $const18 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl"} %line{59} %argrw{"wrr"}
 	sub		$tmp80 $tmp79 $const20 	%argrw{"wrr"}
 	mul		$tmp81 Distortion $tmp80 	%argrw{"wrr"}
-	add		___570_n ___570_n $tmp81 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:62
+	add		___573_n ___573_n $tmp81 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:62
 #   if (profile == "sine") {
 	eq		$tmp82 profile $const26 	%line{62} %argrw{"wrr"}
 	if		$tmp82 143 156 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:63
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:63
 #     return 0.5 + 0.5 * sin(n - M_PI_2);
-	sub		$tmp84 ___570_n $const27 	%line{63} %argrw{"wrr"}
+	sub		$tmp84 ___573_n $const27 	%line{63} %argrw{"wrr"}
 	sin		$tmp83 $tmp84 	%argrw{"wr"}
 	mul		$tmp85 $const22 $tmp83 	%argrw{"wrr"}
 	add		Fac $const22 $tmp85 	%argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:65
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:65
 #   else if (profile == "saw") {
 	eq		$tmp86 profile $const28 	%line{65} %argrw{"wrr"}
 	if		$tmp86 149 156 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:66
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:66
 #     n /= M_2PI;
-	div		___570_n ___570_n $const29 	%line{66} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:67
+	div		___573_n ___573_n $const29 	%line{66} %argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:67
 #     return n - floor(n);
-	floor		$tmp87 ___570_n 	%line{67} %argrw{"wr"}
-	sub		Fac ___570_n $tmp87 	%argrw{"wrr"}
+	floor		$tmp87 ___573_n 	%line{67} %argrw{"wr"}
+	sub		Fac ___573_n $tmp87 	%argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:70
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:70
 #     n /= M_2PI;
-	div		___570_n ___570_n $const29 	%line{70} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:71
+	div		___573_n ___573_n $const29 	%line{70} %argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:71
 #     return abs(n - floor(n + 0.5)) * 2.0;
-	add		$tmp90 ___570_n $const22 	%line{71} %argrw{"wrr"}
+	add		$tmp90 ___573_n $const22 	%line{71} %argrw{"wrr"}
 	floor		$tmp89 $tmp90 	%argrw{"wr"}
-	sub		$tmp91 ___570_n $tmp89 	%argrw{"wrr"}
+	sub		$tmp91 ___573_n $tmp89 	%argrw{"wrr"}
 	abs		$tmp88 $tmp91 	%argrw{"wr"}
 	mul		Fac $tmp88 $const18 	%argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_wave_texture.osl:106
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_wave_texture.osl:106
 #   Color = Fac;
 	assign		Color Fac 	%line{106} %argrw{"wr"}
 	end

@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_white_noise_texture.oso
+# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_white_noise_texture.oso
 shader node_white_noise_texture
 param	string	dimensions	"3D"		%read{0,57} %write{2147483647,-1}
 param	point	Vector	0 0 0		%read{17,62} %write{2147483647,-1}
@@ -83,170 +83,170 @@ temp	point	$tmp37	%read{81,81} %write{80,80}
 const	string	$const19	"%s"		%read{83,83} %write{2147483647,-1}
 const	string	$const20	"Unknown dimension!"		%read{83,83} %write{2147483647,-1}
 code ___main___
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:18
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:18
 #   if (dimensions == "1D") {
-	eq		$tmp1 dimensions $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl"} %line{18} %argrw{"wrr"}
+	eq		$tmp1 dimensions $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl"} %line{18} %argrw{"wrr"}
 	if		$tmp1 15 84 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:19
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:19
 #     Value = noise("hash", W);
 	noise		Value $const2 W 	%line{19} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:20
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:20
 #     Color = hash_float_to_color(W);
 	functioncall	$const3 15 	%line{20} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:59
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:59
 #   return color(hash_float_to_float(k),
-	functioncall	$const4 6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{59} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:15
+	functioncall	$const4 6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h"} %line{59} %argrw{"r"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:15
 #   return hashnoise(k);
 	hashnoise	$tmp2 W 	%line{15} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:60
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:60
 #                hash_vector2_to_float(vector2(k, 1.0)),
 	assign		$tmp4.x W 	%line{60} %argrw{"wr"}
 	assign		$tmp4.y $const5 	%argrw{"wr"}
 	functioncall	$const6 10 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:20
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:20
 #   return hashnoise(k.x, k.y);
 	hashnoise	$tmp3 $tmp4.x $tmp4.y 	%line{20} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:61
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:61
 #                hash_vector2_to_float(vector2(k, 2.0)));
 	assign		$tmp6.x W 	%line{61} %argrw{"wr"}
 	assign		$tmp6.y $const7 	%argrw{"wr"}
 	functioncall	$const6 14 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:20
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:20
 #   return hashnoise(k.x, k.y);
 	hashnoise	$tmp5 $tmp6.x $tmp6.y 	%line{20} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:59
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:59
 #   return color(hash_float_to_float(k),
 	color		Color $tmp2 $tmp3 $tmp5 	%line{59} %argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:22
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:22
 #   else if (dimensions == "2D") {
-	eq		$tmp7 dimensions $const8 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl"} %line{22} %argrw{"wrr"}
+	eq		$tmp7 dimensions $const8 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl"} %line{22} %argrw{"wrr"}
 	if		$tmp7 32 84 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:23
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:23
 #     Value = noise("hash", Vector[0], Vector[1]);
 	compref		$tmp8 Vector $const9 	%line{23} %argrw{"wrr"}
 	compref		$tmp9 Vector $const10 	%argrw{"wrr"}
 	noise		Value $const2 $tmp8 $tmp9 	%argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:24
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:24
 #     Color = hash_vector2_to_color(vector2(Vector[0], Vector[1]));
 	compref		$tmp10.x Vector $const9 	%line{24} %argrw{"wrr"}
 	compref		$tmp10.y Vector $const10 	%argrw{"wrr"}
 	functioncall	$const11 32 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:66
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:66
 #   return color(hash_vector2_to_float(k),
-	functioncall	$const6 25 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{66} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:20
+	functioncall	$const6 25 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h"} %line{66} %argrw{"r"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:20
 #   return hashnoise(k.x, k.y);
 	hashnoise	$tmp11 $tmp10.x $tmp10.y 	%line{20} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:67
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:67
 #                hash_vector3_to_float(vector3(k.x, k.y, 1.0)),
 	point		$tmp13 $tmp10.x $tmp10.y $const5 	%line{67} %argrw{"wrrr"}
 	functioncall	$const12 28 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:25
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:25
 #   return hashnoise(k);
 	hashnoise	$tmp12 $tmp13 	%line{25} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:68
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:68
 #                hash_vector3_to_float(vector3(k.x, k.y, 2.0)));
 	point		$tmp15 $tmp10.x $tmp10.y $const7 	%line{68} %argrw{"wrrr"}
 	functioncall	$const12 31 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:25
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:25
 #   return hashnoise(k);
 	hashnoise	$tmp14 $tmp15 	%line{25} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:66
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:66
 #   return color(hash_vector2_to_float(k),
 	color		Color $tmp11 $tmp12 $tmp14 	%line{66} %argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:26
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:26
 #   else if (dimensions == "3D") {
-	eq		$tmp16 dimensions $const13 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl"} %line{26} %argrw{"wrr"}
+	eq		$tmp16 dimensions $const13 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl"} %line{26} %argrw{"wrr"}
 	if		$tmp16 57 84 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:27
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:27
 #     Value = noise("hash", Vector);
 	noise		Value $const2 Vector 	%line{27} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:28
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:28
 #     Color = hash_vector3_to_color(vector3(Vector[0], Vector[1], Vector[2]));
 	compref		$tmp18 Vector $const9 	%line{28} %argrw{"wrr"}
 	compref		$tmp19 Vector $const10 	%argrw{"wrr"}
 	compref		$tmp20 Vector $const14 	%argrw{"wrr"}
 	point		$tmp17 $tmp18 $tmp19 $tmp20 	%argrw{"wrrr"}
 	functioncall	$const15 57 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:73
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:73
 #   return color(hash_vector3_to_float(k),
-	functioncall	$const12 42 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{73} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:25
+	functioncall	$const12 42 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h"} %line{73} %argrw{"r"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:25
 #   return hashnoise(k);
 	hashnoise	$tmp21 $tmp17 	%line{25} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:74
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:74
 #                hash_vector4_to_float(vector4(k[0], k[1], k[2], 1.0)),
 	compref		$tmp23.x $tmp17 $const9 	%line{74} %argrw{"wrr"}
 	compref		$tmp23.y $tmp17 $const10 	%argrw{"wrr"}
 	compref		$tmp23.z $tmp17 $const14 	%argrw{"wrr"}
 	assign		$tmp23.w $const5 	%argrw{"wr"}
 	functioncall	$const16 49 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp24 $tmp23.x $tmp23.y $tmp23.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp22 $tmp24 $tmp23.w 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:75
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:75
 #                hash_vector4_to_float(vector4(k[0], k[1], k[2], 2.0)));
 	compref		$tmp26.x $tmp17 $const9 	%line{75} %argrw{"wrr"}
 	compref		$tmp26.y $tmp17 $const10 	%argrw{"wrr"}
 	compref		$tmp26.z $tmp17 $const14 	%argrw{"wrr"}
 	assign		$tmp26.w $const7 	%argrw{"wr"}
 	functioncall	$const16 56 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp27 $tmp26.x $tmp26.y $tmp26.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp25 $tmp27 $tmp26.w 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:73
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:73
 #   return color(hash_vector3_to_float(k),
 	color		Color $tmp21 $tmp22 $tmp25 	%line{73} %argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:30
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:30
 #   else if (dimensions == "4D") {
-	eq		$tmp28 dimensions $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl"} %line{30} %argrw{"wrr"}
+	eq		$tmp28 dimensions $const17 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl"} %line{30} %argrw{"wrr"}
 	if		$tmp28 83 84 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:31
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:31
 #     Value = noise("hash", Vector, W);
 	noise		Value $const2 Vector W 	%line{31} %argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:32
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:32
 #     Color = hash_vector4_to_color(vector4(Vector[0], Vector[1], Vector[2], W));
 	compref		$tmp29.x Vector $const9 	%line{32} %argrw{"wrr"}
 	compref		$tmp29.y Vector $const10 	%argrw{"wrr"}
 	compref		$tmp29.z Vector $const14 	%argrw{"wrr"}
 	assign		$tmp29.w W 	%argrw{"wr"}
 	functioncall	$const18 83 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:80
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:80
 #   return color(hash_vector4_to_float(k),
-	functioncall	$const16 68 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h"} %line{80} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+	functioncall	$const16 68 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h"} %line{80} %argrw{"r"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp31 $tmp29.x $tmp29.y $tmp29.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp30 $tmp31 $tmp29.w 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:81
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:81
 #                hash_vector4_to_float(vector4(k.z, k.x, k.w, k.y)),
 	assign		$tmp33.x $tmp29.z 	%line{81} %argrw{"wr"}
 	assign		$tmp33.y $tmp29.x 	%argrw{"wr"}
 	assign		$tmp33.z $tmp29.w 	%argrw{"wr"}
 	assign		$tmp33.w $tmp29.y 	%argrw{"wr"}
 	functioncall	$const16 75 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp34 $tmp33.x $tmp33.y $tmp33.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp32 $tmp34 $tmp33.w 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:82
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:82
 #                hash_vector4_to_float(vector4(k.w, k.z, k.y, k.x)));
 	assign		$tmp36.x $tmp29.w 	%line{82} %argrw{"wr"}
 	assign		$tmp36.y $tmp29.z 	%argrw{"wr"}
 	assign		$tmp36.z $tmp29.y 	%argrw{"wr"}
 	assign		$tmp36.w $tmp29.x 	%argrw{"wr"}
 	functioncall	$const16 82 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:30
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:30
 #   return hashnoise(vector3(k.x, k.y, k.z), k.w);
 	point		$tmp37 $tmp36.x $tmp36.y $tmp36.z 	%line{30} %argrw{"wrrr"}
 	hashnoise	$tmp35 $tmp37 $tmp36.w 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_hash.h:80
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_hash.h:80
 #   return color(hash_vector4_to_float(k),
 	color		Color $tmp30 $tmp32 $tmp35 	%line{80} %argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl:35
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl:35
 #     warning("%s", "Unknown dimension!");
-	warning		$const19 $const20 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_white_noise_texture.osl"} %line{35} %argrw{"rr"}
+	warning		$const19 $const20 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_white_noise_texture.osl"} %line{35} %argrw{"rr"}
 	end

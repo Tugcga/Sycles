@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_background.oso
+# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_background.oso
 shader node_background
 param	color	Color	0.800000012 0.800000012 0.800000012		%read{1,1} %write{2147483647,-1}
 param	float	Strength	1		%read{1,1} %write{2147483647,-1}
@@ -9,9 +9,9 @@ temp	closure color	$tmp1	%read{2,2} %write{0,0}
 const	string	$const1	"background"		%read{0,0} %write{2147483647,-1}
 temp	color	$tmp2	%read{2,2} %write{1,1}
 code ___main___
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_background.osl:11
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_background.osl:11
 #   Background = Color * Strength * background();
-	closure		$tmp1 $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_background.osl"} %line{11} %argrw{"wr"}
+	closure		$tmp1 $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_background.osl"} %line{11} %argrw{"wr"}
 	mul		$tmp2 Color Strength 	%argrw{"wrr"}
 	mul		Background $tmp1 $tmp2 	%argrw{"wrr"}
 	end

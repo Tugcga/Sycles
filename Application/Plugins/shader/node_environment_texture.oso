@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_environment_texture.oso
+# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_environment_texture.oso
 shader node_environment_texture
 param	int	use_mapping	0		%read{2,2} %write{2147483647,-1}
 param	matrix	mapping	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0		%read{3,3} %write{2147483647,-1} %derivs
@@ -15,12 +15,12 @@ param	int	is_float	1		%read{64,64} %write{2147483647,-1}
 oparam	color	Color	0 0 0		%read{61,96} %write{49,109}
 oparam	float	Alpha	1		%read{54,61} %write{49,51}
 global	point	P	%read{0,0} %write{2147483647,-1} %derivs
-local	float	___404_u	%read{25,25} %write{13,13} %derivs
-local	float	___404_v	%read{25,25} %write{24,24} %derivs
-local	vector	___405_dir	%read{28,42} %write{27,38} %derivs
-local	float	___405_div	%read{36,38} %write{35,35} %derivs
-local	float	___405_u	%read{45,45} %write{41,41} %derivs
-local	float	___405_v	%read{45,45} %write{44,44} %derivs
+local	float	___407_u	%read{25,25} %write{13,13} %derivs
+local	float	___407_v	%read{25,25} %write{24,24} %derivs
+local	vector	___408_dir	%read{28,42} %write{27,38} %derivs
+local	float	___408_div	%read{36,38} %write{35,35} %derivs
+local	float	___408_u	%read{45,45} %write{41,41} %derivs
+local	float	___408_v	%read{45,45} %write{44,44} %derivs
 local	vector	p	%read{3,47} %write{1,45} %derivs
 const	string	$const1	"equirectangular"		%read{5,5} %write{2147483647,-1}
 temp	int	$tmp1	%read{6,6} %write{5,5}
@@ -101,209 +101,209 @@ temp	int	$tmp51	%read{101,101} %write{100,100}
 temp	float	$tmp52	%read{106,106} %write{105,105}
 temp	float	$tmp53	%read{107,107} %write{106,106}
 code Vector
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:34
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:34
 #     vector Vector = P,
-	assign		Vector P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl"} %line{34} %argrw{"wr"}
+	assign		Vector P 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl"} %line{34} %argrw{"wr"}
 code ___main___
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:45
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:45
 #   vector p = Vector;
-	assign		p Vector 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl"} %line{45} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:47
+	assign		p Vector 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl"} %line{45} %argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:47
 #   if (use_mapping)
 	if		use_mapping 4 4 	%line{47} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:48
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:48
 #     p = transform(mapping, p);
 	transformv	p mapping p 	%line{48} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:50
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:50
 #   p = normalize(p);
 	normalize	p p 	%line{50} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:52
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:52
 #   if (projection == "equirectangular")
 	eq		$tmp1 projection $const1 	%line{52} %argrw{"wrr"}
 	if		$tmp1 26 46 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:53
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:53
 #     p = environment_texture_direction_to_equirectangular(p);
 	functioncall	$const2 26 	%line{53} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:10
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:10
 #   float u = -atan2(dir[1], dir[0]) / (M_2PI) + 0.5;
 	compref		$tmp3 p $const3 	%line{10} %argrw{"wrr"}
 	compref		$tmp4 p $const4 	%argrw{"wrr"}
 	atan2		$tmp2 $tmp3 $tmp4 	%argrw{"wrr"}
 	neg		$tmp5 $tmp2 	%argrw{"wr"}
 	div		$tmp6 $tmp5 $const5 	%argrw{"wrr"}
-	add		___404_u $tmp6 $const6 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:11
+	add		___407_u $tmp6 $const6 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:11
 #   float v = atan2(dir[2], hypot(dir[0], dir[1])) / M_PI + 0.5;
 	compref		$tmp8 p $const7 	%line{11} %argrw{"wrr"}
 	compref		$tmp10 p $const4 	%argrw{"wrr"}
 	compref		$tmp11 p $const3 	%argrw{"wrr"}
 	functioncall	$const8 22 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:101
+# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:101
 # float hypot (float a, float b) { return sqrt (a*a + b*b); }
-	mul		$tmp12 $tmp10 $tmp10 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{101} %argrw{"wrr"}
+	mul		$tmp12 $tmp10 $tmp10 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{101} %argrw{"wrr"}
 	mul		$tmp13 $tmp11 $tmp11 	%argrw{"wrr"}
 	add		$tmp14 $tmp12 $tmp13 	%argrw{"wrr"}
 	sqrt		$tmp9 $tmp14 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:11
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:11
 #   float v = atan2(dir[2], hypot(dir[0], dir[1])) / M_PI + 0.5;
-	atan2		$tmp7 $tmp8 $tmp9 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl"} %line{11} %argrw{"wrr"}
+	atan2		$tmp7 $tmp8 $tmp9 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl"} %line{11} %argrw{"wrr"}
 	div		$tmp15 $tmp7 $const9 	%argrw{"wrr"}
-	add		___404_v $tmp15 $const6 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:13
+	add		___407_v $tmp15 $const6 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:13
 #   return vector(u, v, 0.0);
-	vector		p ___404_u ___404_v $const10 	%line{13} %argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:55
+	vector		p ___407_u ___407_v $const10 	%line{13} %argrw{"wrrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:55
 #     p = environment_texture_direction_to_mirrorball(p);
 	functioncall	$const11 46 	%line{55} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:18
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:18
 #   vector dir = idir;
-	assign		___405_dir p 	%line{18} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:19
+	assign		___408_dir p 	%line{18} %argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:19
 #   dir[1] -= 1.0;
-	compref		$tmp16 ___405_dir $const3 	%line{19} %argrw{"wrr"}
+	compref		$tmp16 ___408_dir $const3 	%line{19} %argrw{"wrr"}
 	sub		$tmp17 $tmp16 $const12 	%argrw{"wrr"}
-	compassign	___405_dir $const3 $tmp17 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:21
+	compassign	___408_dir $const3 $tmp17 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:21
 #   float div = 2.0 * sqrt(max(-0.5 * dir[1], 0.0));
-	compref		$tmp20 ___405_dir $const3 	%line{21} %argrw{"wrr"}
+	compref		$tmp20 ___408_dir $const3 	%line{21} %argrw{"wrr"}
 	mul		$tmp21 $const14 $tmp20 	%argrw{"wrr"}
 	max		$tmp19 $tmp21 $const10 	%argrw{"wrr"}
 	sqrt		$tmp18 $tmp19 	%argrw{"wr"}
-	mul		___405_div $const13 $tmp18 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:22
+	mul		___408_div $const13 $tmp18 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:22
 #   if (div > 0.0)
-	gt		$tmp22 ___405_div $const10 	%line{22} %argrw{"wrr"}
+	gt		$tmp22 ___408_div $const10 	%line{22} %argrw{"wrr"}
 	if		$tmp22 39 39 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:23
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:23
 #     dir /= div;
-	div		___405_dir ___405_dir ___405_div 	%line{23} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:25
+	div		___408_dir ___408_dir ___408_div 	%line{23} %argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:25
 #   float u = 0.5 * (dir[0] + 1.0);
-	compref		$tmp23 ___405_dir $const4 	%line{25} %argrw{"wrr"}
+	compref		$tmp23 ___408_dir $const4 	%line{25} %argrw{"wrr"}
 	add		$tmp24 $tmp23 $const12 	%argrw{"wrr"}
-	mul		___405_u $const6 $tmp24 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:26
+	mul		___408_u $const6 $tmp24 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:26
 #   float v = 0.5 * (dir[2] + 1.0);
-	compref		$tmp25 ___405_dir $const7 	%line{26} %argrw{"wrr"}
+	compref		$tmp25 ___408_dir $const7 	%line{26} %argrw{"wrr"}
 	add		$tmp26 $tmp25 $const12 	%argrw{"wrr"}
-	mul		___405_v $const6 $tmp26 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:28
+	mul		___408_v $const6 $tmp26 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:28
 #   return vector(u, v, 0.0);
-	vector		p ___405_u ___405_v $const10 	%line{28} %argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:59
+	vector		p ___408_u ___408_v $const10 	%line{28} %argrw{"wrrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:59
 #       filename, p[0], 1.0 - p[1], "wrap", "periodic", "interp", interpolation, "alpha", Alpha);
 	compref		$tmp27 p $const4 	%line{59} %argrw{"wrr"}
 	compref		$tmp28 p $const3 	%argrw{"wrr"}
 	sub		$tmp29 $const12 $tmp28 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:58
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:58
 #   Color = (color)texture(
 	texture		Color filename $tmp27 $tmp29 $const15 $const16 $const17 interpolation $const18 Alpha 	%line{58} %argrw{"wrrrrrrrrw"} %argderivs{2,3}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:61
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:61
 #   if (ignore_alpha) {
 	if		ignore_alpha 52 68 	%line{61} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:62
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:62
 #     Alpha = 1.0;
 	assign		Alpha $const12 	%line{62} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:64
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:64
 #   else if (unassociate_alpha) {
 	if		unassociate_alpha 68 68 	%line{64} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:65
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:65
 #     Color = color_unpremultiply(Color, Alpha);
 	functioncall	$const19 64 	%line{65} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:43
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:43
 #   if (alpha != 1.0 && alpha != 0.0) {
-	neq		$tmp30 Alpha $const12 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{43} %argrw{"wrr"}
+	neq		$tmp30 Alpha $const12 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h"} %line{43} %argrw{"wrr"}
 	neq		$tmp31 $tmp30 $const4 	%argrw{"wrr"}
 	if		$tmp31 60 60 	%argrw{"r"}
 	neq		$tmp32 Alpha $const10 	%argrw{"wrr"}
 	neq		$tmp33 $tmp32 $const4 	%argrw{"wrr"}
 	assign		$tmp31 $tmp33 	%argrw{"wr"}
 	if		$tmp31 63 63 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:44
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:44
 #     return c / alpha;
 	div		Color Color Alpha 	%line{44} %argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:47
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:47
 #   return c;
 	assign		Color Color 	%line{47} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:67
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:67
 #     if (!is_float)
-	eq		$tmp34 is_float $const4 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl"} %line{67} %argrw{"wrr"}
+	eq		$tmp34 is_float $const4 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl"} %line{67} %argrw{"wrr"}
 	if		$tmp34 68 68 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:68
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:68
 #       Color = min(Color, 1.0);
 	assign		$tmp35 $const12 	%line{68} %argrw{"wr"}
 	min		Color Color $tmp35 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:71
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:71
 #   if (compress_as_srgb)
 	if		compress_as_srgb 110 110 	%line{71} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:72
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_environment_texture.osl:72
 #     Color = color_srgb_to_scene_linear(Color);
 	functioncall	$const20 110 	%line{72} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:29
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:29
 #   return color(color_srgb_to_scene_linear(c[0]),
-	compref		$tmp37 Color $const4 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{29} %argrw{"wrr"}
+	compref		$tmp37 Color $const4 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h"} %line{29} %argrw{"wrr"}
 	functioncall	$const20 83 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:9
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:9
 #   if (c < 0.04045) {
 	lt		$tmp38 $tmp37 $const21 	%line{9} %argrw{"wrr"}
 	if		$tmp38 79 83 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:10
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:10
 #     return (c < 0.0) ? 0.0 : c * (1.0 / 12.92);
 	lt		$tmp39 $tmp37 $const10 	%line{10} %argrw{"wrr"}
 	if		$tmp39 77 78 	%argrw{"r"}
 	assign		$tmp36 $const10 	%argrw{"wr"}
 	mul		$tmp36 $tmp37 $const22 	%argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:13
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:13
 #     return pow((c + 0.055) * (1.0 / 1.055), 2.4);
 	add		$tmp40 $tmp37 $const23 	%line{13} %argrw{"wrr"}
 	mul		$tmp41 $tmp40 $const24 	%argrw{"wrr"}
 	pow		$tmp36 $tmp41 $const25 	%argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:30
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:30
 #                color_srgb_to_scene_linear(c[1]),
 	compref		$tmp43 Color $const3 	%line{30} %argrw{"wrr"}
 	functioncall	$const20 96 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:9
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:9
 #   if (c < 0.04045) {
 	lt		$tmp44 $tmp43 $const21 	%line{9} %argrw{"wrr"}
 	if		$tmp44 92 96 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:10
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:10
 #     return (c < 0.0) ? 0.0 : c * (1.0 / 12.92);
 	lt		$tmp45 $tmp43 $const10 	%line{10} %argrw{"wrr"}
 	if		$tmp45 90 91 	%argrw{"r"}
 	assign		$tmp42 $const10 	%argrw{"wr"}
 	mul		$tmp42 $tmp43 $const22 	%argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:13
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:13
 #     return pow((c + 0.055) * (1.0 / 1.055), 2.4);
 	add		$tmp46 $tmp43 $const23 	%line{13} %argrw{"wrr"}
 	mul		$tmp47 $tmp46 $const24 	%argrw{"wrr"}
 	pow		$tmp42 $tmp47 $const25 	%argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:31
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:31
 #                color_srgb_to_scene_linear(c[2]));
 	compref		$tmp49 Color $const7 	%line{31} %argrw{"wrr"}
 	functioncall	$const20 109 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:9
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:9
 #   if (c < 0.04045) {
 	lt		$tmp50 $tmp49 $const21 	%line{9} %argrw{"wrr"}
 	if		$tmp50 105 109 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:10
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:10
 #     return (c < 0.0) ? 0.0 : c * (1.0 / 12.92);
 	lt		$tmp51 $tmp49 $const10 	%line{10} %argrw{"wrr"}
 	if		$tmp51 103 104 	%argrw{"r"}
 	assign		$tmp48 $const10 	%argrw{"wr"}
 	mul		$tmp48 $tmp49 $const22 	%argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:13
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:13
 #     return pow((c + 0.055) * (1.0 / 1.055), 2.4);
 	add		$tmp52 $tmp49 $const23 	%line{13} %argrw{"wrr"}
 	mul		$tmp53 $tmp52 $const24 	%argrw{"wrr"}
 	pow		$tmp48 $tmp53 $const25 	%argrw{"wrr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:29
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_color.h:29
 #   return color(color_srgb_to_scene_linear(c[0]),
 	color		Color $tmp36 $tmp42 $tmp48 	%line{29} %argrw{"wrrr"}
 	end

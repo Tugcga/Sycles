@@ -13,6 +13,9 @@
 // Constants
 #define FLT_MAX 3.402823466e+38  // max value
 
+/* Default offset of coordinates for evaluating bump node. Unit in pixel. */
+#define BUMP_FILTER_WIDTH 0.1
+
 // Declaration of built-in functions and closures, stdosl.h does not make
 // these available so we have to redefine them.
 #define BUILTIN [[int builtin = 1]]
@@ -61,6 +64,9 @@ closure color hair_huang(normal N,
 
 // Volume
 closure color henyey_greenstein(float g) BUILTIN;
+closure color fournier_forand(float B, float IOR) BUILTIN;
+closure color draine(float g, float alpha) BUILTIN;
+closure color rayleigh() BUILTIN;
 closure color absorption() BUILTIN;
 
 // Ray Portal

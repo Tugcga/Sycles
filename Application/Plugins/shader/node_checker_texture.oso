@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_checker_texture.oso
+# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_checker_texture.oso
 shader node_checker_texture
 param	int	use_mapping	0		%read{2,2} %write{2147483647,-1}
 param	matrix	mapping	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0		%read{3,3} %write{2147483647,-1}
@@ -11,10 +11,10 @@ param	color	Color2	0.200000003 0.200000003 0.200000003		%read{43,43} %write{2147
 oparam	float	Fac	0		%read{40,40} %write{36,38}
 oparam	color	Color	0 0 0		%read{2147483647,-1} %write{42,43}
 global	point	P	%read{0,0} %write{2147483647,-1}
-local	point	___362_p	%read{18,26} %write{9,17}
-local	int	___362_xi	%read{30,30} %write{21,21}
-local	int	___362_yi	%read{31,31} %write{25,25}
-local	int	___362_zi	%read{33,33} %write{29,29}
+local	point	___365_p	%read{18,26} %write{9,17}
+local	int	___365_xi	%read{30,30} %write{21,21}
+local	int	___365_yi	%read{31,31} %write{25,25}
+local	int	___365_zi	%read{33,33} %write{29,29}
 local	point	p	%read{3,4} %write{1,3}
 temp	point	$tmp1	%read{6,14} %write{4,4}
 const	string	$const1	"checker"		%read{5,5} %write{2147483647,-1}
@@ -50,83 +50,83 @@ const	float	$const7	1		%read{36,40} %write{2147483647,-1}
 const	float	$const8	0		%read{38,38} %write{2147483647,-1}
 temp	int	$tmp25	%read{41,41} %write{40,40}
 code Vector
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:32
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:32
 #     point Vector = P,
-	assign		Vector P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl"} %line{32} %argrw{"wr"}
+	assign		Vector P 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl"} %line{32} %argrw{"wr"}
 code ___main___
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:38
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:38
 #   point p = Vector;
-	assign		p Vector 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl"} %line{38} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:40
+	assign		p Vector 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl"} %line{38} %argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:40
 #   if (use_mapping)
 	if		use_mapping 4 4 	%line{40} %argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:41
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:41
 #     p = transform(mapping, p);
 	transform	p mapping p 	%line{41} %argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:43
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:43
 #   Fac = checker(p * Scale);
 	mul		$tmp1 p Scale 	%line{43} %argrw{"wrr"}
 	functioncall	$const1 40 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:12
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:12
 #   p[0] = (ip[0] + 0.000001) * 0.999999;
 	compref		$tmp2 $tmp1 $const2 	%line{12} %argrw{"wrr"}
 	add		$tmp3 $tmp2 $const3 	%argrw{"wrr"}
 	mul		$tmp4 $tmp3 $const4 	%argrw{"wrr"}
-	compassign	___362_p $const2 $tmp4 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:13
+	compassign	___365_p $const2 $tmp4 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:13
 #   p[1] = (ip[1] + 0.000001) * 0.999999;
 	compref		$tmp5 $tmp1 $const5 	%line{13} %argrw{"wrr"}
 	add		$tmp6 $tmp5 $const3 	%argrw{"wrr"}
 	mul		$tmp7 $tmp6 $const4 	%argrw{"wrr"}
-	compassign	___362_p $const5 $tmp7 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:14
+	compassign	___365_p $const5 $tmp7 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:14
 #   p[2] = (ip[2] + 0.000001) * 0.999999;
 	compref		$tmp8 $tmp1 $const6 	%line{14} %argrw{"wrr"}
 	add		$tmp9 $tmp8 $const3 	%argrw{"wrr"}
 	mul		$tmp10 $tmp9 $const4 	%argrw{"wrr"}
-	compassign	___362_p $const6 $tmp10 	%argrw{"wrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:16
+	compassign	___365_p $const6 $tmp10 	%argrw{"wrr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:16
 #   int xi = (int)fabs(floor(p[0]));
-	compref		$tmp13 ___362_p $const2 	%line{16} %argrw{"wrr"}
+	compref		$tmp13 ___365_p $const2 	%line{16} %argrw{"wrr"}
 	floor		$tmp12 $tmp13 	%argrw{"wr"}
 	fabs		$tmp11 $tmp12 	%argrw{"wr"}
-	assign		___362_xi $tmp11 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:17
+	assign		___365_xi $tmp11 	%argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:17
 #   int yi = (int)fabs(floor(p[1]));
-	compref		$tmp16 ___362_p $const5 	%line{17} %argrw{"wrr"}
+	compref		$tmp16 ___365_p $const5 	%line{17} %argrw{"wrr"}
 	floor		$tmp15 $tmp16 	%argrw{"wr"}
 	fabs		$tmp14 $tmp15 	%argrw{"wr"}
-	assign		___362_yi $tmp14 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:18
+	assign		___365_yi $tmp14 	%argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:18
 #   int zi = (int)fabs(floor(p[2]));
-	compref		$tmp19 ___362_p $const6 	%line{18} %argrw{"wrr"}
+	compref		$tmp19 ___365_p $const6 	%line{18} %argrw{"wrr"}
 	floor		$tmp18 $tmp19 	%argrw{"wr"}
 	fabs		$tmp17 $tmp18 	%argrw{"wr"}
-	assign		___362_zi $tmp17 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:20
+	assign		___365_zi $tmp17 	%argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:20
 #   if ((xi % 2 == yi % 2) == (zi % 2)) {
-	mod		$tmp20 ___362_xi $const6 	%line{20} %argrw{"wrr"}
-	mod		$tmp21 ___362_yi $const6 	%argrw{"wrr"}
+	mod		$tmp20 ___365_xi $const6 	%line{20} %argrw{"wrr"}
+	mod		$tmp21 ___365_yi $const6 	%argrw{"wrr"}
 	eq		$tmp22 $tmp20 $tmp21 	%argrw{"wrr"}
-	mod		$tmp23 ___362_zi $const6 	%argrw{"wrr"}
+	mod		$tmp23 ___365_zi $const6 	%argrw{"wrr"}
 	eq		$tmp24 $tmp22 $tmp23 	%argrw{"wrr"}
 	if		$tmp24 38 40 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:21
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:21
 #     return 1.0;
 	assign		Fac $const7 	%line{21} %argrw{"wr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:24
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:24
 #     return 0.0;
 	assign		Fac $const8 	%line{24} %argrw{"wr"}
 	return
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:44
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:44
 #   if (Fac == 1.0) {
 	eq		$tmp25 Fac $const7 	%line{44} %argrw{"wrr"}
 	if		$tmp25 43 44 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:45
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:45
 #     Color = Color1;
 	assign		Color Color1 	%line{45} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:48
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_checker_texture.osl:48
 #     Color = Color2;
 	assign		Color Color2 	%line{48} %argrw{"wr"}
 	end

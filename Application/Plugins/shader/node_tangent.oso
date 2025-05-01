@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_tangent.oso
+# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_tangent.oso
 shader node_tangent
 param	string	attr_name	"geom:tangent"		%read{4,4} %write{2147483647,-1}
 param	string	direction_type	"radial"		%read{2,5} %write{2147483647,-1}
@@ -10,7 +10,7 @@ global	point	P	%read{10,10} %write{2147483647,-1}
 global	normal	N	%read{34,36} %write{2147483647,-1}
 global	vector	dPdu	%read{0,0} %write{2147483647,-1}
 local	vector	T	%read{33,34} %write{1,33}
-local	point	___363_generated	%read{13,30} %write{7,10}
+local	point	___366_generated	%read{13,30} %write{7,10}
 const	vector	$const1	0 0 0		%read{1,1} %write{2147483647,-1}
 const	string	$const2	"uv_map"		%read{2,2} %write{2147483647,-1}
 temp	int	$tmp1	%read{3,3} %write{2,2}
@@ -49,68 +49,68 @@ const	string	$const13	"world"		%read{33,33} %write{2147483647,-1}
 temp	vector	$tmp23	%read{36,36} %write{35,35}
 temp	vector	$tmp24	%read{35,35} %write{34,34}
 code Tangent
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:10
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:10
 #                     output normal Tangent = normalize(dPdu))
-	normalize	Tangent dPdu 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl"} %line{10} %argrw{"wr"}
+	normalize	Tangent dPdu 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl"} %line{10} %argrw{"wr"}
 code ___main___
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:12
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:12
 #   vector T = vector(0.0, 0.0, 0.0);
-	assign		T $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl"} %line{12} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:14
+	assign		T $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl"} %line{12} %argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:14
 #   if (direction_type == "uv_map") {
 	eq		$tmp1 direction_type $const2 	%line{14} %argrw{"wrr"}
 	if		$tmp1 5 33 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:15
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:15
 #     getattribute(attr_name, T);
 	getattribute	$tmp2 attr_name T 	%line{15} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:17
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:17
 #   else if (direction_type == "radial") {
 	eq		$tmp3 direction_type $const3 	%line{17} %argrw{"wrr"}
 	if		$tmp3 33 33 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:20
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:20
 #     if (!getattribute("geom:generated", generated))
-	getattribute	$tmp4 $const4 ___363_generated 	%line{20} %argrw{"wrw"}
+	getattribute	$tmp4 $const4 ___366_generated 	%line{20} %argrw{"wrw"}
 	eq		$tmp5 $tmp4 $const5 	%argrw{"wrr"}
 	if		$tmp5 11 11 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:21
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:21
 #       generated = P;
-	assign		___363_generated P 	%line{21} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:23
+	assign		___366_generated P 	%line{21} %argrw{"wr"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:23
 #     if (axis == "x")
 	eq		$tmp6 axis $const6 	%line{23} %argrw{"wrr"}
 	if		$tmp6 19 33 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:24
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:24
 #       T = vector(0.0, -(generated[2] - 0.5), (generated[1] - 0.5));
-	compref		$tmp7 ___363_generated $const8 	%line{24} %argrw{"wrr"}
+	compref		$tmp7 ___366_generated $const8 	%line{24} %argrw{"wrr"}
 	sub		$tmp8 $tmp7 $const9 	%argrw{"wrr"}
 	neg		$tmp9 $tmp8 	%argrw{"wr"}
-	compref		$tmp10 ___363_generated $const10 	%argrw{"wrr"}
+	compref		$tmp10 ___366_generated $const10 	%argrw{"wrr"}
 	sub		$tmp11 $tmp10 $const9 	%argrw{"wrr"}
 	vector		T $const7 $tmp9 $tmp11 	%argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:25
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:25
 #     else if (axis == "y")
 	eq		$tmp12 axis $const11 	%line{25} %argrw{"wrr"}
 	if		$tmp12 27 33 	%argrw{"r"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:26
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:26
 #       T = vector(-(generated[2] - 0.5), 0.0, (generated[0] - 0.5));
-	compref		$tmp13 ___363_generated $const8 	%line{26} %argrw{"wrr"}
+	compref		$tmp13 ___366_generated $const8 	%line{26} %argrw{"wrr"}
 	sub		$tmp14 $tmp13 $const9 	%argrw{"wrr"}
 	neg		$tmp15 $tmp14 	%argrw{"wr"}
-	compref		$tmp16 ___363_generated $const5 	%argrw{"wrr"}
+	compref		$tmp16 ___366_generated $const5 	%argrw{"wrr"}
 	sub		$tmp17 $tmp16 $const9 	%argrw{"wrr"}
 	vector		T $tmp15 $const7 $tmp17 	%argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:28
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:28
 #       T = vector(-(generated[1] - 0.5), (generated[0] - 0.5), 0.0);
-	compref		$tmp18 ___363_generated $const10 	%line{28} %argrw{"wrr"}
+	compref		$tmp18 ___366_generated $const10 	%line{28} %argrw{"wrr"}
 	sub		$tmp19 $tmp18 $const9 	%argrw{"wrr"}
 	neg		$tmp20 $tmp19 	%argrw{"wr"}
-	compref		$tmp21 ___363_generated $const5 	%argrw{"wrr"}
+	compref		$tmp21 ___366_generated $const5 	%argrw{"wrr"}
 	sub		$tmp22 $tmp21 $const9 	%argrw{"wrr"}
 	vector		T $tmp20 $tmp22 $const7 	%argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:31
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:31
 #   T = transform("object", "world", T);
 	transformv	T $const12 $const13 T 	%line{31} %argrw{"wrrr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_tangent.osl:32
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_tangent.osl:32
 #   Tangent = cross(N, normalize(cross(T, N)));
 	cross		$tmp24 T N 	%line{32} %argrw{"wrr"}
 	normalize	$tmp23 $tmp24 	%argrw{"wr"}

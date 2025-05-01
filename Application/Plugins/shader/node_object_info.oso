@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_object_info.oso
+# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_object_info.oso
 shader node_object_info
 oparam	point	Location	0 0 0		%read{2147483647,-1} %write{0,0}
 oparam	color	Color	1 1 1		%read{2147483647,-1} %write{1,1}
@@ -21,22 +21,22 @@ const	string	$const5	"material:index"		%read{4,4} %write{2147483647,-1}
 temp	int	$tmp6	%read{2147483647,-1} %write{5,5}
 const	string	$const6	"object:random"		%read{5,5} %write{2147483647,-1}
 code ___main___
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_object_info.osl:14
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_object_info.osl:14
 #   getattribute("object:location", Location);
-	getattribute	$tmp1 $const1 Location 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_object_info.osl"} %line{14} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_object_info.osl:15
+	getattribute	$tmp1 $const1 Location 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_object_info.osl"} %line{14} %argrw{"wrw"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_object_info.osl:15
 #   getattribute("object:color", Color);
 	getattribute	$tmp2 $const2 Color 	%line{15} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_object_info.osl:16
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_object_info.osl:16
 #   getattribute("object:alpha", Alpha);
 	getattribute	$tmp3 $const3 Alpha 	%line{16} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_object_info.osl:17
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_object_info.osl:17
 #   getattribute("object:index", ObjectIndex);
 	getattribute	$tmp4 $const4 ObjectIndex 	%line{17} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_object_info.osl:18
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_object_info.osl:18
 #   getattribute("material:index", MaterialIndex);
 	getattribute	$tmp5 $const5 MaterialIndex 	%line{18} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_object_info.osl:19
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_object_info.osl:19
 #   getattribute("object:random", Random);
 	getattribute	$tmp6 $const6 Random 	%line{19} %argrw{"wrw"}
 	end

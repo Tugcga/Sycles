@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.13.7.0
-# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_light_path.oso
+# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_light_path.oso
 shader node_light_path
 oparam	float	IsCameraRay	0		%read{2147483647,-1} %write{1,1}
 oparam	float	IsShadowRay	0		%read{2147483647,-1} %write{3,3}
@@ -51,84 +51,84 @@ const	string	$const14	"path:transparent_depth"		%read{27,27} %write{2147483647,-
 temp	int	$tmp14	%read{2147483647,-1} %write{30,30}
 const	string	$const15	"path:transmission_depth"		%read{30,30} %write{2147483647,-1}
 code ___main___
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:22
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:22
 #   IsCameraRay = raytype("camera");
-	raytype		$tmp1 $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl"} %line{22} %argrw{"wr"}
+	raytype		$tmp1 $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl"} %line{22} %argrw{"wr"}
 	assign		IsCameraRay $tmp1 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:23
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:23
 #   IsShadowRay = raytype("shadow");
 	raytype		$tmp2 $const2 	%line{23} %argrw{"wr"}
 	assign		IsShadowRay $tmp2 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:24
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:24
 #   IsDiffuseRay = raytype("diffuse");
 	raytype		$tmp3 $const3 	%line{24} %argrw{"wr"}
 	assign		IsDiffuseRay $tmp3 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:25
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:25
 #   IsGlossyRay = raytype("glossy");
 	raytype		$tmp4 $const4 	%line{25} %argrw{"wr"}
 	assign		IsGlossyRay $tmp4 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:26
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:26
 #   IsSingularRay = raytype("singular");
 	raytype		$tmp5 $const5 	%line{26} %argrw{"wr"}
 	assign		IsSingularRay $tmp5 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:27
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:27
 #   IsReflectionRay = raytype("reflection");
 	raytype		$tmp6 $const6 	%line{27} %argrw{"wr"}
 	assign		IsReflectionRay $tmp6 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:28
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:28
 #   IsTransmissionRay = raytype("refraction");
 	raytype		$tmp7 $const7 	%line{28} %argrw{"wr"}
 	assign		IsTransmissionRay $tmp7 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:29
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:29
 #   IsVolumeScatterRay = raytype("volume_scatter");
 	raytype		$tmp8 $const8 	%line{29} %argrw{"wr"}
 	assign		IsVolumeScatterRay $tmp8 	%argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:31
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:31
 #   getattribute("path:ray_length", RayLength);
 	getattribute	$tmp9 $const9 RayLength 	%line{31} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:33
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:33
 #   int ray_depth = 0;
 	assign		ray_depth $const10 	%line{33} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:34
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:34
 #   getattribute("path:ray_depth", ray_depth);
 	getattribute	$tmp10 $const11 ray_depth 	%line{34} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:35
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:35
 #   RayDepth = (float)ray_depth;
 	assign		RayDepth ray_depth 	%line{35} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:37
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:37
 #   int diffuse_depth = 0;
 	assign		diffuse_depth $const10 	%line{37} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:38
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:38
 #   getattribute("path:diffuse_depth", diffuse_depth);
 	getattribute	$tmp11 $const12 diffuse_depth 	%line{38} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:39
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:39
 #   DiffuseDepth = (float)diffuse_depth;
 	assign		DiffuseDepth diffuse_depth 	%line{39} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:41
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:41
 #   int glossy_depth = 0;
 	assign		glossy_depth $const10 	%line{41} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:42
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:42
 #   getattribute("path:glossy_depth", glossy_depth);
 	getattribute	$tmp12 $const13 glossy_depth 	%line{42} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:43
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:43
 #   GlossyDepth = (float)glossy_depth;
 	assign		GlossyDepth glossy_depth 	%line{43} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:45
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:45
 #   int transparent_depth = 0;
 	assign		transparent_depth $const10 	%line{45} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:46
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:46
 #   getattribute("path:transparent_depth", transparent_depth);
 	getattribute	$tmp13 $const14 transparent_depth 	%line{46} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:47
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:47
 #   TransparentDepth = (float)transparent_depth;
 	assign		TransparentDepth transparent_depth 	%line{47} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:49
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:49
 #   int transmission_depth = 0;
 	assign		transmission_depth $const10 	%line{49} %argrw{"wr"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:50
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:50
 #   getattribute("path:transmission_depth", transmission_depth);
 	getattribute	$tmp14 $const15 transmission_depth 	%line{50} %argrw{"wrw"}
-# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_light_path.osl:51
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_light_path.osl:51
 #   TransmissionDepth = (float)transmission_depth;
 	assign		TransmissionDepth transmission_depth 	%line{51} %argrw{"wr"}
 	end
