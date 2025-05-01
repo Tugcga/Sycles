@@ -208,6 +208,27 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		return node;
 	}
+	else if (shader_type == "MetallicBSDF") {
+		ccl::MetallicBsdfNode* node = shader_graph->create_node<ccl::MetallicBsdfNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "distribution", eval_time);
+		XSI::CString fresnel_type = get_string_parameter_value(xsi_parameters, "fresnel_type", eval_time);
+		float ior_x = get_float_parameter_value(xsi_parameters, "ior_x", eval_time);
+		float ior_y = get_float_parameter_value(xsi_parameters, "ior_y", eval_time);
+		float ior_z = get_float_parameter_value(xsi_parameters, "ior_z", eval_time);
+		float extinction_x = get_float_parameter_value(xsi_parameters, "extinction_x", eval_time);
+		float extinction_y = get_float_parameter_value(xsi_parameters, "extinction_y", eval_time);
+		float extinction_z = get_float_parameter_value(xsi_parameters, "extinction_z", eval_time);
+
+		node->set_ior(ccl::make_float3(ior_x, ior_y, ior_z));
+		node->set_k(ccl::make_float3(extinction_x, extinction_y, extinction_z));
+
+		node->set_distribution(get_distribution(distribution, DistributionModes_Glass));
+		node->set_fresnel_type(get_metallic_fresnel(fresnel_type));
+
+		return node;
+	}
 	else if (shader_type == "PrincipledBSDF")
 	{
 		ccl::PrincipledBsdfNode* node = shader_graph->create_node<ccl::PrincipledBsdfNode>();
@@ -334,6 +355,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	{
 		ccl::ScatterVolumeNode* node = shader_graph->create_node<ccl::ScatterVolumeNode>();
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		XSI::CString phase = get_string_parameter_value(xsi_parameters, "phase", eval_time);
+		node->set_phase(get_scatter_phase(phase));
 
 		return node;
 	}
@@ -615,6 +639,10 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		XSI::CString noise_dimensions = get_string_parameter_value(xsi_parameters, "NoiseDimensions", eval_time);
 		node->set_dimensions(get_dimensions_type(noise_dimensions));
+		XSI::CString noise_type = get_string_parameter_value(xsi_parameters, "type", eval_time);
+		node->set_type(get_noise_type(noise_type));
+		bool normalize = get_bool_parameter_value(xsi_parameters, "normalize", eval_time);
+		node->set_use_normalize(normalize);
 
 		return node;
 	}

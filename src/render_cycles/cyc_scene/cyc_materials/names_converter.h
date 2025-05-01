@@ -196,6 +196,21 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		}
 	},
 	{
+		"CyclesShadersPlugin.CyclesMetallicBSDF.1.0", {
+			{"base_color", "Base Color"},
+			{"edge_tint", "Edge Tint"},
+			{"ior", "IOR"},
+			{"extinction", "Extinction"},
+			{"roughness", "Roughness"},
+			{"anisotropy", "Anisotropy"},
+			{"rotation", "Rotation"},
+			{"Normal", "Normal"},
+			{"Tangent", "Tangent"},
+
+			{"outBSDF", "BSDF"}
+		}
+	},
+	{
 		"CyclesShadersPlugin.CyclesGlossyBSDF.1.0", {
 			{"Color", "Color"},
 			{"Normal", "Normal"},
@@ -262,6 +277,7 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Roughness", "Roughness"},
 			{"IOR", "IOR"},
 			{"Alpha", "Alpha"},
+			{"DiffuseRoughness", "Diffuse Roughness"},
 
 			{"Normal", "Normal"},
 
@@ -377,8 +393,13 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	{
 		"CyclesShadersPlugin.CyclesScatterVolume.1.0", {
 			{"Color", "Color"},
-			{"Density", "Density"}, {
-			"Anisotropy", "Anisotropy"},
+			{"Density", "Density"}, 
+			{"Anisotropy", "Anisotropy"},
+
+			{"IOR", "IOR"},
+			{"Backscatter", "Backscatter"},
+			{"Alpha", "Alpha"},
+			{"Diameter", "Diameter"},
 
 			{"outVolume", "Volume"}
 		}
@@ -867,6 +888,7 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Normal", "Normal"},
 			{"Strength", "Strength"},
 			{"Distance", "Distance"},
+			{"FilterWidth", "Filter Width"},
 
 			{"outNormal", "Normal"}
 		}
@@ -1027,3 +1049,6 @@ ccl::NodeMathType get_math_type(const XSI::CString& math);
 ccl::NodeVectorMathType get_vector_math(const XSI::CString& math);
 ccl::NodeMapRangeType get_map_range_type(const XSI::CString& type);
 ccl::NodeClampType get_clamp_type(const XSI::CString& type);
+ccl::NodeNoiseType get_noise_type(const XSI::CString& type);
+ccl::ClosureType get_metallic_fresnel(const XSI::CString& type);
+ccl::ClosureType get_scatter_phase(const XSI::CString& type);

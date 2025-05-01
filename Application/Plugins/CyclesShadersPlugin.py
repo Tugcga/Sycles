@@ -349,6 +349,27 @@ gabor_type_enum = [
     "3D", "3d"
 ]
 
+noise_type_enum = [
+    "Multifractal", "multifractal",
+    "fBM", "fbm",
+    "Hybrid Multifractal", "hybrid_multifractal",
+    "Ridged Multifractal", "ridged_multifractal",
+    "Hetero Terrain", "hetero_terrain"
+]
+
+metallic_fresnel_enum = [
+    "Physical Conductor", "physical_conductor",
+    "F82 Tint", "f82_tint"
+]
+
+scatter_phase_enum = [
+    "Henyey-Greenstein", "henyey_greenstein",
+    "Fournier-Forand", "fournier_forand",
+    "Draine", "draine",
+    "Rayleigh", "rayleigh",
+    "Mie", "mie"
+]
+
 
 def XSILoadPlugin(in_reg):
     in_reg.Author = "Shekn Itrch"
@@ -357,6 +378,7 @@ def XSILoadPlugin(in_reg):
     in_reg.Minor = 0
     # Shaders
     in_reg.RegisterShader("CyclesDiffuseBSDF", 1, 0)
+    in_reg.RegisterShader("CyclesMetallicBSDF", 1, 0)
     in_reg.RegisterShader("CyclesPrincipledBSDF", 1, 0)
     in_reg.RegisterShader("CyclesTranslucentBSDF", 1, 0)
     in_reg.RegisterShader("CyclesTransparentBSDF", 1, 0)
@@ -665,6 +687,109 @@ def CyclesShadersPlugin_CyclesDiffuseBSDF_1_0_Define(in_ctxt):
 # --------------------------------------------------------------------
 # --------------------------------------------------------------------
 
+def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Shaders")
+    in_ctxt.SetAttribute("DisplayName", "cycMetallicBSDF")
+    return True
+
+
+def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyVolume)
+    shader_def.AddShaderFamily(c.siShaderFamilySurfaceMat)
+
+    # Input Parameter: input
+    params = shader_def.InputParamDefs
+
+    # parameters
+    add_input_string(no_port_pram_options(), params, "Multiscatter GGX", "distribution")
+    add_input_string(no_port_pram_options(), params, "f82_tint", "fresnel_type")
+    add_input_color(standard_pram_options(), params, [0.617, 0.577, 0.540], "base_color")
+    add_input_color(standard_pram_options(), params, [0.695, 0.726, 0.770], "edge_tint")
+    add_input_float(no_port_pram_options(), params, 2.757, "ior_x", 0.0, 4.0)
+    add_input_float(no_port_pram_options(), params, 2.513, "ior_y", 0.0, 4.0)
+    add_input_float(no_port_pram_options(), params, 2.231, "ior_z", 0.0, 4.0)
+    add_input_vector(standard_pram_options(), params, 0.0, "ior")
+    add_input_float(no_port_pram_options(), params, 3.867, "extinction_x", 0.0, 4.0)
+    add_input_float(no_port_pram_options(), params, 3.404, "extinction_y", 0.0, 4.0)
+    add_input_float(no_port_pram_options(), params, 3.009, "extinction_z", 0.0, 4.0)
+    add_input_vector(standard_pram_options(), params, 0.0, "extinction")
+    add_input_float(standard_pram_options(), params, 0.5, "roughness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "anisotropy", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "rotation", 0.0, 1.0)
+    add_input_normal(standard_pram_options(), params, 0.0, "Normal")
+    add_input_normal(standard_pram_options(), params, 0.0, "Tangent")
+
+    # Output Parameter: out
+    add_output_closure(shader_def, "BSDF")
+
+    # next init ppg
+    ppg_layout = shader_def.PPGLayout
+    ppg_layout.AddGroup("Parameters")
+    ppg_layout.AddEnumControl("distribution", glass_distribution_enum, "Distribution")
+    ppg_layout.AddEnumControl("fresnel_type", metallic_fresnel_enum, "Fresnel Type")
+    ppg_layout.AddItem("base_color", "Base Color")
+    ppg_layout.AddItem("edge_tint", "Edge Tint")
+    ppg_layout.AddGroup("IOR")
+    ppg_layout.AddRow()
+    ppg_layout.AddItem("ior_x", "X")
+    ppg_layout.AddItem("ior_y", "Y")
+    ppg_layout.AddItem("ior_z", "Z")
+    ppg_layout.EndRow()
+    ppg_layout.EndGroup()
+    ppg_layout.AddGroup("Extinction")
+    ppg_layout.AddRow()
+    ppg_layout.AddItem("extinction_x", "X")
+    ppg_layout.AddItem("extinction_y", "Y")
+    ppg_layout.AddItem("extinction_z", "Z")
+    ppg_layout.EndRow()
+    ppg_layout.EndGroup()
+    ppg_layout.AddItem("roughness", "Roughness")
+    ppg_layout.AddItem("anisotropy", "Anisotropy")
+    ppg_layout.AddItem("rotation", "Rotation")
+    ppg_layout.EndGroup()
+
+    ppg_layout.Language = "Python"
+    ppg_layout.Logic = '''
+def update_ui(prop):
+    fresnel_type = prop.Parameters("fresnel_type").Value
+    if fresnel_type == "f82_tint":
+        prop.Parameters("base_color").ReadOnly = False
+        prop.Parameters("edge_tint").ReadOnly = False
+        prop.Parameters("ior_x").ReadOnly = True
+        prop.Parameters("ior_y").ReadOnly = True
+        prop.Parameters("ior_z").ReadOnly = True
+        prop.Parameters("extinction_x").ReadOnly = True
+        prop.Parameters("extinction_y").ReadOnly = True
+        prop.Parameters("extinction_z").ReadOnly = True
+    else:
+        prop.Parameters("base_color").ReadOnly = True
+        prop.Parameters("edge_tint").ReadOnly = True
+        prop.Parameters("ior_x").ReadOnly = False
+        prop.Parameters("ior_y").ReadOnly = False
+        prop.Parameters("ior_z").ReadOnly = False
+        prop.Parameters("extinction_x").ReadOnly = False
+        prop.Parameters("extinction_y").ReadOnly = False
+        prop.Parameters("extinction_z").ReadOnly = False
+
+def OnInit():
+    prop = PPG.Inspected(0)
+    update_ui(prop)
+
+def fresnel_type_OnChanged():
+    prop = PPG.Inspected(0)
+    update_ui(prop)'''
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "MetallicBSDF"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+
 def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_DefineInfo(in_ctxt):
     in_ctxt.SetAttribute("Category", "Cycles/Shaders")
     in_ctxt.SetAttribute("DisplayName", "cycPrincipledBSDF")
@@ -683,6 +808,7 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     add_input_color(standard_pram_options(), params, 0.8, "BaseColor")
     add_input_float(standard_pram_options(), params, 0.0, "Metallic", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "DiffuseRoughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.45, "IOR", 0.0, 4.0)
     add_input_float(standard_pram_options(), params, 1.0, "Alpha", 0.0, 1.0)
 
@@ -733,6 +859,11 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     ppg_layout.AddItem("Metallic", "Metallic")
     ppg_layout.AddItem("Roughness", "Roughness")
     ppg_layout.AddItem("IOR", "IOR")
+    ppg_layout.EndGroup()
+
+    ppg_layout.AddTab("Diffuse")
+    ppg_layout.AddGroup("Diffuse Parameters")
+    ppg_layout.AddItem("DiffuseRoughness", "Diffuse Roughness")
     ppg_layout.EndGroup()
 
     ppg_layout.AddTab("Subsurface")
@@ -1287,9 +1418,15 @@ def CyclesShadersPlugin_CyclesScatterVolume_1_0_Define(in_ctxt):
 
     # Input Parameters
     params = shader_def.InputParamDefs
+    add_input_string(no_port_pram_options(), params, "henyey_greenstein", "phase")
     add_input_color(standard_pram_options(), params, 0.8, "Color")
     add_input_float(standard_pram_options(), params, 1.0, "Density", 0.0, 5.0)
     add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", 0.0, 1.0)
+
+    add_input_float(standard_pram_options(), params, 1.33, "IOR", 1.0, 4.0)
+    add_input_float(standard_pram_options(), params, 0.1, "Backscatter", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.5, "Alpha", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 20.0, "Diameter", 1.0, 64.0)
 
     # Output Parameter: out
     add_output_closure(shader_def, "Volume")
@@ -1297,10 +1434,58 @@ def CyclesShadersPlugin_CyclesScatterVolume_1_0_Define(in_ctxt):
     # next init ppg
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddEnumControl("phase", scatter_phase_enum, "Phase")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.AddItem("Density", "Density")
     ppgLayout.AddItem("Anisotropy", "Anisotropy")
+    ppgLayout.AddItem("IOR", "IOR")
+    ppgLayout.AddItem("Backscatter", "Backscatter")
+    ppgLayout.AddItem("Alpha", "Alpha")
+    ppgLayout.AddItem("Diameter", "Diameter")
     ppgLayout.EndGroup()
+
+    ppgLayout.Language = "Python"
+    ppgLayout.Logic = '''
+def update_ui(prop):
+    phase_value = prop.Parameters("phase").Value
+    if phase_value == "henyey_greenstein":
+        prop.Parameters("Anisotropy").ReadOnly = False
+        prop.Parameters("IOR").ReadOnly = True
+        prop.Parameters("Backscatter").ReadOnly = True
+        prop.Parameters("Alpha").ReadOnly = True
+        prop.Parameters("Diameter").ReadOnly = True
+    elif phase_value == "fournier_forand":
+        prop.Parameters("Anisotropy").ReadOnly = True
+        prop.Parameters("IOR").ReadOnly = False
+        prop.Parameters("Backscatter").ReadOnly = False
+        prop.Parameters("Alpha").ReadOnly = True
+        prop.Parameters("Diameter").ReadOnly = True
+    elif phase_value == "draine":
+        prop.Parameters("Anisotropy").ReadOnly = False
+        prop.Parameters("IOR").ReadOnly = True
+        prop.Parameters("Backscatter").ReadOnly = True
+        prop.Parameters("Alpha").ReadOnly = False
+        prop.Parameters("Diameter").ReadOnly = True
+    elif phase_value == "rayleigh":
+        prop.Parameters("Anisotropy").ReadOnly = True
+        prop.Parameters("IOR").ReadOnly = True
+        prop.Parameters("Backscatter").ReadOnly = True
+        prop.Parameters("Alpha").ReadOnly = True
+        prop.Parameters("Diameter").ReadOnly = True
+    elif phase_value == "mie":
+        prop.Parameters("Anisotropy").ReadOnly = True
+        prop.Parameters("IOR").ReadOnly = True
+        prop.Parameters("Backscatter").ReadOnly = True
+        prop.Parameters("Alpha").ReadOnly = True
+        prop.Parameters("Diameter").ReadOnly = False
+
+def OnInit():
+    prop = PPG.Inspected(0)
+    update_ui(prop)
+
+def phase_OnChanged():
+    prop = PPG.Inspected(0)
+    update_ui(prop)'''
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -1977,7 +2162,9 @@ def CyclesShadersPlugin_CyclesNoiseTexture_1_0_Define(in_ctxt):
     # Input Parameters
     params = shader_def.InputParamDefs
     add_input_float(standard_pram_options(), params, 0.0, "W", 0.0, 10.0)
-    add_input_string(no_port_pram_options(), params, "1d", "NoiseDimensions")
+    add_input_string(no_port_pram_options(), params, "3d", "NoiseDimensions")
+    add_input_string(no_port_pram_options(), params, "fbm", "type")
+    add_input_boolean(no_port_pram_options(), params, False, "normalize")
     add_input_float(standard_pram_options(), params, 5.0, "Scale", 0.0, 10.0)
     add_input_float(standard_pram_options(), params, 2.0, "Detail", 0.0, 10.0)
     add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
@@ -1996,6 +2183,8 @@ def CyclesShadersPlugin_CyclesNoiseTexture_1_0_Define(in_ctxt):
 
     ppg_layout.AddGroup("Parameters")
     ppg_layout.AddEnumControl("NoiseDimensions", dimensions_type_enum, "Dimensions")
+    ppg_layout.AddEnumControl("type", noise_type_enum, "Type")
+    ppg_layout.AddItem("normalize", "Normalize")
     ppg_layout.AddItem("W", "W")
     ppg_layout.AddItem("Scale", "Scale")
     ppg_layout.AddItem("Detail", "Detail")
@@ -2010,16 +2199,37 @@ def CyclesShadersPlugin_CyclesNoiseTexture_1_0_Define(in_ctxt):
     ppg_layout.Logic = '''
 def build_ui(prop):
     noise_dimensions = prop.Parameters("NoiseDimensions").Value
+    noise_type = prop.Parameters("type").Value
     if noise_dimensions == "1d" or noise_dimensions == "4d":
         prop.Parameters("W").ReadOnly = False
     else:
         prop.Parameters("W").ReadOnly = True
+    
+    if noise_type == "fbm":
+        prop.Parameters("normalize").ReadOnly = False
+    else:
+        prop.Parameters("normalize").ReadOnly = True
+
+    if noise_type == "multifractal" or noise_type == "fbm":
+        prop.Parameters("Offset").ReadOnly = True
+        prop.Parameters("Gain").ReadOnly = True
+    elif noise_type == "hetero_terrain":
+        prop.Parameters("Offset").ReadOnly = False
+        prop.Parameters("Gain").ReadOnly = True
+    else:
+        prop.Parameters("Offset").ReadOnly = False
+        prop.Parameters("Gain").ReadOnly = False
 
 def OnInit():
     prop = PPG.Inspected(0)
     build_ui(prop)
 
 def NoiseDimensions_OnChanged():
+    prop = PPG.Inspected(0)
+    build_ui(prop)
+
+
+def type_OnChanged():
     prop = PPG.Inspected(0)
     build_ui(prop)'''
 
@@ -2644,6 +2854,7 @@ def CyclesShadersPlugin_CyclesBump_1_0_Define(in_ctxt):
     add_input_float(standard_pram_options(), params, 0.0, "Height", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.0, "Strength", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.1, "Distance", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.1, "FilterWidth", 0.0, 1.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
 
     # Output Parameter: out
@@ -2655,6 +2866,7 @@ def CyclesShadersPlugin_CyclesBump_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Invert", "Invert")
     ppgLayout.AddItem("Strength", "Strength")
     ppgLayout.AddItem("Distance", "Distance")
+    ppgLayout.AddItem("FilterWidth", "Filter Width")
     ppgLayout.EndGroup()
 
     # Renderer definition

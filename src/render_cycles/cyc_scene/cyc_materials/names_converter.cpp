@@ -327,3 +327,25 @@ ccl::NodeClampType get_clamp_type(const XSI::CString& type)
 	if (type == "min_max") { return ccl::NODE_CLAMP_MINMAX; }
 	else { return ccl::NODE_CLAMP_MINMAX; }
 }
+
+ccl::NodeNoiseType get_noise_type(const XSI::CString& type) {
+	if (type == "multifractal") { return ccl::NODE_NOISE_MULTIFRACTAL; }
+	else if (type == "fbm") { return ccl::NODE_NOISE_FBM; }
+	else if (type == "hybrid_multifractal") { return ccl::NODE_NOISE_HYBRID_MULTIFRACTAL; }
+	else if (type == "ridged_multifractal") { return ccl::NODE_NOISE_RIDGED_MULTIFRACTAL; }
+	else if (type == "hetero_terrain") { return ccl::NODE_NOISE_HETERO_TERRAIN; }
+	else { return ccl::NODE_NOISE_FBM;  }
+}
+
+ccl::ClosureType get_metallic_fresnel(const XSI::CString& type) {
+	if (type == "physical_conductor") { return ccl::ClosureType::CLOSURE_BSDF_PHYSICAL_CONDUCTOR; }
+	else { return ccl::ClosureType::CLOSURE_BSDF_F82_CONDUCTOR; }
+}
+
+ccl::ClosureType get_scatter_phase(const XSI::CString& type) {
+	if (type == "mie") { return ccl::ClosureType::CLOSURE_VOLUME_MIE_ID; }
+	else if (type == "rayleigh") { return ccl::ClosureType::CLOSURE_VOLUME_RAYLEIGH_ID; }
+	else if (type == "draine") { return ccl::ClosureType::CLOSURE_VOLUME_DRAINE_ID; }
+	else if (type == "fournier_forand") { return ccl::ClosureType::CLOSURE_VOLUME_FOURNIER_FORAND_ID; }
+	else { return ccl::ClosureType::CLOSURE_VOLUME_HENYEY_GREENSTEIN_ID; }
+}
