@@ -98,7 +98,6 @@ void make_aovs_reconnections(ccl::ShaderGraph* shader_graph, ccl::ShaderNode* ao
 		{
 			XSI::MATH::CColor4f xsi_aov_color = get_color_parameter_value(xsi_aov_node.GetParameters(), "Color", eval_time);
 			ccl::ColorNode* new_color = shader_graph->create_node<ccl::ColorNode>();
-			shader_graph->add(new_color);
 			new_color->set_value(color4_to_float3(xsi_aov_color));
 			// make connections
 			shader_graph->connect(new_color->output("Color"), aov_input);
@@ -108,7 +107,6 @@ void make_aovs_reconnections(ccl::ShaderGraph* shader_graph, ccl::ShaderNode* ao
 		{
 			float xsi_aov_value = get_float_parameter_value(xsi_aov_node.GetParameters(), "Value", eval_time);
 			ccl::ValueNode* new_value = shader_graph->create_node<ccl::ValueNode>();
-			shader_graph->add(new_value);
 			new_value->set_value(xsi_aov_value);
 			shader_graph->connect(new_value->output("Value"), aov_input);
 			shader_graph->connect(new_value->output("Value"), next_node->input(next_input_name.c_str()));

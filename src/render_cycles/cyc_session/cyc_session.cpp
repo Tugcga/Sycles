@@ -13,9 +13,10 @@ void set_session_samples(ccl::SessionParams &session_params, const XSI::CParamet
 {
 	session_params.samples = render_parameters.GetValue("sampling_render_samples", eval_time);
 	session_params.samples = std::min(session_params.samples, ccl::Integrator::MAX_SAMPLES);
-	session_params.sample_offset = render_parameters.GetValue("sampling_advanced_offset", eval_time);
-	session_params.sample_offset = std::clamp(session_params.sample_offset, 0, ccl::Integrator::MAX_SAMPLES);
-	session_params.samples = std::clamp(session_params.samples, 0, ccl::Integrator::MAX_SAMPLES - session_params.sample_offset);
+	// TODO: implement samples offset feature
+	//session_params.sample_offset = render_parameters.GetValue("sampling_advanced_offset", eval_time);
+	//session_params.sample_offset = std::clamp(session_params.sample_offset, 0, ccl::Integrator::MAX_SAMPLES);
+	//session_params.samples = std::clamp(session_params.samples, 0, ccl::Integrator::MAX_SAMPLES - session_params.sample_offset);
 
 	session_params.time_limit = render_parameters.GetValue("sampling_render_time_limit", eval_time);
 }

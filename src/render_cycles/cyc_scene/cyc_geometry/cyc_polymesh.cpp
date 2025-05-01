@@ -348,7 +348,7 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 
 	// generated attribute
 	ccl::Attribute* gen_attr = attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
-	gen_attr->flags |= ccl::ATTR_SUBDIVIDED;
+	// gen_attr->flags |= ccl::ATTR_SUBDIVIDED;
 	std::memcpy(gen_attr->data_float3(), mesh->get_verts().data(), sizeof(ccl::float3) * mesh->get_verts().size());
 
 	// use common method for export attrbutes
@@ -389,13 +389,11 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 
 	mesh->reserve_mesh(vertex_count, 0);
 	int num_corners = 0;
-	int num_ngons = 0;
 	for (size_t i = 0; i < polygon_sizes.GetCount(); i++)
 	{
 		num_corners += polygon_sizes[i];
-		num_ngons += polygon_sizes[i] == 4 ? 0 : 1;
 	}
-	mesh->reserve_subd_faces(polygons_count, num_ngons, num_corners);
+	mesh->reserve_subd_faces(polygons_count, num_corners);
 
 	ccl::array<ccl::float3> mesh_vertices(vertex_count);
 	ccl::array<ccl::float3> mesh_normals(vertex_count);
@@ -418,7 +416,7 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 
 
 	ccl::Attribute* gen_attr = attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
-	gen_attr->flags |= ccl::ATTR_SUBDIVIDED;
+	// gen_attr->flags |= ccl::ATTR_SUBDIVIDED;
 	std::memcpy(gen_attr->data_float3(), mesh->get_verts().data(), sizeof(ccl::float3) * mesh->get_verts().size());
 
 	// faces

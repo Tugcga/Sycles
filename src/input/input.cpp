@@ -5,7 +5,6 @@
 #include <xsi_project.h>
 
 #include "device/device.h"
-#include "util/foreach.h"
 
 #include "config_ini.h"
 #include "config_ocio.h"
@@ -30,45 +29,43 @@ void find_devices()
 
 	// cpu devices
 	ccl::vector<ccl::DeviceInfo> cpu_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_CPU);
-	size_t index = 0;
-	foreach(ccl::DeviceInfo & device, cpu_devices)
-	{
+	for (size_t i = 0; i < cpu_devices.size(); i++) {
+		ccl::DeviceInfo device = cpu_devices[i];
 		available_devices.push_back(device);
-		index++;
 	}
 
 	// cuda devices
 	ccl::vector<ccl::DeviceInfo> cuda_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_CUDA);
-	foreach(ccl::DeviceInfo & device, cuda_devices)
-	{
+	for (size_t i = 0; i < cuda_devices.size(); i++) {
+		ccl::DeviceInfo device = cuda_devices[i];
 		available_devices.push_back(device);
 	}
 
 	// optix devices
 	ccl::vector<ccl::DeviceInfo> optix_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_OPTIX);
-	foreach(ccl::DeviceInfo & device, optix_devices)
-	{
+	for (size_t i = 0; i < optix_devices.size(); i++) {
+		ccl::DeviceInfo device = optix_devices[i];
 		available_devices.push_back(device);
 	}
 
 	// hip devices
 	ccl::vector<ccl::DeviceInfo> hip_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_HIP);
-	foreach(ccl::DeviceInfo & device, hip_devices)
-	{
+	for (size_t i = 0; i < hip_devices.size(); i++) {
+		ccl::DeviceInfo device = hip_devices[i];
 		available_devices.push_back(device);
 	}
 
 	// metal devices
 	ccl::vector<ccl::DeviceInfo> metal_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_METAL);
-	foreach(ccl::DeviceInfo & device, metal_devices)
-	{
+	for (size_t i = 0; i < metal_devices.size(); i++) {
+		ccl::DeviceInfo device = metal_devices[i];
 		available_devices.push_back(device);
 	}
 
 	// one api devices
 	ccl::vector<ccl::DeviceInfo> oneapi_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_ONEAPI);
-	foreach(ccl::DeviceInfo& device, oneapi_devices)
-	{
+	for (size_t i = 0; i < oneapi_devices.size(); i++) {
+		ccl::DeviceInfo device = oneapi_devices[i];
 		available_devices.push_back(device);
 	}
 }

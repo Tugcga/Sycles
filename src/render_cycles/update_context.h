@@ -217,7 +217,7 @@ private:
 	// map from Softimage object id for Light (not for x3dobject) to index in the Cycles array of lights
 	// for custm light from x3dobject id to cycles index
 	// value is array, it contains indexes in Cycles lights array of one master light in scene and several instances
-	// when we change parameterse of the master light, then we should resync all lights in Cycles array with thiese indexes
+	// when we change parameterse of the master light, then we should resync all lights in Cycles array with these indexes
 	// this is a map from master light id to different cycles light indexes
 	std::unordered_map<ULONG, std::vector<size_t>> lights_xsi_to_cyc;
 

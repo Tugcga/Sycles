@@ -182,7 +182,7 @@ void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_
 	{
 		ccl::ImageParams volume_params;
 		volume_params.frame = eval_time.GetTime();
-		attribute->data_voxel() = scene->image_manager->add_image(ice_loader, volume_params, false);
+		attribute->data_voxel() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(ice_loader), volume_params, false);
 	}
 }
 

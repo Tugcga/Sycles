@@ -53,24 +53,19 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	// for meshes use default surface shader (it has index 0)
 
 	// create shader for shpere
-	ccl::Shader* sphere_shader = new ccl::Shader();
+	ccl::Shader* sphere_shader = scene->create_node<ccl::Shader>();
 	sphere_shader->name = "sphere_shader";
-	ccl::ShaderGraph* sphere_shader_graph = new ccl::ShaderGraph();
+	std::unique_ptr<ccl::ShaderGraph> sphere_shader_graph = std::make_unique<ccl::ShaderGraph>();
 	ccl::SubsurfaceScatteringNode* sss_node = sphere_shader_graph->create_node<ccl::SubsurfaceScatteringNode>();
-	sphere_shader_graph->add(sss_node);
 	ccl::ColorNode* color_node = sphere_shader_graph->create_node<ccl::ColorNode>();
-	sphere_shader_graph->add(color_node);
 	color_node->set_value(ccl::make_float3(1.0, 0.2, 0.2));
 	ccl::OutputAOVNode* color_aov_node = sphere_shader_graph->create_node<ccl::OutputAOVNode>();
-	sphere_shader_graph->add(color_aov_node);
 	color_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name(XSI::CString("sphere_color_aov"), true).GetAsciiString()));
 	// we use changed names for attributes, but output to the passes original name
 	// these names will be changed by the same function
 	ccl::OutputAOVNode* value_aov_node = sphere_shader_graph->create_node<ccl::OutputAOVNode>();
-	sphere_shader_graph->add(value_aov_node);
 	value_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name("sphere_value_aov", false).GetAsciiString()));
 	ccl::NoiseTextureNode* noise_node = sphere_shader_graph->create_node<ccl::NoiseTextureNode>();
-	sphere_shader_graph->add(noise_node);
 	// make connections
 	sphere_shader_graph->connect(color_node->output("Color"), sss_node->input("Color"));
 	sphere_shader_graph->connect(color_node->output("Color"), color_aov_node->input("Color"));
@@ -79,23 +74,19 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 
 	ccl::ShaderNode* sphere_out = sphere_shader_graph->output();
 	sphere_shader_graph->connect(sss_node->output("BSSRDF"), sphere_out->input("Surface"));
-	sphere_shader->set_graph(sphere_shader_graph);
+	sphere_shader->set_graph(std::move(sphere_shader_graph));
 	sphere_shader->tag_update(scene);
-	scene->shaders.push_back(sphere_shader);
 	int sphere_shader_id = scene->shaders.size() - 1;
 
 	// create shader for plane
-	ccl::Shader* plane_shader = new ccl::Shader();
+	ccl::Shader* plane_shader = scene->create_node<ccl::Shader>();
 	plane_shader->name = "plane_shader";
-	ccl::ShaderGraph* plane_shader_graph = new ccl::ShaderGraph();
+	std::unique_ptr<ccl::ShaderGraph> plane_shader_graph = std::make_unique<ccl::ShaderGraph>();
 	ccl::GlossyBsdfNode* glossy_node = plane_shader_graph->create_node<ccl::GlossyBsdfNode>();
-	plane_shader_graph->add(glossy_node);
 	glossy_node->set_roughness(0.25f);
 	ccl::OutputAOVNode* plane_value_aov_node = plane_shader_graph->create_node<ccl::OutputAOVNode>();
-	plane_shader_graph->add(plane_value_aov_node);
 	plane_value_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name("plane_value_aov", false).GetAsciiString()));
 	ccl::CheckerTextureNode* checker_node = plane_shader_graph->create_node<ccl::CheckerTextureNode>();
-	plane_shader_graph->add(checker_node);
 	checker_node->set_scale(0.3f);
 	checker_node->set_color1(ccl::make_float3(0.2, 0.2, 0.2));
 	checker_node->set_color2(ccl::make_float3(0.8, 0.8, 0.8));
@@ -104,10 +95,9 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	plane_shader_graph->connect(checker_node->output("Color"), glossy_node->input("Color"));
 	ccl::ShaderNode* plane_out = plane_shader_graph->output();
 	plane_shader_graph->connect(glossy_node->output("BSDF"), plane_out->input("Surface"));
-	plane_shader->set_graph(plane_shader_graph);
+	plane_shader->set_graph(std::move(plane_shader_graph));
 	plane_shader->tag_update(scene);
 
-	scene->shaders.push_back(plane_shader);
 	int plane_shader_id = scene->shaders.size() - 1;
 
 	// add plane
@@ -117,7 +107,7 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	plane_used_shaders.push_back_slow(scene->shaders[plane_shader_id]);
 	plane_mesh->set_used_shaders(plane_used_shaders);
 
-	ccl::Object* plane_object = new ccl::Object();
+	ccl::Object* plane_object = scene->create_node<ccl::Object>();
 	plane_object->set_geometry(plane_mesh);
 	plane_object->name = "plane";
 	plane_object->set_asset_name(ccl::ustring("plane"));
@@ -125,7 +115,6 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 
 	ccl::Transform plane_tfm = ccl::transform_identity();
 	plane_object->set_tfm(plane_tfm);
-	scene->objects.push_back(plane_object);
 
 	plane_mesh->reserve_mesh(4, 2);  // on plane 4 vertices, 2 triangles
 	float plane_radius = 48.0;  // large plane for shadow catcher
@@ -160,14 +149,13 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	sphere_used_shaders.push_back_slow(scene->shaders[sphere_shader_id]);
 	ccl::Mesh* sphere_mesh = build_sphere(scene);
 	sphere_mesh->set_used_shaders(sphere_used_shaders);
-	ccl::Object* sphere_object = new ccl::Object();
+	ccl::Object* sphere_object = scene->create_node<ccl::Object>();
 	sphere_object->set_geometry(sphere_mesh);
 	sphere_object->name = "sphere";
 	sphere_object->set_asset_name(ccl::ustring("sphere"));
 	ccl::Transform sphere_tfm = ccl::transform_identity();
 	sphere_tfm = sphere_tfm * ccl::transform_translate(ccl::make_float3(0, 6, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
 	sphere_object->set_tfm(sphere_tfm);
-	scene->objects.push_back(sphere_object);
 
 	// add cube
 	ccl::Mesh* cube_mesh = build_cube(scene);
@@ -191,14 +179,13 @@ void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
 	hair_object->set_geometry(hair_geom);
 
 	// add one more cube
-	ccl::Object* second_cube_object = new ccl::Object();
+	ccl::Object* second_cube_object = scene->create_node<ccl::Object>();
 	second_cube_object->set_geometry(cube_mesh);
 	second_cube_object->name = "second_cube";
 	second_cube_object->set_asset_name(ccl::ustring("second cube"));
 	ccl::Transform second_cube_tfm = ccl::transform_identity();
 	second_cube_tfm = second_cube_tfm * ccl::transform_translate(ccl::make_float3(3.5, 1, 2)) * ccl::transform_scale(1.0f, 1.0f, 1.0f);
 	second_cube_object->set_tfm(second_cube_tfm);
-	scene->objects.push_back(second_cube_object);
 }
 
 void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const ULONG shaderball_displacement, const XSI::CTime& eval_time)
@@ -527,9 +514,9 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 
 				// in this method we set master object transform
 				sync_xsi_light(scene, xsi_light, update_context);
-				size_t light_index = scene->lights.size() - 1;
-				ccl::Light* light = scene->lights[light_index];
-				sync_light_tfm(light, tweak_xsi_light_transform(instance_object_tfm_array[main_motion_step], xsi_light, eval_time).GetMatrix4());
+				size_t light_index = scene->objects.size() - 1;
+				ccl::Object* light_object = scene->objects[light_index];
+				sync_light_tfm(light_object, tweak_xsi_light_transform(instance_object_tfm_array[main_motion_step], xsi_light, eval_time).GetMatrix4());
 
 				// add data to update context about indices of masters and cycles objects
 				std::vector<ULONG> m_ids(master_ids);
@@ -539,16 +526,21 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 			}
 			else if (xsi_object_type == "cyclesPoint" || xsi_object_type == "cyclesSun" || xsi_object_type == "cyclesSpot" || xsi_object_type == "cyclesArea")  // does not consider background, because it should be unique
 			{
+				size_t pre_objects_count = scene->objects.size();
 				sync_custom_light(scene, xsi_object, update_context);
+				size_t post_objects_count = scene->objects.size();
+				// check is we actually add the light
+				// because potentually (for invalid light object) we skip create new light process in sync_custom_light function
+				if (post_objects_count > pre_objects_count) {
+					size_t light_index = scene->objects.size() - 1;
+					ccl::Object* light_object = scene->objects[light_index];
+					sync_light_tfm(light_object, instance_object_tfm_array[main_motion_step].GetMatrix4());
 
-				size_t light_index = scene->lights.size() - 1;
-				ccl::Light* light = scene->lights[light_index];
-				sync_light_tfm(light, instance_object_tfm_array[main_motion_step].GetMatrix4());
-
-				std::vector<ULONG> m_ids(master_ids);
-				m_ids.push_back(xsi_master_object_id);
-				m_ids.push_back(xsi_object.GetObjectID());
-				update_context->add_light_instance_data(object_id, light_index, m_ids);
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master_object_id);
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_light_instance_data(object_id, light_index, m_ids);
+				}
 			}
 			else if (xsi_object_type == "#model")
 			{

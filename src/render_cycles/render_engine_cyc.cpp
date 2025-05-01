@@ -507,8 +507,8 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	if (!is_recreate_session)
 	{
 		if (update_context->get_use_denoising() != use_denoising ||
-			update_context->get_use_denoising_albedo() != update_context->denoising_channel_enum_to_albedo(denoise_channels) ||
-			update_context->get_use_denoising_normal() != update_context->denoising_channel_enum_to_normal(denoise_channels))
+			update_context->get_use_denoising_albedo() != (update_context->denoising_channel_enum_to_albedo(denoise_channels) && use_denoising) ||
+			update_context->get_use_denoising_normal() != (update_context->denoising_channel_enum_to_normal(denoise_channels) && use_denoising))
 		{
 			is_recreate_session = true;
 		}
@@ -584,52 +584,52 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 
 	if (update_type == UpdateType::UpdateType_Camera)
 	{
-		is_update = sync_camera(session->scene, update_context);
+		is_update = sync_camera(session->scene.get(), update_context);
 		is_update_camera = true;
 	}
 	else if (update_type == UpdateType::UpdateType_GlobalAmbient)
 	{
-		is_update = update_background_color(session->scene, update_context);
+		is_update = update_background_color(session->scene.get(), update_context);
 	}
 	else if (update_type == UpdateType::UpdateType_Transform)
 	{
-		is_update = update_transform(session->scene, update_context, xsi_object);
+		is_update = update_transform(session->scene.get(), update_context, xsi_object);
 	}
 	else if (update_type == UpdateType::UpdateType_XsiLight)
 	{
 		XSI::Light xsi_light(xsi_object);
-		is_update = update_xsi_light(session->scene, update_context, xsi_light);
+		is_update = update_xsi_light(session->scene.get(), update_context, xsi_light);
 		if (is_update == XSI::CStatus::OK)
 		{
-			is_update = update_transform(session->scene, update_context, xsi_object);
+			is_update = update_transform(session->scene.get(), update_context, xsi_object);
 		}
 	}
 	else if (update_type == UpdateType::UpdateType_LightPrimitive)
 	{
-		is_update = update_custom_light(session->scene, update_context, xsi_object);
+		is_update = update_custom_light(session->scene.get(), update_context, xsi_object);
 	}
 	else if (update_type == UpdateType::UpdateType_Hair)
 	{
-		is_update = update_hair(session->scene, update_context, xsi_object);
+		is_update = update_hair(session->scene.get(), update_context, xsi_object);
 	}
 	else if (update_type == UpdateType::UpdateType_Mesh)
 	{
-		is_update = update_polymesh(session->scene, update_context, xsi_object);
+		is_update = update_polymesh(session->scene.get(), update_context, xsi_object);
 	}
 	else if (update_type == UpdateType::UpdateType_Pointcloud)
 	{
 		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
 		{
-			is_update = update_strands(session->scene, update_context, xsi_object);
+			is_update = update_strands(session->scene.get(), update_context, xsi_object);
 		}
 		else if (pointcloud_type == PointcloudType::PointcloudType_Points)
 		{
-			is_update = update_points(session->scene, update_context, xsi_object);
+			is_update = update_points(session->scene.get(), update_context, xsi_object);
 		}
 		else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
 		{
-			is_update = update_volume(session->scene, update_context, xsi_object);
+			is_update = update_volume(session->scene.get(), update_context, xsi_object);
 		}
 		else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
 		{
@@ -642,18 +642,18 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType::UpdateType_VDBPrimitive)
 	{
-		is_update = update_vdb(session->scene, update_context, xsi_object);
+		is_update = update_vdb(session->scene.get(), update_context, xsi_object);
 	}
 	else if (update_type == UpdateType::UpdateType_MeshProperty)
 	{
 		// we can change subdivide parameters, in this case we should recreate the mesh
 		// in all other cases we should simply update object properties
-		is_update = update_polymesh(session->scene, update_context, xsi_object);
+		is_update = update_polymesh(session->scene.get(), update_context, xsi_object);
 	}
 	else if (update_type == UpdateType::UpdateType_HairProperty)
 	{
 		// update only object properties
-		is_update = update_hair_property(session->scene, update_context, xsi_object);
+		is_update = update_hair_property(session->scene.get(), update_context, xsi_object);
 	}
 	else if (update_type == UpdateType::UpdateType_PointcloudProperty)
 	{
@@ -661,14 +661,14 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 		if (pointcloud_type == PointcloudType::PointcloudType_Strands)
 		{
 			// we can change tip parameter, so, recreate the strands from scratch
-			is_update = update_strands(session->scene, update_context, xsi_object);
+			is_update = update_strands(session->scene.get(), update_context, xsi_object);
 		}
 		else if (pointcloud_type == PointcloudType::PointcloudType_Points || pointcloud_type == PointcloudType::PointcloudType_Volume)
 		{
 			// if we change property for points, then simply update object properies
 			// even if we activate or deactivate mmotion blur
 			// for actual changes user should force update the scene
-			is_update = update_points_property(session->scene, update_context, xsi_object);
+			is_update = update_points_property(session->scene.get(), update_context, xsi_object);
 		}
 		else if (pointcloud_type == PointcloudType::PointcloudType_Instances)
 		{
@@ -677,7 +677,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType::UpdateType_VolumeProperty)
 	{
-		is_update = update_volume_property(session->scene, update_context, xsi_object);
+		is_update = update_volume_property(session->scene.get(), update_context, xsi_object);
 	}
 	else if (update_type == UpdateType::UpdateType_LightLinkingProperty)
 	{
@@ -724,7 +724,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 		std::vector<XSI::CStringArray> aovs(2);
 		aovs[0].Clear();
 		aovs[1].Clear();
-		is_update = update_material(session->scene, xsi_material, update_context->get_xsi_material_cycles_index(material_id), update_context->get_time(), aovs);
+		is_update = update_material(session->scene.get(), xsi_material, update_context->get_xsi_material_cycles_index(material_id), update_context->get_time(), aovs);
 
 		if (update_context->is_displacement_material(material_id))
 		{
@@ -773,7 +773,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 			ULONG shader_id = update_context->get_shaderball_material_node(material_id);
 			if (update_context->is_material_exists(shader_id))
 			{
-				is_update = update_shaderball_shadernode(session->scene, shader_id, m_shaderball_type, update_context->get_xsi_material_cycles_index(shader_id), update_context->get_time());
+				is_update = update_shaderball_shadernode(session->scene.get(), shader_id, m_shaderball_type, update_context->get_xsi_material_cycles_index(shader_id), update_context->get_time());
 			}
 		}
 	}
@@ -825,14 +825,14 @@ XSI::CStatus RenderEngineCyc::create_scene()
 
 	if (render_type == RenderType_Shaderball)
 	{
-		sync_shaderball_scene(session->scene, update_context, m_scene_list, m_shaderball_material, m_shaderball_type, m_shaderball_material_id);
+		sync_shaderball_scene(session->scene.get(), update_context, m_scene_list, m_shaderball_material, m_shaderball_type, m_shaderball_material_id);
 	}
 	else
 	{
-		sync_scene(session->scene, update_context, m_isolation_list, m_lights_list, XSI::Application().FindObjects(XSI::siX3DObjectID), XSI::Application().FindObjects(XSI::siModelID));
+		sync_scene(session->scene.get(), update_context, m_isolation_list, m_lights_list, XSI::Application().FindObjects(XSI::siX3DObjectID), XSI::Application().FindObjects(XSI::siModelID));
 		if (render_type == RenderType::RenderType_Rendermap && baking_context->get_is_valid())
 		{
-			sync_baking(session->scene, update_context, baking_context, baking_object, baking_uv, image_full_size_width, image_full_size_height);
+			sync_baking(session->scene.get(), update_context, baking_context, baking_object, baking_uv, image_full_size_width, image_full_size_height);
 		}
 	}
 	is_update_camera = true;
@@ -841,8 +841,8 @@ XSI::CStatus RenderEngineCyc::create_scene()
 	// output driver calls every in the same time as display driver
 	// so, we can try to use only output driver, because it allows to extract pixels for different passes
 	session->set_output_driver(std::make_unique<XSIOutputDriver>(this));
-	session->progress.set_update_callback(function_bind(&RenderEngineCyc::progress_update_callback, this));
-	session->progress.set_cancel_callback(function_bind(&RenderEngineCyc::progress_cancel_callback, this));
+	session->progress.set_update_callback([this] { progress_update_callback(); });
+	session->progress.set_cancel_callback([this] { progress_cancel_callback(); });
 
 	return XSI::CStatus::OK;
 }
@@ -853,7 +853,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 {
 	if (update_context->get_is_update_light_linking())
 	{
-		sync_light_linking(session->scene, update_context);
+		sync_light_linking(session->scene.get(), update_context);
 	}
 	update_context->set_is_update_light_linking(false);
 
@@ -861,7 +861,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 	make_render = true;
 
 	// setup labels
-	labels_context->setup(session->scene, m_render_parameters, camera, eval_time);
+	labels_context->setup(session->scene.get(), m_render_parameters, camera, eval_time);
 
 	// check, should we start the render, or we can use previous render result
 	std::unordered_set<std::string> changed_render_parameters = update_context->get_changed_parameters(m_render_parameters);
@@ -875,18 +875,18 @@ XSI::CStatus RenderEngineCyc::post_scene()
 
 		if (update_context->is_change_render_parameters_background(changed_render_parameters))
 		{
-			update_background_parameters(session->scene, update_context);
+			update_background_parameters(session->scene.get(), update_context);
 		}
 	}
 
 	if (update_context->is_need_update_background())
 	{
-		update_background(session->scene, update_context);
+		update_background(session->scene.get(), update_context);
 	}
 
 	if (!is_update_camera && update_context->is_change_render_parameters_camera(changed_render_parameters))
 	{
-		sync_camera(session->scene, update_context);
+		sync_camera(session->scene.get(), update_context);
 		is_update_camera = true;
 	}
 
@@ -921,7 +921,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			m_render_parameters, eval_time);
 
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
-		sync_passes(session->scene, update_context, output_context, series_context, baking_context, visual_buffer);
+		sync_passes(session->scene.get(), update_context, output_context, series_context, baking_context, visual_buffer);
 		series_context->set_common_path(output_context);
 
 		if (update_context->is_changed_render_paramters_film(changed_render_parameters))
@@ -937,7 +937,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 
 		if (render_type == RenderType_Shaderball || update_context->is_change_render_parameters_shaders(changed_render_parameters))
 		{
-			sync_shader_settings(session->scene, m_render_parameters, render_type, get_shaderball_displacement_method(), eval_time);
+			sync_shader_settings(session->scene.get(), m_render_parameters, render_type, get_shaderball_displacement_method(), eval_time);
 		}
 
 		// set temp directory for session parameters
@@ -1008,7 +1008,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 		// when the render has the time limit, then return 0 samples, try to obtain actual samples count
 		int current_samples = session->progress.get_current_sample();
 		labels_context->set_render_samples(current_samples == 0 ? rendered_samples : session->progress.get_current_sample());
-		labels_context->set_render_triangles(session->scene);
+		labels_context->set_render_triangles(session->scene.get());
 	}
 
 	// the render is done, add labels to the output (if we need it)

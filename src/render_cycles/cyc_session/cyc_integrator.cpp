@@ -192,5 +192,5 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		}
 	}
 
-	integrator->tag_update(session->scene, ccl::Integrator::UPDATE_ALL);
+	integrator->tag_update(session->scene.get(), ccl::Integrator::UPDATE_ALL);
 }

@@ -66,14 +66,13 @@ void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject &xsi_object, i
 	used_shaders.push_back_slow(scene->shaders[shader_index]);
 
 	mesh->set_used_shaders(used_shaders);
-	ccl::Object* object = new ccl::Object();
+	ccl::Object* object = scene->create_node<ccl::Object>();
 	object->set_geometry(mesh);
 	object->name = "shaderball";
 	object->set_asset_name(ccl::ustring("shaderball"));
 	ccl::Transform object_tfm = ccl::transform_identity();
 
 	object->set_tfm(object_tfm);
-	scene->objects.push_back(object);
 }
 
 void sync_shaderball_background_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object, ShaderballType shaderball_type)
@@ -120,42 +119,43 @@ void sync_shaderball_background_object(ccl::Scene* scene, UpdateContext* update_
 		sync_triangle_mesh(scene, mesh, xsi_geo_acc, xsi_polymesh);
 		mesh->set_used_shaders(used_shaders);
 
-		ccl::Object* object = new ccl::Object();
+		ccl::Object* object = scene->create_node<ccl::Object>();
 		object->set_geometry(mesh);
 		object->name = "shaderball_background";
 		object->set_asset_name(ccl::ustring("shaderball"));
 		ccl::Transform object_tfm = ccl::transform_identity();
 
 		object->set_tfm(object_tfm);
-		scene->objects.push_back(object);
 	}
 }
 
 void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, ccl::float2 area_size, ccl::float4 color, bool visible_glossy)
 {
 	// create the shader
-	ccl::Shader* shader = new ccl::Shader();
+	ccl::Shader* shader = scene->create_node<ccl::Shader>();
 	shader->name = "Shaderball light shader";
-	ccl::ShaderGraph* graph = new ccl::ShaderGraph();
-	ccl::EmissionNode* node = new ccl::EmissionNode();
+	std::unique_ptr<ccl::ShaderGraph> graph = std::make_unique<ccl::ShaderGraph>();
+	ccl::EmissionNode* node = graph->create_node<ccl::EmissionNode>();;
 	node->set_color(ccl::make_float3(color.x, color.y, color.z));
 	node->set_strength(color.w);
-	graph->add(node);
 	ccl::ShaderNode* out = graph->output();
 	graph->connect(node->output("Emission"), out->input("Surface"));
-	shader->set_graph(graph);
+	shader->set_graph(std::move(graph));
 	shader->tag_update(scene);
 
-	scene->shaders.push_back(shader);
 	int shader_id = scene->shaders.size() - 1;
 
 	// create the light
 	ccl::Light* light = scene->create_node<ccl::Light>();
-	light->set_shader(scene->shaders[shader_id]);
+	ccl::Object* object = scene->create_node<ccl::Object>();
+	object->set_geometry(light);
+	ccl::array<ccl::Node*> used_shaders;
+	used_shaders.push_back_slow(scene->shaders[shader_id]);
+	light->set_used_shaders(used_shaders);
 	light->set_is_enabled(true);
 
 	light->set_light_type(ccl::LightType::LIGHT_AREA);
-	light->set_tfm(xsi_matrix_to_transform(xsi_matrix));
+	object->set_tfm(xsi_matrix_to_transform(xsi_matrix));
 	light->set_size(1);
 	light->set_is_portal(false);
 	light->set_spread(M_PI);
@@ -167,12 +167,8 @@ void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, cc
 	light->set_cast_shadow(true);
 	light->set_use_mis(true);
 	light->set_max_bounces(1024);
-	light->set_use_camera(false);
-	light->set_use_diffuse(true);
-	light->set_use_glossy(visible_glossy);
-	light->set_use_transmission(true);
-	light->set_use_scatter(true);
-	light->set_is_shadow_catcher(false);
+	
+	object->set_visibility(light_visibility_flag(false, true, visible_glossy, true, true, false));
 }
 
 void sync_shaderball_light(ccl::Scene* scene, ShaderballType shaderball_type)

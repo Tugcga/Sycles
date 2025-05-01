@@ -269,7 +269,6 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("output_label_triangles_count", "Triangles");
 	layout.AddItem("output_label_curves_count", "Curves");
 	layout.AddItem("output_label_objects_count", "Objects");
-	layout.AddItem("output_label_lights_count", "Lights");
 	layout.EndGroup();
 
 	layout.AddTab("World");
@@ -967,7 +966,6 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("output_label_camera", XSI::CValue::siBool, caps, "", "", 0, param);
 	property.AddParameter("output_label_samples", XSI::CValue::siBool, caps, "", "", 0, param);
 	property.AddParameter("output_label_objects_count", XSI::CValue::siBool, caps, "", "", 0, param);
-	property.AddParameter("output_label_lights_count", XSI::CValue::siBool, caps, "", "", 0, param);
 	property.AddParameter("output_label_triangles_count", XSI::CValue::siBool, caps, "", "", 0, param);
 	property.AddParameter("output_label_curves_count", XSI::CValue::siBool, caps, "", "", 0, param);
 

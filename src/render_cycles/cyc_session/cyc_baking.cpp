@@ -665,7 +665,7 @@ void sync_baking(ccl::Scene* scene, UpdateContext* update_context, BakingContext
 		size_t uv_index = get_uv_attribute_index(mesh, ccl::ustring(baking_uv_name.GetAsciiString()));
 
 		populate_bake_data(mesh, uv_index, baking_context);
-		scene->bake_manager->set(scene, object->name.c_str());
+		scene->bake_manager->set_baking(scene, object->name.c_str());
 		scene->bake_manager->set_use_camera(baking_context->get_use_camera());
 	}
 }

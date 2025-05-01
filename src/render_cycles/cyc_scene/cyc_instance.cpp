@@ -89,7 +89,7 @@ void update_instance_light_transform(ccl::Scene* scene, UpdateContext* update_co
 	std::unordered_map<size_t, std::vector<ULONG>> object_index_map = update_context->get_light_from_instance_data(xsi_instance_id);
 	for (const auto& [light_index, xsi_ids] : object_index_map)
 	{
-		ccl::Light* light = scene->lights[light_index];
+		ccl::Object* light_object = scene->objects[light_index];
 
 		if (xsi_ids.size() >= 2)
 		{
@@ -100,14 +100,14 @@ void update_instance_light_transform(ccl::Scene* scene, UpdateContext* update_co
 			if (master_object_type == "light")
 			{
 				XSI::Light xsi_light(master_object);
-				sync_light_tfm(light, tweak_xsi_light_transform(xsi_tfm, xsi_light, eval_time).GetMatrix4());
+				sync_light_tfm(light_object, tweak_xsi_light_transform(xsi_tfm, xsi_light, eval_time).GetMatrix4());
 
-				light->tag_update(scene);
+				light_object->tag_update(scene);
 			}
 			else if (master_object_type == "cyclesPoint" || master_object_type == "cyclesSun" || master_object_type == "cyclesSpot" || master_object_type == "cyclesArea")
 			{
-				sync_light_tfm(light, xsi_tfm.GetMatrix4());
-				light->tag_update(scene);
+				sync_light_tfm(light_object, xsi_tfm.GetMatrix4());
+				light_object->tag_update(scene);
 			}
 		}
 	}

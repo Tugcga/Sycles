@@ -39,9 +39,8 @@ void common_routine(ccl::Scene* scene,
 	ccl::ustring node_name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 	XSI::CString xsi_shader_progid = xsi_shader.GetProgID();
 
-	// add node to the shader graph add to the map
+	// add node to the map
 	// because when we will connect parameters, we should connect this node with other nodes
-	shader_graph->add(node);
 	nodes_map[xsi_shader_id] = node;
 	node->name = node_name;
 
@@ -476,12 +475,13 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 					}
 				}
 
-				node->handle = scene->image_manager->add_image(loaders, node->image_params());
+				// TODO: properly omplement tiled image loader
+				// node->handle = scene->image_manager->add_image(loaders, node->image_params());
 			}
 			else
 			{
 				XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
-				node->handle = scene->image_manager->add_image(image_loader, node->image_params());
+				node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 			}
 
 			node->set_tiles(tiles);
@@ -528,7 +528,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 
 			XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
-			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
+			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 
 			return node;
 		}
