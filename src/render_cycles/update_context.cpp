@@ -225,7 +225,8 @@ bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_
 		"sampling_advanced_light_tree", "sampling_advanced_light_threshold",
 		"sampling_render_use_adaptive", "sampling_render_adaptive_threshold", "sampling_render_adaptive_min_samples",
 		"sampling_advanced_pattern",
-		"sampling_advanced_scrambling_distance", "sampling_advanced_scrambling_multiplier"
+		"sampling_advanced_scrambling_distance", "sampling_advanced_scrambling_multiplier",
+		"sampling_advanced_subset", "sampling_advanced_offset", "sampling_advanced_length",
 		"paths_fastgi_use", "paths_fastgi_ao_factor", "paths_fastgi_ao_distance", "paths_fastgi_method", "paths_fastgi_ao_bounces",
 		"sampling_path_guiding_use", "sampling_path_guiding_surface", "sampling_path_guiding_volume", "sampling_path_guiding_training_samples",
 		"denoise_mode", "denoise_channels"

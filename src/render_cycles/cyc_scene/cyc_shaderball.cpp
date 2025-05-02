@@ -168,7 +168,7 @@ void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, cc
 	light->set_use_mis(true);
 	light->set_max_bounces(1024);
 	
-	object->set_visibility(light_visibility_flag(false, true, visible_glossy, true, true, false));
+	object->set_visibility(light_visibility_flag(false, true, visible_glossy, true, true));
 }
 
 void sync_shaderball_light(ccl::Scene* scene, ShaderballType shaderball_type)

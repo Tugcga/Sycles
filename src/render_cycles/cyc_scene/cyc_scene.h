@@ -32,7 +32,7 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context);
 
 // cyc_light
-ccl::uint light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glossy, bool use_transmission, bool use_scatter, bool use_shadow);
+ccl::uint light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glossy, bool use_transmission, bool use_scatter);
 void sync_light_tfm(ccl::Object* light_object, const XSI::MATH::CMatrix4& xsi_tfm_matrix);
 XSI::MATH::CTransformation tweak_xsi_light_transform(const XSI::MATH::CTransformation& xsi_tfm, const XSI::Light& xsi_light, const XSI::CTime& eval_time);
 void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContext* update_context);
