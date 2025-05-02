@@ -288,8 +288,8 @@ void RenderEngineCyc::pre_bake()
 	{
 		baking_context->make_valid();
 		baking_context->set_use_camera(false);
-		XSI::Property bake_prop;
-		bool is_bake_prop = get_xsi_object_property(baking_object, "CyclesBake", bake_prop);
+		XSI::Property bake_prop = get_xsi_object_property(baking_object, "CyclesBake");
+		bool is_bake_prop = bake_prop.IsValid();
 		if (is_bake_prop)
 		{
 			XSI::CParameterRefArray prop_params = bake_prop.GetParameters();

@@ -37,17 +37,29 @@ bool is_render_visible(XSI::X3DObject& xsi_object, bool ignore_hide_master, cons
 	return false;
 }
 
-bool get_xsi_object_property(XSI::X3DObject &xsi_object, const XSI::CString &property_name, XSI::Property &out_property)
+XSI::Property get_xsi_object_property(XSI::X3DObject &xsi_object, const XSI::CString &property_name)
 {
-	XSI::CStatus is_get = xsi_object.GetPropertyFromName(property_name, out_property);
-	if (out_property.IsValid())
-	{
-		return true;
+	XSI::CRefArray props = xsi_object.GetProperties();
+	for (size_t i = 0; i < props.GetCount(); i++) {
+		XSI::CRef prop(props[i]);
+		if (prop.GetClassID() == XSI::siCustomPropertyID) {
+			XSI::CustomProperty custom_prop(prop);
+			XSI::CString custom_prop_type = custom_prop.GetType();
+			if (custom_prop_type == property_name) {
+				return custom_prop;
+			}
+		}
+		else if (prop.GetClassID() == XSI::siPropertyID) {
+			XSI::Property xsi_prop(prop);
+			XSI::CString xsi_prop_type = xsi_prop.GetType();
+			if (xsi_prop_type == property_name) {
+				return xsi_prop;
+			}
+		}
 	}
-	else
-	{
-		return false;
-	}
+
+	XSI::Property empty_prop;
+	return empty_prop;
 }
 
 bool obtain_subsub_directions(const XSI::Shader &xsi_shader, float &sun_x, float &sun_y, float &sun_z, const XSI::CTime &eval_time)

@@ -71,8 +71,8 @@ void geather_group_names_from_objects(const std::vector<ULONG>& xsi_ids, std::un
 		XSI::X3DObject xsi_object(XSI::Application().GetObjectFromID(xsi_id));
 		if (xsi_object.IsValid())
 		{
-			XSI::Property ll_prop;
-			bool is_prop_exists = get_xsi_object_property(xsi_object, "CyclesLightLinking", ll_prop);
+			XSI::Property ll_prop = get_xsi_object_property(xsi_object, "CyclesLightLinking");
+			bool is_prop_exists = ll_prop.IsValid();
 			if (is_prop_exists)
 			{
 				std::string light_group_name = ((XSI::CString)ll_prop.GetParameterValue("light_group_name")).GetAsciiString();

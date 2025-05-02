@@ -24,8 +24,8 @@
 
 bool is_pointcloud_points(XSI::X3DObject &xsi_object, const XSI::CTime &eval_time)
 {
-	XSI::Property xsi_property;
-	bool use_property = get_xsi_object_property(xsi_object, "CyclesPointcloud", xsi_property);
+	XSI::Property xsi_property = get_xsi_object_property(xsi_object, "CyclesPointcloud");
+	bool use_property = xsi_property.IsValid();
 
 	if (use_property)
 	{

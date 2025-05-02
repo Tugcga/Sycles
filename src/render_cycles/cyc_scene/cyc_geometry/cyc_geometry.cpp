@@ -44,8 +44,8 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 		object->set_pass_id(0);
 	}
 
-	XSI::Property xsi_property;
-	bool use_property = get_xsi_object_property(xsi_object, property_name, xsi_property);
+	XSI::Property xsi_property = get_xsi_object_property(xsi_object, property_name);
+	bool use_property = xsi_property.IsValid();
 	out_motion_deform = false;
 	lightgroup = "";
 	if (use_property)
@@ -61,7 +61,6 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 
 		object->set_visibility(get_ray_visibility(xsi_params, eval_time));
 
-		// TODO: sometimes, when we change shadow catcher parameter in update, the effect is not visible
 		object->set_is_shadow_catcher(xsi_params.GetValue("shadow_catcher", eval_time));
 		object->set_use_holdout(xsi_params.GetValue("is_holdout", eval_time));
 		object->set_shadow_terminator_shading_offset(xsi_params.GetValue("shadow_terminator", eval_time));

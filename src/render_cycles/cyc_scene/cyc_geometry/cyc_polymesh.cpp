@@ -526,8 +526,8 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 
 void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, SubdivideMode &io_mode, float &io_dicing_rate, const XSI::CTime &eval_time)
 {
-	XSI::Property xsi_property;
-	bool use_property = get_xsi_object_property(xsi_object, "CyclesMesh", xsi_property);
+	XSI::Property xsi_property = get_xsi_object_property(xsi_object, "CyclesMesh");
+	bool use_property = xsi_property.IsValid();
 	if (use_property)
 	{
 		XSI::CParameterRefArray xsi_params = xsi_property.GetParameters();
@@ -557,8 +557,8 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	mesh_geom->name = combine_geometry_name(xsi_object, xsi_polymesh).GetAsciiString();
 
 	// get geometry property
-	XSI::Property geo_property;
-	bool is_geo_prop = get_xsi_object_property(xsi_object, "geomapprox", geo_property);
+	XSI::Property geo_property = get_xsi_object_property(xsi_object, "geomapprox");
+	bool is_geo_prop = geo_property.IsValid();
 	int geo_subdivs = 0;
 	float geo_angle = 60.0;
 	bool geo_use_angle = true;

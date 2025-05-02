@@ -616,8 +616,8 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 	}
 
 	bool override_color = true;
-	XSI::Property pc_property;
-	bool is_property = get_xsi_object_property(xsi_object, "CyclesPointcloud", pc_property);
+	XSI::Property pc_property = get_xsi_object_property(xsi_object, "CyclesPointcloud");
+	bool is_property = pc_property.IsValid();
 	if (is_property)
 	{
 		XSI::CParameterRefArray prop_params = pc_property.GetParameters();

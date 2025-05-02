@@ -140,7 +140,7 @@ def AddCyclesMesh_Execute():
     if oSel is not None and len(oSel) > 0:
         for i in range(len(oSel)):
             o = oSel[i]
-            if o.Type == "polymsh":
+            if o.Type in ["polymsh", "Partition"]:
                 if o.GetPropertyFromName2("CyclesMesh"):
                     prop = o.GetPropertyFromName2("CyclesMesh")
                 else:
@@ -148,9 +148,9 @@ def AddCyclesMesh_Execute():
 
                 Application.InspectObj(prop)
             else:
-                lm("This property can be applied only to polygon mesh object")
+                lm("This property can be applied only to polygon mesh object or to the partition")
     else:
-        lm("This property can be applied only to polygon mesh object")
+        lm("This property can be applied only to polygon mesh object or to the partition")
 
     return True
 
@@ -163,17 +163,16 @@ def AddCyclesHairs_Execute(  ):
     if oSel is not None and len(oSel) > 0:
         for i in range(len(oSel)):
             o = oSel[i]
-            # if o.Type == "pointcloud" or o.Type == "hair":
-            if o.Type == "hair":
+            if o.Type in ["hair", "Partition"]:
                 if o.GetPropertyFromName2("CyclesHairs"):
                     prop = o.GetPropertyFromName2("CyclesHairs")
                 else:
                     prop = o.AddProperty("CyclesHairs")
                 Application.InspectObj(prop)
             else:
-                lm("This property can be applied only to the hair object", c.siWarning)
+                lm("This property can be applied only to the hair object or to the partition", c.siWarning)
     else:
-        lm("This property can be applied only to the hair object", c.siWarning)
+        lm("This property can be applied only to the hair object or to the partition", c.siWarning)
 
     return True
 
@@ -186,16 +185,16 @@ def AddCyclesVolume_Execute():
     if oSel is not None and len(oSel) > 0:
         for i in range(len(oSel)):
             o = oSel[i]
-            if o.Type == "pointcloud" or o.Type == "polymsh" or o.Type == "VDBPrimitive":
+            if o.Type in ["pointcloud", "polymsh", "VDBPrimitive", "Partition"]:
                 if o.GetPropertyFromName2("CyclesVolume"):
                     prop = o.GetPropertyFromName2("CyclesVolume")
                 else:
                     prop = o.AddProperty("CyclesVolume")
                 Application.InspectObj(prop)
             else:
-                lm("This property can be applied only to the vdb primitive, pointcloud or polymesh object", c.siWarning)
+                lm("This property can be applied only to the vdb primitive, pointcloud, polymesh object or to the partition", c.siWarning)
     else:
-        lm("This property can be applied only to the vdb primitive, pointcloud or polymesh object", c.siWarning)
+        lm("This property can be applied only to the vdb primitive, pointcloud, polymesh object or to the partition", c.siWarning)
 
     return True
 
@@ -208,16 +207,16 @@ def AddCyclesPointcloud_Execute():
     if oSel is not None and len(oSel) > 0:
         for i in range(len(oSel)):
             o = oSel[i]
-            if o.Type == "pointcloud":
+            if o.Type in ["pointcloud", "Partition"]:
                 if o.GetPropertyFromName2("CyclesPointcloud"):
                     prop = o.GetPropertyFromName2("CyclesPointcloud")
                 else:
                     prop = o.AddProperty("CyclesPointcloud")
                 Application.InspectObj(prop)
             else:
-                lm("This property can be applied only to the pointcloud object", c.siWarning)
+                lm("This property can be applied only to the pointcloud object or to the partition", c.siWarning)
     else:
-        lm("This property can be applied only to the pointcloud object", c.siWarning)
+        lm("This property can be applied only to the pointcloud object or to the partition", c.siWarning)
 
     return True
 
@@ -250,14 +249,14 @@ def AddCyclesLightLinking_Execute():
     if oSel is not None and len(oSel) > 0:
         for i in range(len(oSel)):
             o = oSel[i]
-            if o.Type == "polymsh" or o.Type == "light" or o.Type == "VDBPrimitive" or o.Type == "hair" or o.Type == "pointcloud" or o.Type == "cyclesPoint" or o.Type == "cyclesSun" or o.Type == "cyclesSpot" or o.Type == "cyclesArea":
+            if o.Type in ["polymsh", "light", "VDBPrimitive", "hair", "pointcloud", "cyclesPoint", "cyclesSun", "cyclesSpot", "cyclesArea", "Partition"]:
                 if o.GetPropertyFromName2("CyclesLightLinking"):
                     prop = o.GetPropertyFromName2("CyclesLightLinking")
                 else:
                     prop = o.AddProperty("CyclesLightLinking")
                 Application.InspectObj(prop)
             else:
-                lm("LightLinking property can be applied only to the following objects: polygonmesh, light, VDBPrimitive, pointcloud, Cycles native lights", c.siWarning)
+                lm("LightLinking property can be applied only to the following objects: polygonmesh, light, VDBPrimitive, pointcloud, Cycles native lights, partition", c.siWarning)
     else:
         lm("Select scene object to add LightLinking property", c.siWarning)
 
