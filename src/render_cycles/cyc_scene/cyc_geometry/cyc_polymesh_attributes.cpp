@@ -33,7 +33,6 @@ void sync_mesh_attribute_vertex_color(ccl::Scene* scene, ccl::Mesh* mesh, ccl::A
 		if (mesh->need_attribute(scene, vc_name))
 		{
 			ccl::Attribute* vc_attr = attributes.add(vc_name, ccl::TypeRGBA, ccl::ATTR_ELEMENT_CORNER_BYTE);
-			//vc_attr->flags |= ccl::ATTR_SUBDIVIDED;
 			ccl::uchar4* cdata = vc_attr->data_uchar4();
 			if (use_triangles)
 			{
@@ -347,7 +346,6 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, bool use_
 	// STEP 3: Blur vertices to approximate 2 ring neighborhood. 
 	ccl::AttributeSet& attributes = (!use_triangles) ? mesh->subd_attributes : mesh->attributes;
 	ccl::Attribute* attr = attributes.add(ccl::ATTR_STD_POINTINESS);
-	//attr->flags |= ccl::ATTR_SUBDIVIDED;
 	float* data = attr->data_float();
 	memcpy(data, &raw_data[0], sizeof(float) * raw_data.size());
 	memset(&counter[0], 0, sizeof(size_t) * counter.size());
@@ -416,11 +414,6 @@ void sync_mesh_uvs(ccl::Mesh* mesh, bool use_triangles, size_t triangles_count, 
 		uv_attr = mesh->attributes.add(ccl::ATTR_STD_UV, uv_name);
 	}
 
-	if (!use_triangles)
-	{
-		//uv_attr->flags |= ccl::ATTR_SUBDIVIDED;
-	}
-
 	ccl::float2* default_uv = uv_attr->data_float2();
 	for (size_t uv_index = 0; uv_index < uv_count; uv_index++)
 	{
@@ -438,10 +431,6 @@ void sync_mesh_uvs(ccl::Mesh* mesh, bool use_triangles, size_t triangles_count, 
 		else
 		{
 			uv_attribute = mesh->attributes.add(ccl::ATTR_STD_UV, uv_name);
-		}
-		if (!use_triangles)
-		{
-			//uv_attribute->flags |= ccl::ATTR_SUBDIVIDED;
 		}
 
 		ccl::float2* uv_attribute_data = uv_attribute->data_float2();
@@ -526,7 +515,6 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					xsi_attribute.GetDataArray(attr_data);
 
 					ccl::Attribute* cycles_attribute = !use_triangles ? mesh->subd_attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_VERTEX);
-					//cycles_attribute->flags |= ccl::ATTR_SUBDIVIDED;
 
 					ccl::float3* cyc_attr_data = cycles_attribute->data_float3();
 					if (use_triangles)
@@ -552,7 +540,6 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					xsi_attribute.GetDataArray(attr_data);
 					
 					ccl::Attribute* cycles_attribute = !use_triangles ? mesh->subd_attributes.add(attr_name, ccl::TypeFloat2, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeFloat2, ccl::ATTR_ELEMENT_VERTEX);
-					//cycles_attribute->flags |= ccl::ATTR_SUBDIVIDED;
 
 					ccl::float2* cyc_attr_data = cycles_attribute->data_float2();
 
@@ -579,7 +566,6 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					xsi_attribute.GetDataArray(attr_data);
 
 					ccl::Attribute* cycles_attribute = !use_triangles ? mesh->subd_attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX);
-					//cycles_attribute->flags |= ccl::ATTR_SUBDIVIDED;
 
 					ccl::float4* cyc_attr_data = cycles_attribute->data_float4();
 
@@ -603,7 +589,6 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 				else if (attr_data_type == XSI::siICENodeDataBool || attr_data_type == XSI::siICENodeDataFloat || attr_data_type == XSI::siICENodeDataLong)
 				{
 					ccl::Attribute* cycles_attribute = !use_triangles ? mesh->subd_attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_VERTEX);
-					//cycles_attribute->flags |= ccl::ATTR_SUBDIVIDED;
 
 					float* cyc_attr_data = cycles_attribute->data_float();
 
