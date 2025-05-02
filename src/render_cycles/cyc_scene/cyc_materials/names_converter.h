@@ -197,13 +197,13 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesMetallicBSDF.1.0", {
-			{"base_color", "Base Color"},
-			{"edge_tint", "Edge Tint"},
-			{"ior", "IOR"},
-			{"extinction", "Extinction"},
-			{"roughness", "Roughness"},
-			{"anisotropy", "Anisotropy"},
-			{"rotation", "Rotation"},
+			{"BaseColor", "Base Color"},
+			{"EdgeTint", "Edge Tint"},
+			{"IOR", "IOR"},
+			{"Extinction", "Extinction"},
+			{"Roughness", "Roughness"},
+			{"Anisotropy", "Anisotropy"},
+			{"Rotation", "Rotation"},
 			{"Normal", "Normal"},
 			{"Tangent", "Tangent"},
 

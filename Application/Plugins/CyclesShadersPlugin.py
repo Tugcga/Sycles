@@ -704,19 +704,19 @@ def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_Define(in_ctxt):
     # parameters
     add_input_string(no_port_pram_options(), params, "Multiscatter GGX", "distribution")
     add_input_string(no_port_pram_options(), params, "f82_tint", "fresnel_type")
-    add_input_color(standard_pram_options(), params, [0.617, 0.577, 0.540], "base_color")
-    add_input_color(standard_pram_options(), params, [0.695, 0.726, 0.770], "edge_tint")
+    add_input_color(standard_pram_options(), params, [0.617, 0.577, 0.540], "BaseColor")
+    add_input_color(standard_pram_options(), params, [0.695, 0.726, 0.770], "EdgeTint")
     add_input_float(no_port_pram_options(), params, 2.757, "ior_x", 0.0, 4.0)
     add_input_float(no_port_pram_options(), params, 2.513, "ior_y", 0.0, 4.0)
     add_input_float(no_port_pram_options(), params, 2.231, "ior_z", 0.0, 4.0)
-    add_input_vector(standard_pram_options(), params, 0.0, "ior")
+    add_input_vector(standard_pram_options(), params, 0.0, "IOR")
     add_input_float(no_port_pram_options(), params, 3.867, "extinction_x", 0.0, 4.0)
     add_input_float(no_port_pram_options(), params, 3.404, "extinction_y", 0.0, 4.0)
     add_input_float(no_port_pram_options(), params, 3.009, "extinction_z", 0.0, 4.0)
-    add_input_vector(standard_pram_options(), params, 0.0, "extinction")
-    add_input_float(standard_pram_options(), params, 0.5, "roughness", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "anisotropy", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "rotation", 0.0, 1.0)
+    add_input_vector(standard_pram_options(), params, 0.0, "Extinction")
+    add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "Rotation", 0.0, 1.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
     add_input_normal(standard_pram_options(), params, 0.0, "Tangent")
 
@@ -728,8 +728,8 @@ def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_Define(in_ctxt):
     ppg_layout.AddGroup("Parameters")
     ppg_layout.AddEnumControl("distribution", glass_distribution_enum, "Distribution")
     ppg_layout.AddEnumControl("fresnel_type", metallic_fresnel_enum, "Fresnel Type")
-    ppg_layout.AddItem("base_color", "Base Color")
-    ppg_layout.AddItem("edge_tint", "Edge Tint")
+    ppg_layout.AddItem("BaseColor", "Base Color")
+    ppg_layout.AddItem("EdgeTint", "Edge Tint")
     ppg_layout.AddGroup("IOR")
     ppg_layout.AddRow()
     ppg_layout.AddItem("ior_x", "X")
@@ -744,9 +744,9 @@ def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_Define(in_ctxt):
     ppg_layout.AddItem("extinction_z", "Z")
     ppg_layout.EndRow()
     ppg_layout.EndGroup()
-    ppg_layout.AddItem("roughness", "Roughness")
-    ppg_layout.AddItem("anisotropy", "Anisotropy")
-    ppg_layout.AddItem("rotation", "Rotation")
+    ppg_layout.AddItem("Roughness", "Roughness")
+    ppg_layout.AddItem("Anisotropy", "Anisotropy")
+    ppg_layout.AddItem("Rotation", "Rotation")
     ppg_layout.EndGroup()
 
     ppg_layout.Language = "Python"
@@ -754,8 +754,8 @@ def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_Define(in_ctxt):
 def update_ui(prop):
     fresnel_type = prop.Parameters("fresnel_type").Value
     if fresnel_type == "f82_tint":
-        prop.Parameters("base_color").ReadOnly = False
-        prop.Parameters("edge_tint").ReadOnly = False
+        prop.Parameters("BaseColor").ReadOnly = False
+        prop.Parameters("EdgeTint").ReadOnly = False
         prop.Parameters("ior_x").ReadOnly = True
         prop.Parameters("ior_y").ReadOnly = True
         prop.Parameters("ior_z").ReadOnly = True
@@ -763,8 +763,8 @@ def update_ui(prop):
         prop.Parameters("extinction_y").ReadOnly = True
         prop.Parameters("extinction_z").ReadOnly = True
     else:
-        prop.Parameters("base_color").ReadOnly = True
-        prop.Parameters("edge_tint").ReadOnly = True
+        prop.Parameters("BaseColor").ReadOnly = True
+        prop.Parameters("EdgeTint").ReadOnly = True
         prop.Parameters("ior_x").ReadOnly = False
         prop.Parameters("ior_y").ReadOnly = False
         prop.Parameters("ior_z").ReadOnly = False
