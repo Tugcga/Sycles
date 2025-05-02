@@ -100,6 +100,7 @@ void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI
 	}
 
 	object->tag_pass_id_modified();
+	object->tag_update(scene);
 }
 
 void sync_vdb_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject& xsi_object, XSI::CString& lightgroup, const XSI::CParameterRefArray& primitive_parameters, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time, bool full_update)

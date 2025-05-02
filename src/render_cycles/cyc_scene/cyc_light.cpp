@@ -413,6 +413,7 @@ void set_background_light(ccl::Scene* scene, ccl::Background* background, ccl::S
 
 	light->set_is_enabled(true);
 	light->set_light_type(ccl::LightType::LIGHT_BACKGROUND);
+	bg_object->set_is_shadow_catcher(true);
 
 	set_background_light_params(scene, light, bg_shader, render_parameters, eval_time);
 }
