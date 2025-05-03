@@ -352,21 +352,21 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 
 	// use common method for export attrbutes
 	XSI::CPolygonFaceRefArray faces;
-	sync_mesh_attribute_vertex_color(scene, mesh, attributes, xsi_geo_acc, true, triangle_nodes, faces);
-	sync_mesh_attribute_random_per_island(scene, mesh, attributes, true, nodes_count, triangles_count, triangle_nodes, xsi_polymesh, faces);
-	sync_mesh_attribute_pointness(scene, mesh, true, vertex_count, nodes_count, xsi_vertices, node_normals, xsi_polymesh);
+	sync_mesh_attribute_vertex_color(scene, mesh, attributes, xsi_geo_acc, SubdivideMode_None, triangle_nodes, faces);
+	sync_mesh_attribute_random_per_island(scene, mesh, attributes, SubdivideMode_None, nodes_count, triangles_count, triangle_nodes, xsi_polymesh, faces);
+	sync_mesh_attribute_pointness(scene, mesh, SubdivideMode_None, vertex_count, nodes_count, xsi_vertices, node_normals, xsi_polymesh);
 	
 	// uvs
 	XSI::CRefArray uv_refs = xsi_geo_acc.GetUVs();
 	// export first uv as default uv attribute
-	sync_mesh_uvs(mesh, true, triangles_count, nodes_count, uv_refs, faces, triangle_nodes);
+	sync_mesh_uvs(mesh, SubdivideMode_None, triangles_count, nodes_count, uv_refs, faces, triangle_nodes);
 	// export tangent for each uv
 	for (size_t i = 0; i < uv_refs.GetCount(); i++)
 	{
 		XSI::ClusterProperty uv_prop(uv_refs[i]);
 		mikk_compute_tangents(mesh, uv_prop.GetName().GetAsciiString(), true);
 	}
-	sync_ice_attributes(scene, mesh, xsi_polymesh, true, vertex_count, nodes_count, xsi_node_to_vertex);
+	sync_ice_attributes(scene, mesh, xsi_polymesh, SubdivideMode_None, vertex_count, nodes_count, xsi_node_to_vertex);
 }
 
 void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor& xsi_geo_acc, const XSI::PolygonMesh& xsi_polymesh, SubdivideMode subdiv_mode, ULONG subdiv_level, float subdiv_dicing_rate, const XSI::MATH::CMatrix4 &xsi_matrix)
@@ -375,18 +375,40 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 	xsi_geo_acc.GetPolygonMaterialIndices(xsi_polygon_material_indices);
 
 	XSI::CDoubleArray vertex_positions;
-	XSI::CLongArray polygon_materials;
 	ULONG vertex_count = xsi_geo_acc.GetVertexCount();
+	ULONG nodes_count = xsi_geo_acc.GetNodeCount();
 	xsi_geo_acc.GetVertexPositions(vertex_positions);
-	xsi_geo_acc.GetPolygonMaterialIndices(polygon_materials);
 
 	XSI::CVertexRefArray xsi_vertices = xsi_polymesh.GetVertices();
 	XSI::CPolygonFaceRefArray xsi_faces = xsi_polymesh.GetPolygons();
 	XSI::CLongArray polygon_sizes;
 	xsi_geo_acc.GetPolygonVerticesCount(polygon_sizes);
+	XSI::CLongArray node_indices;
+	XSI::CFloatArray node_normals;  // define array here, but fill it later, if we need this
+	std::vector<LONG> xsi_node_to_vertex(nodes_count);
+	// we need node indices for linear subdivision
+	// in linear subdivision case case we should use each node as individual mesh vertex
+	if (subdiv_mode == SubdivideMode_Linear) {
+		xsi_geo_acc.GetNodeIndices(node_indices);
+		// we also need the map from node index to vertex index
+		// because we obtain from geometry vertex positiosn, but required node positions
+		for (LONG i = 0; i < vertex_count; i++)
+		{
+			XSI::Vertex v = xsi_vertices[i];
+			LONG v_index = v.GetIndex();
+			XSI::CPolygonNodeRefArray v_nodes = v.GetNodes();
+			LONG v_nodes_count = v_nodes.GetCount();
+			for (LONG j = 0; j < v_nodes_count; j++)
+			{
+				XSI::PolygonNode v_node = v_nodes[j];
+				LONG node_index = v_node.GetIndex();
+				xsi_node_to_vertex[node_index] = v_index;
+			}
+		}
+	}
 	size_t polygons_count = polygon_sizes.GetCount();
 
-	mesh->reserve_mesh(vertex_count, 0);
+	mesh->reserve_mesh(subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count, 0);
 	int num_corners = 0;
 	for (size_t i = 0; i < polygon_sizes.GetCount(); i++)
 	{
@@ -394,18 +416,69 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 	}
 	mesh->reserve_subd_faces(polygons_count, num_corners);
 
-	ccl::array<ccl::float3> mesh_vertices(vertex_count);
-	ccl::array<ccl::float3> mesh_normals(vertex_count);
-	for (size_t v_index = 0; v_index < vertex_count; v_index++)
-	{
-		XSI::Vertex vertex = xsi_vertices[v_index];
-		XSI::MATH::CVector3 vertex_position = vertex.GetPosition();
-		ccl::float3 position = ccl::make_float3(vertex_position.GetX(), vertex_position.GetY(), vertex_position.GetZ());
-		bool is_valid = true;
-		XSI::MATH::CVector3 normal = vertex.GetNormal(is_valid);
-		mesh_vertices[v_index] = position;
-		mesh_normals[v_index] = vector3_to_float3(normal);
+	ccl::array<ccl::float3> mesh_vertices(subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count);
+	ccl::array<ccl::float3> mesh_normals(subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count);
+	if (subdiv_mode == SubdivideMode_CatmulClark) {
+		// for Catmul-Clark subdivision we use mesh vertices
+		for (size_t v_index = 0; v_index < vertex_count; v_index++)
+		{
+			XSI::Vertex vertex = xsi_vertices[v_index];
+			XSI::MATH::CVector3 vertex_position = vertex.GetPosition();
+			ccl::float3 position = ccl::make_float3(vertex_position.GetX(), vertex_position.GetY(), vertex_position.GetZ());
+			bool is_valid = true;
+			XSI::MATH::CVector3 normal = vertex.GetNormal(is_valid);
+			mesh_vertices[v_index] = position;
+			mesh_normals[v_index] = vector3_to_float3(normal);
+		}
+
+		// assign mesh faces
+		ccl::vector<int> vi;
+		size_t faces_count = xsi_faces.GetCount();
+		for (size_t face_index = 0; face_index < faces_count; face_index++)
+		{
+			XSI::PolygonFace face(xsi_faces[face_index]);
+			XSI::CVertexRefArray face_vertices = face.GetVertices();
+			size_t face_vertex_count = face_vertices.GetCount();
+			vi.resize(face_vertex_count);
+			for (size_t v = 0; v < face_vertex_count; v++)
+			{
+				XSI::Vertex vert(face_vertices[v]);
+				vi[v] = vert.GetIndex();
+			}
+			mesh->add_subd_face(&vi[0], face_vertex_count, xsi_polygon_material_indices[face_index], false);
+		}
+	} 
+	else {
+		// for linear subdivision we should use nodes insted of vertices
+		// here we should geather from geometry as node positions and node normals
+		for (LONG i = 0; i < nodes_count; i++)
+		{
+			LONG v_index = xsi_node_to_vertex[i];
+			mesh_vertices[i] = ccl::make_float3(vertex_positions[3 * v_index], vertex_positions[3 * v_index + 1], vertex_positions[3 * v_index + 2]);
+		}
+		xsi_geo_acc.GetNodeNormals(node_normals);
+
+		std::vector<int> face_corners;
+		LONG node_iterator = 0;
+		for (LONG i = 0; i < polygons_count; i++) {
+			LONG poly_size = polygon_sizes[i];
+			for (LONG j = 0; j < poly_size; j++) {
+				LONG node_index = node_indices[node_iterator];
+				// define node normal
+				mesh_normals[node_iterator] = ccl::make_float3(node_normals[3 * node_index], node_normals[3 * node_index + 1], node_normals[3 * node_index + 2]);
+
+				// write polygon corner index
+				face_corners.push_back(node_index);
+
+				node_iterator++;
+			}
+			face_corners.clear();
+
+			// add face to the mesh
+			mesh->add_subd_face(&face_corners[0], poly_size, xsi_polygon_material_indices[i], false);
+		}
 	}
+	// set vertex positions
 	mesh->set_verts(mesh_vertices);
 
 	// normals
@@ -413,97 +486,79 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 	ccl::Attribute* attr_n = attributes.add(ccl::ATTR_STD_VERTEX_NORMAL, ccl::ustring("std_normal"));
 	std::memcpy(attr_n->data_float3(), mesh_normals.data(), sizeof(ccl::float3) * mesh_normals.size());
 
-
 	ccl::Attribute* gen_attr = attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
 	std::memcpy(gen_attr->data_float3(), mesh->get_verts().data(), sizeof(ccl::float3) * mesh->get_verts().size());
 
-	// faces
-	ccl::vector<int> vi;
-	size_t faces_count = xsi_faces.GetCount();
-	for (size_t face_index = 0; face_index < faces_count; face_index++)
-	{
-		XSI::PolygonFace face(xsi_faces[face_index]);
-		XSI::CVertexRefArray face_vertices = face.GetVertices();
-		size_t face_vertex_count = face_vertices.GetCount();
-		vi.resize(face_vertex_count);
-		for (size_t v = 0; v < face_vertex_count; v++)
-		{
-			XSI::Vertex vert(face_vertices[v]);
-			vi[v] = vert.GetIndex();
-		}
-		mesh->add_subd_face(&vi[0], face_vertex_count, xsi_polygon_material_indices[face_index], false);
-	}
+	if (subdiv_mode == SubdivideMode_CatmulClark) {
+		// creases
+		size_t num_creases = 0;
+		XSI::CEdgeRefArray xsi_edges_array = xsi_polymesh.GetEdges();
+		size_t xsi_edges_array_count = xsi_edges_array.GetCount();
+		std::vector<double> creases_values(xsi_edges_array_count, 0.0);
+		std::vector<int> creases_vertices(2 * xsi_edges_array_count, -1);
 
-	// creases
-	size_t num_creases = 0;
-	XSI::CEdgeRefArray xsi_edges_array = xsi_polymesh.GetEdges();
-	size_t xsi_edges_array_count = xsi_edges_array.GetCount();
-	std::vector<double> creases_values(xsi_edges_array_count, 0.0);
-	std::vector<int> creases_vertices(2 * xsi_edges_array_count, -1);
-
-	for (size_t e_index = 0; e_index < xsi_edges_array_count; e_index++)
-	{
-		XSI::Edge edge(xsi_edges_array[e_index]);
-		double crease_value = edge.GetCrease();
-		if (crease_value > 0)
-		{
-			XSI::CVertexRefArray edge_vertices = edge.GetVertices();
-			if (edge_vertices.GetCount() == 2)
-			{
-				num_creases++;
-				creases_values[e_index] = crease_value;
-
-				XSI::Vertex v0(edge_vertices[0]);
-				XSI::Vertex v1(edge_vertices[1]);
-				creases_vertices[2 * e_index] = v0.GetIndex();
-				creases_vertices[2 * e_index + 1] = v1.GetIndex();
-			}
-		}
-	}
-
-	mesh->reserve_subd_creases(num_creases);
-	if (num_creases > 0)
-	{
-		// set values if we need it
 		for (size_t e_index = 0; e_index < xsi_edges_array_count; e_index++)
 		{
-			size_t v0 = creases_vertices[2 * e_index];
-			size_t v1 = creases_vertices[2 * e_index + 1];
-			double crease_value = creases_values[e_index];
-			if (v0 >= 0 && v1 >= 0 && crease_value > 0.0)
+			XSI::Edge edge(xsi_edges_array[e_index]);
+			double crease_value = edge.GetCrease();
+			if (crease_value > 0)
 			{
-				mesh->add_edge_crease(v0, v1, crease_value);
+				XSI::CVertexRefArray edge_vertices = edge.GetVertices();
+				if (edge_vertices.GetCount() == 2)
+				{
+					num_creases++;
+					creases_values[e_index] = crease_value;
+
+					XSI::Vertex v0(edge_vertices[0]);
+					XSI::Vertex v1(edge_vertices[1]);
+					creases_vertices[2 * e_index] = v0.GetIndex();
+					creases_vertices[2 * e_index + 1] = v1.GetIndex();
+				}
+			}
+		}
+
+		mesh->reserve_subd_creases(num_creases);
+		if (num_creases > 0)
+		{
+			// set values if we need it
+			for (size_t e_index = 0; e_index < xsi_edges_array_count; e_index++)
+			{
+				size_t v0 = creases_vertices[2 * e_index];
+				size_t v1 = creases_vertices[2 * e_index + 1];
+				double crease_value = creases_values[e_index];
+				if (v0 >= 0 && v1 >= 0 && crease_value > 0.0)
+				{
+					mesh->add_edge_crease(v0, v1, crease_value);
+				}
+			}
+		}
+		creases_values.clear();
+		creases_values.shrink_to_fit();
+		creases_vertices.clear();
+		creases_vertices.shrink_to_fit();
+
+		// next for the vertices
+		for (size_t v_index = 0; v_index < vertex_count; v_index++)
+		{
+			XSI::Vertex vertex = xsi_vertices[v_index];
+			double vertex_crease = vertex.GetCrease();
+			if (vertex_crease > 0.0)
+			{
+				mesh->add_vertex_crease(v_index, vertex_crease);
 			}
 		}
 	}
-	creases_values.clear();
-	creases_values.shrink_to_fit();
-	creases_vertices.clear();
-	creases_vertices.shrink_to_fit();
-
-	// next for the vertices
-	for (size_t v_index = 0; v_index < vertex_count; v_index++)
-	{
-		XSI::Vertex vertex = xsi_vertices[v_index];
-		double vertex_crease = vertex.GetCrease();
-		if (vertex_crease > 0.0)
-		{
-			mesh->add_vertex_crease(v_index, vertex_crease);
-		}
-	}
-
+	
 	XSI::CLongArray triangle_nodes;  // these arrays does not actualy used for subdivided mesh
-	XSI::CFloatArray node_normals;
-	LONG nodes_count = xsi_geo_acc.GetNodeCount();
 	LONG triangles_count = xsi_geo_acc.GetTriangleCount();
-	sync_mesh_attribute_vertex_color(scene, mesh, attributes, xsi_geo_acc, false, triangle_nodes, xsi_faces);
-	sync_mesh_attribute_random_per_island(scene, mesh, attributes, false, nodes_count, triangles_count, triangle_nodes, xsi_polymesh, xsi_faces);
-	sync_mesh_attribute_pointness(scene, mesh, false, vertex_count, nodes_count, xsi_vertices, node_normals, xsi_polymesh);
+	sync_mesh_attribute_vertex_color(scene, mesh, attributes, xsi_geo_acc, subdiv_mode, triangle_nodes, xsi_faces);
+	sync_mesh_attribute_random_per_island(scene, mesh, attributes, subdiv_mode, nodes_count, triangles_count, triangle_nodes, xsi_polymesh, xsi_faces);
+	sync_mesh_attribute_pointness(scene, mesh, subdiv_mode, vertex_count, nodes_count, xsi_vertices, node_normals, xsi_polymesh);
 
 	// uvs
 	XSI::CRefArray uv_refs = xsi_geo_acc.GetUVs();
 	// export first uv as default uv attribute
-	sync_mesh_uvs(mesh, false, triangles_count, nodes_count, uv_refs, xsi_faces, triangle_nodes);
+	sync_mesh_uvs(mesh, subdiv_mode, triangles_count, nodes_count, uv_refs, xsi_faces, triangle_nodes);
 	// export tangent for each uv
 	for (size_t i = 0; i < uv_refs.GetCount(); i++)
 	{
@@ -511,9 +566,8 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 		mikk_compute_tangents(mesh, uv_prop.GetName().GetAsciiString(), true);
 	}
 
-	std::vector<LONG> xsi_node_to_vertex;
-	sync_ice_attributes(scene, mesh, xsi_polymesh, false, vertex_count, nodes_count, xsi_node_to_vertex);
-
+	sync_ice_attributes(scene, mesh, xsi_polymesh, subdiv_mode, vertex_count, nodes_count, xsi_node_to_vertex);
+	
 	// set subdivision
 	mesh->set_subd_dicing_rate(subdiv_dicing_rate);
 	mesh->set_subd_max_level(subdiv_level);
@@ -524,7 +578,7 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 	mesh->set_subdivision_type(subdiv_mode == SubdivideMode_Linear ? ccl::Mesh::SUBDIVISION_LINEAR : ccl::Mesh::SUBDIVISION_CATMULL_CLARK);
 }
 
-void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, SubdivideMode &io_mode, float &io_dicing_rate, const XSI::CTime &eval_time)
+void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, SubdivideMode &io_mode, float &io_dicing_rate, int &io_smooth_boundary, int &io_smooth_uv, const XSI::CTime &eval_time)
 {
 	XSI::Property xsi_property = get_xsi_object_property(xsi_object, "CyclesMesh");
 	bool use_property = xsi_property.IsValid();
@@ -547,6 +601,9 @@ void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, Subdiv
 				io_mode = SubdivideMode_None;
 			}
 		}
+
+		io_smooth_boundary = xsi_params.GetValue("subdiv_boundary_smooth", eval_time);
+		io_smooth_uv = xsi_params.GetValue("subdiv_uv_smooth", eval_time);
 	}
 }
 
@@ -591,7 +648,9 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 
 	float subdiv_dicing_rate = 1.0f;
 	SubdivideMode subdiv_mode = geo_subdivs == 0 ? SubdivideMode_None : SubdivideMode_CatmulClark;
-	sync_mesh_subdiv_property(xsi_object, geo_subdivs, subdiv_mode, subdiv_dicing_rate, eval_time);
+	int subdiv_boundary_smooth = 0;  // make it synchronised with default values in mesh properties
+	int subdiv_uv_smooth = 4;
+	sync_mesh_subdiv_property(xsi_object, geo_subdivs, subdiv_mode, subdiv_dicing_rate, subdiv_boundary_smooth, subdiv_uv_smooth, eval_time);
 
 	geo_subdivs = std::max(0, geo_subdivs);
 	subdiv_dicing_rate = std::max(0.1f, subdiv_dicing_rate);
@@ -604,6 +663,17 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	else
 	{// create subdivide mesh
 		sync_subdivide_mesh(scene, mesh_geom, xsi_geo_acc, xsi_polymesh, subdiv_mode, geo_subdivs, subdiv_dicing_rate, xsi_object.GetKinematics().GetGlobal().GetTransform(eval_time).GetMatrix4());
+		mesh_geom->set_subdivision_boundary_interpolation(
+			subdiv_boundary_smooth == 0 ? ccl::Mesh::SUBDIVISION_BOUNDARY_EDGE_AND_CORNER : 
+										  ccl::Mesh::SUBDIVISION_BOUNDARY_EDGE_ONLY);
+
+		mesh_geom->set_subdivision_fvar_interpolation(
+			 subdiv_uv_smooth == 0 ? ccl::Mesh::SUBDIVISION_FVAR_LINEAR_ALL :
+			(subdiv_uv_smooth == 1 ? ccl::Mesh::SUBDIVISION_FVAR_LINEAR_CORNERS_ONLY :
+			(subdiv_uv_smooth == 2 ? ccl::Mesh::SUBDIVISION_FVAR_LINEAR_CORNERS_PLUS1 :
+			(subdiv_uv_smooth == 3 ? ccl::Mesh::SUBDIVISION_FVAR_LINEAR_CORNERS_PLUS2 :
+			(subdiv_uv_smooth == 4 ? ccl::Mesh::SUBDIVISION_FVAR_LINEAR_BOUNDARIES : 
+									 ccl::Mesh::SUBDIVISION_FVAR_LINEAR_NONE)))));
 	}
 
 	mesh_geom->set_use_motion_blur(false);

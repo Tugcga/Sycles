@@ -13,6 +13,18 @@ false = 0
 true = 1
 
 subdivTypes = ["None", 0, "Linear", 1, "Catmull-Clark", 2]
+subdiv_boundary_smooth_enum = [
+    "Preserve Corners", 0,
+    "Smooth All", 1
+]
+subdiv_uv_smooth_enum = [
+    "None", 0,
+    "Preserve Corners", 1,
+    "Preserve Corners and Junctions", 2,
+    "Preserve Corners, Junctions and Concave", 3,
+    "Preserve Boundaries", 4,
+    "Smooth All", 5
+]
 volume_space_types = ["Object", 0, "World", 1]
 
 baking_shaders = ["Position", "Cycles Position",
@@ -294,6 +306,8 @@ def CyclesMesh_Define(in_ctxt):
     prop.AddParameter3("subdiv_type", c.siInt2, 0)
     prop.AddParameter2("subdiv_max_level", c.siInt2, 1, 0, 64, 0, 8, False, True)
     prop.AddParameter2("subdiv_dicing_rate", c.siFloat, 1.0, 0.1, 1024.0, 0.5, 16.0, False, True)
+    prop.AddParameter3("subdiv_boundary_smooth", c.siInt2, 0)
+    prop.AddParameter3("subdiv_uv_smooth", c.siInt2, 4)
     setup_common_properties(prop)
 
     return True
@@ -562,6 +576,13 @@ def mesh_ui_update(prop):
         prop.Parameters("subdiv_max_level").ReadOnly = False
         prop.Parameters("subdiv_dicing_rate").ReadOnly = False
 
+    if subdiv_type == 2:
+        prop.Parameters("subdiv_boundary_smooth").ReadOnly = False
+        prop.Parameters("subdiv_uv_smooth").ReadOnly = False
+    else:
+        prop.Parameters("subdiv_boundary_smooth").ReadOnly = True
+        prop.Parameters("subdiv_uv_smooth").ReadOnly = True
+
 
 def build_common_property_ui(layout):
     layout.AddTab("Shading")
@@ -626,6 +647,8 @@ def mesh_property_build_ui():
     layout.AddEnumControl("subdiv_type", subdivTypes, "Subdivision Type")
     layout.AddItem("subdiv_max_level", "Subdivision Level")
     layout.AddItem("subdiv_dicing_rate", "Dicing Rate")  # implemented in built-in osd
+    layout.AddEnumControl("subdiv_boundary_smooth", subdiv_boundary_smooth_enum, "Boundary Smooth")
+    layout.AddEnumControl("subdiv_uv_smooth", subdiv_uv_smooth_enum, "UV Smooth")
     layout.EndGroup()
     build_common_property_ui(layout)
     PPG.Refresh()
