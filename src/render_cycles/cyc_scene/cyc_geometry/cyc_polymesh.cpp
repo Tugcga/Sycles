@@ -138,7 +138,7 @@ void get_geo_accessor_normals(const XSI::CGeometryAccessor &in_geo_acc, LONG in_
 	}
 }
 
-void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context, const XSI::X3DObject &xsi_object, bool use_subdiv, bool geo_use_angle, float geo_angle)
+void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context, const XSI::X3DObject &xsi_object, SubdivideMode subdiv_mode, bool geo_use_angle, float geo_angle)
 {
 	size_t motion_steps = update_context->get_motion_steps();
 	
@@ -152,7 +152,7 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 		float time = update_context->get_motion_time(i);
 		XSI::PolygonMesh xsi_time_mesh = xsi_object.GetActivePrimitive(time).GetGeometry(time, XSI::siConstructionModeSecondaryShape);
 		XSI::CGeometryAccessor xsi_time_acc = xsi_time_mesh.GetGeometryAccessor(XSI::siConstructionModeSecondaryShape, XSI::siCatmullClark, 0, false, geo_use_angle, geo_angle);
-		size_t time_vertices = use_subdiv ? xsi_time_acc.GetVertexCount() : xsi_time_acc.GetNodeCount();  // subdiv - vertices, non-subdiv - nodes are vertices
+		size_t time_vertices = subdiv_mode == SubdivideMode_CatmulClark ? xsi_time_acc.GetVertexCount() : xsi_time_acc.GetNodeCount();
 
 		if (time_vertices != original_vertices)
 		{
@@ -172,7 +172,7 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 		normals_buffer.resize(original_vertices);
 
 		// create motion attributes
-		ccl::AttributeSet& attributes = use_subdiv ? mesh->subd_attributes : mesh->attributes;
+		ccl::AttributeSet& attributes = subdiv_mode != SubdivideMode_None ? mesh->subd_attributes : mesh->attributes;
 
 		ccl::Attribute* attr_m_positions = attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_vertex_position"));
 		ccl::Attribute* attr_m_normals = attributes.add(ccl::ATTR_STD_MOTION_VERTEX_NORMAL, ccl::ustring("std_motion_vertex_normal"));
@@ -215,7 +215,7 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 				XSI::MATH::CVector3 vertex_normal = vertex.GetNormal(is_valid);
 				ccl::float3 position = vector3_to_float3(vertex_position);
 				ccl::float3 normal = vector3_to_float3(vertex_normal);
-				if (use_subdiv)
+				if (subdiv_mode == SubdivideMode_CatmulClark)
 				{
 					positions_buffer[vertex.GetIndex()] = position;
 					normals_buffer[vertex.GetIndex()] = normal;
@@ -233,8 +233,8 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 				}
 			}
 
-			// for trianglular mesh get normals
-			if (!use_subdiv)
+			// for trianglular mesh and linear subdivision get normals from nodes
+			if (subdiv_mode != SubdivideMode_CatmulClark)
 			{
 				XSI::CFloatArray node_normals;
 				get_geo_accessor_normals(xsi_time_acc, nodes_count, node_normals);
@@ -679,7 +679,7 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	mesh_geom->set_use_motion_blur(false);
 	if (update_context->get_need_motion() && motion_deform)
 	{
-		sync_polymesh_motion_deform(mesh_geom, update_context, xsi_object, subdiv_mode != SubdivideMode_None, geo_use_angle, geo_angle);
+		sync_polymesh_motion_deform(mesh_geom, update_context, xsi_object, subdiv_mode, geo_use_angle, geo_angle);
 	}
 }
 
