@@ -483,7 +483,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			if(image_source == "tiled")
 			{
 				// we should create array of loaders
-				ccl::vector<ccl::ImageLoader*> loaders;
+				ccl::vector<std::unique_ptr<ccl::ImageLoader>> loaders;
 				loaders.reserve(tiles.size());
 				for (size_t i = 0; i < tiles.size(); i++)
 				{
@@ -491,16 +491,15 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 					XSI::CString tile_path = tile_to_path_map[tile_value];
 					if (tile_path != file_path)
 					{
-						loaders.push_back(new XSIImageLoader(clip, selected_colorscape, tile_value, tile_path, eval_time));
+						loaders.push_back(std::make_unique<XSIImageLoader>(clip, selected_colorscape, tile_value, tile_path, eval_time));
 					}
 					else
 					{
-						loaders.push_back(new XSIImageLoader(clip, selected_colorscape, tile_value, "", eval_time));
+						loaders.push_back(std::make_unique<XSIImageLoader>(clip, selected_colorscape, tile_value, "", eval_time));
 					}
 				}
 
-				// TODO: properly omplement tiled image loader
-				// node->handle = scene->image_manager->add_image(loaders, node->image_params());
+				node->handle = scene->image_manager->add_image(std::move(loaders), node->image_params());
 			}
 			else
 			{
