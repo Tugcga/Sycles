@@ -544,6 +544,11 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		if (clip.IsValid())
 		{
 			file_path = clip.GetFileName();
+			if (image_source == "image_sequence") {
+				// change file path for image sequence mode
+				file_path = sync_image_file(file_path, image_frames, start_frame, offset, cyclic, eval_time);
+				clip = XSI::ImageClip2();
+			}
 
 			bool temp_flag = false;
 			std::string filename = build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, false, temp_flag);
@@ -554,7 +559,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));
 			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 
-			XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
+			XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, image_source == "image_sequence" ? file_path : "", eval_time);
 			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 
 			return node;
