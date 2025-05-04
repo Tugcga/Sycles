@@ -450,7 +450,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString extension = get_string_parameter_value(xsi_parameters, "Extension", eval_time);
 		bool premultiply_alpha = get_bool_parameter_value(xsi_parameters, "premultiply_alpha", eval_time);
 		XSI::CString image_source = get_string_parameter_value(xsi_parameters, "ImageSource", eval_time);
-		//XSI::CString tiles = get_string_parameter_value(xsi_parameters, "tiles", eval_time);
+		
 		int image_frames = get_int_parameter_value(xsi_parameters, "ImageFrames", eval_time);
 		int start_frame = get_int_parameter_value(xsi_parameters, "ImageStartFrame", eval_time);
 		int offset = get_int_parameter_value(xsi_parameters, "ImageOffset", eval_time);
@@ -459,8 +459,12 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		if (clip.IsValid())
 		{
 			file_path = clip.GetFileName();
+			if (image_source == "image_sequence") {
+				// change file path for image sequence mode
+				file_path = sync_image_file(file_path, image_frames, start_frame, offset, cyclic, eval_time);
+				clip = XSI::ImageClip2();
+			}
 
-			ULONG xsi_clip_id = clip.GetObjectID();
 			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
 
 			// we add each clip separately (without caching in update context)
@@ -503,7 +507,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			}
 			else
 			{
-				XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
+				XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, image_source == "image_sequence" ? file_path : "", eval_time);
 				node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 			}
 

@@ -219,3 +219,114 @@ bool is_output_extension_supported(const XSI::CString& extension)
 		return false;
 	}
 }
+
+int time_to_sequence_frame(const XSI::CTime& eval_time, int image_frames, int start_frame, int offset, bool cyclic) {
+	int frame = get_frame(eval_time);
+	// image frames count from 1 to image_frames
+	frame = frame - start_frame + 1;
+	if (cyclic) {
+		// make frame modulo image_frames
+		while (frame > image_frames) {
+			frame = frame - image_frames;
+		}
+
+		while (frame <= 0) {
+			frame = frame + image_frames;
+		}
+	}
+	else {
+		// with disabled cycle we should simply clamp the frame
+		if (frame < 0) {
+			frame = 0;
+		}
+		else if (frame > image_frames) {
+			frame = image_frames;
+		}
+	}
+
+	return frame;
+}
+
+XSI::CString sync_image_file(const XSI::CString& file_path, int image_frames, int start_frame, int offset, bool cyclic, const XSI::CTime& eval_time) {
+	// nothing to do for empty path
+	if (file_path.Length() == 0) {
+		return file_path;
+	}
+
+	int frame = time_to_sequence_frame(eval_time, image_frames, start_frame, offset, cyclic);
+
+	// next we should extract from original file path the prefix and postfix with frame number
+	std::string file_path_str = file_path.GetAsciiString();
+	size_t point_pos = file_path_str.rfind('.');
+	if (point_pos == 0 || point_pos >= file_path_str.size()) {
+		return file_path;
+	}
+
+	std::string file_path_no_ext = file_path_str.substr(0, point_pos);
+	std::string file_path_ext = file_path_str.substr(point_pos);  // with point
+		
+	size_t path_length = file_path_no_ext.size();
+	// iterate in revesre direction
+	size_t separator_pos = 0;
+	for (size_t i = 0; i < path_length; i++) {
+		size_t p = path_length - 1 - i;
+		char symbol = file_path_no_ext[p];
+
+		// this is separator symbol
+		if (symbol == '.' || symbol == '_' || symbol == ' ') {
+			separator_pos = p;
+			break;
+		}
+	}
+
+	if (separator_pos == 0 || separator_pos + 1 >= path_length) {
+		return file_path;
+	}
+
+	std::string prefix_str = file_path_no_ext.substr(0, separator_pos + 1);
+			
+	// find the folder path
+	size_t slash_pos = prefix_str.rfind('\\');
+
+	if (slash_pos == 0) {
+		return file_path;
+	}
+
+	std::string folder = prefix_str.substr(0, slash_pos);  // without last slash
+	// now we should try to find the file with the name prefix + frame + ext
+	for (const auto& entry : std::filesystem::directory_iterator{ folder }) {
+		// wrong directory item
+		if (!entry.is_regular_file() || entry.path().extension() != file_path_ext) {
+			continue;
+		}
+
+		// for each file we should check is it start with the same prefix
+		std::string search_path = entry.path().string();
+
+		// wrong file prefix
+		if (search_path.compare(0, prefix_str.size(), prefix_str) != 0) {
+			continue;
+		}
+
+		// extract the part of the path from end of the prefix and point before extension
+		size_t search_ext_pos = search_path.rfind('.');
+
+		if (search_ext_pos == 0 || search_ext_pos >= search_path.length()) {
+			continue;
+		}
+
+		std::string frame_str = search_path.substr(separator_pos + 1, search_ext_pos - separator_pos - 1);
+								
+		// try to convert this string to int
+		int search_frame;
+		auto [ptr, ec] = std::from_chars(frame_str.data(), frame_str.data() + frame_str.size(), search_frame);
+		if (ec == std::errc()) {
+			if (search_frame == frame) {
+				// find the file with valid frame
+				return XSI::CString(search_path.c_str());
+			}
+		}
+	}
+
+	return file_path;
+}
