@@ -244,6 +244,8 @@ int time_to_sequence_frame(const XSI::CTime& eval_time, int image_frames, int st
 		}
 	}
 
+	frame = frame + offset;
+
 	return frame;
 }
 
