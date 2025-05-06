@@ -189,6 +189,12 @@
     <ClCompile Include="render_cycles\cyc_output\denoising_optix.cpp">
       <Filter>render_cycles\cyc_output</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_curve.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_surface.cpp">
+      <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">

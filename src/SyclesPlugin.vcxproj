@@ -84,6 +84,7 @@
     <ClCompile Include="render_cycles\cyc_primitives\prim_lights.cpp" />
     <ClCompile Include="render_cycles\cyc_primitives\vdb_primitive.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_camera.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_curve.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_geometry.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_hair.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_pointcloud.cpp" />
@@ -91,6 +92,7 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_polymesh.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_polymesh_attributes.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_strands.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_surface.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_tangent_attribute.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_vdb_volume.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_volume.cpp" />

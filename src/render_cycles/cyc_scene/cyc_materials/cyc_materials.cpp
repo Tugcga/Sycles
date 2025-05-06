@@ -496,6 +496,22 @@ int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_textu
 	return sync_shaderball_shadernode(scene, xsi_texture_shader, true, eval_time);
 }
 
+void sync_material_process(ccl::Scene* scene, UpdateContext* update_context, const XSI::Material& xsi_material, std::vector<XSI::CStringArray>& aovs, const XSI::CTime& eval_time, bool ignore_empty) {
+	ULONG xsi_id = xsi_material.GetObjectID();
+	XSI::CRefArray used_objects = xsi_material.GetUsedBy();
+	if (ignore_empty || used_objects.GetCount() > 0)
+	{
+		int shader_index = sync_material(scene, xsi_material, eval_time, aovs);
+		if (shader_index >= 0)
+		{
+			update_context->add_material_index(xsi_id,
+				shader_index,
+				scene->shaders[shader_index]->has_displacement,
+				ShaderballType_Unknown);
+		}
+	}
+}
+
 void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context)
 {
 	XSI::Scene xsi_scene = XSI::Application().GetActiveProject().GetActiveScene();
@@ -513,19 +529,7 @@ void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context)
 		for (LONG mat_index = 0; mat_index < materials.GetCount(); mat_index++)
 		{
 			XSI::Material xsi_material = materials.GetItem(mat_index);
-			ULONG xsi_id = xsi_material.GetObjectID();
-			XSI::CRefArray used_objects = xsi_material.GetUsedBy();
-			if (used_objects.GetCount() > 0)
-			{
-				int shader_index = sync_material(scene, xsi_material, eval_time, aovs);
-				if (shader_index >= 0)
-				{
-					update_context->add_material_index(xsi_id, 
-						shader_index, 
-						scene->shaders[shader_index]->has_displacement, 
-						ShaderballType_Unknown);
-				}
-			}
+			sync_material_process(scene, update_context, xsi_material, aovs, eval_time, false);
 		}
 	}
 
@@ -570,4 +574,53 @@ XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, Shade
 	{
 		return XSI::CStatus::Abort;
 	}
+}
+
+bool get_material_id_from_name(const XSI::CString& material_identificator, ULONG &io_id) {
+	XSI::Scene xsi_scene = XSI::Application().GetActiveProject().GetActiveScene();
+	XSI::CRefArray material_libs = xsi_scene.GetMaterialLibraries();
+
+	for (LONG lib_index = 0; lib_index < material_libs.GetCount(); lib_index++) {
+		XSI::MaterialLibrary lib = material_libs.GetItem(lib_index);
+		XSI::CString lib_name = lib.GetName();
+		XSI::CRefArray materials = lib.GetItems();
+		for (LONG mat_index = 0; mat_index < materials.GetCount(); mat_index++)
+		{
+			XSI::Material xsi_material = materials.GetItem(mat_index);
+			XSI::CString mat_name = xsi_material.GetName();
+
+			if (lib_name + "." + mat_name == material_identificator) {
+				io_id = xsi_material.GetObjectID();
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+// return OK. if material exported, Abort if it fails
+// we call this function from export curve process, when material is alredy checked to be missed
+XSI::CStatus sync_missed_material(ccl::Scene* scene, UpdateContext* update_context, int material_id) {
+	XSI::ProjectItem xsi_item = XSI::Application().GetObjectFromID(material_id);
+	if (!xsi_item.IsValid()) {
+		return XSI::CStatus::Abort;
+	}
+
+	XSI::CString xsi_item_type = xsi_item.GetType();
+
+	if (xsi_item_type != "material") {
+		return XSI::CStatus::Abort;
+	}
+
+	XSI::Material xsi_material(xsi_item);
+	XSI::CTime eval_time = update_context->get_time();
+	std::vector<XSI::CStringArray> aovs(2);
+	aovs[0].Clear();
+	aovs[1].Clear();
+
+	sync_material_process(scene, update_context, xsi_material, aovs, eval_time, true);
+	update_context->add_aov_names(aovs[0], aovs[1]);
+
+	return XSI::CStatus::OK;
 }

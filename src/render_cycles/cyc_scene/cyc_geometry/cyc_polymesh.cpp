@@ -182,20 +182,7 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 		MotionSettingsPosition motion_position = update_context->get_motion_position();
 		for (size_t mi = 0; mi < motion_steps - 1; mi++)
 		{
-			// we should skip the main step (center in most cases, but also may be start or end)
-			size_t time_motion_step = mi;
-			if (motion_position == MotionSettingsPosition::MotionPosition_Start)
-			{
-				time_motion_step++;
-			}
-			else if(motion_position == MotionSettingsPosition::MotionPosition_Center)
-			{// center
-				if (mi >= motion_steps / 2)
-				{
-					time_motion_step++;
-				}
-			}
-			// for the end point position nothing to shift
+			size_t time_motion_step = calc_time_motion_step(mi, motion_steps, motion_position);
 
 			float time = update_context->get_motion_time(time_motion_step);
 
@@ -445,7 +432,7 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 				XSI::Vertex vert(face_vertices[v]);
 				vi[v] = vert.GetIndex();
 			}
-			mesh->add_subd_face(&vi[0], face_vertex_count, xsi_polygon_material_indices[face_index], false);
+			mesh->add_subd_face(&vi[0], face_vertex_count, xsi_polygon_material_indices[face_index], true);
 		}
 	} 
 	else {

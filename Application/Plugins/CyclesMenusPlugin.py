@@ -115,6 +115,8 @@ def CyclesProperties_Init(ctxt):
     menu = ctxt.source
     menu.AddCommandItem("Add Camera Property", "AddCyclesCamera")
     menu.AddCommandItem("Add Mesh Property", "AddCyclesMesh")
+    menu.AddCommandItem("Add Curve Property", "AddCyclesCurve")
+    menu.AddCommandItem("Add Surface Property", "AddCyclesSurface")
     menu.AddCommandItem("Add Hairs Property", "AddCyclesHairs")
     menu.AddCommandItem("Add Volume Property", "AddCyclesVolume")
     menu.AddCommandItem("Add Pointcloud Property", "AddCyclesPointcloud")
@@ -188,7 +190,7 @@ def ApplyCyclesShader(selected_objects, fullName, innerName, outName, toName="su
         i = 0
         while not flag:
             selObject = sel[i]
-            if selObject.Type == "polySubComponent" or selObject.Type == "polymsh" or selObject.Type == "VDBPrimitive" or selObject.Type == "hair" or selObject.Type == "pointcloud" or selObject.Type == "cyclesPoint" or selObject.Type == "cyclesSun" or selObject.Type == "cyclesSpot" or selObject.Type == "cyclesArea" or selObject.Type == "cyclesBackground":
+            if selObject.Type == "surfmsh" or selObject.Type == "polySubComponent" or selObject.Type == "polymsh" or selObject.Type == "VDBPrimitive" or selObject.Type == "hair" or selObject.Type == "pointcloud" or selObject.Type == "cyclesPoint" or selObject.Type == "cyclesSun" or selObject.Type == "cyclesSpot" or selObject.Type == "cyclesArea" or selObject.Type == "cyclesBackground":
                 flag = True
             else:
                 i = i+1

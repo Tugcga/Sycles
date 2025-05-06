@@ -749,6 +749,12 @@ XSI::CStatus RenderEngineBase::scene_process()
 						{
 							update_status = update_scene(xsi_3d_obj, UpdateType_HairProperty);
 						}
+						else if (property_type == "CyclesCurve") {
+							update_status = update_scene(xsi_3d_obj, UpdateType_CurveProperty);
+						}
+						else if (property_type == "CyclesSurface") {
+							update_status = update_scene(xsi_3d_obj, UpdateType_SurfaceProperty);
+						}
 						else if (property_type == "CyclesPointcloud")
 						{
 							update_status = update_scene(xsi_3d_obj, UpdateType_PointcloudProperty);
@@ -772,6 +778,12 @@ XSI::CStatus RenderEngineBase::scene_process()
 							else if (xsi_3d_obj_type == "hair")
 							{
 								update_status = update_scene(xsi_3d_obj, UpdateType_Hair);
+							}
+							else if (xsi_3d_obj_type == "crvlist") {
+								update_status = update_scene(xsi_3d_obj, UpdateType_Curve);
+							}
+							else if (xsi_3d_obj_type == "surfmsh") {
+								update_status = update_scene(xsi_3d_obj, UpdateType_Surface);
 							}
 							else if (xsi_3d_obj_type == "pointcloud")
 							{

@@ -75,6 +75,10 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterCommand("AddCyclesMesh", "AddCyclesMesh")
     in_reg.RegisterProperty("CyclesHairs")
     in_reg.RegisterCommand("AddCyclesHairs", "AddCyclesHairs")
+    in_reg.RegisterProperty("CyclesCurve")
+    in_reg.RegisterCommand("AddCyclesCurve", "AddCyclesCurve")
+    in_reg.RegisterProperty("CyclesSurface")
+    in_reg.RegisterCommand("AddCyclesSurface", "AddCyclesSurface")
     in_reg.RegisterProperty("CyclesPointcloud")
     in_reg.RegisterCommand("AddCyclesPointcloud", "AddCyclesPointcloud")
     in_reg.RegisterProperty("CyclesVolume")
@@ -105,6 +109,26 @@ def AddCyclesMesh_Init(in_ctxt):
 
 
 def AddCyclesHairs_Init(in_ctxt):
+    oCmd = in_ctxt.Source
+    oCmd.Description = ""
+    oCmd.Tooltip = ""
+    oCmd.SetFlag(c.siSupportsKeyAssignment, False)
+    oCmd.SetFlag(c.siCannotBeUsedInBatch, True)
+
+    return true
+
+
+def AddCyclesCurve_Init(in_ctxt):
+    oCmd = in_ctxt.Source
+    oCmd.Description = ""
+    oCmd.Tooltip = ""
+    oCmd.SetFlag(c.siSupportsKeyAssignment, False)
+    oCmd.SetFlag(c.siCannotBeUsedInBatch, True)
+
+    return true
+
+
+def AddCyclesSurface_Init(in_ctxt):
     oCmd = in_ctxt.Source
     oCmd.Description = ""
     oCmd.Tooltip = ""
@@ -185,6 +209,48 @@ def AddCyclesHairs_Execute(  ):
                 lm("This property can be applied only to the hair object or to the partition", c.siWarning)
     else:
         lm("This property can be applied only to the hair object or to the partition", c.siWarning)
+
+    return True
+
+
+def AddCyclesCurve_Execute(  ):
+    Application.LogMessage("AddCyclesCurve_Execute called", c.siVerbose)
+
+    oSel = Application.Selection
+    if oSel is not None and len(oSel) > 0:
+        for i in range(len(oSel)):
+            o = oSel[i]
+            if o.Type in ["crvlist", "Partition"]:
+                if o.GetPropertyFromName2("CyclesCurve"):
+                    prop = o.GetPropertyFromName2("CyclesCurve")
+                else:
+                    prop = o.AddProperty("CyclesCurve")
+                Application.InspectObj(prop)
+            else:
+                lm("This property can be applied only to the curve object or to the partition", c.siWarning)
+    else:
+        lm("This property can be applied only to the curve object or to the partition", c.siWarning)
+
+    return True
+
+
+def AddCyclesSurface_Execute(  ):
+    Application.LogMessage("AddCyclesSurface_Execute called", c.siVerbose)
+
+    oSel = Application.Selection
+    if oSel is not None and len(oSel) > 0:
+        for i in range(len(oSel)):
+            o = oSel[i]
+            if o.Type in ["surfmsh", "Partition"]:
+                if o.GetPropertyFromName2("CyclesSurface"):
+                    prop = o.GetPropertyFromName2("CyclesSurface")
+                else:
+                    prop = o.AddProperty("CyclesSurface")
+                Application.InspectObj(prop)
+            else:
+                lm("This property can be applied only to the NURBS surface object or to the partition", c.siWarning)
+    else:
+        lm("This property can be applied only to the NURBS surface object or to the partition", c.siWarning)
 
     return True
 
@@ -319,6 +385,23 @@ def CyclesHairs_Define(in_ctxt):
     return True
 
 
+def CyclesCurve_Define(in_ctxt):
+    prop = in_ctxt.Source
+    prop.AddParameter2("curve_size", c.siFloat, 0.1, 0.0, 1024.0, 0.0, 1.0, False, True)
+    prop.AddParameter2("curve_samples", c.siInt4, 128, 1, 2147483647, 1, 256, False, True)
+    prop.AddParameter3("curve_material", c.siString, "")
+    setup_common_properties(prop)
+    return True
+
+
+def CyclesSurface_Define(in_ctxt):
+    prop = in_ctxt.Source
+    prop.AddParameter2("surface_u_samples", c.siInt4, 128, 1, 2147483647, 1, 256, False, True)
+    prop.AddParameter2("surface_v_samples", c.siInt4, 128, 1, 2147483647, 1, 256, False, True)
+    setup_common_properties(prop)
+    return True
+
+
 def CyclesVolume_Define(in_ctxt):
     oCustomProperty = in_ctxt.Source
     oProp = in_ctxt.Source
@@ -372,6 +455,14 @@ def CyclesMesh_DefineLayout(in_ctxt):
 
 
 def CyclesHairs_DefineLayout(in_ctxt):
+    return True
+
+
+def CyclesCurve_DefineLayout(in_ctxt):
+    return True
+
+
+def CyclesSurface_DefineLayout(in_ctxt):
     return True
 
 
@@ -668,6 +759,52 @@ def cycles_hairs_property_build_ui():
     PPG.Refresh()
 
 
+def cycles_curve_property_build_ui():
+    layout = PPG.PPGLayout
+    layout.Clear()
+
+    layout.AddTab("Geometry")
+    layout.AddGroup("Properties")
+    layout.AddItem("curve_size", "Size")
+    layout.AddItem("curve_samples", "Density")
+
+    # output enum with all materials
+    materials_enum = []
+    # key and value are library.material
+    # we can not use material id as key, because it change after scene reloading
+    scene = Application.ActiveProject.ActiveScene
+    libraries = scene.MaterialLibraries
+    for libray in libraries:
+        library_name = libray.Name
+        materials = libray.Items
+        for material in materials:
+            material_name = material.Name
+            material_visual = library_name + " - " + material_name
+            material_identificator = library_name + "." + material_name
+            materials_enum.append(material_visual)
+            materials_enum.append(material_identificator)
+    # create enum control with generated list
+    layout.AddEnumControl("curve_material", materials_enum, "Material")
+    layout.EndGroup()
+
+    build_common_property_ui(layout)
+    PPG.Refresh()
+
+
+def cycles_surface_property_build_ui():
+    layout = PPG.PPGLayout
+    layout.Clear()
+
+    layout.AddTab("Geometry")
+    layout.AddGroup("Properties")
+    layout.AddItem("surface_u_samples", "U Density")
+    layout.AddItem("surface_v_samples", "V Density")
+    layout.EndGroup()
+
+    build_common_property_ui(layout)
+    PPG.Refresh()
+
+
 def cycles_volume_property_build_ui():
     oProp = PPG.Inspected(0)
     oLayout = PPG.PPGLayout
@@ -756,6 +893,16 @@ def CyclesHairs_OnInit():
     return True
 
 
+def CyclesCurve_OnInit():
+    cycles_curve_property_build_ui()
+    return True
+
+
+def CyclesSurface_OnInit():
+    cycles_surface_property_build_ui()
+    return True
+
+
 def CyclesVolume_OnInit():
     cycles_volume_property_build_ui()
     return True
@@ -782,6 +929,15 @@ def CyclesMesh_OnClosed():
 
 def CyclesHairs_OnClosed():
     Application.LogMessage("CyclesHairs_OnClosed called", c.siVerbose)
+
+
+def CyclesCurve_OnClosed():
+    Application.LogMessage("CyclesCurve_OnClosed called", c.siVerbose)
+
+
+def CyclesSurface_OnClosed():
+    Application.LogMessage("CyclesSurface_OnClosed called", c.siVerbose)
+
 
 def CyclesVolume_OnClosed():
     Application.LogMessage("CyclesVolume_OnClosed called", c.siVerbose)

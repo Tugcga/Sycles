@@ -608,6 +608,12 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	{
 		is_update = update_custom_light(session->scene.get(), update_context, xsi_object);
 	}
+	else if (update_type == UpdateType::UpdateType_Curve) {
+		is_update = update_curve(session->scene.get(), update_context, xsi_object);
+	}
+	else if (update_type == UpdateType::UpdateType_Surface) {
+		is_update = update_surface(session->scene.get(), update_context, xsi_object);
+	}
 	else if (update_type == UpdateType::UpdateType_Hair)
 	{
 		is_update = update_hair(session->scene.get(), update_context, xsi_object);
@@ -655,6 +661,15 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 		// update only object properties
 		is_update = update_hair_property(session->scene.get(), update_context, xsi_object);
 	}
+	else if (update_type == UpdateType::UpdateType_CurveProperty) {
+		// when change curve property, update the whole curve
+		// because we can change as material, and samples count
+		// yes, if we change other parameter, then it's overkill, but in any case...
+		is_update = update_curve(session->scene.get(), update_context, xsi_object);
+	}
+	else if (update_type == UpdateType::UpdateType_SurfaceProperty) {
+		is_update = update_surface(session->scene.get(), update_context, xsi_object);
+	}
 	else if (update_type == UpdateType::UpdateType_PointcloudProperty)
 	{
 		PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
@@ -666,7 +681,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 		else if (pointcloud_type == PointcloudType::PointcloudType_Points || pointcloud_type == PointcloudType::PointcloudType_Volume)
 		{
 			// if we change property for points, then simply update object properies
-			// even if we activate or deactivate mmotion blur
+			// even if we activate or deactivate motion blur
 			// for actual changes user should force update the scene
 			is_update = update_points_property(session->scene.get(), update_context, xsi_object);
 		}

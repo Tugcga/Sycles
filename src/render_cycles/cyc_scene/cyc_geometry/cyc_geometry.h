@@ -64,3 +64,11 @@ XSI::CStatus update_volume_property(ccl::Scene* scene, UpdateContext* update_con
 // cyc_vdb_volume
 ccl::Volume* sync_vdb_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const VDBData& vdb_data);
 XSI::CStatus update_vdb(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+
+// cyc_curve
+ccl::Hair* sync_curve_object(ccl::Scene* scene, ccl::Object* curve_object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::Property& curve_property);
+XSI::CStatus update_curve(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+
+// cyc_surface
+ccl::Mesh* sync_surface_object(ccl::Scene* scene, ccl::Object* surface_object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::Property& surface_property);
+XSI::CStatus update_surface(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);

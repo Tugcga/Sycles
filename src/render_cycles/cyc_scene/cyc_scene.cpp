@@ -431,6 +431,43 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 					update_context->add_geometry_instance_data(object_id, object_index, m_ids);
 				}
 			}
+			else if (xsi_object_type == "crvlist") {
+				// we can create curve object only if it contains CyclesCurve property
+				XSI::Property curve_prop = get_xsi_object_property(xsi_object, "CyclesCurve");
+				if (curve_prop.IsValid()) {
+					ccl::Object* curve_object = scene->create_node<ccl::Object>();
+					ccl::Hair* curve_geom = sync_curve_object(scene, curve_object, update_context, xsi_object, curve_prop);
+
+					curve_object->set_geometry(curve_geom);
+					size_t object_index = scene->objects.size() - 1;
+					update_context->add_object_index(xsi_id, object_index);
+
+					sync_transforms(curve_object, instance_object_tfm_array, main_motion_step);
+
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master_object_id);
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+				}
+			}
+			else if (xsi_object_type == "surfmsh") {
+				XSI::Property surface_prop = get_xsi_object_property(xsi_object, "CyclesSurface");
+				if (surface_prop.IsValid()) {
+					ccl::Object* surface_object = scene->create_node<ccl::Object>();
+					ccl::Mesh* surface_geom = sync_surface_object(scene, surface_object, update_context, xsi_object, surface_prop);
+
+					surface_object->set_geometry(surface_geom);
+					size_t object_index = scene->objects.size() - 1;
+					update_context->add_object_index(xsi_id, object_index);
+
+					sync_transforms(surface_object, instance_object_tfm_array, main_motion_step);
+
+					std::vector<ULONG> m_ids(master_ids);
+					m_ids.push_back(xsi_master_object_id);
+					m_ids.push_back(xsi_object.GetObjectID());
+					update_context->add_geometry_instance_data(object_id, object_index, m_ids);
+				}
+			}
 			else if (xsi_object_type == "hair")
 			{
 				ccl::Object* hair_object = scene->create_node<ccl::Object>();
@@ -874,11 +911,34 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 				}
 				
 			}
+			else if (object_type == "crvlist") {
+				// create curve only if contains CyclesCurve property
+				XSI::Property curve_prop = get_xsi_object_property(xsi_object, "CyclesCurve");
+				if (curve_prop.IsValid()) {
+					ccl::Object* curve_object = scene->create_node<ccl::Object>();
+					ccl::Hair* curve_geom = sync_curve_object(scene, curve_object, update_context, xsi_object, curve_prop);
+					curve_object->set_geometry(curve_geom);
+
+					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+					sync_transform(curve_object, update_context, xsi_object.GetKinematics().GetGlobal());
+				}
+			}
+			else if (object_type == "surfmsh") {
+				XSI::Property surface_prop = get_xsi_object_property(xsi_object, "CyclesSurface");
+				if (surface_prop.IsValid()) {
+					ccl::Object* surface_object = scene->create_node<ccl::Object>();
+					ccl::Mesh* surface_geom = sync_surface_object(scene, surface_object, update_context, xsi_object, surface_prop);
+					surface_object->set_geometry(surface_geom);
+
+					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
+					sync_transform(surface_object, update_context, xsi_object.GetKinematics().GetGlobal());
+				}
+			}
 			else if (object_type == "hair")
 			{
 				ccl::Object* hair_object = scene->create_node<ccl::Object>();
 				// WARNING: there is a strange bug
-				// if we create cycles object inside the funciotn, then the render is crash
+				// if we create cycles object inside the function, then the render is crash
 				ccl::Hair* hair_geom = sync_hair_object(scene, hair_object, update_context, xsi_object);
 				hair_object->set_geometry(hair_geom);
 
@@ -1067,7 +1127,7 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 			return update_instance_transform(scene, update_context, xsi_model);
 		}
 	}
-	else if (object_type == "polymsh" || object_type == "hair" || object_type == "VDBPrimitive")
+	else if (object_type == "polymsh" || object_type == "crvlist" || object_type == "hair" || object_type == "VDBPrimitive")
 	{
 		XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
 		// here we set the same transform for all instances of the object
