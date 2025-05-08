@@ -73,9 +73,10 @@ XSI::CString create_temp_path()
 
 void remove_temp_path(const XSI::CString &temp_path)
 {
-	if (temp_path.Length() > 0)
+	std::string temp_path_str = temp_path.GetAsciiString();
+	if (temp_path.Length() > 0 && std::filesystem::exists(temp_path_str))
 	{
-		std::filesystem::remove_all(temp_path.GetAsciiString());
+		std::filesystem::remove_all(temp_path_str);
 	}
 }
 
