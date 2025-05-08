@@ -15,6 +15,8 @@
 #include <string>
 #include <set>
 
+#include "../render_base/image_buffer.h"
+
 void log_message(const XSI::CString &message, XSI::siSeverityType level)
 {
 	XSI::Application().LogMessage("[Cycles Render] " + message, level);
@@ -401,6 +403,10 @@ XSI::CString to_string(const ccl::vector<size_t>& array)
 	to_return += "]";
 
 	return to_return;
+}
+
+XSI::CString to_string(const ImageRectangle& rect) {
+	return XSI::CString("(") + XSI::CString(rect.get_width()) + ", " + XSI::CString(rect.get_height()) + "; [" + XSI::CString(rect.get_x_start()) + ", " + XSI::CString(rect.get_y_start()) + "] - [" + XSI::CString(rect.get_x_end()) + ", " + XSI::CString(rect.get_y_end()) + "])";
 }
 
 XSI::CString to_string_int2(const ccl::int2& value)

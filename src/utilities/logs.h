@@ -13,6 +13,8 @@
 #include <string>
 #include <set>
 
+#include "../render_base/image_buffer.h"
+
 // output the message to the console
 void log_message(const XSI::CString &message, XSI::siSeverityType level = XSI::siSeverityType::siInfoMsg);
 
@@ -45,6 +47,7 @@ XSI::CString to_string(const ccl::vector<ccl::float4>& array);
 XSI::CString to_string_float4(const ccl::float4 &value);  // to_string name exists in ccl namespace
 XSI::CString to_string(const ccl::array<int>& array);
 XSI::CString to_string(const ccl::vector<size_t>& array);
+XSI::CString to_string(const ImageRectangle& rect);
 XSI::CString to_string_int2(const ccl::int2 &value);
 XSI::CString to_string_float3(const ccl::float3& value);
 

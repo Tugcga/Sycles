@@ -9,6 +9,7 @@
 #include "../utilities/logs.h"
 #include "../utilities/arrays.h"
 #include "../utilities/xsi_properties.h"
+#include "../utilities/files_io.h"
 
 UpdateContext::UpdateContext()
 {
@@ -69,6 +70,7 @@ void UpdateContext::reset()
 	abort_update_transforms_ids.clear();
 
 	displacement_mode = -1;
+	clear_temp_path();
 	primitive_shape_map.clear();
 	xsi_displacement_materials.clear();
 }
@@ -924,4 +926,31 @@ void UpdateContext::set_displacement_mode(int in_mode)
 int UpdateContext::get_displacement_mode()
 {
 	return displacement_mode;
+}
+
+void UpdateContext::set_temp_path(const XSI::CString& in_path) {
+	temp_path = in_path;
+}
+
+bool UpdateContext::has_temp_path() {
+	return temp_path.Length() > 0;
+}
+
+void UpdateContext::define_temp_path() {
+	if (!has_temp_path()) {
+		XSI::CString tp = create_temp_path();
+		set_temp_path(tp);
+	}
+}
+
+void UpdateContext::clear_temp_path() {
+	if (has_temp_path()) {
+		remove_temp_path(temp_path);
+	}
+
+	temp_path = "";
+}
+
+XSI::CString UpdateContext::get_temp_path() {
+	return temp_path;
 }

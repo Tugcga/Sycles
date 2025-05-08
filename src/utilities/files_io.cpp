@@ -58,14 +58,14 @@ XSI::CString create_temp_path()
 	UuidCreate(&uuid);
 	char* uuid_str;
 	UuidToStringA(&uuid, (RPC_CSTR*)&uuid_str);
-	XSI::CString temp_path = get_project_path() + "\\sycles_temp_" + XSI::CString(uuid_str);
+	XSI::CString temp_path = get_project_path() + "\\sycles_cache\\" + XSI::CString(uuid_str);
 	RpcStringFreeA((RPC_CSTR*)&uuid_str);
 
 	std::string temp_path_str = temp_path.GetAsciiString();
 
 	if (!std::filesystem::is_directory(temp_path_str) || !std::filesystem::exists(temp_path_str))
 	{
-		std::filesystem::create_directory(temp_path_str);
+		std::filesystem::create_directories(temp_path_str);
 	}
 
 	return temp_path;

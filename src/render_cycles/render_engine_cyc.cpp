@@ -76,6 +76,7 @@ void RenderEngineCyc::path_init(const XSI::CString& plugin_path)
 
 void RenderEngineCyc::clear_session()
 {
+	update_context->clear_temp_path();
 	if (is_session)
 	{
 		session->cancel(true);
@@ -101,11 +102,16 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 
 	// create pixel buffer
 	// we will use it for all passes
-	std::vector<float> pixels((size_t)tile_width * tile_height * 4, 0.0f);
-	// TODO: here is a problem when use tile rendering
-	// more details in cycles_ui.cpp:133
-	// shortly, tile contains some strange additional padding near actual tile pixels and required array with bigger size
-	// and this padding has no constant size, so, it's hard properly extract actual pixels
+	bool is_tile = session->params.use_auto_tile;
+	constexpr float float_min_value = -std::numeric_limits<float>::max();
+	// WARNINÏ:
+	// with activated tile rendering there are some problems to obtain pixels from the tile
+	// it adds some padding to the tile segment, and pixels of the tile have empty spaces
+	// so, pass pixels array to the tile.get_pass_pixels does not work, because it requires more pixels than size of the tile
+	// that's wht we should get buffer pixels to larger array, and then filter empty values
+	// we use minimal float value as indicator of empy value
+	std::vector<float> dirty_pixels((size_t)tile_width * tile_height * 4 * (is_tile ? 2 : 1), float_min_value);  // if tiling is activated, then use bigger pixels buffer, because it contains paddings
+	std::vector<float> pixels((size_t)tile_width * tile_height * 4);
 
 	// we should get from tile pixels for each pass and save pixels into buffers (visual or output)
 	bool is_get = false;
@@ -114,9 +120,19 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		// use visual only for non baking render
 		// get at first pixels for visual
 		int visual_components = visual_buffer->get_components();
-		is_get = tile.get_pass_pixels(visual_buffer->get_pass_name(), visual_components, pixels.data());
+		is_get = tile.get_pass_pixels(visual_buffer->get_pass_name(), visual_components, dirty_pixels.data());
+
 		if (is_get)
 		{
+			// if tiling is activated, then filter pixels and remove padding values
+			// with non-active tiling, simply copy dirty_pixels to pixels
+			if (is_tile) {
+				copy_filtered(dirty_pixels, pixels, float_min_value);
+			}
+			else {
+				std::copy(dirty_pixels.begin(), dirty_pixels.begin() + pixels.size(), pixels.begin());
+			}
+
 			visual_buffer->add_pixels(tile_roi, pixels);
 
 			// next we should create new fragment to visualize it at the screen
@@ -145,9 +161,16 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		ccl::ustring pass_name = output_context->get_output_pass_name(i);
 
 		int pass_components = get_pass_components(pass_type, pass_type == ccl::PASS_COMBINED && is_start_from(pass_name, ccl::ustring("Combined_")));  // because lightgroup pass has the name Combined_... (length >= 9)
-		is_get = tile.get_pass_pixels(pass_name, pass_components, &pixels[0]);
+		is_get = tile.get_pass_pixels(pass_name, pass_components, &dirty_pixels[0]);
 		if (is_get)
 		{
+			if (is_tile) {
+				copy_filtered(dirty_pixels, pixels, float_min_value);
+			}
+			else {
+				std::copy(dirty_pixels.begin(), dirty_pixels.begin() + pixels.size(), pixels.begin());
+			}
+
 			bool is_set = output_context->add_output_pixels(tile_roi, i, pixels);
 		}
 		else
@@ -412,7 +435,12 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	}
 	else if(render_type == RenderType::RenderType_Pass)
 	{
-		series_context->activate();
+		bool use_tiles = m_render_parameters.GetValue("performance_memory_use_auto_tile", eval_time);
+		if (!use_tiles) {
+			// series mode required non-tile rendering
+			// because during the render process we need the whole image with different samples
+			series_context->activate();
+		}
 	}
 
 	update_context->set_current_render_parameters(m_render_parameters);
@@ -532,20 +560,6 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	update_context->set_motion_type(in_update_motion_type);
 	update_context->set_motion_rolling(m_render_parameters.GetValue("film_motion_rolling_type", eval_time) == 1);
 	update_context->set_motion_rolling_duration(m_render_parameters.GetValue("film_motion_rolling_duration", eval_time));
-
-	// create temp folder
-	// we will setup it to the session params later after scene is created
-	// because this will be the common moment as for scene updates and creating from scratch
-	bool use_tiles = m_render_parameters.GetValue("performance_memory_use_auto_tile", eval_time);
-	if (use_tiles)
-	{
-		temp_path = create_temp_path();
-	}
-	else
-	{
-		temp_path == "";
-	}
-	
 
 	// if recreate session, then automaticaly say that the scene is also new
 	// this parameter used in post_scene, for example
@@ -955,10 +969,19 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			sync_shader_settings(session->scene.get(), m_render_parameters, render_type, get_shaderball_displacement_method(), eval_time);
 		}
 
-		// set temp directory for session parameters
-		if (session->params.use_auto_tile && temp_path.Length() > 0)
+		// create temp folder
+		// we will setup it to the session params later after scene is created
+		// because this will be the common moment as for scene updates and creating from scratch
+		bool use_tiles = m_render_parameters.GetValue("performance_memory_use_auto_tile", eval_time);
+		if (use_tiles)
 		{
-			session->params.temp_dir = temp_path.GetAsciiString();
+			update_context->define_temp_path();  // create the folder if required
+		}
+
+		// set temp directory for session parameters
+		if (session->params.use_auto_tile && update_context->has_temp_path())
+		{
+			session->params.temp_dir = update_context->get_temp_path().GetAsciiString();
 		}
 		else
 		{
@@ -1058,7 +1081,7 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	}
 
 	// remove temp directory (if it exists)
-	remove_temp_path(temp_path);
+	// remove_temp_path(temp_path);
 
 	// clear output context object
 	output_context->reset();

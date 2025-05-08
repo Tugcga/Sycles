@@ -101,11 +101,19 @@ bool ImageBuffer::set_pixels(const ImageRectangle& rect, const std::vector<float
 	{
 		for (size_t x = rect.get_x_start(); x < rect.get_x_end(); x++)
 		{
-			size_t  p = y * width + x;
-			for (size_t c = 0; c < channels; c++)
-			{
-				pixels[channels * p + c] = in_pixels[iterator];
-				iterator++;
+			size_t p = y * width + x;
+			if (p < pixels_count) {
+				for (size_t c = 0; c < channels; c++)
+				{
+					if (iterator >= in_pixels.size()) {
+						return false;
+					}
+					pixels[channels * p + c] = in_pixels[iterator];
+					iterator++;
+				}
+			}
+			else {
+				return false;
 			}
 		}
 	}
