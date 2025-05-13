@@ -20,6 +20,7 @@
 #include "../../../utilities/strings.h"
 #include "../cyc_scene.h"
 #include "cyc_geometry.h"
+#include "cyc_tangent_attribute.h"
 
 void sync_surface_motion_deform(ccl::Mesh* surface, UpdateContext* update_context, const XSI::X3DObject& xsi_object, float u_sample_step, int u_samples, float v_sample_step, int v_samples)
 {
@@ -142,6 +143,10 @@ void sync_surface_geom(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update
 	// generated attribute
 	ccl::Attribute* gen_attr = mesh->attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
 	std::memcpy(gen_attr->data_float3(), mesh->get_verts().data(), sizeof(ccl::float3) * mesh->get_verts().size());
+
+	if (uv_attr != NULL) {
+		mikk_compute_tangents(mesh, ccl::Attribute::standard_name(ccl::ATTR_STD_UV), true);
+	}
 }
 
 void sync_surface_geom_process(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, const XSI::Property& surface_property, bool motion_deform) {

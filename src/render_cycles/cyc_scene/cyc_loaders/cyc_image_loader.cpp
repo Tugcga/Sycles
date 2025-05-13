@@ -13,7 +13,7 @@ XSIImageLoader::XSIImageLoader(XSI::ImageClip2& xsi_clip, const ccl::ustring& se
 	m_image_path = image_path;
 
 	bool proper_source = false;
-	if (xsi_clip.IsValid()) {
+	if (image_path.Length() == 0) {
 		m_use_clip = true;
 		m_xsi_clip_path = xsi_clip.GetFileName();
 		m_xsi_clip_id = xsi_clip.GetObjectID();
@@ -29,23 +29,20 @@ XSIImageLoader::XSIImageLoader(XSI::ImageClip2& xsi_clip, const ccl::ustring& se
 	else {
 		m_use_clip = false;
 
-		if (image_path.Length() > 0)
-		{
-			// read pixels and override texture size
-			bool is_sucess = false;
-			ULONG out_width = 0;
-			ULONG out_height = 0;
-			ULONG out_channels = 0;
-			m_image_pixels = load_image(image_path, out_width, out_height, out_channels, is_sucess);
+		// read pixels and override texture size
+		bool is_sucess = false;
+		ULONG out_width = 0;
+		ULONG out_height = 0;
+		ULONG out_channels = 0;
+		m_image_pixels = load_image(image_path, out_width, out_height, out_channels, is_sucess);
 
-			if (is_sucess)
-			{
-				m_width = out_width;
-				m_height = out_height;
-				m_channels = out_channels;
-				m_use_clip = false;
-				proper_source = true;
-			}
+		if (is_sucess)
+		{
+			m_width = out_width;
+			m_height = out_height;
+			m_channels = out_channels;
+			m_use_clip = false;
+			proper_source = true;
 		}
 	}
 

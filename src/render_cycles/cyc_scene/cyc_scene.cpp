@@ -904,6 +904,8 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 				{
 					ccl::Object* mesh_object = scene->create_node<ccl::Object>();
 					ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
+
+					mesh_geom->tag_update(scene, true);
 					mesh_object->set_geometry(mesh_geom);
 
 					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
@@ -1127,7 +1129,7 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 			return update_instance_transform(scene, update_context, xsi_model);
 		}
 	}
-	else if (object_type == "polymsh" || object_type == "crvlist" || object_type == "hair" || object_type == "VDBPrimitive")
+	else if (object_type == "polymsh" || object_type == "crvlist" || object_type == "hair" || object_type == "surfmsh" || object_type == "VDBPrimitive")
 	{
 		XSI::CStatus is_update = sync_geometry_transform(scene, update_context, xsi_object);
 		// here we set the same transform for all instances of the object

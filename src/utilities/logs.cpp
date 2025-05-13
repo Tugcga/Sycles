@@ -409,6 +409,22 @@ XSI::CString to_string(const ImageRectangle& rect) {
 	return XSI::CString("(") + XSI::CString(rect.get_width()) + ", " + XSI::CString(rect.get_height()) + "; [" + XSI::CString(rect.get_x_start()) + ", " + XSI::CString(rect.get_y_start()) + "] - [" + XSI::CString(rect.get_x_end()) + ", " + XSI::CString(rect.get_y_end()) + "])";
 }
 
+XSI::CString to_string(const std::vector<XSI::CStringArray>& array) {
+	XSI::CString to_return = "(";
+	for (size_t i = 0; i < array.size(); i++) {
+		XSI::CStringArray xsi_array = array[i];
+		for (size_t j = 0; j < xsi_array.GetCount(); j++) {
+			XSI::CString s = xsi_array[j];
+			to_return += ", " + s;
+		}
+		to_return += (i == array.size() - 1) ? "" : "|";
+	}
+
+	to_return += ")";
+
+	return to_return;
+}
+
 XSI::CString to_string_int2(const ccl::int2& value)
 {
 	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";

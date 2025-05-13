@@ -306,5 +306,8 @@ void set_project_path()
 
 XSI::CString get_project_path()
 {
+	if (project_path.Length() == 0) {
+		set_project_path();
+	}
 	return project_path;
 }

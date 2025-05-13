@@ -24,6 +24,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterMenu(c.siMenuMaterialManagerTopLevelID, "Cycles Create", True, False)
 
     in_reg.RegisterCommand("ApplyDiffuseBSDF", "ApplyDiffuseBSDF")
+    in_reg.RegisterCommand("ApplyMetallicBSDF", "ApplyMetallicBSDF")
     in_reg.RegisterCommand("ApplyPrincipledBSDF", "ApplyPrincipledBSDF")
     in_reg.RegisterCommand("ApplyEmission", "ApplyEmission")
     in_reg.RegisterCommand("ApplyBackground", "ApplyBackground")
@@ -44,6 +45,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterCommand("ApplyPrincipledVolume", "ApplyPrincipledVolume")
 
     in_reg.RegisterCommand("CreateDiffuseBSDF", "CreateDiffuseBSDF")
+    in_reg.RegisterCommand("CreateMetallicBSDF", "CreateMetallicBSDF")
     in_reg.RegisterCommand("CreatePrincipledBSDF", "CreatePrincipledBSDF")
     in_reg.RegisterCommand("CreateEmissionCycles", "CreateEmissionCycles")
     in_reg.RegisterCommand("CreateBackgroundCycles", "CreateBackgroundCycles")
@@ -84,6 +86,7 @@ def CyclesCreate_Init(ctxt):
     menu.AddSeparatorItem()
     menu.AddCommandItem("Background", "CreateBackgroundCycles")
     menu.AddCommandItem("Diffuse BSDF", "CreateDiffuseBSDF")
+    menu.AddCommandItem("Metallic BSDF", "CreateMetallicBSDF")
     menu.AddCommandItem("Principled BSDF", "CreatePrincipledBSDF")
     menu.AddCommandItem("Anisotropic BSDF", "CreateAnisotropicBSDF")
     menu.AddCommandItem("Glass BSDF", "CreateGlassBSDF")
@@ -133,6 +136,7 @@ def CyclesShaders_Init(ctxt):
     menu.AddSeparatorItem()
     menu.AddCommandItem("Anisotropic BSDF", "ApplyAnisotropicBSDF")
     menu.AddCommandItem("Diffuse BSDF", "ApplyDiffuseBSDF")
+    menu.AddCommandItem("Metallic BSDF", "ApplyMetallicBSDF")
     menu.AddCommandItem("Principled BSDF", "ApplyPrincipledBSDF")
     menu.AddCommandItem("Principled Hair BSDF", "ApplyPrincipledHairBSDF")
     menu.AddCommandItem("Glass BSDF", "ApplyGlassBSDF")
@@ -225,6 +229,11 @@ def ApplyCyclesShader(selected_objects, fullName, innerName, outName, toName="su
 
 def CreateDiffuseBSDF_Execute():
     CreateCyclesShader("CyclesDiffuseBSDF", "cycDiffuseBSDF", "outBSDF")
+    return True
+
+
+def CreateMetallicBSDF_Execute():
+    CreateCyclesShader("CyclesMetallicBSDF", "cycMetallicBSDF", "outBSDF")
     return True
 
 
@@ -321,6 +330,12 @@ def CreatePrincipledVolume_Execute():
 def ApplyDiffuseBSDF_Execute():
     Application.LogMessage("ApplyDiffuseBSDF_Execute called", c.siVerbose)
     ApplyCyclesShader(Application.Selection, "CyclesDiffuseBSDF", "cycDiffuseBSDF", "outBSDF")
+    return True
+
+
+def ApplyMetallicBSDF_Execute():
+    Application.LogMessage("ApplyMetallicBSDF_Execute called", c.siVerbose)
+    ApplyCyclesShader(Application.Selection, "CyclesMetallicBSDF", "cycMetallicBSDF", "outBSDF")
     return True
 
 

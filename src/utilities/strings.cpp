@@ -15,6 +15,7 @@
 #include "OpenImageIO/ustring.h"
 
 #include "../input/input.h"
+#include "logs.h"
 
 XSI::CString remove_digits(const XSI::CString& orignal_str)
 {
@@ -442,7 +443,6 @@ XSI::CString vdbprimitive_inputs_to_path(const XSI::CParameterRefArray& params, 
 
 	if (full_path.Length() > 0 && !XSI::CUtils::IsAbsolutePath(full_path))
 	{
-		
 		XSI::CString project_path = get_project_path();
 		full_path = XSI::CUtils::ResolvePath(XSI::CUtils::BuildPath(project_path, full_path));
 	}

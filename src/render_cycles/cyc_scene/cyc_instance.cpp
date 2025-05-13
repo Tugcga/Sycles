@@ -126,7 +126,7 @@ void update_instance_geometry_transform(ccl::Scene* scene, UpdateContext* update
 			XSI::X3DObject master_object;
 			XSI::MATH::CTransformation xsi_tfm = calc_finall_instance_tfm(master_object_type, master_object, xsi_ids, xsi_instance_root, eval_time);
 
-			if (master_object_type == "polymsh" || master_object_type == "hair")
+			if (master_object_type == "polymsh" || master_object_type == "hair" || master_object_type == "surfmsh" || master_object_type == "crvlist")
 			{
 				ccl::Transform tfm = xsi_matrix_to_transform(xsi_tfm.GetMatrix4());
 				object->set_tfm(tfm);

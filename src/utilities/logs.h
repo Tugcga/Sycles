@@ -48,6 +48,7 @@ XSI::CString to_string_float4(const ccl::float4 &value);  // to_string name exis
 XSI::CString to_string(const ccl::array<int>& array);
 XSI::CString to_string(const ccl::vector<size_t>& array);
 XSI::CString to_string(const ImageRectangle& rect);
+XSI::CString to_string(const std::vector<XSI::CStringArray>& array);
 XSI::CString to_string_int2(const ccl::int2 &value);
 XSI::CString to_string_float3(const ccl::float3& value);
 

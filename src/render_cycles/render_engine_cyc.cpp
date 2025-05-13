@@ -771,22 +771,21 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 						XSI::X3DObject xsi_obj(obj);
 						XSI::CString xsi_type = xsi_obj.GetType();
 						// use general update_scene function
-						if (xsi_type == "polymsh")
-						{
+						if (xsi_type == "polymsh") {
 							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Mesh);
 						}
-						else if (xsi_type == "hair")
-						{
+						else if (xsi_type == "hair") {
 							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Hair);
 						}
-						else if (xsi_type == "pointcloud")
-						{
+						else if (xsi_type == "pointcloud") {
 							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Pointcloud);
 						}
-					}
-					else
-					{
-						
+						else if (xsi_type == "surfmsh") {
+							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Surface);
+						}
+						else if (xsi_type == "crvlist") {
+							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Curve);
+						}
 					}
 				}
 			}
