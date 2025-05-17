@@ -51,85 +51,85 @@ void RenderEngineBase::set_render_options_name(const XSI::CString &options_name)
 //next three mathods define ui behaviour
 XSI::CStatus RenderEngineBase::render_options_update(XSI::PPGEventContext &event_context)
 {
-	log_message("[Base Render] Render options update is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Render options update is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::render_option_define_layout(XSI::Context &contextt)
 {
-	log_message("[Base Render] Layout define is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Layout define is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::render_option_define(XSI::CustomProperty &property)
 {
-	log_message("[Base Render] Render parameters definitions is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Render parameters definitions is not implemented");
 	return XSI::CStatus::OK;
 }
 
 //next methods should be implemented in render engine
 XSI::CStatus RenderEngineBase::pre_render_engine()
 {
-	log_message("[Base Render] Pre-render method is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Pre-render method is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::pre_scene_process()
 {
-	log_message("[Base Render] Pre-scene method is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Pre-scene method is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::create_scene()
 {
-	log_message("[Base Render] Create scene method is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Create scene method is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::update_scene(XSI::X3DObject &xsi_object, const UpdateType update_type)
 {
-	log_message("[Base Render] Update scene for X3DObject is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Update scene for X3DObject is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::update_scene(XSI::SIObject &si_object, const UpdateType update_type)
 {
-	log_message("[Base Render] Update scene for SIObject is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Update scene for SIObject is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::update_scene(XSI::Material &xsi_material, bool material_assigning)
 {
-	log_message("[Base Render] Update scene for material is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Update scene for material is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::update_scene_render()
 {
-	log_message("[Base Render] Update scene for render parameters is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Update scene for render parameters is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::post_scene()
 {
-	log_message("[Base Render] Post update scene event is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Post update scene event is not implemented");
 	return XSI::CStatus::OK;
 }
 
 XSI::CStatus RenderEngineBase::post_render_engine()
 {
-	log_message("[Base Render] Post-render method is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Post-render method is not implemented");
 	return XSI::CStatus::OK;
 }
 
 void RenderEngineBase::abort()
 {
-	log_message("[Base Render] Abort render engine is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Abort render engine is not implemented");
 }
 
 void RenderEngineBase::clear_engine()
 {
-	log_message("[Base Render] Clear render engine is not implemented", XSI::siWarningMsg);
+	log_warning("[Base Render] Clear render engine is not implemented");
 }
 
 //main render method, where we start and update rendering process
@@ -341,7 +341,7 @@ XSI::CStatus RenderEngineBase::pre_render(XSI::RendererContext &render_context)
 				//check is this file exists if is_skip is active
 				if (is_skip && is_file_exists(output_path.GetAsciiString()))
 				{
-					//we shpuld skip this pass to render
+					//we should skip this pass to render
 					log_message("File " + output_path + " exists, skip it.");
 				}
 				else
@@ -800,7 +800,7 @@ XSI::CStatus RenderEngineBase::scene_process()
 							else if (xsi_3d_obj_type != "")
 							{
 								//update unknown property
-								log_message("update unknown property " + property_type + " for object type " + xsi_3d_obj_type);
+								// log_message("update unknown property " + property_type + " for object type " + xsi_3d_obj_type);
 							}
 						}
 						break;

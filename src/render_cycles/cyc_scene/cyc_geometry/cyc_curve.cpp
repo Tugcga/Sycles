@@ -194,7 +194,7 @@ ccl::Hair* sync_curve_object(ccl::Scene* scene, ccl::Object* curve_object, Updat
 	else {
 		// fail to export missed material
 		// so, output the warning and does not assign the shader
-		log_message("Curve object " + xsi_object.GetFullName() + " requred missed material.", XSI::siWarningMsg);
+		log_warning("Curve object " + xsi_object.GetFullName() + " requred missed material.");
 
 		ccl::array<ccl::Node*> used_shaders;
 		used_shaders.push_back_slow(scene->shaders[0]);

@@ -9,12 +9,12 @@ bool has_device()
     int device_count = 0;
     if (cudaGetDeviceCount(&device_count))
     {
-        log_message("[OptiX error]: Failed to get device information", XSI::siWarningMsg);
+        log_warning("[OptiX error]: Failed to get device information");
         return false;
     }
 
     if (device_count == 0) {
-        log_message("[OptiX error]: No Nvidia GPUs found", XSI::siWarningMsg);
+        log_warning("[OptiX error]: No Nvidia GPUs found");
         return false;
     }
 
@@ -71,7 +71,7 @@ std::vector<float> denoise_buffer_optix(ImageBuffer* buffer, OutputContext* outp
     OptixResult result = optixInit();
     if (result != OPTIX_SUCCESS)
     {
-        log_message("[OptiX error]: Cannot initialize OptiX library (" + XSI::CString(result) + ")", XSI::siWarningMsg);
+        log_warning("[OptiX error]: Cannot initialize OptiX library (" + XSI::CString(result) + ")");
 
         return beauty_pixels;
     }
@@ -93,7 +93,7 @@ std::vector<float> denoise_buffer_optix(ImageBuffer* buffer, OutputContext* outp
     result = optixDeviceContextCreate(cuCtx, nullptr, &optix_context);
     if (result != OPTIX_SUCCESS)
     {
-        log_message("[OptiX error]: Could not create OptiX context: (" + XSI::CString(result) + "%d) " + XSI::CString(optixGetErrorName(result)) + "%s", XSI::siWarningMsg);
+        log_warning("[OptiX error]: Could not create OptiX context: (" + XSI::CString(result) + "%d) " + XSI::CString(optixGetErrorName(result)) + "%s");
 
         return beauty_pixels;
     }

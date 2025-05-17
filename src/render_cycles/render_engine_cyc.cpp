@@ -150,7 +150,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		}
 		else
 		{
-			log_message("Fails to get pixels for input render tile", XSI::siErrorMsg);
+			log_warning("Fails to get pixels for input render tile");
 		}
 	}
 
@@ -175,7 +175,7 @@ void RenderEngineCyc::update_render_tile(const ccl::OutputDriver::Tile& tile)
 		}
 		else
 		{
-			log_message("Fails to get pixels of the pass " + XSI::CString(pass_name.c_str()) + " for input render tile", XSI::siErrorMsg);
+			log_warning("Fails to get pixels of the pass " + XSI::CString(pass_name.c_str()) + " for input render tile");
 		}
 	}
 
@@ -279,7 +279,7 @@ void RenderEngineCyc::postrender_visual_output()
 		}
 		else
 		{
-			log_message("The size of visual buffer and labels buffer are different, this is not ok", XSI::siWarningMsg);
+			log_warning("The size of visual buffer and labels buffer are different, this is not ok");
 		}
 	}
 }
@@ -376,7 +376,7 @@ void RenderEngineCyc::pre_bake()
 				if (!is_output_extension_supported(format))
 				{
 					// change output format to exr
-					log_message("Invalid image extension " + format + " for output rendermap. Change it to exr.", XSI::siWarningMsg);
+					log_warning("Invalid image extension " + format + " for output rendermap. Change it to exr.");
 					ULONG dot_index = output_path.ReverseFindString(".");
 					output_paths[i] = output_path.GetSubString(0, dot_index) + ".exr";
 					output_formats[i] = "exr";
@@ -395,9 +395,9 @@ void RenderEngineCyc::pre_bake()
 		// bake object is invalid
 		// so, nothing to bake
 		baking_context->make_invalid();
-		log_message("Baking is fail, object is invalid" + 
+		log_warning("Baking is fail, object is invalid" +
 			baking_object_type != XSI::siPolyMeshType ? ", type must be polymesh" : (
-				baking_uv.Length() == 0 ? ", no uv coordinates" : ""), XSI::siWarningMsg);
+				baking_uv.Length() == 0 ? ", no uv coordinates" : ""));
 	}
 }
 
@@ -474,7 +474,7 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	if (is_motion && visual_pass_type == ccl::PASS_MOTION)
 	{
 		// we can not show motion pass when motion blur is activated
-		log_message("It's impossible to render Motion Pass with activated motion blur, output is invalid", XSI::siWarningMsg);
+		log_warning("It's impossible to render Motion Pass with activated motion blur, output is invalid");
 	}
 
 	// m_display_channel_name contains general name of the cisual pass (Cycles AOV Color, for example)
@@ -986,7 +986,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 		{
 			if (session->params.use_auto_tile)
 			{
-				log_message("Render use tiles mode, but temp directory is not defined. Disabled this mode.", XSI::siWarningMsg);
+				log_warning("Render use tiles mode, but temp directory is not defined. Disabled this mode.");
 			}
 			session->params.use_auto_tile = false;
 		}

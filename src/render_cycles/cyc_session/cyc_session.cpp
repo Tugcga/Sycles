@@ -214,7 +214,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 
 		if (client_want_osl && !use_osl_device)
 		{
-			log_message(XSI::CString("OSL shading system supports only single CPU or single OPTIX rendering. Switched to SVM shading system."), XSI::siWarningMsg);
+			log_warning(XSI::CString("OSL shading system supports only single CPU or single OPTIX rendering. Switched to SVM shading system."));
 		}
 
 		session_params.use_profiling = false;

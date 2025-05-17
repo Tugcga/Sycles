@@ -408,7 +408,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 	}
 	else
 	{
-		log_message("unknown native shader " + shader_type);
+		
 	}
 	return NULL;
 }

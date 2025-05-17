@@ -17,6 +17,7 @@
 
 // output the message to the console
 void log_message(const XSI::CString &message, XSI::siSeverityType level = XSI::siSeverityType::siInfoMsg);
+void log_warning(const XSI::CString& message);
 
 // convert data to string
 XSI::CString to_string(const XSI::CFloatArray& array);

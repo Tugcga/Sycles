@@ -4,7 +4,7 @@
 
 void log_oidn_error(const char* message)
 {
-	log_message("[OIDN error]: " + XSI::CString(message), XSI::siWarningMsg);
+	log_warning("[OIDN error]: " + XSI::CString(message));
 }
 
 void error_callback(void* user_ptr, oidn::Error error, const char* message)

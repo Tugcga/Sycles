@@ -53,7 +53,7 @@ struct VDBData
 			}
 			catch (openvdb::Exception& e)
 			{
-				log_message(XSI::CString("[VDB Primitive]: ") + XSI::CString(e.what()), XSI::siWarningMsg);
+				log_warning(XSI::CString("[VDB Primitive]: ") + XSI::CString(e.what()));
 			}
 		}
 	}

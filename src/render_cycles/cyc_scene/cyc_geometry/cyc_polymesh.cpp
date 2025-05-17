@@ -157,7 +157,7 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 		if (time_vertices != original_vertices)
 		{
 			meshes_correct = false;
-			log_message("Mesh object " + XSI::CString(mesh->name.c_str()) + " has invalid number of vertices at frame " + XSI::CString(time) + ". Disabling motion blur for it.", XSI::siWarningMsg);
+			log_warning("Mesh object " + XSI::CString(mesh->name.c_str()) + " has invalid number of vertices at frame " + XSI::CString(time) + ". Disabling motion blur for it.");
 			break;
 		}
 	}

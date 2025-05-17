@@ -22,6 +22,10 @@ void log_message(const XSI::CString &message, XSI::siSeverityType level)
 	XSI::Application().LogMessage("[Cycles Render] " + message, level);
 }
 
+void log_warning(const XSI::CString& message) {
+	XSI::Application().LogMessage("[Cycles Warning] " + message, XSI::siSeverityType::siWarningMsg);
+}
+
 XSI::CString to_string(const XSI::CFloatArray& array)
 {
 	if (array.GetCount() == 0)
