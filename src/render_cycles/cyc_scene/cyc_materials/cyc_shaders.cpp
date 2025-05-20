@@ -44,6 +44,16 @@ void common_routine(ccl::Scene* scene,
 	nodes_map[xsi_shader_id] = node;
 	node->name = node_name;
 
+	// does not setup these node bump properies
+	// it's not clear how it actually works
+	if (false && xsi_parameters.GetItem("bump").IsValid() && xsi_parameters.GetItem("filter_width").IsValid()) {
+		XSI::CString bump_mode = get_string_parameter_value(xsi_parameters, "bump", eval_time);
+		float filter_width = get_float_parameter_value(xsi_parameters, "filter_width", eval_time);
+
+		node->bump_filter_width = filter_width;
+		node->bump = get_shader_bump(bump_mode);
+	}
+
 	// iterate over all parameters
 	for (ULONG i = 0; i < xsi_parameters.GetCount(); i++)
 	{
@@ -802,7 +812,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
 		bool invert = get_bool_parameter_value(xsi_parameters, "Invert", eval_time);
+		bool use_object_space = get_bool_parameter_value(xsi_parameters, "use_object_space", eval_time);
 		node->set_invert(invert);
+		node->set_use_object_space(use_object_space);
 
 		return node;
 	}
@@ -830,6 +842,18 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		node->set_mapping_type(type == "Point" ? ccl::NodeMappingType::NODE_MAPPING_TYPE_POINT :
 			(type == "Texture" ? ccl::NodeMappingType::NODE_MAPPING_TYPE_TEXTURE :
 				(type == "Vector" ? ccl::NodeMappingType::NODE_MAPPING_TYPE_VECTOR : ccl::NodeMappingType::NODE_MAPPING_TYPE_NORMAL)));
+
+		return node;
+	}
+	else if (shader_type == "SetNormal") {
+		ccl::SetNormalNode* node = shader_graph->create_node<ccl::SetNormalNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		float direction_x = get_float_parameter_value(xsi_parameters, "direction_x", eval_time);
+		float direction_y = get_float_parameter_value(xsi_parameters, "direction_y", eval_time);
+		float direction_z = get_float_parameter_value(xsi_parameters, "direction_z", eval_time);
+
+		node->set_direction(ccl::make_float3(direction_x, direction_y, direction_z));
 
 		return node;
 	}

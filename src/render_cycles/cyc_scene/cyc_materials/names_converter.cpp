@@ -349,3 +349,10 @@ ccl::ClosureType get_scatter_phase(const XSI::CString& type) {
 	else if (type == "fournier_forand") { return ccl::ClosureType::CLOSURE_VOLUME_FOURNIER_FORAND_ID; }
 	else { return ccl::ClosureType::CLOSURE_VOLUME_HENYEY_GREENSTEIN_ID; }
 }
+
+ccl::ShaderBump get_shader_bump(const XSI::CString &type) {
+	if (type == "center") { return ccl::ShaderBump::SHADER_BUMP_CENTER; }
+	else if (type == "dx") { return ccl::ShaderBump::SHADER_BUMP_DX; }
+	else if (type == "dy") { return ccl::ShaderBump::SHADER_BUMP_DY; }
+	else { return ccl::ShaderBump::SHADER_BUMP_NONE; }
+}

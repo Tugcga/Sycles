@@ -370,6 +370,13 @@ scatter_phase_enum = [
     "Mie", "mie"
 ]
 
+bump_node_enum = [
+    "None", "none",
+    "Center", "center",
+    "DX", "dx",
+    "DY", "dy"
+]
+
 
 def XSILoadPlugin(in_reg):
     in_reg.Author = "Shekn Itrch"
@@ -416,6 +423,7 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterShader("CyclesNormal", 1, 0)
     in_reg.RegisterShader("CyclesBump", 1, 0)
     in_reg.RegisterShader("CyclesMapping", 1, 0)
+    in_reg.RegisterShader("CyclesSetNormal", 1, 0)
     in_reg.RegisterShader("CyclesNormalMap", 1, 0)
     in_reg.RegisterShader("CyclesVectorTransform", 1, 0)
     in_reg.RegisterShader("CyclesVectorRotate", 1, 0)
@@ -646,6 +654,22 @@ def type_param_options(name):
     paramOptions.SetInspectable(False)
     paramOptions.SetDefaultValue(name)
     return paramOptions
+
+
+def extend_bump_parameters(params, ppg_layout):
+    # does not create these additional bump properties
+    # it used only in shader-graph post-process and invisible in Blender UI
+    # so, we will use the same strategy
+    '''
+    add_input_string(no_port_pram_options(), params, "none", "bump")
+    add_input_float(no_port_pram_options(), params, 0.0, "filter_width", 0.0, 1.0)
+
+    ppg_layout.AddTab("Bump")
+    ppg_layout.AddGroup("Parameters")
+    ppg_layout.AddEnumControl("bump", bump_node_enum, "Mode")
+    ppg_layout.AddItem("filter_width", "Filter Width")
+    ppg_layout.EndGroup()
+    '''
 
 
 def CyclesShadersPlugin_CyclesDiffuseBSDF_1_0_DefineInfo(in_ctxt):
@@ -1294,6 +1318,8 @@ def CyclesShadersPlugin_CyclesAmbientOcclusion_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Distance", "Distance")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "AmbientOcclusion"
@@ -1904,6 +1930,8 @@ def CyclesShadersPlugin_CyclesImageTexture_1_0_Define(in_ctxt):
     ppg_layout.AddItem("ImageCyclic", "Cyclic")
     ppg_layout.EndGroup()
 
+    extend_bump_parameters(params, ppg_layout)
+
     ppg_layout.Language = "Python"
     ppg_layout.Logic = '''import os
 def update_ui(prop):
@@ -1994,6 +2022,8 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
     ppg_layout.AddItem("ImageOffset", "Offset")
     ppg_layout.AddItem("ImageCyclic", "Cyclic")
     ppg_layout.EndGroup()
+
+    extend_bump_parameters(params, ppg_layout)
 
     # logic
     ppg_layout.Language = "Python"
@@ -2090,6 +2120,8 @@ def CyclesShadersPlugin_CyclesSkyTexture_1_0_Define(in_ctxt):
     ppg_layout.AddItem("Dust", "Dust")
     ppg_layout.AddItem("Ozone", "Ozone")
     ppg_layout.EndGroup()
+
+    extend_bump_parameters(params, ppg_layout)
 
     # logic
     ppg_layout.Language = "Python"
@@ -2195,6 +2227,8 @@ def CyclesShadersPlugin_CyclesNoiseTexture_1_0_Define(in_ctxt):
     ppg_layout.AddItem("Distortion", "Distortion")
     ppg_layout.EndGroup()
 
+    extend_bump_parameters(params, ppg_layout)
+
     ppg_layout.Language = "Python"
     ppg_layout.Logic = '''
 def build_ui(prop):
@@ -2271,6 +2305,8 @@ def CyclesShadersPlugin_CyclesCheckerTexture_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Scale", "Scale")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "CheckerTexture"
@@ -2329,6 +2365,8 @@ def CyclesShadersPlugin_CyclesBrickTexture_1_0_Define(in_ctxt):
     ppgLayout.AddItem("SquashFrequency", "Squash Frequency")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "BrickTexture"
@@ -2362,6 +2400,8 @@ def CyclesShadersPlugin_CyclesGradientTexture_1_0_Define(in_ctxt):
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddEnumControl("Type", gradient_type_enum, "Type")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -2421,6 +2461,8 @@ def CyclesShadersPlugin_CyclesVoronoiTexture_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Exponent", "Exponent")
     ppgLayout.AddItem("Randomness", "Randomness")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
@@ -2518,6 +2560,8 @@ def CyclesShadersPlugin_CyclesMagicTexture_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Distortion", "Distortion")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "MagicTexture"
@@ -2570,6 +2614,8 @@ def CyclesShadersPlugin_CyclesWaveTexture_1_0_Define(in_ctxt):
     ppgLayout.AddItem("DetailRoughness", "Detail Roughness")
     ppgLayout.AddItem("PhaseOffset", "Phase Offset")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
@@ -2626,6 +2672,8 @@ def CyclesShadersPlugin_CyclesIESTexture_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Strength", "Strength")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "IESTexture"
@@ -2670,6 +2718,8 @@ def CyclesShadersPlugin_CyclesWhiteNoiseTexture_1_0_Define(in_ctxt):
     ppgLayout.EndRow()
     ppgLayout.AddItem("W", "W")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
@@ -2755,6 +2805,8 @@ def CyclesShadersPlugin_CyclesGaborTexture_1_0_Define(in_ctxt):
     ppgLayout.EndGroup()
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
 def build_ui(prop):
@@ -2827,7 +2879,8 @@ def CyclesShadersPlugin_CyclesNormal_1_0_Define(in_ctxt):
     ppgLayout.AddItem("NormalZ", "Z")
     ppgLayout.EndRow()
     ppgLayout.EndGroup()
-    # ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -2851,6 +2904,7 @@ def CyclesShadersPlugin_CyclesBump_1_0_Define(in_ctxt):
     # Input Parameters
     params = shader_def.InputParamDefs
     add_input_boolean(no_port_pram_options(), params, False, "Invert")
+    add_input_boolean(no_port_pram_options(), params, False, "use_object_space")
     add_input_float(standard_pram_options(), params, 0.0, "Height", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.0, "Strength", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.1, "Distance", 0.0, 1.0)
@@ -2864,10 +2918,26 @@ def CyclesShadersPlugin_CyclesBump_1_0_Define(in_ctxt):
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("Invert", "Invert")
+    ppgLayout.AddItem("use_object_space", "Use Object Space")
     ppgLayout.AddItem("Strength", "Strength")
     ppgLayout.AddItem("Distance", "Distance")
     ppgLayout.AddItem("FilterWidth", "Filter Width")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
+    # next add specific parameters for the bump tab
+    # for now ignore these parameters
+    # it used in Blender for shader graph post-process
+    # and does not visible in Blender UI
+    '''add_input_float(standard_pram_options(), params, 0.0, "SampleCenter", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "SampleX", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "SampleY", 0.0, 1.0)
+
+    ppgLayout.AddGroup("Sampling")
+    ppgLayout.AddItem("SampleCenter", "Sample Center")
+    ppgLayout.AddItem("SampleX", "Sample X")
+    ppgLayout.AddItem("SampleY", "Sample Y")
+    ppgLayout.EndGroup()'''
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -2935,6 +3005,8 @@ def CyclesShadersPlugin_CyclesMapping_1_0_Define(in_ctxt):
     ppgLayout.EndGroup()
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''from win32com.client import constants as c\n''' + "mapping_type_enum = " + str(mapping_type_enum) + "\n" + '''
 def build_ui(prop):
@@ -2959,6 +3031,49 @@ def Type_OnChanged():
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Mapping"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesSetNormal_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Vector")
+    in_ctxt.SetAttribute("DisplayName", "cycSetNormal")
+    return True
+
+
+def CyclesShadersPlugin_CyclesSetNormal_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+    add_input_vector(standard_pram_options(), params, 0.0, "Direction")
+    add_input_float(no_port_pram_options(), params, 0.0, "direction_x", 0.0, 1.0)
+    add_input_float(no_port_pram_options(), params, 1.0, "direction_y", 0.0, 1.0)
+    add_input_float(no_port_pram_options(), params, 0.0, "direction_z", 0.0, 1.0)
+
+    # Output Parameter: out
+    add_output_normal(shader_def, "Normal")
+
+    # next init ppg
+    ppgLayout = shader_def.PPGLayout
+    ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddGroup("Direction")
+    ppgLayout.AddRow()
+    ppgLayout.AddItem("direction_x", "X")
+    ppgLayout.AddItem("direction_y", "Y")
+    ppgLayout.AddItem("direction_z", "Z")
+    ppgLayout.EndRow()
+    ppgLayout.EndGroup()
+    ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "SetNormal"
 
     return True
 
@@ -2993,6 +3108,8 @@ def CyclesShadersPlugin_CyclesNormalMap_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Strength", "Strength")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -3040,6 +3157,8 @@ def CyclesShadersPlugin_CyclesVectorTransform_1_0_Define(in_ctxt):
     ppgLayout.EndRow()
     ppgLayout.EndGroup()
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -3113,6 +3232,8 @@ def CyclesShadersPlugin_CyclesVectorRotate_1_0_Define(in_ctxt):
     ppgLayout.EndRow()
     ppgLayout.EndGroup()
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
@@ -3189,6 +3310,8 @@ def CyclesShadersPlugin_CyclesVectorCurves_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Vector", "Vector")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Curves"
@@ -3228,6 +3351,8 @@ def CyclesShadersPlugin_CyclesDisplacement_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Scale", "Scale")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Displacement"
@@ -3264,6 +3389,8 @@ def CyclesShadersPlugin_CyclesVectorDisplacement_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Midlevel", "Midlevel")
     ppgLayout.AddItem("Scale", "Scale")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -3546,6 +3673,8 @@ def CyclesShadersPlugin_CyclesValue_1_0_Define(in_ctxt):
     ppgLayout.AddItem("ValueIn", "Value")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Value"
@@ -3577,6 +3706,8 @@ def CyclesShadersPlugin_CyclesColor_1_0_Define(in_ctxt):
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("ColorIn", "Color")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -3613,6 +3744,8 @@ def CyclesShadersPlugin_CyclesAttribute_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Attribute", "Attribute")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Attribute"
@@ -3646,6 +3779,8 @@ def CyclesShadersPlugin_CyclesOutputColorAOV_1_0_Define(in_ctxt):
     ppgLayout.AddItem("aov_name", "AOV Name")
     ppgLayout.AddColor("Color", "Color")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -3681,6 +3816,8 @@ def CyclesShadersPlugin_CyclesOutputValueAOV_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Value", "Value")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "OutputValueAOV"
@@ -3713,6 +3850,8 @@ def CyclesShadersPlugin_CyclesVertexColor_1_0_Define(in_ctxt):
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("LayerName", "Layer Name")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -3749,6 +3888,8 @@ def CyclesShadersPlugin_CyclesBevel_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Radius", "Radius")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Bevel"
@@ -3780,6 +3921,8 @@ def CyclesShadersPlugin_CyclesUVMap_1_0_Define(in_ctxt):
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("Attribute", "Attribute")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -3841,6 +3984,8 @@ def CyclesShadersPlugin_CyclesFresnel_1_0_Define(in_ctxt):
     ppgLayout.AddItem("IOR", "IOR")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Fresnel"
@@ -3875,6 +4020,8 @@ def CyclesShadersPlugin_CyclesLayerWeight_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Blend", "Blend")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "LayerWeight"
@@ -3908,6 +4055,8 @@ def CyclesShadersPlugin_CyclesWireframe_1_0_Define(in_ctxt):
     ppgLayout.AddItem("UsePixelSize", "Use Pixel Size")
     ppgLayout.AddItem("Size", "Size")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -3944,6 +4093,8 @@ def CyclesShadersPlugin_CyclesTangent_1_0_Define(in_ctxt):
     ppgLayout.AddEnumControl("Axis", tangent_axis_enum, "Axis")
     ppgLayout.AddItem("Attribute", "Attribute")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
@@ -4000,6 +4151,8 @@ def CyclesShadersPlugin_CyclesLightFalloff_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Smooth", "Smooth")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "LightFalloff"
@@ -4033,6 +4186,8 @@ def CyclesShadersPlugin_CyclesInvert_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -4073,6 +4228,8 @@ def CyclesShadersPlugin_CyclesMixRGB_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Color1", "Color 1")
     ppgLayout.AddItem("Color2", "Color 2")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -4116,6 +4273,8 @@ def CyclesShadersPlugin_CyclesMixColor_1_0_Define(in_ctxt):
     ppgLayout.AddItem("B", "B")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "MixColor"
@@ -4153,6 +4312,8 @@ def CyclesShadersPlugin_CyclesMixFloat_1_0_Define(in_ctxt):
     ppgLayout.AddItem("A", "A")
     ppgLayout.AddItem("B", "B")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -4192,6 +4353,8 @@ def CyclesShadersPlugin_CyclesMixVector_1_0_Define(in_ctxt):
     ppgLayout.AddItem("B", "B")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "MixVector"
@@ -4230,6 +4393,8 @@ def CyclesShadersPlugin_CyclesMixVectorNonUniform_1_0_Define(in_ctxt):
     ppgLayout.AddItem("B", "B")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "MixVectorNonUniform"
@@ -4263,6 +4428,8 @@ def CyclesShadersPlugin_CyclesGamma_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.AddItem("Gamma", "Gamma")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -4299,6 +4466,8 @@ def CyclesShadersPlugin_CyclesBrightContrast_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Bright", "Bright")
     ppgLayout.AddItem("Contrast", "Contrast")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -4340,6 +4509,8 @@ def CyclesShadersPlugin_CyclesHSV_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "HSV"
@@ -4380,6 +4551,8 @@ def CyclesShadersPlugin_CyclesRGBCurves_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "RGBCurves"
@@ -4416,6 +4589,8 @@ def CyclesShadersPlugin_CyclesColorCurves_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "ColorCurves"
@@ -4447,6 +4622,8 @@ def CyclesShadersPlugin_CyclesWavelength_1_0_Define(in_ctxt):
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("Wavelength", "Wavelength")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -4480,6 +4657,8 @@ def CyclesShadersPlugin_CyclesBlackbody_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Temperature", "Temperature")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Blackbody"
@@ -4497,7 +4676,6 @@ def CyclesShadersPlugin_CyclesMixClosure_1_0_DefineInfo(in_ctxt):
 
 def CyclesShadersPlugin_CyclesMixClosure_1_0_Define(in_ctxt):
     shader_def = in_ctxt.GetAttribute("Definition")
-    # shader_def.AddShaderFamily(c.siShaderFamilyTexture)
     shader_def.AddShaderFamily(c.siShaderFamilyVolume)
     shader_def.AddShaderFamily(c.siShaderFamilySurfaceMat)
 
@@ -4533,7 +4711,6 @@ def CyclesShadersPlugin_CyclesAddClosure_1_0_DefineInfo(in_ctxt):
 
 def CyclesShadersPlugin_CyclesAddClosure_1_0_Define(in_ctxt):
     shader_def = in_ctxt.GetAttribute("Definition")
-    # shader_def.AddShaderFamily(c.siShaderFamilyTexture)
     shader_def.AddShaderFamily(c.siShaderFamilyVolume)
     shader_def.AddShaderFamily(c.siShaderFamilySurfaceMat)
 
@@ -4588,6 +4765,8 @@ def CyclesShadersPlugin_CyclesCombineColor_1_0_Define(in_ctxt):
     ppgLayout.AddItem("C", "C")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "CombineColor"
@@ -4623,6 +4802,8 @@ def CyclesShadersPlugin_CyclesCombineRGB_1_0_Define(in_ctxt):
     ppgLayout.AddItem("G", "G")
     ppgLayout.AddItem("B", "B")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -4660,6 +4841,8 @@ def CyclesShadersPlugin_CyclesCombineHSV_1_0_Define(in_ctxt):
     ppgLayout.AddItem("V", "V")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "CombineHSV"
@@ -4695,6 +4878,8 @@ def CyclesShadersPlugin_CyclesCombineXYZ_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Y", "Y")
     ppgLayout.AddItem("Z", "Z")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -4732,6 +4917,8 @@ def CyclesShadersPlugin_CyclesSeparateColor_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "SeparateColor"
@@ -4766,6 +4953,8 @@ def CyclesShadersPlugin_CyclesSeparateRGB_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Image", "Image")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "SeparateRGB"
@@ -4799,6 +4988,8 @@ def CyclesShadersPlugin_CyclesSeparateHSV_1_0_Define(in_ctxt):
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -4841,6 +5032,8 @@ def CyclesShadersPlugin_CyclesSeparateXYZ_1_0_Define(in_ctxt):
     ppgLayout.EndRow()
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "SeparateXYZ"
@@ -4880,6 +5073,8 @@ def CyclesShadersPlugin_CyclesMath_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Value2", "Value 2")
     ppgLayout.AddItem("Value3", "Value 3")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
@@ -4974,6 +5169,8 @@ def CyclesShadersPlugin_CyclesVectorMath_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Scale", "Scale")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
 def build_ui(prop):
@@ -5045,6 +5242,8 @@ def CyclesShadersPlugin_CyclesColorRamp_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "ColorRamp"
@@ -5090,6 +5289,8 @@ def CyclesShadersPlugin_CyclesMapRange_1_0_Define(in_ctxt):
     ppgLayout.AddItem("ToMax", "To Max")
     ppgLayout.AddItem("Steps", "Steps")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
@@ -5203,6 +5404,8 @@ def CyclesShadersPlugin_CyclesVectorMapRange_1_0_Define(in_ctxt):
     ppgLayout.EndGroup()
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     ppgLayout.Language = "Python"
     ppgLayout.Logic = '''
 def build_ui(prop):
@@ -5265,6 +5468,8 @@ def CyclesShadersPlugin_CyclesFloatCurve_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Value", "Value")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "FloatCurve"
@@ -5303,6 +5508,8 @@ def CyclesShadersPlugin_CyclesClamp_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Max", "Max")
     ppgLayout.EndGroup()
 
+    extend_bump_parameters(params, ppgLayout)
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Clamp"
@@ -5334,6 +5541,8 @@ def CyclesShadersPlugin_CyclesRGBToBW_1_0_Define(in_ctxt):
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
+
+    extend_bump_parameters(params, ppgLayout)
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")

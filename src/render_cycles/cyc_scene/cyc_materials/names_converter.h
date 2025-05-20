@@ -884,11 +884,16 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	{
 		"CyclesShadersPlugin.CyclesBump.1.0", {
 			{"Height", "Height"},
-			// SampleCenter, SampleX and SampleY are missing in the Blender
+			
 			{"Normal", "Normal"},
 			{"Strength", "Strength"},
 			{"Distance", "Distance"},
 			{"FilterWidth", "Filter Width"},
+
+			// skip these names, because the shader does not contains these ports
+			// {"SampleCenter", "SampleCenter"},
+			// {"SampleX", "SampleX"},
+			// {"SampleY", "SampleY"},
 
 			{"outNormal", "Normal"}
 		}
@@ -933,7 +938,13 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"outAlpha", "Alpha"}
 		}
 	},
-	// SetNormalNode is missing in the Blender
+	{
+		"CyclesShadersPlugin.CyclesSetNormal.1.0", {
+			{"Direction", "Direction"},
+
+			{"outNormal", "Normal"}
+		}
+	},
 	{
 		"CyclesShadersPlugin.CyclesNormalMap.1.0", {
 			{"Strength", "Strength"},
@@ -1052,3 +1063,4 @@ ccl::NodeClampType get_clamp_type(const XSI::CString& type);
 ccl::NodeNoiseType get_noise_type(const XSI::CString& type);
 ccl::ClosureType get_metallic_fresnel(const XSI::CString& type);
 ccl::ClosureType get_scatter_phase(const XSI::CString& type);
+ccl::ShaderBump get_shader_bump(const XSI::CString& type);
