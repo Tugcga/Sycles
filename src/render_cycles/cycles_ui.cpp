@@ -387,10 +387,14 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.EndGroup();
 
 	layout.AddGroup("Displacement");
-	XSI::CValueArray displacement_combo(6);
+	// TODO: for now hybrid displacement is not working
+	// there are render artifacts with fragment normals
+	// disable it
+	// after this bug will be fixed in Cycles, we should revert it back
+	XSI::CValueArray displacement_combo(4);
 	displacement_combo[0] = "Bump"; displacement_combo[1] = 0;
 	displacement_combo[2] = "True Displacement"; displacement_combo[3] = 1;
-	displacement_combo[4] = "Both Displacement"; displacement_combo[5] = 2;
+	// displacement_combo[4] = "Both Displacement"; displacement_combo[5] = 2;
 	layout.AddEnumControl("options_displacement_method", displacement_combo, "Displacement Method", XSI::siControlCombo);
 	layout.EndGroup();
 
@@ -1036,7 +1040,8 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("options_logging_log_profiling", XSI::CValue::siBool, caps, "", "", false, param);
 
 	// displacement
-	property.AddParameter("options_displacement_method", XSI::CValue::siInt4, caps, "", "", 2, param);
+	// TODO: after displacement will be fixed, set default value = 2 (both displacement)
+	property.AddParameter("options_displacement_method", XSI::CValue::siInt4, caps, "", "", 1, param);
 
 	// updates
 	property.AddParameter("options_update_method", XSI::CValue::siInt4, caps, "", "", 1, param);  // 0 - only abort, 1 - update and abort, 2 - only update (what it is mean?)
