@@ -24,8 +24,8 @@
 
 bool is_pointcloud_points(XSI::X3DObject &xsi_object, const XSI::CTime &eval_time)
 {
-	XSI::Property xsi_property;
-	bool use_property = get_xsi_object_property(xsi_object, "CyclesPointcloud", xsi_property);
+	XSI::Property xsi_property = get_xsi_object_property(xsi_object, "CyclesPointcloud");
+	bool use_property = xsi_property.IsValid();
 
 	if (use_property)
 	{
@@ -184,18 +184,7 @@ void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_cont
 	MotionSettingsPosition motion_position = update_context->get_motion_position();
 	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
-		size_t time_motion_step = mi;
-		if (motion_position == MotionSettingsPosition::MotionPosition_Start)
-		{
-			time_motion_step++;
-		}
-		else if (motion_position == MotionSettingsPosition::MotionPosition_Center)
-		{// center
-			if (mi >= motion_steps / 2)
-			{
-				time_motion_step++;
-			}
-		}
+		size_t time_motion_step = calc_time_motion_step(mi, motion_steps, motion_position);
 
 		float time = update_context->get_motion_time(time_motion_step) + (mi == (motion_steps - 1) ? 0.0001 : 0.0);  // add small delta to the last time, because in some times it get wrong snap of the geometry
 		XSI::Geometry time_xsi_geometry = xsi_object.GetActivePrimitive(time).GetGeometry(time);

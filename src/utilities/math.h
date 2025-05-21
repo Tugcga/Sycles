@@ -17,6 +17,7 @@
 #include "util/array.h"
 
 #include "../render_base/type_enums.h"
+#include "../render_cycles/cyc_scene/cyc_motion.h"
 
 #define DEG2RADF(_deg) ((_deg) * (float)(M_PI / 180.0))
 #define RAD2DEGF(_rad) ((_rad) * (float)(180.0 / M_PI))
@@ -54,3 +55,4 @@ XSI::MATH::CColor4f interpolate_color(const XSI::MATH::CColor4f& color1, const X
 ccl::array<int> exctract_tiles(const std::map<int, XSI::CString>& tile_to_path_map);
 std::vector<float> flip_pixels(float* input, ULONG width, ULONG height, ULONG channels);
 int powi(int base, unsigned int exp);
+size_t calc_time_motion_step(size_t mi, size_t motion_steps, MotionSettingsPosition motion_position);

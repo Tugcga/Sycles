@@ -104,6 +104,10 @@ SICALLBACK CyclesRenderer_Init(XSI::CRef &in_ctxt)
 	::InitializeCriticalSection(&g_barrierAbort);
 	g_hAbort = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
+	// set search path for Cycles
+	// we set it first, and then it should properly find available devices
+	render->path_init(get_plugin_path());
+
 	// all static global variables stored in input/input.cpp file
 	// use input.h as interface to get/set these static values
 	// at the start we should also find all available devices and store it in the global static variable
@@ -114,8 +118,6 @@ SICALLBACK CyclesRenderer_Init(XSI::CRef &in_ctxt)
 
 	// and also read ocio config from external file
 	read_ocio_config();
-
-	render->path_init(get_plugin_path());
 
 	return XSI::CStatus::OK;
 }

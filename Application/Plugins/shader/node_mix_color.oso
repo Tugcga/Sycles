@@ -1,5 +1,5 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
+# Compiled by oslc 1.14.4.0dev
 # options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_mix_color.oso
 shader node_mix_color
 param	string	blend_type	"mix"		%read{5,866} %write{2147483647,-1}
@@ -9,53 +9,53 @@ param	float	Factor	0.5		%read{2,4} %write{2147483647,-1}
 param	color	A	0 0 0		%read{7,914} %write{2147483647,-1}
 param	color	B	0 0 0		%read{7,915} %write{2147483647,-1}
 oparam	color	Result	0 0 0		%read{926,926} %write{7,927}
-local	float	___360_cmax	%read{287,788} %write{281,762}
-local	float	___360_cmin	%read{287,768} %write{286,767}
-local	float	___360_h	%read{317,802} %write{293,801}
-local	float	___360_s	%read{294,802} %write{291,773}
-local	float	___360_v	%read{321,802} %write{288,769}
-local	float	___360_cdelta	%read{291,780} %write{287,768}
-local	color	___360_c	%read{303,796} %write{299,780}
-local	float	___369_i	%read{385,842} %write{384,818}
-local	float	___369_f	%read{386,826} %write{385,819}
-local	float	___369_p	%read{398,845} %write{388,822}
-local	float	___369_q	%read{401,845} %write{391,825}
-local	float	___369_t	%read{398,844} %write{395,829}
-local	float	___369_h	%read{380,819} %write{374,817}
-local	float	___369_s	%read{377,827} %write{375,809}
-local	float	___369_v	%read{379,845} %write{376,810}
-local	color	___369_rgb	%read{412,846} %write{379,845}
-local	float	___389_tm	%read{22,22} %write{21,21}
-local	float	___390_tm	%read{41,88} %write{32,32}
-local	color	___390_outcol	%read{34,94} %write{33,93}
-local	float	___398_tm	%read{109,131} %write{103,103}
-local	color	___398_outcol	%read{108,138} %write{104,137}
-local	color	___406_outcol	%read{169,214} %write{168,213}
-local	float	___407_tmp	%read{175,183} %write{174,179}
-local	float	___411_tmp	%read{190,198} %write{189,194}
-local	float	___415_tmp	%read{205,213} %write{204,209}
-local	float	___419_tmp	%read{223,270} %write{222,263}
-local	float	___419_tm	%read{222,256} %write{218,218}
-local	color	___419_outcol	%read{226,271} %write{219,270}
-local	color	___432_outcol	%read{326,414} %write{275,413}
-local	color	___432_hsv2	%read{322,371} %write{321,321}
-local	color	___433_hsv	%read{374,376} %write{370,372}
-local	color	___433_tmp	%read{413,413} %write{412,412}
-local	float	___434_tm	%read{516,516} %write{418,418}
-local	color	___434_outcol	%read{421,561} %write{419,560}
-local	color	___434_hsv	%read{466,524} %write{465,520}
-local	color	___435_hsv2	%read{517,517} %write{514,514}
-local	float	___436_tm	%read{659,659} %write{565,565}
-local	color	___436_hsv	%read{658,667} %write{611,663}
-local	color	___436_hsv2	%read{660,660} %write{657,657}
-local	color	___437_outcol	%read{758,848} %write{707,847}
-local	color	___437_hsv2	%read{754,805} %write{753,753}
-local	color	___438_hsv	%read{808,810} %write{802,806}
-local	color	___438_tmp	%read{847,847} %write{846,846}
-local	float	___439_tm	%read{858,858} %write{852,852}
-local	color	___439_one	%read{854,859} %write{853,853}
-local	color	___439_scr	%read{862,862} %write{857,857}
-local	color	___440_outcol	%read{921,921} %write{869,920}
+local	float	___361_cmax	%read{287,788} %write{281,762}
+local	float	___361_cmin	%read{287,768} %write{286,767}
+local	float	___361_h	%read{317,802} %write{293,801}
+local	float	___361_s	%read{294,802} %write{291,773}
+local	float	___361_v	%read{321,802} %write{288,769}
+local	float	___361_cdelta	%read{291,780} %write{287,768}
+local	color	___361_c	%read{303,796} %write{299,780}
+local	float	___370_i	%read{385,842} %write{384,818}
+local	float	___370_f	%read{386,826} %write{385,819}
+local	float	___370_p	%read{398,845} %write{388,822}
+local	float	___370_q	%read{401,845} %write{391,825}
+local	float	___370_t	%read{398,844} %write{395,829}
+local	float	___370_h	%read{380,819} %write{374,817}
+local	float	___370_s	%read{377,827} %write{375,809}
+local	float	___370_v	%read{379,845} %write{376,810}
+local	color	___370_rgb	%read{412,846} %write{379,845}
+local	float	___390_tm	%read{22,22} %write{21,21}
+local	float	___391_tm	%read{41,88} %write{32,32}
+local	color	___391_outcol	%read{34,94} %write{33,93}
+local	float	___399_tm	%read{109,131} %write{103,103}
+local	color	___399_outcol	%read{108,138} %write{104,137}
+local	color	___407_outcol	%read{169,214} %write{168,213}
+local	float	___408_tmp	%read{175,183} %write{174,179}
+local	float	___412_tmp	%read{190,198} %write{189,194}
+local	float	___416_tmp	%read{205,213} %write{204,209}
+local	float	___420_tmp	%read{223,270} %write{222,263}
+local	float	___420_tm	%read{222,256} %write{218,218}
+local	color	___420_outcol	%read{226,271} %write{219,270}
+local	color	___433_outcol	%read{326,414} %write{275,413}
+local	color	___433_hsv2	%read{322,371} %write{321,321}
+local	color	___434_hsv	%read{374,376} %write{370,372}
+local	color	___434_tmp	%read{413,413} %write{412,412}
+local	float	___435_tm	%read{516,516} %write{418,418}
+local	color	___435_outcol	%read{421,561} %write{419,560}
+local	color	___435_hsv	%read{466,524} %write{465,520}
+local	color	___436_hsv2	%read{517,517} %write{514,514}
+local	float	___437_tm	%read{659,659} %write{565,565}
+local	color	___437_hsv	%read{658,667} %write{611,663}
+local	color	___437_hsv2	%read{660,660} %write{657,657}
+local	color	___438_outcol	%read{758,848} %write{707,847}
+local	color	___438_hsv2	%read{754,805} %write{753,753}
+local	color	___439_hsv	%read{808,810} %write{802,806}
+local	color	___439_tmp	%read{847,847} %write{846,846}
+local	float	___440_tm	%read{858,858} %write{852,852}
+local	color	___440_one	%read{854,859} %write{853,853}
+local	color	___440_scr	%read{862,862} %write{857,857}
+local	color	___441_outcol	%read{921,921} %write{869,920}
 local	float	t	%read{7,918} %write{3,4}
 const	float	$const1	0		%read{3,923} %write{2147483647,-1}
 const	float	$const2	1		%read{2,924} %write{2147483647,-1}
@@ -646,10 +646,10 @@ code ___main___
 	functioncall	$const10 29 	%line{26} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:22
 #   float tm = 1.0 - t;
-	sub		___389_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{22} %argrw{"wrr"}
+	sub		___390_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{22} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:24
 #   return color(1.0) - (color(tm) + t * (color(1.0) - col2)) * (color(1.0) - col1);
-	assign		$tmp9 ___389_tm 	%line{24} %argrw{"wr"}
+	assign		$tmp9 ___390_tm 	%line{24} %argrw{"wr"}
 	sub		$tmp11 $const11 B 	%argrw{"wrr"}
 	mul		$tmp12 t $tmp11 	%argrw{"wrr"}
 	add		$tmp13 $tmp9 $tmp12 	%argrw{"wrr"}
@@ -665,91 +665,91 @@ code ___main___
 	functioncall	$const13 95 	%line{28} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:29
 #   float tm = 1.0 - t;
-	sub		___390_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{29} %argrw{"wrr"}
+	sub		___391_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{29} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:31
 #   color outcol = col1;
-	assign		___390_outcol A 	%line{31} %argrw{"wr"}
+	assign		___391_outcol A 	%line{31} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:33
 #   if (outcol[0] < 0.5) {
-	compref		$tmp18 ___390_outcol $const14 	%line{33} %argrw{"wrr"}
+	compref		$tmp18 ___391_outcol $const14 	%line{33} %argrw{"wrr"}
 	lt		$tmp19 $tmp18 $const15 	%argrw{"wrr"}
 	if		$tmp19 44 54 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:34
 #     outcol[0] *= tm + 2.0 * t * col2[0];
-	compref		$tmp20 ___390_outcol $const14 	%line{34} %argrw{"wrr"}
+	compref		$tmp20 ___391_outcol $const14 	%line{34} %argrw{"wrr"}
 	mul		$tmp21 $const16 t 	%argrw{"wrr"}
 	compref		$tmp22 B $const14 	%argrw{"wrr"}
 	mul		$tmp23 $tmp21 $tmp22 	%argrw{"wrr"}
-	add		$tmp24 ___390_tm $tmp23 	%argrw{"wrr"}
+	add		$tmp24 ___391_tm $tmp23 	%argrw{"wrr"}
 	mul		$tmp25 $tmp20 $tmp24 	%argrw{"wrr"}
-	compassign	___390_outcol $const14 $tmp25 	%argrw{"wrr"}
+	compassign	___391_outcol $const14 $tmp25 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:37
 #     outcol[0] = 1.0 - (tm + 2.0 * t * (1.0 - col2[0])) * (1.0 - outcol[0]);
 	mul		$tmp26 $const16 t 	%line{37} %argrw{"wrr"}
 	compref		$tmp27 B $const14 	%argrw{"wrr"}
 	sub		$tmp28 $const2 $tmp27 	%argrw{"wrr"}
 	mul		$tmp29 $tmp26 $tmp28 	%argrw{"wrr"}
-	add		$tmp30 ___390_tm $tmp29 	%argrw{"wrr"}
-	compref		$tmp31 ___390_outcol $const14 	%argrw{"wrr"}
+	add		$tmp30 ___391_tm $tmp29 	%argrw{"wrr"}
+	compref		$tmp31 ___391_outcol $const14 	%argrw{"wrr"}
 	sub		$tmp32 $const2 $tmp31 	%argrw{"wrr"}
 	mul		$tmp33 $tmp30 $tmp32 	%argrw{"wrr"}
 	sub		$tmp34 $const2 $tmp33 	%argrw{"wrr"}
-	compassign	___390_outcol $const14 $tmp34 	%argrw{"wrr"}
+	compassign	___391_outcol $const14 $tmp34 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:40
 #   if (outcol[1] < 0.5) {
-	compref		$tmp35 ___390_outcol $const17 	%line{40} %argrw{"wrr"}
+	compref		$tmp35 ___391_outcol $const17 	%line{40} %argrw{"wrr"}
 	lt		$tmp36 $tmp35 $const15 	%argrw{"wrr"}
 	if		$tmp36 64 74 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:41
 #     outcol[1] *= tm + 2.0 * t * col2[1];
-	compref		$tmp37 ___390_outcol $const17 	%line{41} %argrw{"wrr"}
+	compref		$tmp37 ___391_outcol $const17 	%line{41} %argrw{"wrr"}
 	mul		$tmp38 $const16 t 	%argrw{"wrr"}
 	compref		$tmp39 B $const17 	%argrw{"wrr"}
 	mul		$tmp40 $tmp38 $tmp39 	%argrw{"wrr"}
-	add		$tmp41 ___390_tm $tmp40 	%argrw{"wrr"}
+	add		$tmp41 ___391_tm $tmp40 	%argrw{"wrr"}
 	mul		$tmp42 $tmp37 $tmp41 	%argrw{"wrr"}
-	compassign	___390_outcol $const17 $tmp42 	%argrw{"wrr"}
+	compassign	___391_outcol $const17 $tmp42 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:44
 #     outcol[1] = 1.0 - (tm + 2.0 * t * (1.0 - col2[1])) * (1.0 - outcol[1]);
 	mul		$tmp43 $const16 t 	%line{44} %argrw{"wrr"}
 	compref		$tmp44 B $const17 	%argrw{"wrr"}
 	sub		$tmp45 $const2 $tmp44 	%argrw{"wrr"}
 	mul		$tmp46 $tmp43 $tmp45 	%argrw{"wrr"}
-	add		$tmp47 ___390_tm $tmp46 	%argrw{"wrr"}
-	compref		$tmp48 ___390_outcol $const17 	%argrw{"wrr"}
+	add		$tmp47 ___391_tm $tmp46 	%argrw{"wrr"}
+	compref		$tmp48 ___391_outcol $const17 	%argrw{"wrr"}
 	sub		$tmp49 $const2 $tmp48 	%argrw{"wrr"}
 	mul		$tmp50 $tmp47 $tmp49 	%argrw{"wrr"}
 	sub		$tmp51 $const2 $tmp50 	%argrw{"wrr"}
-	compassign	___390_outcol $const17 $tmp51 	%argrw{"wrr"}
+	compassign	___391_outcol $const17 $tmp51 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:47
 #   if (outcol[2] < 0.5) {
-	compref		$tmp52 ___390_outcol $const18 	%line{47} %argrw{"wrr"}
+	compref		$tmp52 ___391_outcol $const18 	%line{47} %argrw{"wrr"}
 	lt		$tmp53 $tmp52 $const15 	%argrw{"wrr"}
 	if		$tmp53 84 94 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:48
 #     outcol[2] *= tm + 2.0 * t * col2[2];
-	compref		$tmp54 ___390_outcol $const18 	%line{48} %argrw{"wrr"}
+	compref		$tmp54 ___391_outcol $const18 	%line{48} %argrw{"wrr"}
 	mul		$tmp55 $const16 t 	%argrw{"wrr"}
 	compref		$tmp56 B $const18 	%argrw{"wrr"}
 	mul		$tmp57 $tmp55 $tmp56 	%argrw{"wrr"}
-	add		$tmp58 ___390_tm $tmp57 	%argrw{"wrr"}
+	add		$tmp58 ___391_tm $tmp57 	%argrw{"wrr"}
 	mul		$tmp59 $tmp54 $tmp58 	%argrw{"wrr"}
-	compassign	___390_outcol $const18 $tmp59 	%argrw{"wrr"}
+	compassign	___391_outcol $const18 $tmp59 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:51
 #     outcol[2] = 1.0 - (tm + 2.0 * t * (1.0 - col2[2])) * (1.0 - outcol[2]);
 	mul		$tmp60 $const16 t 	%line{51} %argrw{"wrr"}
 	compref		$tmp61 B $const18 	%argrw{"wrr"}
 	sub		$tmp62 $const2 $tmp61 	%argrw{"wrr"}
 	mul		$tmp63 $tmp60 $tmp62 	%argrw{"wrr"}
-	add		$tmp64 ___390_tm $tmp63 	%argrw{"wrr"}
-	compref		$tmp65 ___390_outcol $const18 	%argrw{"wrr"}
+	add		$tmp64 ___391_tm $tmp63 	%argrw{"wrr"}
+	compref		$tmp65 ___391_outcol $const18 	%argrw{"wrr"}
 	sub		$tmp66 $const2 $tmp65 	%argrw{"wrr"}
 	mul		$tmp67 $tmp64 $tmp66 	%argrw{"wrr"}
 	sub		$tmp68 $const2 $tmp67 	%argrw{"wrr"}
-	compassign	___390_outcol $const18 $tmp68 	%argrw{"wrr"}
+	compassign	___391_outcol $const18 $tmp68 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:54
 #   return outcol;
-	assign		Result ___390_outcol 	%line{54} %argrw{"wr"}
+	assign		Result ___391_outcol 	%line{54} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl:29
 #   if (blend_type == "subtract")
 	eq		$tmp69 blend_type $const19 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl"} %line{29} %argrw{"wrr"}
@@ -770,10 +770,10 @@ code ___main___
 	functioncall	$const22 139 	%line{32} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:64
 #   float tm = 1.0 - t;
-	sub		___398_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{64} %argrw{"wrr"}
+	sub		___399_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{64} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:66
 #   color outcol = col1;
-	assign		___398_outcol A 	%line{66} %argrw{"wr"}
+	assign		___399_outcol A 	%line{66} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:68
 #   if (col2[0] != 0.0) {
 	compref		$tmp72 B $const14 	%line{68} %argrw{"wrr"}
@@ -781,14 +781,14 @@ code ___main___
 	if		$tmp73 116 116 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:69
 #     outcol[0] = tm * outcol[0] + t * outcol[0] / col2[0];
-	compref		$tmp74 ___398_outcol $const14 	%line{69} %argrw{"wrr"}
-	mul		$tmp75 ___398_tm $tmp74 	%argrw{"wrr"}
-	compref		$tmp76 ___398_outcol $const14 	%argrw{"wrr"}
+	compref		$tmp74 ___399_outcol $const14 	%line{69} %argrw{"wrr"}
+	mul		$tmp75 ___399_tm $tmp74 	%argrw{"wrr"}
+	compref		$tmp76 ___399_outcol $const14 	%argrw{"wrr"}
 	mul		$tmp77 t $tmp76 	%argrw{"wrr"}
 	compref		$tmp78 B $const14 	%argrw{"wrr"}
 	div		$tmp79 $tmp77 $tmp78 	%argrw{"wrr"}
 	add		$tmp80 $tmp75 $tmp79 	%argrw{"wrr"}
-	compassign	___398_outcol $const14 $tmp80 	%argrw{"wrr"}
+	compassign	___399_outcol $const14 $tmp80 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:71
 #   if (col2[1] != 0.0) {
 	compref		$tmp81 B $const17 	%line{71} %argrw{"wrr"}
@@ -796,14 +796,14 @@ code ___main___
 	if		$tmp82 127 127 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:72
 #     outcol[1] = tm * outcol[1] + t * outcol[1] / col2[1];
-	compref		$tmp83 ___398_outcol $const17 	%line{72} %argrw{"wrr"}
-	mul		$tmp84 ___398_tm $tmp83 	%argrw{"wrr"}
-	compref		$tmp85 ___398_outcol $const17 	%argrw{"wrr"}
+	compref		$tmp83 ___399_outcol $const17 	%line{72} %argrw{"wrr"}
+	mul		$tmp84 ___399_tm $tmp83 	%argrw{"wrr"}
+	compref		$tmp85 ___399_outcol $const17 	%argrw{"wrr"}
 	mul		$tmp86 t $tmp85 	%argrw{"wrr"}
 	compref		$tmp87 B $const17 	%argrw{"wrr"}
 	div		$tmp88 $tmp86 $tmp87 	%argrw{"wrr"}
 	add		$tmp89 $tmp84 $tmp88 	%argrw{"wrr"}
-	compassign	___398_outcol $const17 $tmp89 	%argrw{"wrr"}
+	compassign	___399_outcol $const17 $tmp89 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:74
 #   if (col2[2] != 0.0) {
 	compref		$tmp90 B $const18 	%line{74} %argrw{"wrr"}
@@ -811,17 +811,17 @@ code ___main___
 	if		$tmp91 138 138 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:75
 #     outcol[2] = tm * outcol[2] + t * outcol[2] / col2[2];
-	compref		$tmp92 ___398_outcol $const18 	%line{75} %argrw{"wrr"}
-	mul		$tmp93 ___398_tm $tmp92 	%argrw{"wrr"}
-	compref		$tmp94 ___398_outcol $const18 	%argrw{"wrr"}
+	compref		$tmp92 ___399_outcol $const18 	%line{75} %argrw{"wrr"}
+	mul		$tmp93 ___399_tm $tmp92 	%argrw{"wrr"}
+	compref		$tmp94 ___399_outcol $const18 	%argrw{"wrr"}
 	mul		$tmp95 t $tmp94 	%argrw{"wrr"}
 	compref		$tmp96 B $const18 	%argrw{"wrr"}
 	div		$tmp97 $tmp95 $tmp96 	%argrw{"wrr"}
 	add		$tmp98 $tmp93 $tmp97 	%argrw{"wrr"}
-	compassign	___398_outcol $const18 $tmp98 	%argrw{"wrr"}
+	compassign	___399_outcol $const18 $tmp98 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:78
 #   return outcol;
-	assign		Result ___398_outcol 	%line{78} %argrw{"wr"}
+	assign		Result ___399_outcol 	%line{78} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl:33
 #   if (blend_type == "difference")
 	eq		$tmp99 blend_type $const23 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl"} %line{33} %argrw{"wrr"}
@@ -881,97 +881,97 @@ code ___main___
 	functioncall	$const32 215 	%line{42} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:103
 #   color outcol = col1;
-	assign		___406_outcol A 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{103} %argrw{"wr"}
+	assign		___407_outcol A 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{103} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:105
 #   if (outcol[0] != 0.0) {
-	compref		$tmp114 ___406_outcol $const14 	%line{105} %argrw{"wrr"}
+	compref		$tmp114 ___407_outcol $const14 	%line{105} %argrw{"wrr"}
 	neq		$tmp115 $tmp114 $const1 	%argrw{"wrr"}
 	if		$tmp115 184 184 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:106
 #     float tmp = 1.0 - t * col2[0];
 	compref		$tmp116 B $const14 	%line{106} %argrw{"wrr"}
 	mul		$tmp117 t $tmp116 	%argrw{"wrr"}
-	sub		___407_tmp $const2 $tmp117 	%argrw{"wrr"}
+	sub		___408_tmp $const2 $tmp117 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:107
 #     if (tmp <= 0.0) {
-	le		$tmp118 ___407_tmp $const1 	%line{107} %argrw{"wrr"}
+	le		$tmp118 ___408_tmp $const1 	%line{107} %argrw{"wrr"}
 	if		$tmp118 178 184 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:108
 #       outcol[0] = 1.0;
-	compassign	___406_outcol $const14 $const2 	%line{108} %argrw{"wrr"}
+	compassign	___407_outcol $const14 $const2 	%line{108} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:110
 #     else if ((tmp = outcol[0] / tmp) > 1.0) {
-	compref		$tmp119 ___406_outcol $const14 	%line{110} %argrw{"wrr"}
-	div		___407_tmp $tmp119 ___407_tmp 	%argrw{"wrr"}
-	gt		$tmp120 ___407_tmp $const2 	%argrw{"wrr"}
+	compref		$tmp119 ___407_outcol $const14 	%line{110} %argrw{"wrr"}
+	div		___408_tmp $tmp119 ___408_tmp 	%argrw{"wrr"}
+	gt		$tmp120 ___408_tmp $const2 	%argrw{"wrr"}
 	if		$tmp120 183 184 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:111
 #       outcol[0] = 1.0;
-	compassign	___406_outcol $const14 $const2 	%line{111} %argrw{"wrr"}
+	compassign	___407_outcol $const14 $const2 	%line{111} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:114
 #       outcol[0] = tmp;
-	compassign	___406_outcol $const14 ___407_tmp 	%line{114} %argrw{"wrr"}
+	compassign	___407_outcol $const14 ___408_tmp 	%line{114} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:117
 #   if (outcol[1] != 0.0) {
-	compref		$tmp121 ___406_outcol $const17 	%line{117} %argrw{"wrr"}
+	compref		$tmp121 ___407_outcol $const17 	%line{117} %argrw{"wrr"}
 	neq		$tmp122 $tmp121 $const1 	%argrw{"wrr"}
 	if		$tmp122 199 199 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:118
 #     float tmp = 1.0 - t * col2[1];
 	compref		$tmp123 B $const17 	%line{118} %argrw{"wrr"}
 	mul		$tmp124 t $tmp123 	%argrw{"wrr"}
-	sub		___411_tmp $const2 $tmp124 	%argrw{"wrr"}
+	sub		___412_tmp $const2 $tmp124 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:119
 #     if (tmp <= 0.0) {
-	le		$tmp125 ___411_tmp $const1 	%line{119} %argrw{"wrr"}
+	le		$tmp125 ___412_tmp $const1 	%line{119} %argrw{"wrr"}
 	if		$tmp125 193 199 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:120
 #       outcol[1] = 1.0;
-	compassign	___406_outcol $const17 $const2 	%line{120} %argrw{"wrr"}
+	compassign	___407_outcol $const17 $const2 	%line{120} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:122
 #     else if ((tmp = outcol[1] / tmp) > 1.0) {
-	compref		$tmp126 ___406_outcol $const17 	%line{122} %argrw{"wrr"}
-	div		___411_tmp $tmp126 ___411_tmp 	%argrw{"wrr"}
-	gt		$tmp127 ___411_tmp $const2 	%argrw{"wrr"}
+	compref		$tmp126 ___407_outcol $const17 	%line{122} %argrw{"wrr"}
+	div		___412_tmp $tmp126 ___412_tmp 	%argrw{"wrr"}
+	gt		$tmp127 ___412_tmp $const2 	%argrw{"wrr"}
 	if		$tmp127 198 199 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:123
 #       outcol[1] = 1.0;
-	compassign	___406_outcol $const17 $const2 	%line{123} %argrw{"wrr"}
+	compassign	___407_outcol $const17 $const2 	%line{123} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:126
 #       outcol[1] = tmp;
-	compassign	___406_outcol $const17 ___411_tmp 	%line{126} %argrw{"wrr"}
+	compassign	___407_outcol $const17 ___412_tmp 	%line{126} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:129
 #   if (outcol[2] != 0.0) {
-	compref		$tmp128 ___406_outcol $const18 	%line{129} %argrw{"wrr"}
+	compref		$tmp128 ___407_outcol $const18 	%line{129} %argrw{"wrr"}
 	neq		$tmp129 $tmp128 $const1 	%argrw{"wrr"}
 	if		$tmp129 214 214 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:130
 #     float tmp = 1.0 - t * col2[2];
 	compref		$tmp130 B $const18 	%line{130} %argrw{"wrr"}
 	mul		$tmp131 t $tmp130 	%argrw{"wrr"}
-	sub		___415_tmp $const2 $tmp131 	%argrw{"wrr"}
+	sub		___416_tmp $const2 $tmp131 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:131
 #     if (tmp <= 0.0) {
-	le		$tmp132 ___415_tmp $const1 	%line{131} %argrw{"wrr"}
+	le		$tmp132 ___416_tmp $const1 	%line{131} %argrw{"wrr"}
 	if		$tmp132 208 214 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:132
 #       outcol[2] = 1.0;
-	compassign	___406_outcol $const18 $const2 	%line{132} %argrw{"wrr"}
+	compassign	___407_outcol $const18 $const2 	%line{132} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:134
 #     else if ((tmp = outcol[2] / tmp) > 1.0) {
-	compref		$tmp133 ___406_outcol $const18 	%line{134} %argrw{"wrr"}
-	div		___415_tmp $tmp133 ___415_tmp 	%argrw{"wrr"}
-	gt		$tmp134 ___415_tmp $const2 	%argrw{"wrr"}
+	compref		$tmp133 ___407_outcol $const18 	%line{134} %argrw{"wrr"}
+	div		___416_tmp $tmp133 ___416_tmp 	%argrw{"wrr"}
+	gt		$tmp134 ___416_tmp $const2 	%argrw{"wrr"}
 	if		$tmp134 213 214 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:135
 #       outcol[2] = 1.0;
-	compassign	___406_outcol $const18 $const2 	%line{135} %argrw{"wrr"}
+	compassign	___407_outcol $const18 $const2 	%line{135} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:138
 #       outcol[2] = tmp;
-	compassign	___406_outcol $const18 ___415_tmp 	%line{138} %argrw{"wrr"}
+	compassign	___407_outcol $const18 ___416_tmp 	%line{138} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:142
 #   return outcol;
-	assign		Result ___406_outcol 	%line{142} %argrw{"wr"}
+	assign		Result ___407_outcol 	%line{142} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl:43
 #   if (blend_type == "burn")
 	eq		$tmp135 blend_type $const33 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl"} %line{43} %argrw{"wrr"}
@@ -981,112 +981,112 @@ code ___main___
 	functioncall	$const34 272 	%line{44} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:147
 #   float tmp, tm = 1.0 - t;
-	sub		___419_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{147} %argrw{"wrr"}
+	sub		___420_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{147} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:149
 #   color outcol = col1;
-	assign		___419_outcol A 	%line{149} %argrw{"wr"}
+	assign		___420_outcol A 	%line{149} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:151
 #   tmp = tm + t * col2[0];
 	compref		$tmp136 B $const14 	%line{151} %argrw{"wrr"}
 	mul		$tmp137 t $tmp136 	%argrw{"wrr"}
-	add		___419_tmp ___419_tm $tmp137 	%argrw{"wrr"}
+	add		___420_tmp ___420_tm $tmp137 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:152
 #   if (tmp <= 0.0) {
-	le		$tmp138 ___419_tmp $const1 	%line{152} %argrw{"wrr"}
+	le		$tmp138 ___420_tmp $const1 	%line{152} %argrw{"wrr"}
 	if		$tmp138 226 237 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:153
 #     outcol[0] = 0.0;
-	compassign	___419_outcol $const14 $const1 	%line{153} %argrw{"wrr"}
+	compassign	___420_outcol $const14 $const1 	%line{153} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:155
 #   else if ((tmp = (1.0 - (1.0 - outcol[0]) / tmp)) < 0.0) {
-	compref		$tmp139 ___419_outcol $const14 	%line{155} %argrw{"wrr"}
+	compref		$tmp139 ___420_outcol $const14 	%line{155} %argrw{"wrr"}
 	sub		$tmp140 $const2 $tmp139 	%argrw{"wrr"}
-	div		$tmp141 $tmp140 ___419_tmp 	%argrw{"wrr"}
-	sub		___419_tmp $const2 $tmp141 	%argrw{"wrr"}
-	lt		$tmp142 ___419_tmp $const1 	%argrw{"wrr"}
+	div		$tmp141 $tmp140 ___420_tmp 	%argrw{"wrr"}
+	sub		___420_tmp $const2 $tmp141 	%argrw{"wrr"}
+	lt		$tmp142 ___420_tmp $const1 	%argrw{"wrr"}
 	if		$tmp142 233 237 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:156
 #     outcol[0] = 0.0;
-	compassign	___419_outcol $const14 $const1 	%line{156} %argrw{"wrr"}
+	compassign	___420_outcol $const14 $const1 	%line{156} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:158
 #   else if (tmp > 1.0) {
-	gt		$tmp143 ___419_tmp $const2 	%line{158} %argrw{"wrr"}
+	gt		$tmp143 ___420_tmp $const2 	%line{158} %argrw{"wrr"}
 	if		$tmp143 236 237 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:159
 #     outcol[0] = 1.0;
-	compassign	___419_outcol $const14 $const2 	%line{159} %argrw{"wrr"}
+	compassign	___420_outcol $const14 $const2 	%line{159} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:162
 #     outcol[0] = tmp;
-	compassign	___419_outcol $const14 ___419_tmp 	%line{162} %argrw{"wrr"}
+	compassign	___420_outcol $const14 ___420_tmp 	%line{162} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:165
 #   tmp = tm + t * col2[1];
 	compref		$tmp144 B $const17 	%line{165} %argrw{"wrr"}
 	mul		$tmp145 t $tmp144 	%argrw{"wrr"}
-	add		___419_tmp ___419_tm $tmp145 	%argrw{"wrr"}
+	add		___420_tmp ___420_tm $tmp145 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:166
 #   if (tmp <= 0.0) {
-	le		$tmp146 ___419_tmp $const1 	%line{166} %argrw{"wrr"}
+	le		$tmp146 ___420_tmp $const1 	%line{166} %argrw{"wrr"}
 	if		$tmp146 243 254 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:167
 #     outcol[1] = 0.0;
-	compassign	___419_outcol $const17 $const1 	%line{167} %argrw{"wrr"}
+	compassign	___420_outcol $const17 $const1 	%line{167} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:169
 #   else if ((tmp = (1.0 - (1.0 - outcol[1]) / tmp)) < 0.0) {
-	compref		$tmp147 ___419_outcol $const17 	%line{169} %argrw{"wrr"}
+	compref		$tmp147 ___420_outcol $const17 	%line{169} %argrw{"wrr"}
 	sub		$tmp148 $const2 $tmp147 	%argrw{"wrr"}
-	div		$tmp149 $tmp148 ___419_tmp 	%argrw{"wrr"}
-	sub		___419_tmp $const2 $tmp149 	%argrw{"wrr"}
-	lt		$tmp150 ___419_tmp $const1 	%argrw{"wrr"}
+	div		$tmp149 $tmp148 ___420_tmp 	%argrw{"wrr"}
+	sub		___420_tmp $const2 $tmp149 	%argrw{"wrr"}
+	lt		$tmp150 ___420_tmp $const1 	%argrw{"wrr"}
 	if		$tmp150 250 254 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:170
 #     outcol[1] = 0.0;
-	compassign	___419_outcol $const17 $const1 	%line{170} %argrw{"wrr"}
+	compassign	___420_outcol $const17 $const1 	%line{170} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:172
 #   else if (tmp > 1.0) {
-	gt		$tmp151 ___419_tmp $const2 	%line{172} %argrw{"wrr"}
+	gt		$tmp151 ___420_tmp $const2 	%line{172} %argrw{"wrr"}
 	if		$tmp151 253 254 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:173
 #     outcol[1] = 1.0;
-	compassign	___419_outcol $const17 $const2 	%line{173} %argrw{"wrr"}
+	compassign	___420_outcol $const17 $const2 	%line{173} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:176
 #     outcol[1] = tmp;
-	compassign	___419_outcol $const17 ___419_tmp 	%line{176} %argrw{"wrr"}
+	compassign	___420_outcol $const17 ___420_tmp 	%line{176} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:179
 #   tmp = tm + t * col2[2];
 	compref		$tmp152 B $const18 	%line{179} %argrw{"wrr"}
 	mul		$tmp153 t $tmp152 	%argrw{"wrr"}
-	add		___419_tmp ___419_tm $tmp153 	%argrw{"wrr"}
+	add		___420_tmp ___420_tm $tmp153 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:180
 #   if (tmp <= 0.0) {
-	le		$tmp154 ___419_tmp $const1 	%line{180} %argrw{"wrr"}
+	le		$tmp154 ___420_tmp $const1 	%line{180} %argrw{"wrr"}
 	if		$tmp154 260 271 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:181
 #     outcol[2] = 0.0;
-	compassign	___419_outcol $const18 $const1 	%line{181} %argrw{"wrr"}
+	compassign	___420_outcol $const18 $const1 	%line{181} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:183
 #   else if ((tmp = (1.0 - (1.0 - outcol[2]) / tmp)) < 0.0) {
-	compref		$tmp155 ___419_outcol $const18 	%line{183} %argrw{"wrr"}
+	compref		$tmp155 ___420_outcol $const18 	%line{183} %argrw{"wrr"}
 	sub		$tmp156 $const2 $tmp155 	%argrw{"wrr"}
-	div		$tmp157 $tmp156 ___419_tmp 	%argrw{"wrr"}
-	sub		___419_tmp $const2 $tmp157 	%argrw{"wrr"}
-	lt		$tmp158 ___419_tmp $const1 	%argrw{"wrr"}
+	div		$tmp157 $tmp156 ___420_tmp 	%argrw{"wrr"}
+	sub		___420_tmp $const2 $tmp157 	%argrw{"wrr"}
+	lt		$tmp158 ___420_tmp $const1 	%argrw{"wrr"}
 	if		$tmp158 267 271 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:184
 #     outcol[2] = 0.0;
-	compassign	___419_outcol $const18 $const1 	%line{184} %argrw{"wrr"}
+	compassign	___420_outcol $const18 $const1 	%line{184} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:186
 #   else if (tmp > 1.0) {
-	gt		$tmp159 ___419_tmp $const2 	%line{186} %argrw{"wrr"}
+	gt		$tmp159 ___420_tmp $const2 	%line{186} %argrw{"wrr"}
 	if		$tmp159 270 271 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:187
 #     outcol[2] = 1.0;
-	compassign	___419_outcol $const18 $const2 	%line{187} %argrw{"wrr"}
+	compassign	___420_outcol $const18 $const2 	%line{187} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:190
 #     outcol[2] = tmp;
-	compassign	___419_outcol $const18 ___419_tmp 	%line{190} %argrw{"wrr"}
+	compassign	___420_outcol $const18 ___420_tmp 	%line{190} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:193
 #   return outcol;
-	assign		Result ___419_outcol 	%line{193} %argrw{"wr"}
+	assign		Result ___420_outcol 	%line{193} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl:45
 #   if (blend_type == "hue")
 	eq		$tmp160 blend_type $const35 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl"} %line{45} %argrw{"wrr"}
@@ -1096,7 +1096,7 @@ code ___main___
 	functioncall	$const36 415 	%line{46} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:198
 #   color outcol = col1;
-	assign		___432_outcol A 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{198} %argrw{"wr"}
+	assign		___433_outcol A 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{198} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:199
 #   color hsv2 = rgb_to_hsv(col2);
 	functioncall	$const37 322 	%line{199} %argrw{"r"}
@@ -1106,88 +1106,88 @@ code ___main___
 	compref		$tmp163 B $const17 	%argrw{"wrr"}
 	compref		$tmp164 B $const18 	%argrw{"wrr"}
 	max		$tmp162 $tmp163 $tmp164 	%argrw{"wrr"}
-	max		___360_cmax $tmp161 $tmp162 	%argrw{"wrr"}
+	max		___361_cmax $tmp161 $tmp162 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:86
 #   cmin = min(rgb[0], min(rgb[1], rgb[2]));
 	compref		$tmp165 B $const14 	%line{86} %argrw{"wrr"}
 	compref		$tmp167 B $const17 	%argrw{"wrr"}
 	compref		$tmp168 B $const18 	%argrw{"wrr"}
 	min		$tmp166 $tmp167 $tmp168 	%argrw{"wrr"}
-	min		___360_cmin $tmp165 $tmp166 	%argrw{"wrr"}
+	min		___361_cmin $tmp165 $tmp166 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:87
 #   cdelta = cmax - cmin;
-	sub		___360_cdelta ___360_cmax ___360_cmin 	%line{87} %argrw{"wrr"}
+	sub		___361_cdelta ___361_cmax ___361_cmin 	%line{87} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:89
 #   v = cmax;
-	assign		___360_v ___360_cmax 	%line{89} %argrw{"wr"}
+	assign		___361_v ___361_cmax 	%line{89} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:91
 #   if (cmax != 0.0) {
-	neq		$tmp169 ___360_cmax $const1 	%line{91} %argrw{"wrr"}
+	neq		$tmp169 ___361_cmax $const1 	%line{91} %argrw{"wrr"}
 	if		$tmp169 292 294 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:92
 #     s = cdelta / cmax;
-	div		___360_s ___360_cdelta ___360_cmax 	%line{92} %argrw{"wrr"}
+	div		___361_s ___361_cdelta ___361_cmax 	%line{92} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:95
 #     s = 0.0;
-	assign		___360_s $const1 	%line{95} %argrw{"wr"}
+	assign		___361_s $const1 	%line{95} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:96
 #     h = 0.0;
-	assign		___360_h $const1 	%line{96} %argrw{"wr"}
+	assign		___361_h $const1 	%line{96} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:99
 #   if (s == 0.0) {
-	eq		$tmp170 ___360_s $const1 	%line{99} %argrw{"wrr"}
+	eq		$tmp170 ___361_s $const1 	%line{99} %argrw{"wrr"}
 	if		$tmp170 297 321 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:100
 #     h = 0.0;
-	assign		___360_h $const1 	%line{100} %argrw{"wr"}
+	assign		___361_h $const1 	%line{100} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:103
 #     c = (color(cmax, cmax, cmax) - rgb) / cdelta;
-	color		$tmp171 ___360_cmax ___360_cmax ___360_cmax 	%line{103} %argrw{"wrrr"}
+	color		$tmp171 ___361_cmax ___361_cmax ___361_cmax 	%line{103} %argrw{"wrrr"}
 	sub		$tmp172 $tmp171 B 	%argrw{"wrr"}
-	div		___360_c $tmp172 ___360_cdelta 	%argrw{"wrr"}
+	div		___361_c $tmp172 ___361_cdelta 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:105
 #     if (rgb[0] == cmax) {
 	compref		$tmp173 B $const14 	%line{105} %argrw{"wrr"}
-	eq		$tmp174 $tmp173 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp174 $tmp173 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp174 306 317 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:106
 #       h = c[2] - c[1];
-	compref		$tmp175 ___360_c $const18 	%line{106} %argrw{"wrr"}
-	compref		$tmp176 ___360_c $const17 	%argrw{"wrr"}
-	sub		___360_h $tmp175 $tmp176 	%argrw{"wrr"}
+	compref		$tmp175 ___361_c $const18 	%line{106} %argrw{"wrr"}
+	compref		$tmp176 ___361_c $const17 	%argrw{"wrr"}
+	sub		___361_h $tmp175 $tmp176 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:108
 #     else if (rgb[1] == cmax) {
 	compref		$tmp177 B $const17 	%line{108} %argrw{"wrr"}
-	eq		$tmp178 $tmp177 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp178 $tmp177 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp178 313 317 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:109
 #       h = 2.0 + c[0] - c[2];
-	compref		$tmp179 ___360_c $const14 	%line{109} %argrw{"wrr"}
+	compref		$tmp179 ___361_c $const14 	%line{109} %argrw{"wrr"}
 	add		$tmp180 $const16 $tmp179 	%argrw{"wrr"}
-	compref		$tmp181 ___360_c $const18 	%argrw{"wrr"}
-	sub		___360_h $tmp180 $tmp181 	%argrw{"wrr"}
+	compref		$tmp181 ___361_c $const18 	%argrw{"wrr"}
+	sub		___361_h $tmp180 $tmp181 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:112
 #       h = 4.0 + c[1] - c[0];
-	compref		$tmp182 ___360_c $const17 	%line{112} %argrw{"wrr"}
+	compref		$tmp182 ___361_c $const17 	%line{112} %argrw{"wrr"}
 	add		$tmp183 $const38 $tmp182 	%argrw{"wrr"}
-	compref		$tmp184 ___360_c $const14 	%argrw{"wrr"}
-	sub		___360_h $tmp183 $tmp184 	%argrw{"wrr"}
+	compref		$tmp184 ___361_c $const14 	%argrw{"wrr"}
+	sub		___361_h $tmp183 $tmp184 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:115
 #     h /= 6.0;
-	div		___360_h ___360_h $const39 	%line{115} %argrw{"wrr"}
+	div		___361_h ___361_h $const39 	%line{115} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:117
 #     if (h < 0.0) {
-	lt		$tmp185 ___360_h $const1 	%line{117} %argrw{"wrr"}
+	lt		$tmp185 ___361_h $const1 	%line{117} %argrw{"wrr"}
 	if		$tmp185 321 321 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:118
 #       h += 1.0;
-	add		___360_h ___360_h $const2 	%line{118} %argrw{"wrr"}
+	add		___361_h ___361_h $const2 	%line{118} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:122
 #   return color(h, s, v);
-	color		___432_hsv2 ___360_h ___360_s ___360_v 	%line{122} %argrw{"wrrr"}
+	color		___433_hsv2 ___361_h ___361_s ___361_v 	%line{122} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:201
 #   if (hsv2[1] != 0.0) {
-	compref		$tmp186 ___432_hsv2 $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{201} %argrw{"wrr"}
+	compref		$tmp186 ___433_hsv2 $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{201} %argrw{"wrr"}
 	neq		$tmp187 $tmp186 $const1 	%argrw{"wrr"}
 	if		$tmp187 414 414 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:202
@@ -1195,193 +1195,193 @@ code ___main___
 	functioncall	$const37 371 	%line{202} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:85
 #   cmax = max(rgb[0], max(rgb[1], rgb[2]));
-	compref		$tmp188 ___432_outcol $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{85} %argrw{"wrr"}
-	compref		$tmp190 ___432_outcol $const17 	%argrw{"wrr"}
-	compref		$tmp191 ___432_outcol $const18 	%argrw{"wrr"}
+	compref		$tmp188 ___433_outcol $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{85} %argrw{"wrr"}
+	compref		$tmp190 ___433_outcol $const17 	%argrw{"wrr"}
+	compref		$tmp191 ___433_outcol $const18 	%argrw{"wrr"}
 	max		$tmp189 $tmp190 $tmp191 	%argrw{"wrr"}
-	max		___360_cmax $tmp188 $tmp189 	%argrw{"wrr"}
+	max		___361_cmax $tmp188 $tmp189 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:86
 #   cmin = min(rgb[0], min(rgb[1], rgb[2]));
-	compref		$tmp192 ___432_outcol $const14 	%line{86} %argrw{"wrr"}
-	compref		$tmp194 ___432_outcol $const17 	%argrw{"wrr"}
-	compref		$tmp195 ___432_outcol $const18 	%argrw{"wrr"}
+	compref		$tmp192 ___433_outcol $const14 	%line{86} %argrw{"wrr"}
+	compref		$tmp194 ___433_outcol $const17 	%argrw{"wrr"}
+	compref		$tmp195 ___433_outcol $const18 	%argrw{"wrr"}
 	min		$tmp193 $tmp194 $tmp195 	%argrw{"wrr"}
-	min		___360_cmin $tmp192 $tmp193 	%argrw{"wrr"}
+	min		___361_cmin $tmp192 $tmp193 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:87
 #   cdelta = cmax - cmin;
-	sub		___360_cdelta ___360_cmax ___360_cmin 	%line{87} %argrw{"wrr"}
+	sub		___361_cdelta ___361_cmax ___361_cmin 	%line{87} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:89
 #   v = cmax;
-	assign		___360_v ___360_cmax 	%line{89} %argrw{"wr"}
+	assign		___361_v ___361_cmax 	%line{89} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:91
 #   if (cmax != 0.0) {
-	neq		$tmp196 ___360_cmax $const1 	%line{91} %argrw{"wrr"}
+	neq		$tmp196 ___361_cmax $const1 	%line{91} %argrw{"wrr"}
 	if		$tmp196 341 343 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:92
 #     s = cdelta / cmax;
-	div		___360_s ___360_cdelta ___360_cmax 	%line{92} %argrw{"wrr"}
+	div		___361_s ___361_cdelta ___361_cmax 	%line{92} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:95
 #     s = 0.0;
-	assign		___360_s $const1 	%line{95} %argrw{"wr"}
+	assign		___361_s $const1 	%line{95} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:96
 #     h = 0.0;
-	assign		___360_h $const1 	%line{96} %argrw{"wr"}
+	assign		___361_h $const1 	%line{96} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:99
 #   if (s == 0.0) {
-	eq		$tmp197 ___360_s $const1 	%line{99} %argrw{"wrr"}
+	eq		$tmp197 ___361_s $const1 	%line{99} %argrw{"wrr"}
 	if		$tmp197 346 370 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:100
 #     h = 0.0;
-	assign		___360_h $const1 	%line{100} %argrw{"wr"}
+	assign		___361_h $const1 	%line{100} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:103
 #     c = (color(cmax, cmax, cmax) - rgb) / cdelta;
-	color		$tmp198 ___360_cmax ___360_cmax ___360_cmax 	%line{103} %argrw{"wrrr"}
-	sub		$tmp199 $tmp198 ___432_outcol 	%argrw{"wrr"}
-	div		___360_c $tmp199 ___360_cdelta 	%argrw{"wrr"}
+	color		$tmp198 ___361_cmax ___361_cmax ___361_cmax 	%line{103} %argrw{"wrrr"}
+	sub		$tmp199 $tmp198 ___433_outcol 	%argrw{"wrr"}
+	div		___361_c $tmp199 ___361_cdelta 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:105
 #     if (rgb[0] == cmax) {
-	compref		$tmp200 ___432_outcol $const14 	%line{105} %argrw{"wrr"}
-	eq		$tmp201 $tmp200 ___360_cmax 	%argrw{"wrr"}
+	compref		$tmp200 ___433_outcol $const14 	%line{105} %argrw{"wrr"}
+	eq		$tmp201 $tmp200 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp201 355 366 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:106
 #       h = c[2] - c[1];
-	compref		$tmp202 ___360_c $const18 	%line{106} %argrw{"wrr"}
-	compref		$tmp203 ___360_c $const17 	%argrw{"wrr"}
-	sub		___360_h $tmp202 $tmp203 	%argrw{"wrr"}
+	compref		$tmp202 ___361_c $const18 	%line{106} %argrw{"wrr"}
+	compref		$tmp203 ___361_c $const17 	%argrw{"wrr"}
+	sub		___361_h $tmp202 $tmp203 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:108
 #     else if (rgb[1] == cmax) {
-	compref		$tmp204 ___432_outcol $const17 	%line{108} %argrw{"wrr"}
-	eq		$tmp205 $tmp204 ___360_cmax 	%argrw{"wrr"}
+	compref		$tmp204 ___433_outcol $const17 	%line{108} %argrw{"wrr"}
+	eq		$tmp205 $tmp204 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp205 362 366 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:109
 #       h = 2.0 + c[0] - c[2];
-	compref		$tmp206 ___360_c $const14 	%line{109} %argrw{"wrr"}
+	compref		$tmp206 ___361_c $const14 	%line{109} %argrw{"wrr"}
 	add		$tmp207 $const16 $tmp206 	%argrw{"wrr"}
-	compref		$tmp208 ___360_c $const18 	%argrw{"wrr"}
-	sub		___360_h $tmp207 $tmp208 	%argrw{"wrr"}
+	compref		$tmp208 ___361_c $const18 	%argrw{"wrr"}
+	sub		___361_h $tmp207 $tmp208 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:112
 #       h = 4.0 + c[1] - c[0];
-	compref		$tmp209 ___360_c $const17 	%line{112} %argrw{"wrr"}
+	compref		$tmp209 ___361_c $const17 	%line{112} %argrw{"wrr"}
 	add		$tmp210 $const38 $tmp209 	%argrw{"wrr"}
-	compref		$tmp211 ___360_c $const14 	%argrw{"wrr"}
-	sub		___360_h $tmp210 $tmp211 	%argrw{"wrr"}
+	compref		$tmp211 ___361_c $const14 	%argrw{"wrr"}
+	sub		___361_h $tmp210 $tmp211 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:115
 #     h /= 6.0;
-	div		___360_h ___360_h $const39 	%line{115} %argrw{"wrr"}
+	div		___361_h ___361_h $const39 	%line{115} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:117
 #     if (h < 0.0) {
-	lt		$tmp212 ___360_h $const1 	%line{117} %argrw{"wrr"}
+	lt		$tmp212 ___361_h $const1 	%line{117} %argrw{"wrr"}
 	if		$tmp212 370 370 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:118
 #       h += 1.0;
-	add		___360_h ___360_h $const2 	%line{118} %argrw{"wrr"}
+	add		___361_h ___361_h $const2 	%line{118} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:122
 #   return color(h, s, v);
-	color		___433_hsv ___360_h ___360_s ___360_v 	%line{122} %argrw{"wrrr"}
+	color		___434_hsv ___361_h ___361_s ___361_v 	%line{122} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:203
 #     hsv[0] = hsv2[0];
-	compref		$tmp213 ___432_hsv2 $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{203} %argrw{"wrr"}
-	compassign	___433_hsv $const14 $tmp213 	%argrw{"wrr"}
+	compref		$tmp213 ___433_hsv2 $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{203} %argrw{"wrr"}
+	compassign	___434_hsv $const14 $tmp213 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:204
 #     color tmp = hsv_to_rgb(hsv);
 	functioncall	$const40 413 	%line{204} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:130
 #   h = hsv[0];
-	compref		___369_h ___433_hsv $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{130} %argrw{"wrr"}
+	compref		___370_h ___434_hsv $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{130} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:131
 #   s = hsv[1];
-	compref		___369_s ___433_hsv $const17 	%line{131} %argrw{"wrr"}
+	compref		___370_s ___434_hsv $const17 	%line{131} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:132
 #   v = hsv[2];
-	compref		___369_v ___433_hsv $const18 	%line{132} %argrw{"wrr"}
+	compref		___370_v ___434_hsv $const18 	%line{132} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:134
 #   if (s == 0.0) {
-	eq		$tmp214 ___369_s $const1 	%line{134} %argrw{"wrr"}
+	eq		$tmp214 ___370_s $const1 	%line{134} %argrw{"wrr"}
 	if		$tmp214 380 412 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:135
 #     rgb = color(v, v, v);
-	color		___369_rgb ___369_v ___369_v ___369_v 	%line{135} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_v ___370_v 	%line{135} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:138
 #     if (h == 1.0) {
-	eq		$tmp215 ___369_h $const2 	%line{138} %argrw{"wrr"}
+	eq		$tmp215 ___370_h $const2 	%line{138} %argrw{"wrr"}
 	if		$tmp215 383 383 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:139
 #       h = 0.0;
-	assign		___369_h $const1 	%line{139} %argrw{"wr"}
+	assign		___370_h $const1 	%line{139} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:142
 #     h *= 6.0;
-	mul		___369_h ___369_h $const39 	%line{142} %argrw{"wrr"}
+	mul		___370_h ___370_h $const39 	%line{142} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:143
 #     i = floor(h);
-	floor		___369_i ___369_h 	%line{143} %argrw{"wr"}
+	floor		___370_i ___370_h 	%line{143} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:144
 #     f = h - i;
-	sub		___369_f ___369_h ___369_i 	%line{144} %argrw{"wrr"}
+	sub		___370_f ___370_h ___370_i 	%line{144} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:145
 #     rgb = color(f, f, f);
-	color		___369_rgb ___369_f ___369_f ___369_f 	%line{145} %argrw{"wrrr"}
+	color		___370_rgb ___370_f ___370_f ___370_f 	%line{145} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:146
 #     p = v * (1.0 - s);
-	sub		$tmp216 $const2 ___369_s 	%line{146} %argrw{"wrr"}
-	mul		___369_p ___369_v $tmp216 	%argrw{"wrr"}
+	sub		$tmp216 $const2 ___370_s 	%line{146} %argrw{"wrr"}
+	mul		___370_p ___370_v $tmp216 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:147
 #     q = v * (1.0 - (s * f));
-	mul		$tmp217 ___369_s ___369_f 	%line{147} %argrw{"wrr"}
+	mul		$tmp217 ___370_s ___370_f 	%line{147} %argrw{"wrr"}
 	sub		$tmp218 $const2 $tmp217 	%argrw{"wrr"}
-	mul		___369_q ___369_v $tmp218 	%argrw{"wrr"}
+	mul		___370_q ___370_v $tmp218 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:148
 #     t = v * (1.0 - (s * (1.0 - f)));
-	sub		$tmp219 $const2 ___369_f 	%line{148} %argrw{"wrr"}
-	mul		$tmp220 ___369_s $tmp219 	%argrw{"wrr"}
+	sub		$tmp219 $const2 ___370_f 	%line{148} %argrw{"wrr"}
+	mul		$tmp220 ___370_s $tmp219 	%argrw{"wrr"}
 	sub		$tmp221 $const2 $tmp220 	%argrw{"wrr"}
-	mul		___369_t ___369_v $tmp221 	%argrw{"wrr"}
+	mul		___370_t ___370_v $tmp221 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:150
 #     if (i == 0.0) {
-	eq		$tmp222 ___369_i $const1 	%line{150} %argrw{"wrr"}
+	eq		$tmp222 ___370_i $const1 	%line{150} %argrw{"wrr"}
 	if		$tmp222 399 412 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:151
 #       rgb = color(v, t, p);
-	color		___369_rgb ___369_v ___369_t ___369_p 	%line{151} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_t ___370_p 	%line{151} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:153
 #     else if (i == 1.0) {
-	eq		$tmp223 ___369_i $const2 	%line{153} %argrw{"wrr"}
+	eq		$tmp223 ___370_i $const2 	%line{153} %argrw{"wrr"}
 	if		$tmp223 402 412 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:154
 #       rgb = color(q, v, p);
-	color		___369_rgb ___369_q ___369_v ___369_p 	%line{154} %argrw{"wrrr"}
+	color		___370_rgb ___370_q ___370_v ___370_p 	%line{154} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:156
 #     else if (i == 2.0) {
-	eq		$tmp224 ___369_i $const16 	%line{156} %argrw{"wrr"}
+	eq		$tmp224 ___370_i $const16 	%line{156} %argrw{"wrr"}
 	if		$tmp224 405 412 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:157
 #       rgb = color(p, v, t);
-	color		___369_rgb ___369_p ___369_v ___369_t 	%line{157} %argrw{"wrrr"}
+	color		___370_rgb ___370_p ___370_v ___370_t 	%line{157} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:159
 #     else if (i == 3.0) {
-	eq		$tmp225 ___369_i $const41 	%line{159} %argrw{"wrr"}
+	eq		$tmp225 ___370_i $const41 	%line{159} %argrw{"wrr"}
 	if		$tmp225 408 412 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:160
 #       rgb = color(p, q, v);
-	color		___369_rgb ___369_p ___369_q ___369_v 	%line{160} %argrw{"wrrr"}
+	color		___370_rgb ___370_p ___370_q ___370_v 	%line{160} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:162
 #     else if (i == 4.0) {
-	eq		$tmp226 ___369_i $const38 	%line{162} %argrw{"wrr"}
+	eq		$tmp226 ___370_i $const38 	%line{162} %argrw{"wrr"}
 	if		$tmp226 411 412 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:163
 #       rgb = color(t, p, v);
-	color		___369_rgb ___369_t ___369_p ___369_v 	%line{163} %argrw{"wrrr"}
+	color		___370_rgb ___370_t ___370_p ___370_v 	%line{163} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:166
 #       rgb = color(v, p, q);
-	color		___369_rgb ___369_v ___369_p ___369_q 	%line{166} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_p ___370_q 	%line{166} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:170
 #   return rgb;
-	assign		___433_tmp ___369_rgb 	%line{170} %argrw{"wr"}
+	assign		___434_tmp ___370_rgb 	%line{170} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:206
 #     outcol = mix(outcol, tmp, t);
-	mix		___432_outcol ___432_outcol ___433_tmp t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{206} %argrw{"wrrr"}
+	mix		___433_outcol ___433_outcol ___434_tmp t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{206} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:209
 #   return outcol;
-	assign		Result ___432_outcol 	%line{209} %argrw{"wr"}
+	assign		Result ___433_outcol 	%line{209} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl:47
 #   if (blend_type == "saturation")
 	eq		$tmp227 blend_type $const42 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl"} %line{47} %argrw{"wrr"}
@@ -1391,101 +1391,101 @@ code ___main___
 	functioncall	$const43 562 	%line{48} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:214
 #   float tm = 1.0 - t;
-	sub		___434_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{214} %argrw{"wrr"}
+	sub		___435_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{214} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:216
 #   color outcol = col1;
-	assign		___434_outcol A 	%line{216} %argrw{"wr"}
+	assign		___435_outcol A 	%line{216} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:218
 #   color hsv = rgb_to_hsv(outcol);
 	functioncall	$const37 466 	%line{218} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:85
 #   cmax = max(rgb[0], max(rgb[1], rgb[2]));
-	compref		$tmp228 ___434_outcol $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{85} %argrw{"wrr"}
-	compref		$tmp230 ___434_outcol $const17 	%argrw{"wrr"}
-	compref		$tmp231 ___434_outcol $const18 	%argrw{"wrr"}
+	compref		$tmp228 ___435_outcol $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{85} %argrw{"wrr"}
+	compref		$tmp230 ___435_outcol $const17 	%argrw{"wrr"}
+	compref		$tmp231 ___435_outcol $const18 	%argrw{"wrr"}
 	max		$tmp229 $tmp230 $tmp231 	%argrw{"wrr"}
-	max		___360_cmax $tmp228 $tmp229 	%argrw{"wrr"}
+	max		___361_cmax $tmp228 $tmp229 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:86
 #   cmin = min(rgb[0], min(rgb[1], rgb[2]));
-	compref		$tmp232 ___434_outcol $const14 	%line{86} %argrw{"wrr"}
-	compref		$tmp234 ___434_outcol $const17 	%argrw{"wrr"}
-	compref		$tmp235 ___434_outcol $const18 	%argrw{"wrr"}
+	compref		$tmp232 ___435_outcol $const14 	%line{86} %argrw{"wrr"}
+	compref		$tmp234 ___435_outcol $const17 	%argrw{"wrr"}
+	compref		$tmp235 ___435_outcol $const18 	%argrw{"wrr"}
 	min		$tmp233 $tmp234 $tmp235 	%argrw{"wrr"}
-	min		___360_cmin $tmp232 $tmp233 	%argrw{"wrr"}
+	min		___361_cmin $tmp232 $tmp233 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:87
 #   cdelta = cmax - cmin;
-	sub		___360_cdelta ___360_cmax ___360_cmin 	%line{87} %argrw{"wrr"}
+	sub		___361_cdelta ___361_cmax ___361_cmin 	%line{87} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:89
 #   v = cmax;
-	assign		___360_v ___360_cmax 	%line{89} %argrw{"wr"}
+	assign		___361_v ___361_cmax 	%line{89} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:91
 #   if (cmax != 0.0) {
-	neq		$tmp236 ___360_cmax $const1 	%line{91} %argrw{"wrr"}
+	neq		$tmp236 ___361_cmax $const1 	%line{91} %argrw{"wrr"}
 	if		$tmp236 436 438 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:92
 #     s = cdelta / cmax;
-	div		___360_s ___360_cdelta ___360_cmax 	%line{92} %argrw{"wrr"}
+	div		___361_s ___361_cdelta ___361_cmax 	%line{92} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:95
 #     s = 0.0;
-	assign		___360_s $const1 	%line{95} %argrw{"wr"}
+	assign		___361_s $const1 	%line{95} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:96
 #     h = 0.0;
-	assign		___360_h $const1 	%line{96} %argrw{"wr"}
+	assign		___361_h $const1 	%line{96} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:99
 #   if (s == 0.0) {
-	eq		$tmp237 ___360_s $const1 	%line{99} %argrw{"wrr"}
+	eq		$tmp237 ___361_s $const1 	%line{99} %argrw{"wrr"}
 	if		$tmp237 441 465 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:100
 #     h = 0.0;
-	assign		___360_h $const1 	%line{100} %argrw{"wr"}
+	assign		___361_h $const1 	%line{100} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:103
 #     c = (color(cmax, cmax, cmax) - rgb) / cdelta;
-	color		$tmp238 ___360_cmax ___360_cmax ___360_cmax 	%line{103} %argrw{"wrrr"}
-	sub		$tmp239 $tmp238 ___434_outcol 	%argrw{"wrr"}
-	div		___360_c $tmp239 ___360_cdelta 	%argrw{"wrr"}
+	color		$tmp238 ___361_cmax ___361_cmax ___361_cmax 	%line{103} %argrw{"wrrr"}
+	sub		$tmp239 $tmp238 ___435_outcol 	%argrw{"wrr"}
+	div		___361_c $tmp239 ___361_cdelta 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:105
 #     if (rgb[0] == cmax) {
-	compref		$tmp240 ___434_outcol $const14 	%line{105} %argrw{"wrr"}
-	eq		$tmp241 $tmp240 ___360_cmax 	%argrw{"wrr"}
+	compref		$tmp240 ___435_outcol $const14 	%line{105} %argrw{"wrr"}
+	eq		$tmp241 $tmp240 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp241 450 461 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:106
 #       h = c[2] - c[1];
-	compref		$tmp242 ___360_c $const18 	%line{106} %argrw{"wrr"}
-	compref		$tmp243 ___360_c $const17 	%argrw{"wrr"}
-	sub		___360_h $tmp242 $tmp243 	%argrw{"wrr"}
+	compref		$tmp242 ___361_c $const18 	%line{106} %argrw{"wrr"}
+	compref		$tmp243 ___361_c $const17 	%argrw{"wrr"}
+	sub		___361_h $tmp242 $tmp243 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:108
 #     else if (rgb[1] == cmax) {
-	compref		$tmp244 ___434_outcol $const17 	%line{108} %argrw{"wrr"}
-	eq		$tmp245 $tmp244 ___360_cmax 	%argrw{"wrr"}
+	compref		$tmp244 ___435_outcol $const17 	%line{108} %argrw{"wrr"}
+	eq		$tmp245 $tmp244 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp245 457 461 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:109
 #       h = 2.0 + c[0] - c[2];
-	compref		$tmp246 ___360_c $const14 	%line{109} %argrw{"wrr"}
+	compref		$tmp246 ___361_c $const14 	%line{109} %argrw{"wrr"}
 	add		$tmp247 $const16 $tmp246 	%argrw{"wrr"}
-	compref		$tmp248 ___360_c $const18 	%argrw{"wrr"}
-	sub		___360_h $tmp247 $tmp248 	%argrw{"wrr"}
+	compref		$tmp248 ___361_c $const18 	%argrw{"wrr"}
+	sub		___361_h $tmp247 $tmp248 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:112
 #       h = 4.0 + c[1] - c[0];
-	compref		$tmp249 ___360_c $const17 	%line{112} %argrw{"wrr"}
+	compref		$tmp249 ___361_c $const17 	%line{112} %argrw{"wrr"}
 	add		$tmp250 $const38 $tmp249 	%argrw{"wrr"}
-	compref		$tmp251 ___360_c $const14 	%argrw{"wrr"}
-	sub		___360_h $tmp250 $tmp251 	%argrw{"wrr"}
+	compref		$tmp251 ___361_c $const14 	%argrw{"wrr"}
+	sub		___361_h $tmp250 $tmp251 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:115
 #     h /= 6.0;
-	div		___360_h ___360_h $const39 	%line{115} %argrw{"wrr"}
+	div		___361_h ___361_h $const39 	%line{115} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:117
 #     if (h < 0.0) {
-	lt		$tmp252 ___360_h $const1 	%line{117} %argrw{"wrr"}
+	lt		$tmp252 ___361_h $const1 	%line{117} %argrw{"wrr"}
 	if		$tmp252 465 465 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:118
 #       h += 1.0;
-	add		___360_h ___360_h $const2 	%line{118} %argrw{"wrr"}
+	add		___361_h ___361_h $const2 	%line{118} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:122
 #   return color(h, s, v);
-	color		___434_hsv ___360_h ___360_s ___360_v 	%line{122} %argrw{"wrrr"}
+	color		___435_hsv ___361_h ___361_s ___361_v 	%line{122} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:220
 #   if (hsv[1] != 0.0) {
-	compref		$tmp253 ___434_hsv $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{220} %argrw{"wrr"}
+	compref		$tmp253 ___435_hsv $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{220} %argrw{"wrr"}
 	neq		$tmp254 $tmp253 $const1 	%argrw{"wrr"}
 	if		$tmp254 561 561 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:221
@@ -1497,190 +1497,190 @@ code ___main___
 	compref		$tmp257 B $const17 	%argrw{"wrr"}
 	compref		$tmp258 B $const18 	%argrw{"wrr"}
 	max		$tmp256 $tmp257 $tmp258 	%argrw{"wrr"}
-	max		___360_cmax $tmp255 $tmp256 	%argrw{"wrr"}
+	max		___361_cmax $tmp255 $tmp256 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:86
 #   cmin = min(rgb[0], min(rgb[1], rgb[2]));
 	compref		$tmp259 B $const14 	%line{86} %argrw{"wrr"}
 	compref		$tmp261 B $const17 	%argrw{"wrr"}
 	compref		$tmp262 B $const18 	%argrw{"wrr"}
 	min		$tmp260 $tmp261 $tmp262 	%argrw{"wrr"}
-	min		___360_cmin $tmp259 $tmp260 	%argrw{"wrr"}
+	min		___361_cmin $tmp259 $tmp260 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:87
 #   cdelta = cmax - cmin;
-	sub		___360_cdelta ___360_cmax ___360_cmin 	%line{87} %argrw{"wrr"}
+	sub		___361_cdelta ___361_cmax ___361_cmin 	%line{87} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:89
 #   v = cmax;
-	assign		___360_v ___360_cmax 	%line{89} %argrw{"wr"}
+	assign		___361_v ___361_cmax 	%line{89} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:91
 #   if (cmax != 0.0) {
-	neq		$tmp263 ___360_cmax $const1 	%line{91} %argrw{"wrr"}
+	neq		$tmp263 ___361_cmax $const1 	%line{91} %argrw{"wrr"}
 	if		$tmp263 485 487 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:92
 #     s = cdelta / cmax;
-	div		___360_s ___360_cdelta ___360_cmax 	%line{92} %argrw{"wrr"}
+	div		___361_s ___361_cdelta ___361_cmax 	%line{92} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:95
 #     s = 0.0;
-	assign		___360_s $const1 	%line{95} %argrw{"wr"}
+	assign		___361_s $const1 	%line{95} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:96
 #     h = 0.0;
-	assign		___360_h $const1 	%line{96} %argrw{"wr"}
+	assign		___361_h $const1 	%line{96} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:99
 #   if (s == 0.0) {
-	eq		$tmp264 ___360_s $const1 	%line{99} %argrw{"wrr"}
+	eq		$tmp264 ___361_s $const1 	%line{99} %argrw{"wrr"}
 	if		$tmp264 490 514 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:100
 #     h = 0.0;
-	assign		___360_h $const1 	%line{100} %argrw{"wr"}
+	assign		___361_h $const1 	%line{100} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:103
 #     c = (color(cmax, cmax, cmax) - rgb) / cdelta;
-	color		$tmp265 ___360_cmax ___360_cmax ___360_cmax 	%line{103} %argrw{"wrrr"}
+	color		$tmp265 ___361_cmax ___361_cmax ___361_cmax 	%line{103} %argrw{"wrrr"}
 	sub		$tmp266 $tmp265 B 	%argrw{"wrr"}
-	div		___360_c $tmp266 ___360_cdelta 	%argrw{"wrr"}
+	div		___361_c $tmp266 ___361_cdelta 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:105
 #     if (rgb[0] == cmax) {
 	compref		$tmp267 B $const14 	%line{105} %argrw{"wrr"}
-	eq		$tmp268 $tmp267 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp268 $tmp267 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp268 499 510 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:106
 #       h = c[2] - c[1];
-	compref		$tmp269 ___360_c $const18 	%line{106} %argrw{"wrr"}
-	compref		$tmp270 ___360_c $const17 	%argrw{"wrr"}
-	sub		___360_h $tmp269 $tmp270 	%argrw{"wrr"}
+	compref		$tmp269 ___361_c $const18 	%line{106} %argrw{"wrr"}
+	compref		$tmp270 ___361_c $const17 	%argrw{"wrr"}
+	sub		___361_h $tmp269 $tmp270 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:108
 #     else if (rgb[1] == cmax) {
 	compref		$tmp271 B $const17 	%line{108} %argrw{"wrr"}
-	eq		$tmp272 $tmp271 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp272 $tmp271 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp272 506 510 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:109
 #       h = 2.0 + c[0] - c[2];
-	compref		$tmp273 ___360_c $const14 	%line{109} %argrw{"wrr"}
+	compref		$tmp273 ___361_c $const14 	%line{109} %argrw{"wrr"}
 	add		$tmp274 $const16 $tmp273 	%argrw{"wrr"}
-	compref		$tmp275 ___360_c $const18 	%argrw{"wrr"}
-	sub		___360_h $tmp274 $tmp275 	%argrw{"wrr"}
+	compref		$tmp275 ___361_c $const18 	%argrw{"wrr"}
+	sub		___361_h $tmp274 $tmp275 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:112
 #       h = 4.0 + c[1] - c[0];
-	compref		$tmp276 ___360_c $const17 	%line{112} %argrw{"wrr"}
+	compref		$tmp276 ___361_c $const17 	%line{112} %argrw{"wrr"}
 	add		$tmp277 $const38 $tmp276 	%argrw{"wrr"}
-	compref		$tmp278 ___360_c $const14 	%argrw{"wrr"}
-	sub		___360_h $tmp277 $tmp278 	%argrw{"wrr"}
+	compref		$tmp278 ___361_c $const14 	%argrw{"wrr"}
+	sub		___361_h $tmp277 $tmp278 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:115
 #     h /= 6.0;
-	div		___360_h ___360_h $const39 	%line{115} %argrw{"wrr"}
+	div		___361_h ___361_h $const39 	%line{115} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:117
 #     if (h < 0.0) {
-	lt		$tmp279 ___360_h $const1 	%line{117} %argrw{"wrr"}
+	lt		$tmp279 ___361_h $const1 	%line{117} %argrw{"wrr"}
 	if		$tmp279 514 514 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:118
 #       h += 1.0;
-	add		___360_h ___360_h $const2 	%line{118} %argrw{"wrr"}
+	add		___361_h ___361_h $const2 	%line{118} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:122
 #   return color(h, s, v);
-	color		___435_hsv2 ___360_h ___360_s ___360_v 	%line{122} %argrw{"wrrr"}
+	color		___436_hsv2 ___361_h ___361_s ___361_v 	%line{122} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:223
 #     hsv[1] = tm * hsv[1] + t * hsv2[1];
-	compref		$tmp280 ___434_hsv $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{223} %argrw{"wrr"}
-	mul		$tmp281 ___434_tm $tmp280 	%argrw{"wrr"}
-	compref		$tmp282 ___435_hsv2 $const17 	%argrw{"wrr"}
+	compref		$tmp280 ___435_hsv $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{223} %argrw{"wrr"}
+	mul		$tmp281 ___435_tm $tmp280 	%argrw{"wrr"}
+	compref		$tmp282 ___436_hsv2 $const17 	%argrw{"wrr"}
 	mul		$tmp283 t $tmp282 	%argrw{"wrr"}
 	add		$tmp284 $tmp281 $tmp283 	%argrw{"wrr"}
-	compassign	___434_hsv $const17 $tmp284 	%argrw{"wrr"}
+	compassign	___435_hsv $const17 $tmp284 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:224
 #     outcol = hsv_to_rgb(hsv);
 	functioncall	$const40 561 	%line{224} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:130
 #   h = hsv[0];
-	compref		___369_h ___434_hsv $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{130} %argrw{"wrr"}
+	compref		___370_h ___435_hsv $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{130} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:131
 #   s = hsv[1];
-	compref		___369_s ___434_hsv $const17 	%line{131} %argrw{"wrr"}
+	compref		___370_s ___435_hsv $const17 	%line{131} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:132
 #   v = hsv[2];
-	compref		___369_v ___434_hsv $const18 	%line{132} %argrw{"wrr"}
+	compref		___370_v ___435_hsv $const18 	%line{132} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:134
 #   if (s == 0.0) {
-	eq		$tmp285 ___369_s $const1 	%line{134} %argrw{"wrr"}
+	eq		$tmp285 ___370_s $const1 	%line{134} %argrw{"wrr"}
 	if		$tmp285 528 560 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:135
 #     rgb = color(v, v, v);
-	color		___369_rgb ___369_v ___369_v ___369_v 	%line{135} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_v ___370_v 	%line{135} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:138
 #     if (h == 1.0) {
-	eq		$tmp286 ___369_h $const2 	%line{138} %argrw{"wrr"}
+	eq		$tmp286 ___370_h $const2 	%line{138} %argrw{"wrr"}
 	if		$tmp286 531 531 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:139
 #       h = 0.0;
-	assign		___369_h $const1 	%line{139} %argrw{"wr"}
+	assign		___370_h $const1 	%line{139} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:142
 #     h *= 6.0;
-	mul		___369_h ___369_h $const39 	%line{142} %argrw{"wrr"}
+	mul		___370_h ___370_h $const39 	%line{142} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:143
 #     i = floor(h);
-	floor		___369_i ___369_h 	%line{143} %argrw{"wr"}
+	floor		___370_i ___370_h 	%line{143} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:144
 #     f = h - i;
-	sub		___369_f ___369_h ___369_i 	%line{144} %argrw{"wrr"}
+	sub		___370_f ___370_h ___370_i 	%line{144} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:145
 #     rgb = color(f, f, f);
-	color		___369_rgb ___369_f ___369_f ___369_f 	%line{145} %argrw{"wrrr"}
+	color		___370_rgb ___370_f ___370_f ___370_f 	%line{145} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:146
 #     p = v * (1.0 - s);
-	sub		$tmp287 $const2 ___369_s 	%line{146} %argrw{"wrr"}
-	mul		___369_p ___369_v $tmp287 	%argrw{"wrr"}
+	sub		$tmp287 $const2 ___370_s 	%line{146} %argrw{"wrr"}
+	mul		___370_p ___370_v $tmp287 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:147
 #     q = v * (1.0 - (s * f));
-	mul		$tmp288 ___369_s ___369_f 	%line{147} %argrw{"wrr"}
+	mul		$tmp288 ___370_s ___370_f 	%line{147} %argrw{"wrr"}
 	sub		$tmp289 $const2 $tmp288 	%argrw{"wrr"}
-	mul		___369_q ___369_v $tmp289 	%argrw{"wrr"}
+	mul		___370_q ___370_v $tmp289 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:148
 #     t = v * (1.0 - (s * (1.0 - f)));
-	sub		$tmp290 $const2 ___369_f 	%line{148} %argrw{"wrr"}
-	mul		$tmp291 ___369_s $tmp290 	%argrw{"wrr"}
+	sub		$tmp290 $const2 ___370_f 	%line{148} %argrw{"wrr"}
+	mul		$tmp291 ___370_s $tmp290 	%argrw{"wrr"}
 	sub		$tmp292 $const2 $tmp291 	%argrw{"wrr"}
-	mul		___369_t ___369_v $tmp292 	%argrw{"wrr"}
+	mul		___370_t ___370_v $tmp292 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:150
 #     if (i == 0.0) {
-	eq		$tmp293 ___369_i $const1 	%line{150} %argrw{"wrr"}
+	eq		$tmp293 ___370_i $const1 	%line{150} %argrw{"wrr"}
 	if		$tmp293 547 560 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:151
 #       rgb = color(v, t, p);
-	color		___369_rgb ___369_v ___369_t ___369_p 	%line{151} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_t ___370_p 	%line{151} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:153
 #     else if (i == 1.0) {
-	eq		$tmp294 ___369_i $const2 	%line{153} %argrw{"wrr"}
+	eq		$tmp294 ___370_i $const2 	%line{153} %argrw{"wrr"}
 	if		$tmp294 550 560 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:154
 #       rgb = color(q, v, p);
-	color		___369_rgb ___369_q ___369_v ___369_p 	%line{154} %argrw{"wrrr"}
+	color		___370_rgb ___370_q ___370_v ___370_p 	%line{154} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:156
 #     else if (i == 2.0) {
-	eq		$tmp295 ___369_i $const16 	%line{156} %argrw{"wrr"}
+	eq		$tmp295 ___370_i $const16 	%line{156} %argrw{"wrr"}
 	if		$tmp295 553 560 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:157
 #       rgb = color(p, v, t);
-	color		___369_rgb ___369_p ___369_v ___369_t 	%line{157} %argrw{"wrrr"}
+	color		___370_rgb ___370_p ___370_v ___370_t 	%line{157} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:159
 #     else if (i == 3.0) {
-	eq		$tmp296 ___369_i $const41 	%line{159} %argrw{"wrr"}
+	eq		$tmp296 ___370_i $const41 	%line{159} %argrw{"wrr"}
 	if		$tmp296 556 560 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:160
 #       rgb = color(p, q, v);
-	color		___369_rgb ___369_p ___369_q ___369_v 	%line{160} %argrw{"wrrr"}
+	color		___370_rgb ___370_p ___370_q ___370_v 	%line{160} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:162
 #     else if (i == 4.0) {
-	eq		$tmp297 ___369_i $const38 	%line{162} %argrw{"wrr"}
+	eq		$tmp297 ___370_i $const38 	%line{162} %argrw{"wrr"}
 	if		$tmp297 559 560 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:163
 #       rgb = color(t, p, v);
-	color		___369_rgb ___369_t ___369_p ___369_v 	%line{163} %argrw{"wrrr"}
+	color		___370_rgb ___370_t ___370_p ___370_v 	%line{163} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:166
 #       rgb = color(v, p, q);
-	color		___369_rgb ___369_v ___369_p ___369_q 	%line{166} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_p ___370_q 	%line{166} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:170
 #   return rgb;
-	assign		___434_outcol ___369_rgb 	%line{170} %argrw{"wr"}
+	assign		___435_outcol ___370_rgb 	%line{170} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:227
 #   return outcol;
-	assign		Result ___434_outcol 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{227} %argrw{"wr"}
+	assign		Result ___435_outcol 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{227} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl:49
 #   if (blend_type == "value")
 	eq		$tmp298 blend_type $const44 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl"} %line{49} %argrw{"wrr"}
@@ -1690,7 +1690,7 @@ code ___main___
 	functioncall	$const45 704 	%line{50} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:232
 #   float tm = 1.0 - t;
-	sub		___436_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{232} %argrw{"wrr"}
+	sub		___437_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{232} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:234
 #   color hsv = rgb_to_hsv(col1);
 	functioncall	$const37 612 	%line{234} %argrw{"r"}
@@ -1700,85 +1700,85 @@ code ___main___
 	compref		$tmp301 A $const17 	%argrw{"wrr"}
 	compref		$tmp302 A $const18 	%argrw{"wrr"}
 	max		$tmp300 $tmp301 $tmp302 	%argrw{"wrr"}
-	max		___360_cmax $tmp299 $tmp300 	%argrw{"wrr"}
+	max		___361_cmax $tmp299 $tmp300 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:86
 #   cmin = min(rgb[0], min(rgb[1], rgb[2]));
 	compref		$tmp303 A $const14 	%line{86} %argrw{"wrr"}
 	compref		$tmp305 A $const17 	%argrw{"wrr"}
 	compref		$tmp306 A $const18 	%argrw{"wrr"}
 	min		$tmp304 $tmp305 $tmp306 	%argrw{"wrr"}
-	min		___360_cmin $tmp303 $tmp304 	%argrw{"wrr"}
+	min		___361_cmin $tmp303 $tmp304 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:87
 #   cdelta = cmax - cmin;
-	sub		___360_cdelta ___360_cmax ___360_cmin 	%line{87} %argrw{"wrr"}
+	sub		___361_cdelta ___361_cmax ___361_cmin 	%line{87} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:89
 #   v = cmax;
-	assign		___360_v ___360_cmax 	%line{89} %argrw{"wr"}
+	assign		___361_v ___361_cmax 	%line{89} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:91
 #   if (cmax != 0.0) {
-	neq		$tmp307 ___360_cmax $const1 	%line{91} %argrw{"wrr"}
+	neq		$tmp307 ___361_cmax $const1 	%line{91} %argrw{"wrr"}
 	if		$tmp307 582 584 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:92
 #     s = cdelta / cmax;
-	div		___360_s ___360_cdelta ___360_cmax 	%line{92} %argrw{"wrr"}
+	div		___361_s ___361_cdelta ___361_cmax 	%line{92} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:95
 #     s = 0.0;
-	assign		___360_s $const1 	%line{95} %argrw{"wr"}
+	assign		___361_s $const1 	%line{95} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:96
 #     h = 0.0;
-	assign		___360_h $const1 	%line{96} %argrw{"wr"}
+	assign		___361_h $const1 	%line{96} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:99
 #   if (s == 0.0) {
-	eq		$tmp308 ___360_s $const1 	%line{99} %argrw{"wrr"}
+	eq		$tmp308 ___361_s $const1 	%line{99} %argrw{"wrr"}
 	if		$tmp308 587 611 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:100
 #     h = 0.0;
-	assign		___360_h $const1 	%line{100} %argrw{"wr"}
+	assign		___361_h $const1 	%line{100} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:103
 #     c = (color(cmax, cmax, cmax) - rgb) / cdelta;
-	color		$tmp309 ___360_cmax ___360_cmax ___360_cmax 	%line{103} %argrw{"wrrr"}
+	color		$tmp309 ___361_cmax ___361_cmax ___361_cmax 	%line{103} %argrw{"wrrr"}
 	sub		$tmp310 $tmp309 A 	%argrw{"wrr"}
-	div		___360_c $tmp310 ___360_cdelta 	%argrw{"wrr"}
+	div		___361_c $tmp310 ___361_cdelta 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:105
 #     if (rgb[0] == cmax) {
 	compref		$tmp311 A $const14 	%line{105} %argrw{"wrr"}
-	eq		$tmp312 $tmp311 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp312 $tmp311 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp312 596 607 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:106
 #       h = c[2] - c[1];
-	compref		$tmp313 ___360_c $const18 	%line{106} %argrw{"wrr"}
-	compref		$tmp314 ___360_c $const17 	%argrw{"wrr"}
-	sub		___360_h $tmp313 $tmp314 	%argrw{"wrr"}
+	compref		$tmp313 ___361_c $const18 	%line{106} %argrw{"wrr"}
+	compref		$tmp314 ___361_c $const17 	%argrw{"wrr"}
+	sub		___361_h $tmp313 $tmp314 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:108
 #     else if (rgb[1] == cmax) {
 	compref		$tmp315 A $const17 	%line{108} %argrw{"wrr"}
-	eq		$tmp316 $tmp315 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp316 $tmp315 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp316 603 607 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:109
 #       h = 2.0 + c[0] - c[2];
-	compref		$tmp317 ___360_c $const14 	%line{109} %argrw{"wrr"}
+	compref		$tmp317 ___361_c $const14 	%line{109} %argrw{"wrr"}
 	add		$tmp318 $const16 $tmp317 	%argrw{"wrr"}
-	compref		$tmp319 ___360_c $const18 	%argrw{"wrr"}
-	sub		___360_h $tmp318 $tmp319 	%argrw{"wrr"}
+	compref		$tmp319 ___361_c $const18 	%argrw{"wrr"}
+	sub		___361_h $tmp318 $tmp319 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:112
 #       h = 4.0 + c[1] - c[0];
-	compref		$tmp320 ___360_c $const17 	%line{112} %argrw{"wrr"}
+	compref		$tmp320 ___361_c $const17 	%line{112} %argrw{"wrr"}
 	add		$tmp321 $const38 $tmp320 	%argrw{"wrr"}
-	compref		$tmp322 ___360_c $const14 	%argrw{"wrr"}
-	sub		___360_h $tmp321 $tmp322 	%argrw{"wrr"}
+	compref		$tmp322 ___361_c $const14 	%argrw{"wrr"}
+	sub		___361_h $tmp321 $tmp322 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:115
 #     h /= 6.0;
-	div		___360_h ___360_h $const39 	%line{115} %argrw{"wrr"}
+	div		___361_h ___361_h $const39 	%line{115} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:117
 #     if (h < 0.0) {
-	lt		$tmp323 ___360_h $const1 	%line{117} %argrw{"wrr"}
+	lt		$tmp323 ___361_h $const1 	%line{117} %argrw{"wrr"}
 	if		$tmp323 611 611 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:118
 #       h += 1.0;
-	add		___360_h ___360_h $const2 	%line{118} %argrw{"wrr"}
+	add		___361_h ___361_h $const2 	%line{118} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:122
 #   return color(h, s, v);
-	color		___436_hsv ___360_h ___360_s ___360_v 	%line{122} %argrw{"wrrr"}
+	color		___437_hsv ___361_h ___361_s ___361_v 	%line{122} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:235
 #   color hsv2 = rgb_to_hsv(col2);
 	functioncall	$const37 658 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{235} %argrw{"r"}
@@ -1788,187 +1788,187 @@ code ___main___
 	compref		$tmp326 B $const17 	%argrw{"wrr"}
 	compref		$tmp327 B $const18 	%argrw{"wrr"}
 	max		$tmp325 $tmp326 $tmp327 	%argrw{"wrr"}
-	max		___360_cmax $tmp324 $tmp325 	%argrw{"wrr"}
+	max		___361_cmax $tmp324 $tmp325 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:86
 #   cmin = min(rgb[0], min(rgb[1], rgb[2]));
 	compref		$tmp328 B $const14 	%line{86} %argrw{"wrr"}
 	compref		$tmp330 B $const17 	%argrw{"wrr"}
 	compref		$tmp331 B $const18 	%argrw{"wrr"}
 	min		$tmp329 $tmp330 $tmp331 	%argrw{"wrr"}
-	min		___360_cmin $tmp328 $tmp329 	%argrw{"wrr"}
+	min		___361_cmin $tmp328 $tmp329 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:87
 #   cdelta = cmax - cmin;
-	sub		___360_cdelta ___360_cmax ___360_cmin 	%line{87} %argrw{"wrr"}
+	sub		___361_cdelta ___361_cmax ___361_cmin 	%line{87} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:89
 #   v = cmax;
-	assign		___360_v ___360_cmax 	%line{89} %argrw{"wr"}
+	assign		___361_v ___361_cmax 	%line{89} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:91
 #   if (cmax != 0.0) {
-	neq		$tmp332 ___360_cmax $const1 	%line{91} %argrw{"wrr"}
+	neq		$tmp332 ___361_cmax $const1 	%line{91} %argrw{"wrr"}
 	if		$tmp332 628 630 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:92
 #     s = cdelta / cmax;
-	div		___360_s ___360_cdelta ___360_cmax 	%line{92} %argrw{"wrr"}
+	div		___361_s ___361_cdelta ___361_cmax 	%line{92} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:95
 #     s = 0.0;
-	assign		___360_s $const1 	%line{95} %argrw{"wr"}
+	assign		___361_s $const1 	%line{95} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:96
 #     h = 0.0;
-	assign		___360_h $const1 	%line{96} %argrw{"wr"}
+	assign		___361_h $const1 	%line{96} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:99
 #   if (s == 0.0) {
-	eq		$tmp333 ___360_s $const1 	%line{99} %argrw{"wrr"}
+	eq		$tmp333 ___361_s $const1 	%line{99} %argrw{"wrr"}
 	if		$tmp333 633 657 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:100
 #     h = 0.0;
-	assign		___360_h $const1 	%line{100} %argrw{"wr"}
+	assign		___361_h $const1 	%line{100} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:103
 #     c = (color(cmax, cmax, cmax) - rgb) / cdelta;
-	color		$tmp334 ___360_cmax ___360_cmax ___360_cmax 	%line{103} %argrw{"wrrr"}
+	color		$tmp334 ___361_cmax ___361_cmax ___361_cmax 	%line{103} %argrw{"wrrr"}
 	sub		$tmp335 $tmp334 B 	%argrw{"wrr"}
-	div		___360_c $tmp335 ___360_cdelta 	%argrw{"wrr"}
+	div		___361_c $tmp335 ___361_cdelta 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:105
 #     if (rgb[0] == cmax) {
 	compref		$tmp336 B $const14 	%line{105} %argrw{"wrr"}
-	eq		$tmp337 $tmp336 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp337 $tmp336 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp337 642 653 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:106
 #       h = c[2] - c[1];
-	compref		$tmp338 ___360_c $const18 	%line{106} %argrw{"wrr"}
-	compref		$tmp339 ___360_c $const17 	%argrw{"wrr"}
-	sub		___360_h $tmp338 $tmp339 	%argrw{"wrr"}
+	compref		$tmp338 ___361_c $const18 	%line{106} %argrw{"wrr"}
+	compref		$tmp339 ___361_c $const17 	%argrw{"wrr"}
+	sub		___361_h $tmp338 $tmp339 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:108
 #     else if (rgb[1] == cmax) {
 	compref		$tmp340 B $const17 	%line{108} %argrw{"wrr"}
-	eq		$tmp341 $tmp340 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp341 $tmp340 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp341 649 653 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:109
 #       h = 2.0 + c[0] - c[2];
-	compref		$tmp342 ___360_c $const14 	%line{109} %argrw{"wrr"}
+	compref		$tmp342 ___361_c $const14 	%line{109} %argrw{"wrr"}
 	add		$tmp343 $const16 $tmp342 	%argrw{"wrr"}
-	compref		$tmp344 ___360_c $const18 	%argrw{"wrr"}
-	sub		___360_h $tmp343 $tmp344 	%argrw{"wrr"}
+	compref		$tmp344 ___361_c $const18 	%argrw{"wrr"}
+	sub		___361_h $tmp343 $tmp344 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:112
 #       h = 4.0 + c[1] - c[0];
-	compref		$tmp345 ___360_c $const17 	%line{112} %argrw{"wrr"}
+	compref		$tmp345 ___361_c $const17 	%line{112} %argrw{"wrr"}
 	add		$tmp346 $const38 $tmp345 	%argrw{"wrr"}
-	compref		$tmp347 ___360_c $const14 	%argrw{"wrr"}
-	sub		___360_h $tmp346 $tmp347 	%argrw{"wrr"}
+	compref		$tmp347 ___361_c $const14 	%argrw{"wrr"}
+	sub		___361_h $tmp346 $tmp347 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:115
 #     h /= 6.0;
-	div		___360_h ___360_h $const39 	%line{115} %argrw{"wrr"}
+	div		___361_h ___361_h $const39 	%line{115} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:117
 #     if (h < 0.0) {
-	lt		$tmp348 ___360_h $const1 	%line{117} %argrw{"wrr"}
+	lt		$tmp348 ___361_h $const1 	%line{117} %argrw{"wrr"}
 	if		$tmp348 657 657 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:118
 #       h += 1.0;
-	add		___360_h ___360_h $const2 	%line{118} %argrw{"wrr"}
+	add		___361_h ___361_h $const2 	%line{118} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:122
 #   return color(h, s, v);
-	color		___436_hsv2 ___360_h ___360_s ___360_v 	%line{122} %argrw{"wrrr"}
+	color		___437_hsv2 ___361_h ___361_s ___361_v 	%line{122} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:237
 #   hsv[2] = tm * hsv[2] + t * hsv2[2];
-	compref		$tmp349 ___436_hsv $const18 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{237} %argrw{"wrr"}
-	mul		$tmp350 ___436_tm $tmp349 	%argrw{"wrr"}
-	compref		$tmp351 ___436_hsv2 $const18 	%argrw{"wrr"}
+	compref		$tmp349 ___437_hsv $const18 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{237} %argrw{"wrr"}
+	mul		$tmp350 ___437_tm $tmp349 	%argrw{"wrr"}
+	compref		$tmp351 ___437_hsv2 $const18 	%argrw{"wrr"}
 	mul		$tmp352 t $tmp351 	%argrw{"wrr"}
 	add		$tmp353 $tmp350 $tmp352 	%argrw{"wrr"}
-	compassign	___436_hsv $const18 $tmp353 	%argrw{"wrr"}
+	compassign	___437_hsv $const18 $tmp353 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:239
 #   return hsv_to_rgb(hsv);
 	functioncall	$const40 704 	%line{239} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:130
 #   h = hsv[0];
-	compref		___369_h ___436_hsv $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{130} %argrw{"wrr"}
+	compref		___370_h ___437_hsv $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{130} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:131
 #   s = hsv[1];
-	compref		___369_s ___436_hsv $const17 	%line{131} %argrw{"wrr"}
+	compref		___370_s ___437_hsv $const17 	%line{131} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:132
 #   v = hsv[2];
-	compref		___369_v ___436_hsv $const18 	%line{132} %argrw{"wrr"}
+	compref		___370_v ___437_hsv $const18 	%line{132} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:134
 #   if (s == 0.0) {
-	eq		$tmp354 ___369_s $const1 	%line{134} %argrw{"wrr"}
+	eq		$tmp354 ___370_s $const1 	%line{134} %argrw{"wrr"}
 	if		$tmp354 671 703 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:135
 #     rgb = color(v, v, v);
-	color		___369_rgb ___369_v ___369_v ___369_v 	%line{135} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_v ___370_v 	%line{135} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:138
 #     if (h == 1.0) {
-	eq		$tmp355 ___369_h $const2 	%line{138} %argrw{"wrr"}
+	eq		$tmp355 ___370_h $const2 	%line{138} %argrw{"wrr"}
 	if		$tmp355 674 674 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:139
 #       h = 0.0;
-	assign		___369_h $const1 	%line{139} %argrw{"wr"}
+	assign		___370_h $const1 	%line{139} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:142
 #     h *= 6.0;
-	mul		___369_h ___369_h $const39 	%line{142} %argrw{"wrr"}
+	mul		___370_h ___370_h $const39 	%line{142} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:143
 #     i = floor(h);
-	floor		___369_i ___369_h 	%line{143} %argrw{"wr"}
+	floor		___370_i ___370_h 	%line{143} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:144
 #     f = h - i;
-	sub		___369_f ___369_h ___369_i 	%line{144} %argrw{"wrr"}
+	sub		___370_f ___370_h ___370_i 	%line{144} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:145
 #     rgb = color(f, f, f);
-	color		___369_rgb ___369_f ___369_f ___369_f 	%line{145} %argrw{"wrrr"}
+	color		___370_rgb ___370_f ___370_f ___370_f 	%line{145} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:146
 #     p = v * (1.0 - s);
-	sub		$tmp356 $const2 ___369_s 	%line{146} %argrw{"wrr"}
-	mul		___369_p ___369_v $tmp356 	%argrw{"wrr"}
+	sub		$tmp356 $const2 ___370_s 	%line{146} %argrw{"wrr"}
+	mul		___370_p ___370_v $tmp356 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:147
 #     q = v * (1.0 - (s * f));
-	mul		$tmp357 ___369_s ___369_f 	%line{147} %argrw{"wrr"}
+	mul		$tmp357 ___370_s ___370_f 	%line{147} %argrw{"wrr"}
 	sub		$tmp358 $const2 $tmp357 	%argrw{"wrr"}
-	mul		___369_q ___369_v $tmp358 	%argrw{"wrr"}
+	mul		___370_q ___370_v $tmp358 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:148
 #     t = v * (1.0 - (s * (1.0 - f)));
-	sub		$tmp359 $const2 ___369_f 	%line{148} %argrw{"wrr"}
-	mul		$tmp360 ___369_s $tmp359 	%argrw{"wrr"}
+	sub		$tmp359 $const2 ___370_f 	%line{148} %argrw{"wrr"}
+	mul		$tmp360 ___370_s $tmp359 	%argrw{"wrr"}
 	sub		$tmp361 $const2 $tmp360 	%argrw{"wrr"}
-	mul		___369_t ___369_v $tmp361 	%argrw{"wrr"}
+	mul		___370_t ___370_v $tmp361 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:150
 #     if (i == 0.0) {
-	eq		$tmp362 ___369_i $const1 	%line{150} %argrw{"wrr"}
+	eq		$tmp362 ___370_i $const1 	%line{150} %argrw{"wrr"}
 	if		$tmp362 690 703 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:151
 #       rgb = color(v, t, p);
-	color		___369_rgb ___369_v ___369_t ___369_p 	%line{151} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_t ___370_p 	%line{151} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:153
 #     else if (i == 1.0) {
-	eq		$tmp363 ___369_i $const2 	%line{153} %argrw{"wrr"}
+	eq		$tmp363 ___370_i $const2 	%line{153} %argrw{"wrr"}
 	if		$tmp363 693 703 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:154
 #       rgb = color(q, v, p);
-	color		___369_rgb ___369_q ___369_v ___369_p 	%line{154} %argrw{"wrrr"}
+	color		___370_rgb ___370_q ___370_v ___370_p 	%line{154} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:156
 #     else if (i == 2.0) {
-	eq		$tmp364 ___369_i $const16 	%line{156} %argrw{"wrr"}
+	eq		$tmp364 ___370_i $const16 	%line{156} %argrw{"wrr"}
 	if		$tmp364 696 703 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:157
 #       rgb = color(p, v, t);
-	color		___369_rgb ___369_p ___369_v ___369_t 	%line{157} %argrw{"wrrr"}
+	color		___370_rgb ___370_p ___370_v ___370_t 	%line{157} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:159
 #     else if (i == 3.0) {
-	eq		$tmp365 ___369_i $const41 	%line{159} %argrw{"wrr"}
+	eq		$tmp365 ___370_i $const41 	%line{159} %argrw{"wrr"}
 	if		$tmp365 699 703 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:160
 #       rgb = color(p, q, v);
-	color		___369_rgb ___369_p ___369_q ___369_v 	%line{160} %argrw{"wrrr"}
+	color		___370_rgb ___370_p ___370_q ___370_v 	%line{160} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:162
 #     else if (i == 4.0) {
-	eq		$tmp366 ___369_i $const38 	%line{162} %argrw{"wrr"}
+	eq		$tmp366 ___370_i $const38 	%line{162} %argrw{"wrr"}
 	if		$tmp366 702 703 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:163
 #       rgb = color(t, p, v);
-	color		___369_rgb ___369_t ___369_p ___369_v 	%line{163} %argrw{"wrrr"}
+	color		___370_rgb ___370_t ___370_p ___370_v 	%line{163} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:166
 #       rgb = color(v, p, q);
-	color		___369_rgb ___369_v ___369_p ___369_q 	%line{166} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_p ___370_q 	%line{166} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:170
 #   return rgb;
-	assign		Result ___369_rgb 	%line{170} %argrw{"wr"}
+	assign		Result ___370_rgb 	%line{170} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl:51
 #   if (blend_type == "color")
 	eq		$tmp367 blend_type $const46 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl"} %line{51} %argrw{"wrr"}
@@ -1978,7 +1978,7 @@ code ___main___
 	functioncall	$const47 849 	%line{52} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:244
 #   color outcol = col1;
-	assign		___437_outcol A 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{244} %argrw{"wr"}
+	assign		___438_outcol A 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{244} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:245
 #   color hsv2 = rgb_to_hsv(col2);
 	functioncall	$const37 754 	%line{245} %argrw{"r"}
@@ -1988,88 +1988,88 @@ code ___main___
 	compref		$tmp370 B $const17 	%argrw{"wrr"}
 	compref		$tmp371 B $const18 	%argrw{"wrr"}
 	max		$tmp369 $tmp370 $tmp371 	%argrw{"wrr"}
-	max		___360_cmax $tmp368 $tmp369 	%argrw{"wrr"}
+	max		___361_cmax $tmp368 $tmp369 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:86
 #   cmin = min(rgb[0], min(rgb[1], rgb[2]));
 	compref		$tmp372 B $const14 	%line{86} %argrw{"wrr"}
 	compref		$tmp374 B $const17 	%argrw{"wrr"}
 	compref		$tmp375 B $const18 	%argrw{"wrr"}
 	min		$tmp373 $tmp374 $tmp375 	%argrw{"wrr"}
-	min		___360_cmin $tmp372 $tmp373 	%argrw{"wrr"}
+	min		___361_cmin $tmp372 $tmp373 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:87
 #   cdelta = cmax - cmin;
-	sub		___360_cdelta ___360_cmax ___360_cmin 	%line{87} %argrw{"wrr"}
+	sub		___361_cdelta ___361_cmax ___361_cmin 	%line{87} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:89
 #   v = cmax;
-	assign		___360_v ___360_cmax 	%line{89} %argrw{"wr"}
+	assign		___361_v ___361_cmax 	%line{89} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:91
 #   if (cmax != 0.0) {
-	neq		$tmp376 ___360_cmax $const1 	%line{91} %argrw{"wrr"}
+	neq		$tmp376 ___361_cmax $const1 	%line{91} %argrw{"wrr"}
 	if		$tmp376 724 726 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:92
 #     s = cdelta / cmax;
-	div		___360_s ___360_cdelta ___360_cmax 	%line{92} %argrw{"wrr"}
+	div		___361_s ___361_cdelta ___361_cmax 	%line{92} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:95
 #     s = 0.0;
-	assign		___360_s $const1 	%line{95} %argrw{"wr"}
+	assign		___361_s $const1 	%line{95} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:96
 #     h = 0.0;
-	assign		___360_h $const1 	%line{96} %argrw{"wr"}
+	assign		___361_h $const1 	%line{96} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:99
 #   if (s == 0.0) {
-	eq		$tmp377 ___360_s $const1 	%line{99} %argrw{"wrr"}
+	eq		$tmp377 ___361_s $const1 	%line{99} %argrw{"wrr"}
 	if		$tmp377 729 753 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:100
 #     h = 0.0;
-	assign		___360_h $const1 	%line{100} %argrw{"wr"}
+	assign		___361_h $const1 	%line{100} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:103
 #     c = (color(cmax, cmax, cmax) - rgb) / cdelta;
-	color		$tmp378 ___360_cmax ___360_cmax ___360_cmax 	%line{103} %argrw{"wrrr"}
+	color		$tmp378 ___361_cmax ___361_cmax ___361_cmax 	%line{103} %argrw{"wrrr"}
 	sub		$tmp379 $tmp378 B 	%argrw{"wrr"}
-	div		___360_c $tmp379 ___360_cdelta 	%argrw{"wrr"}
+	div		___361_c $tmp379 ___361_cdelta 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:105
 #     if (rgb[0] == cmax) {
 	compref		$tmp380 B $const14 	%line{105} %argrw{"wrr"}
-	eq		$tmp381 $tmp380 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp381 $tmp380 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp381 738 749 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:106
 #       h = c[2] - c[1];
-	compref		$tmp382 ___360_c $const18 	%line{106} %argrw{"wrr"}
-	compref		$tmp383 ___360_c $const17 	%argrw{"wrr"}
-	sub		___360_h $tmp382 $tmp383 	%argrw{"wrr"}
+	compref		$tmp382 ___361_c $const18 	%line{106} %argrw{"wrr"}
+	compref		$tmp383 ___361_c $const17 	%argrw{"wrr"}
+	sub		___361_h $tmp382 $tmp383 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:108
 #     else if (rgb[1] == cmax) {
 	compref		$tmp384 B $const17 	%line{108} %argrw{"wrr"}
-	eq		$tmp385 $tmp384 ___360_cmax 	%argrw{"wrr"}
+	eq		$tmp385 $tmp384 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp385 745 749 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:109
 #       h = 2.0 + c[0] - c[2];
-	compref		$tmp386 ___360_c $const14 	%line{109} %argrw{"wrr"}
+	compref		$tmp386 ___361_c $const14 	%line{109} %argrw{"wrr"}
 	add		$tmp387 $const16 $tmp386 	%argrw{"wrr"}
-	compref		$tmp388 ___360_c $const18 	%argrw{"wrr"}
-	sub		___360_h $tmp387 $tmp388 	%argrw{"wrr"}
+	compref		$tmp388 ___361_c $const18 	%argrw{"wrr"}
+	sub		___361_h $tmp387 $tmp388 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:112
 #       h = 4.0 + c[1] - c[0];
-	compref		$tmp389 ___360_c $const17 	%line{112} %argrw{"wrr"}
+	compref		$tmp389 ___361_c $const17 	%line{112} %argrw{"wrr"}
 	add		$tmp390 $const38 $tmp389 	%argrw{"wrr"}
-	compref		$tmp391 ___360_c $const14 	%argrw{"wrr"}
-	sub		___360_h $tmp390 $tmp391 	%argrw{"wrr"}
+	compref		$tmp391 ___361_c $const14 	%argrw{"wrr"}
+	sub		___361_h $tmp390 $tmp391 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:115
 #     h /= 6.0;
-	div		___360_h ___360_h $const39 	%line{115} %argrw{"wrr"}
+	div		___361_h ___361_h $const39 	%line{115} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:117
 #     if (h < 0.0) {
-	lt		$tmp392 ___360_h $const1 	%line{117} %argrw{"wrr"}
+	lt		$tmp392 ___361_h $const1 	%line{117} %argrw{"wrr"}
 	if		$tmp392 753 753 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:118
 #       h += 1.0;
-	add		___360_h ___360_h $const2 	%line{118} %argrw{"wrr"}
+	add		___361_h ___361_h $const2 	%line{118} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:122
 #   return color(h, s, v);
-	color		___437_hsv2 ___360_h ___360_s ___360_v 	%line{122} %argrw{"wrrr"}
+	color		___438_hsv2 ___361_h ___361_s ___361_v 	%line{122} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:247
 #   if (hsv2[1] != 0.0) {
-	compref		$tmp393 ___437_hsv2 $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{247} %argrw{"wrr"}
+	compref		$tmp393 ___438_hsv2 $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{247} %argrw{"wrr"}
 	neq		$tmp394 $tmp393 $const1 	%argrw{"wrr"}
 	if		$tmp394 848 848 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:248
@@ -2077,197 +2077,197 @@ code ___main___
 	functioncall	$const37 803 	%line{248} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:85
 #   cmax = max(rgb[0], max(rgb[1], rgb[2]));
-	compref		$tmp395 ___437_outcol $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{85} %argrw{"wrr"}
-	compref		$tmp397 ___437_outcol $const17 	%argrw{"wrr"}
-	compref		$tmp398 ___437_outcol $const18 	%argrw{"wrr"}
+	compref		$tmp395 ___438_outcol $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{85} %argrw{"wrr"}
+	compref		$tmp397 ___438_outcol $const17 	%argrw{"wrr"}
+	compref		$tmp398 ___438_outcol $const18 	%argrw{"wrr"}
 	max		$tmp396 $tmp397 $tmp398 	%argrw{"wrr"}
-	max		___360_cmax $tmp395 $tmp396 	%argrw{"wrr"}
+	max		___361_cmax $tmp395 $tmp396 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:86
 #   cmin = min(rgb[0], min(rgb[1], rgb[2]));
-	compref		$tmp399 ___437_outcol $const14 	%line{86} %argrw{"wrr"}
-	compref		$tmp401 ___437_outcol $const17 	%argrw{"wrr"}
-	compref		$tmp402 ___437_outcol $const18 	%argrw{"wrr"}
+	compref		$tmp399 ___438_outcol $const14 	%line{86} %argrw{"wrr"}
+	compref		$tmp401 ___438_outcol $const17 	%argrw{"wrr"}
+	compref		$tmp402 ___438_outcol $const18 	%argrw{"wrr"}
 	min		$tmp400 $tmp401 $tmp402 	%argrw{"wrr"}
-	min		___360_cmin $tmp399 $tmp400 	%argrw{"wrr"}
+	min		___361_cmin $tmp399 $tmp400 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:87
 #   cdelta = cmax - cmin;
-	sub		___360_cdelta ___360_cmax ___360_cmin 	%line{87} %argrw{"wrr"}
+	sub		___361_cdelta ___361_cmax ___361_cmin 	%line{87} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:89
 #   v = cmax;
-	assign		___360_v ___360_cmax 	%line{89} %argrw{"wr"}
+	assign		___361_v ___361_cmax 	%line{89} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:91
 #   if (cmax != 0.0) {
-	neq		$tmp403 ___360_cmax $const1 	%line{91} %argrw{"wrr"}
+	neq		$tmp403 ___361_cmax $const1 	%line{91} %argrw{"wrr"}
 	if		$tmp403 773 775 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:92
 #     s = cdelta / cmax;
-	div		___360_s ___360_cdelta ___360_cmax 	%line{92} %argrw{"wrr"}
+	div		___361_s ___361_cdelta ___361_cmax 	%line{92} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:95
 #     s = 0.0;
-	assign		___360_s $const1 	%line{95} %argrw{"wr"}
+	assign		___361_s $const1 	%line{95} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:96
 #     h = 0.0;
-	assign		___360_h $const1 	%line{96} %argrw{"wr"}
+	assign		___361_h $const1 	%line{96} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:99
 #   if (s == 0.0) {
-	eq		$tmp404 ___360_s $const1 	%line{99} %argrw{"wrr"}
+	eq		$tmp404 ___361_s $const1 	%line{99} %argrw{"wrr"}
 	if		$tmp404 778 802 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:100
 #     h = 0.0;
-	assign		___360_h $const1 	%line{100} %argrw{"wr"}
+	assign		___361_h $const1 	%line{100} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:103
 #     c = (color(cmax, cmax, cmax) - rgb) / cdelta;
-	color		$tmp405 ___360_cmax ___360_cmax ___360_cmax 	%line{103} %argrw{"wrrr"}
-	sub		$tmp406 $tmp405 ___437_outcol 	%argrw{"wrr"}
-	div		___360_c $tmp406 ___360_cdelta 	%argrw{"wrr"}
+	color		$tmp405 ___361_cmax ___361_cmax ___361_cmax 	%line{103} %argrw{"wrrr"}
+	sub		$tmp406 $tmp405 ___438_outcol 	%argrw{"wrr"}
+	div		___361_c $tmp406 ___361_cdelta 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:105
 #     if (rgb[0] == cmax) {
-	compref		$tmp407 ___437_outcol $const14 	%line{105} %argrw{"wrr"}
-	eq		$tmp408 $tmp407 ___360_cmax 	%argrw{"wrr"}
+	compref		$tmp407 ___438_outcol $const14 	%line{105} %argrw{"wrr"}
+	eq		$tmp408 $tmp407 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp408 787 798 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:106
 #       h = c[2] - c[1];
-	compref		$tmp409 ___360_c $const18 	%line{106} %argrw{"wrr"}
-	compref		$tmp410 ___360_c $const17 	%argrw{"wrr"}
-	sub		___360_h $tmp409 $tmp410 	%argrw{"wrr"}
+	compref		$tmp409 ___361_c $const18 	%line{106} %argrw{"wrr"}
+	compref		$tmp410 ___361_c $const17 	%argrw{"wrr"}
+	sub		___361_h $tmp409 $tmp410 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:108
 #     else if (rgb[1] == cmax) {
-	compref		$tmp411 ___437_outcol $const17 	%line{108} %argrw{"wrr"}
-	eq		$tmp412 $tmp411 ___360_cmax 	%argrw{"wrr"}
+	compref		$tmp411 ___438_outcol $const17 	%line{108} %argrw{"wrr"}
+	eq		$tmp412 $tmp411 ___361_cmax 	%argrw{"wrr"}
 	if		$tmp412 794 798 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:109
 #       h = 2.0 + c[0] - c[2];
-	compref		$tmp413 ___360_c $const14 	%line{109} %argrw{"wrr"}
+	compref		$tmp413 ___361_c $const14 	%line{109} %argrw{"wrr"}
 	add		$tmp414 $const16 $tmp413 	%argrw{"wrr"}
-	compref		$tmp415 ___360_c $const18 	%argrw{"wrr"}
-	sub		___360_h $tmp414 $tmp415 	%argrw{"wrr"}
+	compref		$tmp415 ___361_c $const18 	%argrw{"wrr"}
+	sub		___361_h $tmp414 $tmp415 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:112
 #       h = 4.0 + c[1] - c[0];
-	compref		$tmp416 ___360_c $const17 	%line{112} %argrw{"wrr"}
+	compref		$tmp416 ___361_c $const17 	%line{112} %argrw{"wrr"}
 	add		$tmp417 $const38 $tmp416 	%argrw{"wrr"}
-	compref		$tmp418 ___360_c $const14 	%argrw{"wrr"}
-	sub		___360_h $tmp417 $tmp418 	%argrw{"wrr"}
+	compref		$tmp418 ___361_c $const14 	%argrw{"wrr"}
+	sub		___361_h $tmp417 $tmp418 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:115
 #     h /= 6.0;
-	div		___360_h ___360_h $const39 	%line{115} %argrw{"wrr"}
+	div		___361_h ___361_h $const39 	%line{115} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:117
 #     if (h < 0.0) {
-	lt		$tmp419 ___360_h $const1 	%line{117} %argrw{"wrr"}
+	lt		$tmp419 ___361_h $const1 	%line{117} %argrw{"wrr"}
 	if		$tmp419 802 802 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:118
 #       h += 1.0;
-	add		___360_h ___360_h $const2 	%line{118} %argrw{"wrr"}
+	add		___361_h ___361_h $const2 	%line{118} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:122
 #   return color(h, s, v);
-	color		___438_hsv ___360_h ___360_s ___360_v 	%line{122} %argrw{"wrrr"}
+	color		___439_hsv ___361_h ___361_s ___361_v 	%line{122} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:249
 #     hsv[0] = hsv2[0];
-	compref		$tmp420 ___437_hsv2 $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{249} %argrw{"wrr"}
-	compassign	___438_hsv $const14 $tmp420 	%argrw{"wrr"}
+	compref		$tmp420 ___438_hsv2 $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{249} %argrw{"wrr"}
+	compassign	___439_hsv $const14 $tmp420 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:250
 #     hsv[1] = hsv2[1];
-	compref		$tmp421 ___437_hsv2 $const17 	%line{250} %argrw{"wrr"}
-	compassign	___438_hsv $const17 $tmp421 	%argrw{"wrr"}
+	compref		$tmp421 ___438_hsv2 $const17 	%line{250} %argrw{"wrr"}
+	compassign	___439_hsv $const17 $tmp421 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:251
 #     color tmp = hsv_to_rgb(hsv);
 	functioncall	$const40 847 	%line{251} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:130
 #   h = hsv[0];
-	compref		___369_h ___438_hsv $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{130} %argrw{"wrr"}
+	compref		___370_h ___439_hsv $const14 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h"} %line{130} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:131
 #   s = hsv[1];
-	compref		___369_s ___438_hsv $const17 	%line{131} %argrw{"wrr"}
+	compref		___370_s ___439_hsv $const17 	%line{131} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:132
 #   v = hsv[2];
-	compref		___369_v ___438_hsv $const18 	%line{132} %argrw{"wrr"}
+	compref		___370_v ___439_hsv $const18 	%line{132} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:134
 #   if (s == 0.0) {
-	eq		$tmp422 ___369_s $const1 	%line{134} %argrw{"wrr"}
+	eq		$tmp422 ___370_s $const1 	%line{134} %argrw{"wrr"}
 	if		$tmp422 814 846 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:135
 #     rgb = color(v, v, v);
-	color		___369_rgb ___369_v ___369_v ___369_v 	%line{135} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_v ___370_v 	%line{135} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:138
 #     if (h == 1.0) {
-	eq		$tmp423 ___369_h $const2 	%line{138} %argrw{"wrr"}
+	eq		$tmp423 ___370_h $const2 	%line{138} %argrw{"wrr"}
 	if		$tmp423 817 817 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:139
 #       h = 0.0;
-	assign		___369_h $const1 	%line{139} %argrw{"wr"}
+	assign		___370_h $const1 	%line{139} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:142
 #     h *= 6.0;
-	mul		___369_h ___369_h $const39 	%line{142} %argrw{"wrr"}
+	mul		___370_h ___370_h $const39 	%line{142} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:143
 #     i = floor(h);
-	floor		___369_i ___369_h 	%line{143} %argrw{"wr"}
+	floor		___370_i ___370_h 	%line{143} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:144
 #     f = h - i;
-	sub		___369_f ___369_h ___369_i 	%line{144} %argrw{"wrr"}
+	sub		___370_f ___370_h ___370_i 	%line{144} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:145
 #     rgb = color(f, f, f);
-	color		___369_rgb ___369_f ___369_f ___369_f 	%line{145} %argrw{"wrrr"}
+	color		___370_rgb ___370_f ___370_f ___370_f 	%line{145} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:146
 #     p = v * (1.0 - s);
-	sub		$tmp424 $const2 ___369_s 	%line{146} %argrw{"wrr"}
-	mul		___369_p ___369_v $tmp424 	%argrw{"wrr"}
+	sub		$tmp424 $const2 ___370_s 	%line{146} %argrw{"wrr"}
+	mul		___370_p ___370_v $tmp424 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:147
 #     q = v * (1.0 - (s * f));
-	mul		$tmp425 ___369_s ___369_f 	%line{147} %argrw{"wrr"}
+	mul		$tmp425 ___370_s ___370_f 	%line{147} %argrw{"wrr"}
 	sub		$tmp426 $const2 $tmp425 	%argrw{"wrr"}
-	mul		___369_q ___369_v $tmp426 	%argrw{"wrr"}
+	mul		___370_q ___370_v $tmp426 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:148
 #     t = v * (1.0 - (s * (1.0 - f)));
-	sub		$tmp427 $const2 ___369_f 	%line{148} %argrw{"wrr"}
-	mul		$tmp428 ___369_s $tmp427 	%argrw{"wrr"}
+	sub		$tmp427 $const2 ___370_f 	%line{148} %argrw{"wrr"}
+	mul		$tmp428 ___370_s $tmp427 	%argrw{"wrr"}
 	sub		$tmp429 $const2 $tmp428 	%argrw{"wrr"}
-	mul		___369_t ___369_v $tmp429 	%argrw{"wrr"}
+	mul		___370_t ___370_v $tmp429 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:150
 #     if (i == 0.0) {
-	eq		$tmp430 ___369_i $const1 	%line{150} %argrw{"wrr"}
+	eq		$tmp430 ___370_i $const1 	%line{150} %argrw{"wrr"}
 	if		$tmp430 833 846 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:151
 #       rgb = color(v, t, p);
-	color		___369_rgb ___369_v ___369_t ___369_p 	%line{151} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_t ___370_p 	%line{151} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:153
 #     else if (i == 1.0) {
-	eq		$tmp431 ___369_i $const2 	%line{153} %argrw{"wrr"}
+	eq		$tmp431 ___370_i $const2 	%line{153} %argrw{"wrr"}
 	if		$tmp431 836 846 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:154
 #       rgb = color(q, v, p);
-	color		___369_rgb ___369_q ___369_v ___369_p 	%line{154} %argrw{"wrrr"}
+	color		___370_rgb ___370_q ___370_v ___370_p 	%line{154} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:156
 #     else if (i == 2.0) {
-	eq		$tmp432 ___369_i $const16 	%line{156} %argrw{"wrr"}
+	eq		$tmp432 ___370_i $const16 	%line{156} %argrw{"wrr"}
 	if		$tmp432 839 846 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:157
 #       rgb = color(p, v, t);
-	color		___369_rgb ___369_p ___369_v ___369_t 	%line{157} %argrw{"wrrr"}
+	color		___370_rgb ___370_p ___370_v ___370_t 	%line{157} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:159
 #     else if (i == 3.0) {
-	eq		$tmp433 ___369_i $const41 	%line{159} %argrw{"wrr"}
+	eq		$tmp433 ___370_i $const41 	%line{159} %argrw{"wrr"}
 	if		$tmp433 842 846 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:160
 #       rgb = color(p, q, v);
-	color		___369_rgb ___369_p ___369_q ___369_v 	%line{160} %argrw{"wrrr"}
+	color		___370_rgb ___370_p ___370_q ___370_v 	%line{160} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:162
 #     else if (i == 4.0) {
-	eq		$tmp434 ___369_i $const38 	%line{162} %argrw{"wrr"}
+	eq		$tmp434 ___370_i $const38 	%line{162} %argrw{"wrr"}
 	if		$tmp434 845 846 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:163
 #       rgb = color(t, p, v);
-	color		___369_rgb ___369_t ___369_p ___369_v 	%line{163} %argrw{"wrrr"}
+	color		___370_rgb ___370_t ___370_p ___370_v 	%line{163} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:166
 #       rgb = color(v, p, q);
-	color		___369_rgb ___369_v ___369_p ___369_q 	%line{166} %argrw{"wrrr"}
+	color		___370_rgb ___370_v ___370_p ___370_q 	%line{166} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color.h:170
 #   return rgb;
-	assign		___438_tmp ___369_rgb 	%line{170} %argrw{"wr"}
+	assign		___439_tmp ___370_rgb 	%line{170} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:253
 #     outcol = mix(outcol, tmp, t);
-	mix		___437_outcol ___437_outcol ___438_tmp t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{253} %argrw{"wrrr"}
+	mix		___438_outcol ___438_outcol ___439_tmp t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{253} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:256
 #   return outcol;
-	assign		Result ___437_outcol 	%line{256} %argrw{"wr"}
+	assign		Result ___438_outcol 	%line{256} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl:53
 #   if (blend_type == "soft_light")
 	eq		$tmp435 blend_type $const48 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl"} %line{53} %argrw{"wrr"}
@@ -2277,23 +2277,23 @@ code ___main___
 	functioncall	$const49 866 	%line{54} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:261
 #   float tm = 1.0 - t;
-	sub		___439_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{261} %argrw{"wrr"}
+	sub		___440_tm $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{261} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:263
 #   color one = color(1.0);
-	assign		___439_one $const11 	%line{263} %argrw{"wr"}
+	assign		___440_one $const11 	%line{263} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:264
 #   color scr = one - (one - col2) * (one - col1);
-	sub		$tmp436 ___439_one B 	%line{264} %argrw{"wrr"}
-	sub		$tmp437 ___439_one A 	%argrw{"wrr"}
+	sub		$tmp436 ___440_one B 	%line{264} %argrw{"wrr"}
+	sub		$tmp437 ___440_one A 	%argrw{"wrr"}
 	mul		$tmp438 $tmp436 $tmp437 	%argrw{"wrr"}
-	sub		___439_scr ___439_one $tmp438 	%argrw{"wrr"}
+	sub		___440_scr ___440_one $tmp438 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:266
 #   return tm * col1 + t * ((one - col1) * col2 * col1 + col1 * scr);
-	mul		$tmp439 ___439_tm A 	%line{266} %argrw{"wrr"}
-	sub		$tmp440 ___439_one A 	%argrw{"wrr"}
+	mul		$tmp439 ___440_tm A 	%line{266} %argrw{"wrr"}
+	sub		$tmp440 ___440_one A 	%argrw{"wrr"}
 	mul		$tmp441 $tmp440 B 	%argrw{"wrr"}
 	mul		$tmp442 $tmp441 A 	%argrw{"wrr"}
-	mul		$tmp443 A ___439_scr 	%argrw{"wrr"}
+	mul		$tmp443 A ___440_scr 	%argrw{"wrr"}
 	add		$tmp444 $tmp442 $tmp443 	%argrw{"wrr"}
 	mul		$tmp445 t $tmp444 	%argrw{"wrr"}
 	add		Result $tmp439 $tmp445 	%argrw{"wrr"}
@@ -2306,7 +2306,7 @@ code ___main___
 	functioncall	$const51 922 	%line{56} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:271
 #   color outcol = col1;
-	assign		___440_outcol A 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{271} %argrw{"wr"}
+	assign		___441_outcol A 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h"} %line{271} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:273
 #   if (col2[0] > 0.5) {
 	compref		$tmp447 B $const14 	%line{273} %argrw{"wrr"}
@@ -2320,7 +2320,7 @@ code ___main___
 	mul		$tmp452 $const16 $tmp451 	%argrw{"wrr"}
 	mul		$tmp453 t $tmp452 	%argrw{"wrr"}
 	add		$tmp454 $tmp449 $tmp453 	%argrw{"wrr"}
-	compassign	___440_outcol $const14 $tmp454 	%argrw{"wrr"}
+	compassign	___441_outcol $const14 $tmp454 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:277
 #     outcol[0] = col1[0] + t * (2.0 * (col2[0]) - 1.0);
 	compref		$tmp455 A $const14 	%line{277} %argrw{"wrr"}
@@ -2329,7 +2329,7 @@ code ___main___
 	sub		$tmp458 $tmp457 $const2 	%argrw{"wrr"}
 	mul		$tmp459 t $tmp458 	%argrw{"wrr"}
 	add		$tmp460 $tmp455 $tmp459 	%argrw{"wrr"}
-	compassign	___440_outcol $const14 $tmp460 	%argrw{"wrr"}
+	compassign	___441_outcol $const14 $tmp460 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:280
 #   if (col2[1] > 0.5) {
 	compref		$tmp461 B $const17 	%line{280} %argrw{"wrr"}
@@ -2343,7 +2343,7 @@ code ___main___
 	mul		$tmp466 $const16 $tmp465 	%argrw{"wrr"}
 	mul		$tmp467 t $tmp466 	%argrw{"wrr"}
 	add		$tmp468 $tmp463 $tmp467 	%argrw{"wrr"}
-	compassign	___440_outcol $const17 $tmp468 	%argrw{"wrr"}
+	compassign	___441_outcol $const17 $tmp468 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:284
 #     outcol[1] = col1[1] + t * (2.0 * (col2[1]) - 1.0);
 	compref		$tmp469 A $const17 	%line{284} %argrw{"wrr"}
@@ -2352,7 +2352,7 @@ code ___main___
 	sub		$tmp472 $tmp471 $const2 	%argrw{"wrr"}
 	mul		$tmp473 t $tmp472 	%argrw{"wrr"}
 	add		$tmp474 $tmp469 $tmp473 	%argrw{"wrr"}
-	compassign	___440_outcol $const17 $tmp474 	%argrw{"wrr"}
+	compassign	___441_outcol $const17 $tmp474 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:287
 #   if (col2[2] > 0.5) {
 	compref		$tmp475 B $const18 	%line{287} %argrw{"wrr"}
@@ -2366,7 +2366,7 @@ code ___main___
 	mul		$tmp480 $const16 $tmp479 	%argrw{"wrr"}
 	mul		$tmp481 t $tmp480 	%argrw{"wrr"}
 	add		$tmp482 $tmp477 $tmp481 	%argrw{"wrr"}
-	compassign	___440_outcol $const18 $tmp482 	%argrw{"wrr"}
+	compassign	___441_outcol $const18 $tmp482 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:291
 #     outcol[2] = col1[2] + t * (2.0 * (col2[2]) - 1.0);
 	compref		$tmp483 A $const18 	%line{291} %argrw{"wrr"}
@@ -2375,10 +2375,10 @@ code ___main___
 	sub		$tmp486 $tmp485 $const2 	%argrw{"wrr"}
 	mul		$tmp487 t $tmp486 	%argrw{"wrr"}
 	add		$tmp488 $tmp483 $tmp487 	%argrw{"wrr"}
-	compassign	___440_outcol $const18 $tmp488 	%argrw{"wrr"}
+	compassign	___441_outcol $const18 $tmp488 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_color_blend.h:294
 #   return outcol;
-	assign		Result ___440_outcol 	%line{294} %argrw{"wr"}
+	assign		Result ___441_outcol 	%line{294} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl:58
 #   if (use_clamp_result)
 	if		use_clamp_result 928 928 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_color.osl"} %line{58} %argrw{"r"}

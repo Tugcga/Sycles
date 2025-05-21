@@ -32,7 +32,8 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context);
 
 // cyc_light
-void sync_light_tfm(ccl::Light* light, const XSI::MATH::CMatrix4& xsi_tfm_matrix);
+ccl::uint light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glossy, bool use_transmission, bool use_scatter);
+void sync_light_tfm(ccl::Object* light_object, const XSI::MATH::CMatrix4& xsi_tfm_matrix);
 XSI::MATH::CTransformation tweak_xsi_light_transform(const XSI::MATH::CTransformation& xsi_tfm, const XSI::Light& xsi_light, const XSI::CTime& eval_time);
 void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContext* update_context);
 void sync_custom_background(ccl::Scene* scene, const XSI::X3DObject& xsi_object, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time);
@@ -61,8 +62,10 @@ int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_textu
 void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context);
 XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_material, size_t shader_index, const XSI::CTime& eval_time, std::vector<XSI::CStringArray>& aovs);
 XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, const XSI::CTime& eval_time);
+bool get_material_id_from_name(const XSI::CString& material_identificator, ULONG& io_id);
+XSI::CStatus sync_missed_material(ccl::Scene* scene, UpdateContext* update_context, int material_id);
 
-// cyc_shadeerball
+// cyc_shaderball
 void sync_shaderball_background_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::X3DObject& xsi_object, ShaderballType shaderball_type);
 void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject& xsi_object, int shader_index, ShaderballType shaderball_type);
 void sync_shaderball_light(ccl::Scene* scene, ShaderballType shaderball_type);

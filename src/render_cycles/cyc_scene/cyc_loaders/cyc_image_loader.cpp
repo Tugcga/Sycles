@@ -11,23 +11,24 @@ XSIImageLoader::XSIImageLoader(XSI::ImageClip2& xsi_clip, const ccl::ustring& se
 	// in other case, load pixels from the image_path
 	m_tile = tile;
 	m_image_path = image_path;
-	m_use_clip = true;
 
-	m_xsi_clip_path = xsi_clip.GetFileName();
-	m_xsi_clip_id = xsi_clip.GetObjectID();
-	m_xsi_clip_name = xsi_clip.GetName();
+	bool proper_source = false;
+	if (image_path.Length() == 0) {
+		m_use_clip = true;
+		m_xsi_clip_path = xsi_clip.GetFileName();
+		m_xsi_clip_id = xsi_clip.GetObjectID();
+		m_xsi_clip_name = xsi_clip.GetName();
 
-	m_xsi_image = xsi_clip.GetImage(eval_time);
+		m_xsi_image = xsi_clip.GetImage(eval_time);
+		m_width = m_xsi_image.GetResX();
+		m_height = m_xsi_image.GetResY();
+		m_channels = m_xsi_image.GetNumChannels();
+		m_channel_size = m_xsi_image.GetChannelSize();  // 1 for ldr, 4 for float hdr
+		proper_source = true;
+	}
+	else {
+		m_use_clip = false;
 
-	m_width = m_xsi_image.GetResX();
-	m_height = m_xsi_image.GetResY();
-	m_channels = m_xsi_image.GetNumChannels();
-	m_channel_size = m_xsi_image.GetChannelSize();  // 1 for ldr, 4 for float hdr
-
-	m_color_profile = selected_colorspace;
-
-	if (image_path.Length() > 0)
-	{
 		// read pixels and override texture size
 		bool is_sucess = false;
 		ULONG out_width = 0;
@@ -41,8 +42,19 @@ XSIImageLoader::XSIImageLoader(XSI::ImageClip2& xsi_clip, const ccl::ustring& se
 			m_height = out_height;
 			m_channels = out_channels;
 			m_use_clip = false;
+			proper_source = true;
 		}
 	}
+
+	if (!proper_source) {
+		m_width = 1;
+		m_height = 1;
+		m_channels = 1;
+		m_image_pixels.resize(1);
+		m_image_pixels[0] = 0.0;
+	}
+
+	m_color_profile = selected_colorspace;
 }
 
 XSIImageLoader::~XSIImageLoader()

@@ -15,9 +15,15 @@
 #include <string>
 #include <set>
 
+#include "../render_base/image_buffer.h"
+
 void log_message(const XSI::CString &message, XSI::siSeverityType level)
 {
 	XSI::Application().LogMessage("[Cycles Render] " + message, level);
+}
+
+void log_warning(const XSI::CString& message) {
+	XSI::Application().LogMessage("[Cycles Warning] " + message, XSI::siSeverityType::siWarningMsg);
 }
 
 XSI::CString to_string(const XSI::CFloatArray& array)
@@ -166,6 +172,22 @@ XSI::CString to_string(const std::set<ULONG>& array)
 }
 
 XSI::CString to_string(const std::vector<unsigned int> &array)
+{
+	if (array.size() == 0)
+	{
+		return "[]";
+	}
+
+	XSI::CString to_return = "[" + XSI::CString((int)array[0]);
+	for (ULONG i = 1; i < array.size(); i++)
+	{
+		to_return += ", " + XSI::CString((int)array[i]);
+	}
+	to_return += "]";
+	return to_return;
+}
+
+XSI::CString to_string(const std::vector<int>& array)
 {
 	if (array.size() == 0)
 	{
@@ -356,7 +378,7 @@ XSI::CString to_string(const ccl::vector<ccl::float4>& array)
 	return to_return;
 }
 
-XSI::CString to_string_flot4(const ccl::float4& value)
+XSI::CString to_string_float4(const ccl::float4& value)
 {
 	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ", " + XSI::CString(value.z) + ", " + XSI::CString(value.w) + ")";
 }
@@ -387,9 +409,33 @@ XSI::CString to_string(const ccl::vector<size_t>& array)
 	return to_return;
 }
 
+XSI::CString to_string(const ImageRectangle& rect) {
+	return XSI::CString("(") + XSI::CString(rect.get_width()) + ", " + XSI::CString(rect.get_height()) + "; [" + XSI::CString(rect.get_x_start()) + ", " + XSI::CString(rect.get_y_start()) + "] - [" + XSI::CString(rect.get_x_end()) + ", " + XSI::CString(rect.get_y_end()) + "])";
+}
+
+XSI::CString to_string(const std::vector<XSI::CStringArray>& array) {
+	XSI::CString to_return = "(";
+	for (size_t i = 0; i < array.size(); i++) {
+		XSI::CStringArray xsi_array = array[i];
+		for (size_t j = 0; j < xsi_array.GetCount(); j++) {
+			XSI::CString s = xsi_array[j];
+			to_return += ", " + s;
+		}
+		to_return += (i == array.size() - 1) ? "" : "|";
+	}
+
+	to_return += ")";
+
+	return to_return;
+}
+
 XSI::CString to_string_int2(const ccl::int2& value)
 {
 	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";
+}
+
+XSI::CString to_string_float3(const ccl::float3& value) {
+	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ", " + XSI::CString(value.z) + ")";
 }
 
 XSI::CString bitmask_to_string(uint64_t mask)

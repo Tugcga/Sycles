@@ -173,7 +173,7 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 			bool sampling_path_guiding_use = render_parameters.GetValue("sampling_path_guiding_use", eval_time);
 			if (sampling_path_guiding_use)
 			{
-				log_message("Path guiding available only with CPU render device. Disable it.", XSI::siWarningMsg);
+				log_warning("Path guiding available only with CPU render device. Disable it.");
 			}
 			integrator->set_use_guiding(false);
 		}
@@ -192,5 +192,5 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		}
 	}
 
-	integrator->tag_update(session->scene, ccl::Integrator::UPDATE_ALL);
+	integrator->tag_update(session->scene.get(), ccl::Integrator::UPDATE_ALL);
 }

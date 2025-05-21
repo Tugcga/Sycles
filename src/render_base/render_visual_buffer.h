@@ -66,8 +66,7 @@ public:
 
 	void add_pixels(const ImageRectangle &roi, const std::vector<float>& pixels)
 	{
-		if (is_create && buffer->get_buffer_size() <= pixels.size())
-		{
+		if (is_create) {
 			buffer->set_pixels(roi, pixels);
 		}
 	}

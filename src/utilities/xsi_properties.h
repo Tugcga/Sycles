@@ -11,7 +11,7 @@
 // ignore hide master only for instances
 // for all other objects this ignore should be false
 bool is_render_visible(XSI::X3DObject& xsi_object, bool ignore_hide_master, const XSI::CTime& eval_time);
-bool get_xsi_object_property(XSI::X3DObject& xsi_object, const XSI::CString& property_name, XSI::Property& out_property);
+XSI::Property get_xsi_object_property(XSI::X3DObject& xsi_object, const XSI::CString& property_name);
 bool obtain_subsub_directions(const XSI::Shader& xsi_shader, float& sun_x, float& sun_y, float& sun_z, const XSI::CTime& eval_time);
 std::string get_asset_name(const XSI::X3DObject& xsi_object);
 XSI::MATH::CVector3 get_object_color(XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);

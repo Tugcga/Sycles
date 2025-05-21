@@ -39,11 +39,20 @@ void common_routine(ccl::Scene* scene,
 	ccl::ustring node_name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 	XSI::CString xsi_shader_progid = xsi_shader.GetProgID();
 
-	// add node to the shader graph add to the map
+	// add node to the map
 	// because when we will connect parameters, we should connect this node with other nodes
-	shader_graph->add(node);
 	nodes_map[xsi_shader_id] = node;
 	node->name = node_name;
+
+	// does not setup these node bump properies
+	// it's not clear how it actually works
+	if (false && xsi_parameters.GetItem("bump").IsValid() && xsi_parameters.GetItem("filter_width").IsValid()) {
+		XSI::CString bump_mode = get_string_parameter_value(xsi_parameters, "bump", eval_time);
+		float filter_width = get_float_parameter_value(xsi_parameters, "filter_width", eval_time);
+
+		node->bump_filter_width = filter_width;
+		node->bump = get_shader_bump(bump_mode);
+	}
 
 	// iterate over all parameters
 	for (ULONG i = 0; i < xsi_parameters.GetCount(); i++)
@@ -209,6 +218,27 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		return node;
 	}
+	else if (shader_type == "MetallicBSDF") {
+		ccl::MetallicBsdfNode* node = shader_graph->create_node<ccl::MetallicBsdfNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "distribution", eval_time);
+		XSI::CString fresnel_type = get_string_parameter_value(xsi_parameters, "fresnel_type", eval_time);
+		float ior_x = get_float_parameter_value(xsi_parameters, "ior_x", eval_time);
+		float ior_y = get_float_parameter_value(xsi_parameters, "ior_y", eval_time);
+		float ior_z = get_float_parameter_value(xsi_parameters, "ior_z", eval_time);
+		float extinction_x = get_float_parameter_value(xsi_parameters, "extinction_x", eval_time);
+		float extinction_y = get_float_parameter_value(xsi_parameters, "extinction_y", eval_time);
+		float extinction_z = get_float_parameter_value(xsi_parameters, "extinction_z", eval_time);
+
+		node->set_ior(ccl::make_float3(ior_x, ior_y, ior_z));
+		node->set_k(ccl::make_float3(extinction_x, extinction_y, extinction_z));
+
+		node->set_distribution(get_distribution(distribution, DistributionModes_Glass));
+		node->set_fresnel_type(get_metallic_fresnel(fresnel_type));
+
+		return node;
+	}
 	else if (shader_type == "PrincipledBSDF")
 	{
 		ccl::PrincipledBsdfNode* node = shader_graph->create_node<ccl::PrincipledBsdfNode>();
@@ -336,6 +366,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		ccl::ScatterVolumeNode* node = shader_graph->create_node<ccl::ScatterVolumeNode>();
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
+		XSI::CString phase = get_string_parameter_value(xsi_parameters, "phase", eval_time);
+		node->set_phase(get_scatter_phase(phase));
+
 		return node;
 	}
 	else if (shader_type == "PrincipledVolume")
@@ -427,7 +460,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString extension = get_string_parameter_value(xsi_parameters, "Extension", eval_time);
 		bool premultiply_alpha = get_bool_parameter_value(xsi_parameters, "premultiply_alpha", eval_time);
 		XSI::CString image_source = get_string_parameter_value(xsi_parameters, "ImageSource", eval_time);
-		//XSI::CString tiles = get_string_parameter_value(xsi_parameters, "tiles", eval_time);
+		
 		int image_frames = get_int_parameter_value(xsi_parameters, "ImageFrames", eval_time);
 		int start_frame = get_int_parameter_value(xsi_parameters, "ImageStartFrame", eval_time);
 		int offset = get_int_parameter_value(xsi_parameters, "ImageOffset", eval_time);
@@ -436,8 +469,12 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		if (clip.IsValid())
 		{
 			file_path = clip.GetFileName();
+			if (image_source == "image_sequence") {
+				// change file path for image sequence mode
+				file_path = sync_image_file(file_path, image_frames, start_frame, offset, cyclic, eval_time);
+				clip = XSI::ImageClip2();
+			}
 
-			ULONG xsi_clip_id = clip.GetObjectID();
 			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
 
 			// we add each clip separately (without caching in update context)
@@ -460,7 +497,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			if(image_source == "tiled")
 			{
 				// we should create array of loaders
-				ccl::vector<ccl::ImageLoader*> loaders;
+				ccl::vector<std::unique_ptr<ccl::ImageLoader>> loaders;
 				loaders.reserve(tiles.size());
 				for (size_t i = 0; i < tiles.size(); i++)
 				{
@@ -468,20 +505,20 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 					XSI::CString tile_path = tile_to_path_map[tile_value];
 					if (tile_path != file_path)
 					{
-						loaders.push_back(new XSIImageLoader(clip, selected_colorscape, tile_value, tile_path, eval_time));
+						loaders.push_back(std::make_unique<XSIImageLoader>(clip, selected_colorscape, tile_value, tile_path, eval_time));
 					}
 					else
 					{
-						loaders.push_back(new XSIImageLoader(clip, selected_colorscape, tile_value, "", eval_time));
+						loaders.push_back(std::make_unique<XSIImageLoader>(clip, selected_colorscape, tile_value, "", eval_time));
 					}
 				}
 
-				node->handle = scene->image_manager->add_image(loaders, node->image_params());
+				node->handle = scene->image_manager->add_image(std::move(loaders), node->image_params());
 			}
 			else
 			{
-				XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
-				node->handle = scene->image_manager->add_image(image_loader, node->image_params());
+				XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, image_source == "image_sequence" ? file_path : "", eval_time);
+				node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 			}
 
 			node->set_tiles(tiles);
@@ -517,6 +554,11 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		if (clip.IsValid())
 		{
 			file_path = clip.GetFileName();
+			if (image_source == "image_sequence") {
+				// change file path for image sequence mode
+				file_path = sync_image_file(file_path, image_frames, start_frame, offset, cyclic, eval_time);
+				clip = XSI::ImageClip2();
+			}
 
 			bool temp_flag = false;
 			std::string filename = build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, false, temp_flag);
@@ -527,8 +569,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));
 			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 
-			XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, "", eval_time);
-			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
+			XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, image_source == "image_sequence" ? file_path : "", eval_time);
+			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 
 			return node;
 		}
@@ -615,6 +657,10 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		XSI::CString noise_dimensions = get_string_parameter_value(xsi_parameters, "NoiseDimensions", eval_time);
 		node->set_dimensions(get_dimensions_type(noise_dimensions));
+		XSI::CString noise_type = get_string_parameter_value(xsi_parameters, "type", eval_time);
+		node->set_type(get_noise_type(noise_type));
+		bool normalize = get_bool_parameter_value(xsi_parameters, "normalize", eval_time);
+		node->set_use_normalize(normalize);
 
 		return node;
 	}
@@ -766,7 +812,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
 
 		bool invert = get_bool_parameter_value(xsi_parameters, "Invert", eval_time);
+		bool use_object_space = get_bool_parameter_value(xsi_parameters, "use_object_space", eval_time);
 		node->set_invert(invert);
+		node->set_use_object_space(use_object_space);
 
 		return node;
 	}
@@ -794,6 +842,18 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		node->set_mapping_type(type == "Point" ? ccl::NodeMappingType::NODE_MAPPING_TYPE_POINT :
 			(type == "Texture" ? ccl::NodeMappingType::NODE_MAPPING_TYPE_TEXTURE :
 				(type == "Vector" ? ccl::NodeMappingType::NODE_MAPPING_TYPE_VECTOR : ccl::NodeMappingType::NODE_MAPPING_TYPE_NORMAL)));
+
+		return node;
+	}
+	else if (shader_type == "SetNormal") {
+		ccl::SetNormalNode* node = shader_graph->create_node<ccl::SetNormalNode>();
+		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+
+		float direction_x = get_float_parameter_value(xsi_parameters, "direction_x", eval_time);
+		float direction_y = get_float_parameter_value(xsi_parameters, "direction_y", eval_time);
+		float direction_z = get_float_parameter_value(xsi_parameters, "direction_z", eval_time);
+
+		node->set_direction(ccl::make_float3(direction_x, direction_y, direction_z));
 
 		return node;
 	}

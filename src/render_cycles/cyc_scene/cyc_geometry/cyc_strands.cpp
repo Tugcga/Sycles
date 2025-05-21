@@ -354,18 +354,7 @@ void sync_strands_deform(ccl::Hair* hair,
 
 	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
-		size_t time_motion_step = mi;
-		if (motion_position == MotionSettingsPosition::MotionPosition_Start)
-		{
-			time_motion_step++;
-		}
-		else if (motion_position == MotionSettingsPosition::MotionPosition_Center)
-		{// center
-			if (mi >= motion_steps / 2)
-			{
-				time_motion_step++;
-			}
-		}
+		size_t time_motion_step = calc_time_motion_step(mi, motion_steps, motion_position);
 
 		float time = update_context->get_motion_time(time_motion_step);
 		XSI::Geometry time_xsi_geometry = xsi_object.GetActivePrimitive(time).GetGeometry();

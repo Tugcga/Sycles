@@ -9,6 +9,7 @@
 #include "../utilities/logs.h"
 #include "../utilities/arrays.h"
 #include "../utilities/xsi_properties.h"
+#include "../utilities/files_io.h"
 
 UpdateContext::UpdateContext()
 {
@@ -69,6 +70,7 @@ void UpdateContext::reset()
 	abort_update_transforms_ids.clear();
 
 	displacement_mode = -1;
+	clear_temp_path();
 	primitive_shape_map.clear();
 	xsi_displacement_materials.clear();
 }
@@ -225,7 +227,8 @@ bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_
 		"sampling_advanced_light_tree", "sampling_advanced_light_threshold",
 		"sampling_render_use_adaptive", "sampling_render_adaptive_threshold", "sampling_render_adaptive_min_samples",
 		"sampling_advanced_pattern",
-		"sampling_advanced_scrambling_distance", "sampling_advanced_scrambling_multiplier"
+		"sampling_advanced_scrambling_distance", "sampling_advanced_scrambling_multiplier",
+		"sampling_advanced_subset", "sampling_advanced_offset", "sampling_advanced_length",
 		"paths_fastgi_use", "paths_fastgi_ao_factor", "paths_fastgi_ao_distance", "paths_fastgi_method", "paths_fastgi_ao_bounces",
 		"sampling_path_guiding_use", "sampling_path_guiding_surface", "sampling_path_guiding_volume", "sampling_path_guiding_training_samples",
 		"denoise_mode", "denoise_channels"
@@ -923,4 +926,31 @@ void UpdateContext::set_displacement_mode(int in_mode)
 int UpdateContext::get_displacement_mode()
 {
 	return displacement_mode;
+}
+
+void UpdateContext::set_temp_path(const XSI::CString& in_path) {
+	temp_path = in_path;
+}
+
+bool UpdateContext::has_temp_path() {
+	return temp_path.Length() > 0;
+}
+
+void UpdateContext::define_temp_path() {
+	if (!has_temp_path()) {
+		XSI::CString tp = create_temp_path();
+		set_temp_path(tp);
+	}
+}
+
+void UpdateContext::clear_temp_path() {
+	if (has_temp_path()) {
+		remove_temp_path(temp_path);
+	}
+
+	temp_path = "";
+}
+
+XSI::CString UpdateContext::get_temp_path() {
+	return temp_path;
 }

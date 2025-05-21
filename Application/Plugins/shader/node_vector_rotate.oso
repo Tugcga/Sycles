@@ -1,5 +1,5 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
+# Compiled by oslc 1.14.4.0dev
 # options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_vector_rotate.oso
 shader node_vector_rotate
 param	int	invert	0		%read{2,97} %write{2147483647,-1}
@@ -18,15 +18,15 @@ local	float	___257_x	%read{111,309} %write{108,274}
 local	float	___257_y	%read{116,307} %write{109,275}
 local	float	___257_z	%read{118,312} %write{110,276}
 local	matrix	___257_M	%read{152,318} %write{150,316}
-local	float	___360_cx	%read{25,91} %write{5,51}
-local	float	___360_cy	%read{17,91} %write{7,53}
-local	float	___360_cz	%read{17,88} %write{9,55}
-local	float	___360_sx	%read{23,88} %write{11,57}
-local	float	___360_sy	%read{21,86} %write{13,59}
-local	float	___360_sz	%read{19,87} %write{15,61}
-local	matrix	___360_mat	%read{47,93} %write{16,92}
-local	matrix	___379_rmat	%read{95,95} %write{48,93}
-local	float	___380_a	%read{106,272} %write{98,99}
+local	float	___361_cx	%read{25,91} %write{5,51}
+local	float	___361_cy	%read{17,91} %write{7,53}
+local	float	___361_cz	%read{17,88} %write{9,55}
+local	float	___361_sx	%read{23,88} %write{11,57}
+local	float	___361_sy	%read{21,86} %write{13,59}
+local	float	___361_sz	%read{19,87} %write{15,61}
+local	matrix	___361_mat	%read{47,93} %write{16,92}
+local	matrix	___383_rmat	%read{95,95} %write{48,93}
+local	float	___384_a	%read{106,272} %write{98,99}
 const	string	$const1	"euler_xyz"		%read{0,0} %write{2147483647,-1}
 temp	int	$tmp1	%read{1,1} %write{0,0}
 temp	matrix	$tmp2	%read{48,48} %write{47,47}
@@ -293,173 +293,173 @@ code ___main___
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:93
 #   float cx = cos(euler[0]);
 	compref		$tmp3 Rotation $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{93} %argrw{"wrr"}
-	cos		___360_cx $tmp3 	%argrw{"wr"}
+	cos		___361_cx $tmp3 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:94
 #   float cy = cos(euler[1]);
 	compref		$tmp4 Rotation $const4 	%line{94} %argrw{"wrr"}
-	cos		___360_cy $tmp4 	%argrw{"wr"}
+	cos		___361_cy $tmp4 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:95
 #   float cz = cos(euler[2]);
 	compref		$tmp5 Rotation $const5 	%line{95} %argrw{"wrr"}
-	cos		___360_cz $tmp5 	%argrw{"wr"}
+	cos		___361_cz $tmp5 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:96
 #   float sx = sin(euler[0]);
 	compref		$tmp6 Rotation $const3 	%line{96} %argrw{"wrr"}
-	sin		___360_sx $tmp6 	%argrw{"wr"}
+	sin		___361_sx $tmp6 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:97
 #   float sy = sin(euler[1]);
 	compref		$tmp7 Rotation $const4 	%line{97} %argrw{"wrr"}
-	sin		___360_sy $tmp7 	%argrw{"wr"}
+	sin		___361_sy $tmp7 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:98
 #   float sz = sin(euler[2]);
 	compref		$tmp8 Rotation $const5 	%line{98} %argrw{"wrr"}
-	sin		___360_sz $tmp8 	%argrw{"wr"}
+	sin		___361_sz $tmp8 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:99
 #   matrix mat = matrix(1.0);
-	assign		___360_mat $const6 	%line{99} %argrw{"wr"}
+	assign		___361_mat $const6 	%line{99} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:100
 #   mat[0][0] = cy * cz;
-	mul		$tmp9 ___360_cy ___360_cz 	%line{100} %argrw{"wrr"}
-	mxcompassign	___360_mat $const3 $const3 $tmp9 	%argrw{"wrrr"}
+	mul		$tmp9 ___361_cy ___361_cz 	%line{100} %argrw{"wrr"}
+	mxcompassign	___361_mat $const3 $const3 $tmp9 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:101
 #   mat[0][1] = cy * sz;
-	mul		$tmp10 ___360_cy ___360_sz 	%line{101} %argrw{"wrr"}
-	mxcompassign	___360_mat $const3 $const4 $tmp10 	%argrw{"wrrr"}
+	mul		$tmp10 ___361_cy ___361_sz 	%line{101} %argrw{"wrr"}
+	mxcompassign	___361_mat $const3 $const4 $tmp10 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:102
 #   mat[0][2] = -sy;
-	neg		$tmp11 ___360_sy 	%line{102} %argrw{"wr"}
-	mxcompassign	___360_mat $const3 $const5 $tmp11 	%argrw{"wrrr"}
+	neg		$tmp11 ___361_sy 	%line{102} %argrw{"wr"}
+	mxcompassign	___361_mat $const3 $const5 $tmp11 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:103
 #   mat[1][0] = sy * sx * cz - cx * sz;
-	mul		$tmp12 ___360_sy ___360_sx 	%line{103} %argrw{"wrr"}
-	mul		$tmp13 $tmp12 ___360_cz 	%argrw{"wrr"}
-	mul		$tmp14 ___360_cx ___360_sz 	%argrw{"wrr"}
+	mul		$tmp12 ___361_sy ___361_sx 	%line{103} %argrw{"wrr"}
+	mul		$tmp13 $tmp12 ___361_cz 	%argrw{"wrr"}
+	mul		$tmp14 ___361_cx ___361_sz 	%argrw{"wrr"}
 	sub		$tmp15 $tmp13 $tmp14 	%argrw{"wrr"}
-	mxcompassign	___360_mat $const4 $const3 $tmp15 	%argrw{"wrrr"}
+	mxcompassign	___361_mat $const4 $const3 $tmp15 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:104
 #   mat[1][1] = sy * sx * sz + cx * cz;
-	mul		$tmp16 ___360_sy ___360_sx 	%line{104} %argrw{"wrr"}
-	mul		$tmp17 $tmp16 ___360_sz 	%argrw{"wrr"}
-	mul		$tmp18 ___360_cx ___360_cz 	%argrw{"wrr"}
+	mul		$tmp16 ___361_sy ___361_sx 	%line{104} %argrw{"wrr"}
+	mul		$tmp17 $tmp16 ___361_sz 	%argrw{"wrr"}
+	mul		$tmp18 ___361_cx ___361_cz 	%argrw{"wrr"}
 	add		$tmp19 $tmp17 $tmp18 	%argrw{"wrr"}
-	mxcompassign	___360_mat $const4 $const4 $tmp19 	%argrw{"wrrr"}
+	mxcompassign	___361_mat $const4 $const4 $tmp19 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:105
 #   mat[1][2] = cy * sx;
-	mul		$tmp20 ___360_cy ___360_sx 	%line{105} %argrw{"wrr"}
-	mxcompassign	___360_mat $const4 $const5 $tmp20 	%argrw{"wrrr"}
+	mul		$tmp20 ___361_cy ___361_sx 	%line{105} %argrw{"wrr"}
+	mxcompassign	___361_mat $const4 $const5 $tmp20 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:106
 #   +mat[2][0] = sy * cx * cz + sx * sz;
-	mul		$tmp21 ___360_sy ___360_cx 	%line{106} %argrw{"wrr"}
-	mul		$tmp22 $tmp21 ___360_cz 	%argrw{"wrr"}
-	mul		$tmp23 ___360_sx ___360_sz 	%argrw{"wrr"}
+	mul		$tmp21 ___361_sy ___361_cx 	%line{106} %argrw{"wrr"}
+	mul		$tmp22 $tmp21 ___361_cz 	%argrw{"wrr"}
+	mul		$tmp23 ___361_sx ___361_sz 	%argrw{"wrr"}
 	add		$tmp24 $tmp22 $tmp23 	%argrw{"wrr"}
-	mxcompassign	___360_mat $const5 $const3 $tmp24 	%argrw{"wrrr"}
+	mxcompassign	___361_mat $const5 $const3 $tmp24 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:107
 #   mat[2][1] = sy * cx * sz - sx * cz;
-	mul		$tmp25 ___360_sy ___360_cx 	%line{107} %argrw{"wrr"}
-	mul		$tmp26 $tmp25 ___360_sz 	%argrw{"wrr"}
-	mul		$tmp27 ___360_sx ___360_cz 	%argrw{"wrr"}
+	mul		$tmp25 ___361_sy ___361_cx 	%line{107} %argrw{"wrr"}
+	mul		$tmp26 $tmp25 ___361_sz 	%argrw{"wrr"}
+	mul		$tmp27 ___361_sx ___361_cz 	%argrw{"wrr"}
 	sub		$tmp28 $tmp26 $tmp27 	%argrw{"wrr"}
-	mxcompassign	___360_mat $const5 $const4 $tmp28 	%argrw{"wrrr"}
+	mxcompassign	___361_mat $const5 $const4 $tmp28 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:108
 #   mat[2][2] = cy * cx;
-	mul		$tmp29 ___360_cy ___360_cx 	%line{108} %argrw{"wrr"}
-	mxcompassign	___360_mat $const5 $const5 $tmp29 	%argrw{"wrrr"}
+	mul		$tmp29 ___361_cy ___361_cx 	%line{108} %argrw{"wrr"}
+	mxcompassign	___361_mat $const5 $const5 $tmp29 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:109
 #   return mat;
-	assign		$tmp2 ___360_mat 	%line{109} %argrw{"wr"}
+	assign		$tmp2 ___361_mat 	%line{109} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_rotate.osl:18
 #     matrix rmat = (invert) ? transpose(euler_to_mat(Rotation)) : euler_to_mat(Rotation);
-	transpose	___379_rmat $tmp2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_rotate.osl"} %line{18} %argrw{"wr"}
+	transpose	___383_rmat $tmp2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_rotate.osl"} %line{18} %argrw{"wr"}
 	functioncall	$const2 94 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:93
 #   float cx = cos(euler[0]);
 	compref		$tmp30 Rotation $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{93} %argrw{"wrr"}
-	cos		___360_cx $tmp30 	%argrw{"wr"}
+	cos		___361_cx $tmp30 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:94
 #   float cy = cos(euler[1]);
 	compref		$tmp31 Rotation $const4 	%line{94} %argrw{"wrr"}
-	cos		___360_cy $tmp31 	%argrw{"wr"}
+	cos		___361_cy $tmp31 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:95
 #   float cz = cos(euler[2]);
 	compref		$tmp32 Rotation $const5 	%line{95} %argrw{"wrr"}
-	cos		___360_cz $tmp32 	%argrw{"wr"}
+	cos		___361_cz $tmp32 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:96
 #   float sx = sin(euler[0]);
 	compref		$tmp33 Rotation $const3 	%line{96} %argrw{"wrr"}
-	sin		___360_sx $tmp33 	%argrw{"wr"}
+	sin		___361_sx $tmp33 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:97
 #   float sy = sin(euler[1]);
 	compref		$tmp34 Rotation $const4 	%line{97} %argrw{"wrr"}
-	sin		___360_sy $tmp34 	%argrw{"wr"}
+	sin		___361_sy $tmp34 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:98
 #   float sz = sin(euler[2]);
 	compref		$tmp35 Rotation $const5 	%line{98} %argrw{"wrr"}
-	sin		___360_sz $tmp35 	%argrw{"wr"}
+	sin		___361_sz $tmp35 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:99
 #   matrix mat = matrix(1.0);
-	assign		___360_mat $const6 	%line{99} %argrw{"wr"}
+	assign		___361_mat $const6 	%line{99} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:100
 #   mat[0][0] = cy * cz;
-	mul		$tmp36 ___360_cy ___360_cz 	%line{100} %argrw{"wrr"}
-	mxcompassign	___360_mat $const3 $const3 $tmp36 	%argrw{"wrrr"}
+	mul		$tmp36 ___361_cy ___361_cz 	%line{100} %argrw{"wrr"}
+	mxcompassign	___361_mat $const3 $const3 $tmp36 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:101
 #   mat[0][1] = cy * sz;
-	mul		$tmp37 ___360_cy ___360_sz 	%line{101} %argrw{"wrr"}
-	mxcompassign	___360_mat $const3 $const4 $tmp37 	%argrw{"wrrr"}
+	mul		$tmp37 ___361_cy ___361_sz 	%line{101} %argrw{"wrr"}
+	mxcompassign	___361_mat $const3 $const4 $tmp37 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:102
 #   mat[0][2] = -sy;
-	neg		$tmp38 ___360_sy 	%line{102} %argrw{"wr"}
-	mxcompassign	___360_mat $const3 $const5 $tmp38 	%argrw{"wrrr"}
+	neg		$tmp38 ___361_sy 	%line{102} %argrw{"wr"}
+	mxcompassign	___361_mat $const3 $const5 $tmp38 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:103
 #   mat[1][0] = sy * sx * cz - cx * sz;
-	mul		$tmp39 ___360_sy ___360_sx 	%line{103} %argrw{"wrr"}
-	mul		$tmp40 $tmp39 ___360_cz 	%argrw{"wrr"}
-	mul		$tmp41 ___360_cx ___360_sz 	%argrw{"wrr"}
+	mul		$tmp39 ___361_sy ___361_sx 	%line{103} %argrw{"wrr"}
+	mul		$tmp40 $tmp39 ___361_cz 	%argrw{"wrr"}
+	mul		$tmp41 ___361_cx ___361_sz 	%argrw{"wrr"}
 	sub		$tmp42 $tmp40 $tmp41 	%argrw{"wrr"}
-	mxcompassign	___360_mat $const4 $const3 $tmp42 	%argrw{"wrrr"}
+	mxcompassign	___361_mat $const4 $const3 $tmp42 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:104
 #   mat[1][1] = sy * sx * sz + cx * cz;
-	mul		$tmp43 ___360_sy ___360_sx 	%line{104} %argrw{"wrr"}
-	mul		$tmp44 $tmp43 ___360_sz 	%argrw{"wrr"}
-	mul		$tmp45 ___360_cx ___360_cz 	%argrw{"wrr"}
+	mul		$tmp43 ___361_sy ___361_sx 	%line{104} %argrw{"wrr"}
+	mul		$tmp44 $tmp43 ___361_sz 	%argrw{"wrr"}
+	mul		$tmp45 ___361_cx ___361_cz 	%argrw{"wrr"}
 	add		$tmp46 $tmp44 $tmp45 	%argrw{"wrr"}
-	mxcompassign	___360_mat $const4 $const4 $tmp46 	%argrw{"wrrr"}
+	mxcompassign	___361_mat $const4 $const4 $tmp46 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:105
 #   mat[1][2] = cy * sx;
-	mul		$tmp47 ___360_cy ___360_sx 	%line{105} %argrw{"wrr"}
-	mxcompassign	___360_mat $const4 $const5 $tmp47 	%argrw{"wrrr"}
+	mul		$tmp47 ___361_cy ___361_sx 	%line{105} %argrw{"wrr"}
+	mxcompassign	___361_mat $const4 $const5 $tmp47 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:106
 #   +mat[2][0] = sy * cx * cz + sx * sz;
-	mul		$tmp48 ___360_sy ___360_cx 	%line{106} %argrw{"wrr"}
-	mul		$tmp49 $tmp48 ___360_cz 	%argrw{"wrr"}
-	mul		$tmp50 ___360_sx ___360_sz 	%argrw{"wrr"}
+	mul		$tmp48 ___361_sy ___361_cx 	%line{106} %argrw{"wrr"}
+	mul		$tmp49 $tmp48 ___361_cz 	%argrw{"wrr"}
+	mul		$tmp50 ___361_sx ___361_sz 	%argrw{"wrr"}
 	add		$tmp51 $tmp49 $tmp50 	%argrw{"wrr"}
-	mxcompassign	___360_mat $const5 $const3 $tmp51 	%argrw{"wrrr"}
+	mxcompassign	___361_mat $const5 $const3 $tmp51 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:107
 #   mat[2][1] = sy * cx * sz - sx * cz;
-	mul		$tmp52 ___360_sy ___360_cx 	%line{107} %argrw{"wrr"}
-	mul		$tmp53 $tmp52 ___360_sz 	%argrw{"wrr"}
-	mul		$tmp54 ___360_sx ___360_cz 	%argrw{"wrr"}
+	mul		$tmp52 ___361_sy ___361_cx 	%line{107} %argrw{"wrr"}
+	mul		$tmp53 $tmp52 ___361_sz 	%argrw{"wrr"}
+	mul		$tmp54 ___361_sx ___361_cz 	%argrw{"wrr"}
 	sub		$tmp55 $tmp53 $tmp54 	%argrw{"wrr"}
-	mxcompassign	___360_mat $const5 $const4 $tmp55 	%argrw{"wrrr"}
+	mxcompassign	___361_mat $const5 $const4 $tmp55 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:108
 #   mat[2][2] = cy * cx;
-	mul		$tmp56 ___360_cy ___360_cx 	%line{108} %argrw{"wrr"}
-	mxcompassign	___360_mat $const5 $const5 $tmp56 	%argrw{"wrrr"}
+	mul		$tmp56 ___361_cy ___361_cx 	%line{108} %argrw{"wrr"}
+	mxcompassign	___361_mat $const5 $const5 $tmp56 	%argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:109
 #   return mat;
-	assign		___379_rmat ___360_mat 	%line{109} %argrw{"wr"}
+	assign		___383_rmat ___361_mat 	%line{109} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_rotate.osl:19
 #     VectorOut = transform(rmat, VectorIn - Center) + Center;
 	sub		$tmp58 VectorIn Center 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_rotate.osl"} %line{19} %argrw{"wrr"}
-	transform	$tmp57 ___379_rmat $tmp58 	%argrw{"wrr"}
+	transform	$tmp57 ___383_rmat $tmp58 	%argrw{"wrr"}
 	add		VectorOut $tmp57 Center 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_rotate.osl:22
 #     float a = (invert) ? -Angle : Angle;
 	if		invert 99 100 	%line{22} %argrw{"r"}
-	neg		___380_a Angle 	%argrw{"wr"}
-	assign		___380_a Angle 	%argrw{"wr"}
+	neg		___384_a Angle 	%argrw{"wr"}
+	assign		___384_a Angle 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_vector_rotate.osl:23
 #     if (rotate_type == "x_axis") {
 	eq		$tmp59 rotate_type $const7 	%line{23} %argrw{"wrr"}
@@ -474,7 +474,7 @@ code ___main___
 	normalize	___257_axis $tmp64 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:272
 #     sincos (angle, sinang, cosang);
-	sincos		___380_a ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
+	sincos		___384_a ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
 # C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:273
 #     float cosang1 = 1.0 - cosang;
 	sub		___257_cosang1 $const6 ___257_cosang 	%line{273} %argrw{"wrr"}
@@ -565,7 +565,7 @@ code ___main___
 	normalize	___257_axis $tmp111 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:272
 #     sincos (angle, sinang, cosang);
-	sincos		___380_a ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
+	sincos		___384_a ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
 # C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:273
 #     float cosang1 = 1.0 - cosang;
 	sub		___257_cosang1 $const6 ___257_cosang 	%line{273} %argrw{"wrr"}
@@ -656,7 +656,7 @@ code ___main___
 	normalize	___257_axis $tmp158 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:272
 #     sincos (angle, sinang, cosang);
-	sincos		___380_a ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
+	sincos		___384_a ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
 # C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:273
 #     float cosang1 = 1.0 - cosang;
 	sub		___257_cosang1 $const6 ___257_cosang 	%line{273} %argrw{"wrr"}
@@ -746,7 +746,7 @@ code ___main___
 	normalize	___257_axis $tmp205 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:272
 #     sincos (angle, sinang, cosang);
-	sincos		___380_a ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
+	sincos		___384_a ___257_sinang ___257_cosang 	%line{272} %argrw{"rww"}
 # C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:273
 #     float cosang1 = 1.0 - cosang;
 	sub		___257_cosang1 $const6 ___257_cosang 	%line{273} %argrw{"wrr"}

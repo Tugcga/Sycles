@@ -25,9 +25,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		ccl::SeparateXYZNode* separate_node = shader_graph->create_node<ccl::SeparateXYZNode>();
 		ccl::CombineRGBNode* combine_node = shader_graph->create_node<ccl::CombineRGBNode>();
 
-		shader_graph->add(separate_node);
-		shader_graph->add(combine_node);
-
 		// use combine node as output node
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		nodes_map[xsi_shader_id] = combine_node;
@@ -44,7 +41,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 	else if (shader_type == "sib_scalar_to_color")
 	{
 		ccl::RGBRampNode* node = shader_graph->create_node<ccl::RGBRampNode>();
-		shader_graph->add(node);
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		nodes_map[xsi_shader_id] = node;
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
@@ -73,14 +69,9 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 
 		// if we use this node again, then we should connect to output math node
 		// so, add it to the nodes map
-		shader_graph->add(separate_node);
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		nodes_map[xsi_shader_id] = math_divide;
 		separate_node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
-
-		shader_graph->add(math_add_01);
-		shader_graph->add(math_add_02);
-		shader_graph->add(math_divide);
 
 		math_add_01->set_math_type(ccl::NodeMathType::NODE_MATH_ADD);
 		math_add_02->set_math_type(ccl::NodeMathType::NODE_MATH_ADD);
@@ -101,7 +92,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 	else if (shader_type == "sib_color_to_scalar")
 	{
 		ccl::RGBToBWNode* node = shader_graph->create_node<ccl::RGBToBWNode>();
-		shader_graph->add(node);
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		nodes_map[xsi_shader_id] = node;
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
@@ -138,7 +128,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			// next setup shader nodes
 			// main image node
 			ccl::ImageTextureNode* node = shader_graph->create_node<ccl::ImageTextureNode>();
-			shader_graph->add(node);
 			// this node is output, so, add it to the nodes map
 			ULONG xsi_shader_id = xsi_shader.GetObjectID();
 			nodes_map[xsi_shader_id] = node;
@@ -153,16 +142,14 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			node->set_animated(false);
 			
 			XSIImageLoader* image_loader = new XSIImageLoader(clip, ccl::u_colorspace_srgb, 0, "", eval_time);
-			node->handle = scene->image_manager->add_image(image_loader, node->image_params());
+			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 
 			// uv node
 			ccl::UVMapNode* uv_node = shader_graph->create_node<ccl::UVMapNode>();
-			shader_graph->add(uv_node);
 			uv_node->set_attribute(ccl::ustring(uv_name.GetAsciiString()));
 
 			// mapping node
 			ccl::MappingNode* mapping = shader_graph->create_node<ccl::MappingNode>();
-			shader_graph->add(mapping);
 			mapping->set_mapping_type(ccl::NodeMappingType::NODE_MAPPING_TYPE_POINT);
 			mapping->set_location(ccl::make_float3(alt_x ? 1.0f : 0.0, alt_y ? 1.0f : 0.0, 0.0));
 			mapping->set_rotation(ccl::zero_float3());
@@ -172,18 +159,15 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 
 			// separate node
 			ccl::SeparateXYZNode* separate = shader_graph->create_node<ccl::SeparateXYZNode>();
-			shader_graph->add(separate);
 			// connect mapping to separate
 			shader_graph->connect(mapping->output("Vector"), separate->input("Vector"));
 
 			// combine node
 			ccl::CombineXYZNode* combine = shader_graph->create_node<ccl::CombineXYZNode>();
-			shader_graph->add(combine);
 			// connect separate to combine
 			if (alt_x)
 			{// with alternation, add math ping-pong node
 				ccl::MathNode* math_x = shader_graph->create_node<ccl::MathNode>();
-				shader_graph->add(math_x);
 				math_x->set_math_type(ccl::NODE_MATH_PINGPONG);
 				math_x->set_value2(1.0);
 
@@ -198,7 +182,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			if (alt_y)
 			{
 				ccl::MathNode* math_y = shader_graph->create_node<ccl::MathNode>();
-				shader_graph->add(math_y);
 				math_y->set_math_type(ccl::NODE_MATH_PINGPONG);
 				math_y->set_value2(1.0);
 
@@ -227,7 +210,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		// interprete Lamberts as simple diffuse
 		ccl::DiffuseBsdfNode* node = shader_graph->create_node<ccl::DiffuseBsdfNode>();
 
-		shader_graph->add(node);
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		nodes_map[xsi_shader_id] = node;
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
@@ -242,7 +224,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		// interprete Lamberts as principled bsdf
 		ccl::PrincipledBsdfNode* node = shader_graph->create_node<ccl::PrincipledBsdfNode>();
 
-		shader_graph->add(node);
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		nodes_map[xsi_shader_id] = node;
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
@@ -266,10 +247,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			ccl::MathNode* math_subtract = shader_graph->create_node<ccl::MathNode>();
 			ccl::MathNode* math_divide = shader_graph->create_node<ccl::MathNode>();
 			ccl::ClampNode* clamp_node = shader_graph->create_node<ccl::ClampNode>();
-
-			shader_graph->add(math_subtract);
-			shader_graph->add(math_divide);
-			shader_graph->add(clamp_node);
 
 			math_subtract->set_value1(1.0f);
 			math_subtract->set_math_type(ccl::NodeMathType::NODE_MATH_SUBTRACT);
@@ -298,7 +275,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		hair_node->set_component(ccl::ClosureType::CLOSURE_BSDF_HAIR_REFLECTION_ID);
 		
 		// we should setup only the color
-		shader_graph->add(hair_node);
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		nodes_map[xsi_shader_id] = hair_node;
 		hair_node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
@@ -316,18 +292,15 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 
 		// create hair info node, we need random and intercept values
 		ccl::HairInfoNode* hair_info = shader_graph->create_node<ccl::HairInfoNode>();
-		shader_graph->add(hair_info);
 
 		// random should be clamped
 		ccl::ClampNode* random_clamp = shader_graph->create_node<ccl::ClampNode>();
-		shader_graph->add(random_clamp);
 		random_clamp->set_clamp_type(ccl::NodeClampType::NODE_CLAMP_MINMAX);
 		random_clamp->set_min(0.0001f);
 		random_clamp->set_max(0.9999f);
 		shader_graph->connect(hair_info->output("Random"), random_clamp->input("Value"));
 
 		ccl::MixNode* finall_mix = shader_graph->create_node<ccl::MixNode>();
-		shader_graph->add(finall_mix);
 		finall_mix->set_mix_type(ccl::NodeMix::NODE_MIX_BLEND);
 
 		// connect finall mix to hair node
@@ -338,39 +311,33 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 
 		// for tips colors
 		ccl::MixNode* tips_mix = shader_graph->create_node<ccl::MixNode>();
-		shader_graph->add(tips_mix);
 		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_a_parameter, nodes_map, aovs, "Color1", eval_time);
 		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_b_parameter, nodes_map, aovs, "Color2", eval_time);
 		shader_graph->connect(tips_mix->output("Color"), finall_mix->input("Color2"));
 
 		// calculate coefficient for tips mix
 		ccl::ClampNode* balance_clamp = shader_graph->create_node<ccl::ClampNode>();
-		shader_graph->add(balance_clamp);
 		balance_clamp->set_clamp_type(ccl::NodeClampType::NODE_CLAMP_MINMAX);
 		balance_clamp->set_min(0.0001f);
 		balance_clamp->set_max(0.9999f);
 		sync_float_parameter(scene, shader_graph, balance_clamp, tip_balance_parameter, nodes_map, aovs, "Value", eval_time);
 
 		ccl::MathNode* balance_subtract_01 = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(balance_subtract_01);
 		balance_subtract_01->set_math_type(ccl::NodeMathType::NODE_MATH_SUBTRACT);
 		balance_subtract_01->set_value1(1.0f);
 		shader_graph->connect(balance_clamp->output("Result"), balance_subtract_01->input("Value2"));
 
 		ccl::MathNode* balance_divide_01 = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(balance_divide_01);
 		balance_divide_01->set_math_type(ccl::NodeMathType::NODE_MATH_DIVIDE);
 		shader_graph->connect(balance_clamp->output("Result"), balance_divide_01->input("Value1"));
 		shader_graph->connect(balance_subtract_01->output("Value"), balance_divide_01->input("Value2"));
 
 		ccl::MathNode* balance_power_01 = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(balance_power_01);
 		balance_power_01->set_math_type(ccl::NodeMathType::NODE_MATH_POWER);
 		shader_graph->connect(random_clamp->output("Result"), balance_power_01->input("Value1"));
 		shader_graph->connect(balance_divide_01->output("Value"), balance_power_01->input("Value2"));
 
 		ccl::MathNode* balance_subtract_02 = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(balance_subtract_02);
 		balance_subtract_02->set_math_type(ccl::NodeMathType::NODE_MATH_SUBTRACT);
 		balance_subtract_02->set_value1(1.0f);
 		shader_graph->connect(balance_power_01->output("Value"), balance_subtract_02->input("Value2"));
@@ -381,65 +348,55 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		// and next we need finall mix coefficient
 		// connect input parameters: center and range
 		ccl::ClampNode* center_clamp = shader_graph->create_node<ccl::ClampNode>();
-		shader_graph->add(center_clamp);
 		center_clamp->set_clamp_type(ccl::NodeClampType::NODE_CLAMP_MINMAX);
 		center_clamp->set_min(0.0f);
 		center_clamp->set_max(1.0f);
 		sync_float_parameter(scene, shader_graph, center_clamp, diffuse_center_parameter, nodes_map, aovs, "Value", eval_time);
 
 		ccl::ClampNode* range_clamp = shader_graph->create_node<ccl::ClampNode>();
-		shader_graph->add(range_clamp);
 		range_clamp->set_clamp_type(ccl::NodeClampType::NODE_CLAMP_MINMAX);
 		range_clamp->set_min(0.0001f);
 		range_clamp->set_max(0.9999f);
 		sync_float_parameter(scene, shader_graph, range_clamp, diffuse_range_parameter, nodes_map, aovs, "Value", eval_time);
 
 		ccl::MathNode* c_r_multiply = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(c_r_multiply);
 		c_r_multiply->set_math_type(ccl::NodeMathType::NODE_MATH_MULTIPLY);
 		shader_graph->connect(center_clamp->output("Result"), c_r_multiply->input("Value1"));
 		shader_graph->connect(range_clamp->output("Result"), c_r_multiply->input("Value2"));
 
 		ccl::MathNode* c_cr_subtract = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(c_cr_subtract);
 		c_cr_subtract->set_math_type(ccl::NodeMathType::NODE_MATH_SUBTRACT);
 		shader_graph->connect(center_clamp->output("Result"), c_cr_subtract->input("Value1"));
 		shader_graph->connect(c_r_multiply->output("Value"), c_cr_subtract->input("Value2"));
 
 		ccl::MathNode* i_r_divide = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(i_r_divide);
 		i_r_divide->set_math_type(ccl::NodeMathType::NODE_MATH_DIVIDE);
 		shader_graph->connect(hair_info->output("Intercept"), i_r_divide->input("Value1"));
 		shader_graph->connect(range_clamp->output("Result"), i_r_divide->input("Value2"));
 
 		ccl::MathNode* ccr_r_divide = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(ccr_r_divide);
 		ccr_r_divide->set_math_type(ccl::NodeMathType::NODE_MATH_DIVIDE);
 		shader_graph->connect(c_cr_subtract->output("Value"), ccr_r_divide->input("Value1"));
 		shader_graph->connect(range_clamp->output("Result"), ccr_r_divide->input("Value2"));
 
 		ccl::MathNode* ird_ccrrd_subtract = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(ird_ccrrd_subtract);
 		ird_ccrrd_subtract->set_math_type(ccl::NodeMathType::NODE_MATH_SUBTRACT);
 		shader_graph->connect(i_r_divide->output("Value"), ird_ccrrd_subtract->input("Value1"));
 		shader_graph->connect(ccr_r_divide->output("Value"), ird_ccrrd_subtract->input("Value2"));
 
 		ccl::ClampNode* preclamp = shader_graph->create_node<ccl::ClampNode>();
-		shader_graph->add(preclamp);
 		preclamp->set_clamp_type(ccl::NodeClampType::NODE_CLAMP_MINMAX);
 		preclamp->set_min(0.0f);
 		preclamp->set_max(1.0f);
 		shader_graph->connect(ird_ccrrd_subtract->output("Value"), preclamp->input("Value"));
 
 		ccl::MathNode* less = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(less);
 		less->set_math_type(ccl::NodeMathType::NODE_MATH_LESS_THAN);
 		shader_graph->connect(c_cr_subtract->output("Value"), less->input("Value1"));
 		shader_graph->connect(hair_info->output("Intercept"), less->input("Value2"));
 
 		// finall multiplication
 		ccl::MathNode* multiplication = shader_graph->create_node<ccl::MathNode>();
-		shader_graph->add(multiplication);
 		multiplication->set_math_type(ccl::NodeMathType::NODE_MATH_MULTIPLY);
 		shader_graph->connect(preclamp->output("Result"), multiplication->input("Value1"));
 		shader_graph->connect(less->output("Value"), multiplication->input("Value2"));
@@ -451,7 +408,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 	}
 	else
 	{
-		log_message("unknown native shader " + shader_type);
+		
 	}
 	return NULL;
 }

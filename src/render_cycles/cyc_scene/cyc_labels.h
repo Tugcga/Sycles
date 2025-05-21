@@ -30,7 +30,6 @@ public:
 		is_label_camera = false;
 		is_label_samples = false;
 		is_label_objects_count = false;
-		is_label_lights_count = false;
 		is_label_triangles_count = false;
 		is_label_curves_count = false;
 
@@ -55,7 +54,6 @@ public:
 			is_label_camera ||
 			is_label_samples ||
 			is_label_objects_count ||
-			is_label_lights_count ||
 			is_label_triangles_count ||
 			is_label_curves_count;
 	}
@@ -130,16 +128,6 @@ public:
 		else
 		{
 			objects_count_value = 0;
-		}
-
-		is_label_lights_count = render_parameters.GetValue("output_label_lights_count");
-		if (is_label_lights_count)
-		{
-			lights_count_value = scene->lights.size();
-		}
-		else
-		{
-			lights_count_value = 0;
 		}
 
 		is_label_triangles_count = render_parameters.GetValue("output_label_triangles_count");
@@ -241,11 +229,6 @@ public:
 			to_return = to_return + (is_start_init ? " | " : "") + "Objects: " + XSI::CString(objects_count_value);
 			is_start_init = true;
 		}
-		if (is_label_lights_count)
-		{
-			to_return = to_return + (is_start_init ? " | " : "") + "Lights: " + XSI::CString(lights_count_value);
-			is_start_init = true;
-		}
 
 		return to_return;
 	}
@@ -258,7 +241,6 @@ private:
 	bool is_label_camera;
 	bool is_label_samples;
 	bool is_label_objects_count;
-	bool is_label_lights_count;
 	bool is_label_triangles_count;
 	bool is_label_curves_count;
 

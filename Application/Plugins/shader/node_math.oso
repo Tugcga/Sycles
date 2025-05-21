@@ -1,5 +1,5 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
+# Compiled by oslc 1.14.4.0dev
 # options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_math.oso
 shader node_math
 param	string	math_type	"add"		%read{0,220} %write{2147483647,-1}
@@ -7,8 +7,8 @@ param	float	Value1	0.5		%read{2,222} %write{2147483647,-1}
 param	float	Value2	0.5		%read{2,223} %write{2147483647,-1}
 param	float	Value3	0.5		%read{120,235} %write{2147483647,-1}
 oparam	float	Value	0		%read{2147483647,-1} %write{2,241}
-local	float	___350_h	%read{212,234} %write{210,231}
-local	float	___357_range	%read{121,126} %write{120,120}
+local	float	___351_h	%read{212,234} %write{210,231}
+local	float	___358_range	%read{121,126} %write{120,120}
 const	string	$const1	"add"		%read{0,0} %write{2147483647,-1}
 temp	int	$tmp1	%read{1,1} %write{0,0}
 const	string	$const2	"subtract"		%read{3,3} %write{2147483647,-1}
@@ -410,15 +410,15 @@ code ___main___
 	functioncall	$const34 130 	%line{62} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:73
 #   float range = max - min;
-	sub		___357_range Value2 Value3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{73} %argrw{"wrr"}
+	sub		___358_range Value2 Value3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{73} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:74
 #   return (range != 0.0) ? value - (range * floor((value - min) / range)) : min;
-	neq		$tmp45 ___357_range $const6 	%line{74} %argrw{"wrr"}
+	neq		$tmp45 ___358_range $const6 	%line{74} %argrw{"wrr"}
 	if		$tmp45 128 129 	%argrw{"r"}
 	sub		$tmp47 Value1 Value3 	%argrw{"wrr"}
-	div		$tmp48 $tmp47 ___357_range 	%argrw{"wrr"}
+	div		$tmp48 $tmp47 ___358_range 	%argrw{"wrr"}
 	floor		$tmp46 $tmp48 	%argrw{"wr"}
-	mul		$tmp49 ___357_range $tmp46 	%argrw{"wrr"}
+	mul		$tmp49 ___358_range $tmp46 	%argrw{"wrr"}
 	sub		Value Value1 $tmp49 	%argrw{"wrr"}
 	assign		Value Value3 	%argrw{"wr"}
 	return
@@ -576,12 +576,12 @@ code ___main___
 	abs		$tmp85 $tmp86 	%argrw{"wr"}
 	sub		$tmp87 Value3 $tmp85 	%argrw{"wrr"}
 	max		$tmp84 $tmp87 $const6 	%argrw{"wrr"}
-	div		___350_h $tmp84 Value3 	%argrw{"wrr"}
+	div		___351_h $tmp84 Value3 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:37
 #     return min(a, b) - h * h * h * c * (1.0 / 6.0);
 	min		$tmp88 Value1 Value2 	%line{37} %argrw{"wrr"}
-	mul		$tmp89 ___350_h ___350_h 	%argrw{"wrr"}
-	mul		$tmp90 $tmp89 ___350_h 	%argrw{"wrr"}
+	mul		$tmp89 ___351_h ___351_h 	%argrw{"wrr"}
+	mul		$tmp90 $tmp89 ___351_h 	%argrw{"wrr"}
 	mul		$tmp91 $tmp90 Value3 	%argrw{"wrr"}
 	mul		$tmp92 $tmp91 $const55 	%argrw{"wrr"}
 	sub		Value $tmp88 $tmp92 	%argrw{"wrr"}
@@ -609,12 +609,12 @@ code ___main___
 	abs		$tmp99 $tmp100 	%argrw{"wr"}
 	sub		$tmp101 Value3 $tmp99 	%argrw{"wrr"}
 	max		$tmp98 $tmp101 $const6 	%argrw{"wrr"}
-	div		___350_h $tmp98 Value3 	%argrw{"wrr"}
+	div		___351_h $tmp98 Value3 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:37
 #     return min(a, b) - h * h * h * c * (1.0 / 6.0);
 	min		$tmp102 $tmp95 $tmp96 	%line{37} %argrw{"wrr"}
-	mul		$tmp103 ___350_h ___350_h 	%argrw{"wrr"}
-	mul		$tmp104 $tmp103 ___350_h 	%argrw{"wrr"}
+	mul		$tmp103 ___351_h ___351_h 	%argrw{"wrr"}
+	mul		$tmp104 $tmp103 ___351_h 	%argrw{"wrr"}
 	mul		$tmp105 $tmp104 Value3 	%argrw{"wrr"}
 	mul		$tmp106 $tmp105 $const55 	%argrw{"wrr"}
 	sub		$tmp94 $tmp102 $tmp106 	%argrw{"wrr"}

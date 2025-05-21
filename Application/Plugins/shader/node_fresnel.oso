@@ -1,5 +1,5 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
+# Compiled by oslc 1.14.4.0dev
 # options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_fresnel.oso
 shader node_fresnel
 param	float	IOR	1.45000005		%read{1,1} %write{2147483647,-1}
@@ -7,11 +7,11 @@ param	normal	Normal	0 0 0		%read{6,6} %write{0,0} %initexpr
 oparam	float	Fac	0		%read{2147483647,-1} %write{32,32}
 global	vector	I	%read{6,6} %write{2147483647,-1}
 global	normal	N	%read{0,0} %write{2147483647,-1}
-local	float	___344_c	%read{11,23} %write{8,8}
-local	float	___344_g	%read{13,22} %write{12,15}
-local	float	___344_result	%read{32,32} %write{30,31}
-local	float	___345_A	%read{26,27} %write{18,18}
-local	float	___345_B	%read{28,28} %write{25,25}
+local	float	___345_c	%read{11,23} %write{8,8}
+local	float	___345_g	%read{13,22} %write{12,15}
+local	float	___345_result	%read{32,32} %write{30,31}
+local	float	___346_A	%read{26,27} %write{18,18}
+local	float	___346_B	%read{28,28} %write{25,25}
 local	float	f	%read{4,5} %write{1,1}
 local	float	eta	%read{9,9} %write{4,5}
 local	float	cosi	%read{8,8} %write{6,6}
@@ -59,45 +59,45 @@ code ___main___
 	functioncall	$const3 33 	%line{13} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:12
 #   float c = fabs(cosi);
-	fabs		___344_c cosi 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{12} %argrw{"wr"}
+	fabs		___345_c cosi 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{12} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:13
 #   float g = eta * eta - 1 + c * c;
 	mul		$tmp2 eta eta 	%line{13} %argrw{"wrr"}
 	sub		$tmp3 $tmp2 $const2 	%argrw{"wrr"}
-	mul		$tmp4 ___344_c ___344_c 	%argrw{"wrr"}
-	add		___344_g $tmp3 $tmp4 	%argrw{"wrr"}
+	mul		$tmp4 ___345_c ___345_c 	%argrw{"wrr"}
+	add		___345_g $tmp3 $tmp4 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:16
 #   if (g > 0) {
-	gt		$tmp5 ___344_g $const5 	%line{16} %argrw{"wrr"}
+	gt		$tmp5 ___345_g $const5 	%line{16} %argrw{"wrr"}
 	if		$tmp5 31 32 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:17
 #     g = sqrt(g);
-	sqrt		___344_g ___344_g 	%line{17} %argrw{"wr"}
+	sqrt		___345_g ___345_g 	%line{17} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:18
 #     float A = (g - c) / (g + c);
-	sub		$tmp6 ___344_g ___344_c 	%line{18} %argrw{"wrr"}
-	add		$tmp7 ___344_g ___344_c 	%argrw{"wrr"}
-	div		___345_A $tmp6 $tmp7 	%argrw{"wrr"}
+	sub		$tmp6 ___345_g ___345_c 	%line{18} %argrw{"wrr"}
+	add		$tmp7 ___345_g ___345_c 	%argrw{"wrr"}
+	div		___346_A $tmp6 $tmp7 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:19
 #     float B = (c * (g + c) - 1) / (c * (g - c) + 1);
-	add		$tmp8 ___344_g ___344_c 	%line{19} %argrw{"wrr"}
-	mul		$tmp9 ___344_c $tmp8 	%argrw{"wrr"}
+	add		$tmp8 ___345_g ___345_c 	%line{19} %argrw{"wrr"}
+	mul		$tmp9 ___345_c $tmp8 	%argrw{"wrr"}
 	sub		$tmp10 $tmp9 $const2 	%argrw{"wrr"}
-	sub		$tmp11 ___344_g ___344_c 	%argrw{"wrr"}
-	mul		$tmp12 ___344_c $tmp11 	%argrw{"wrr"}
+	sub		$tmp11 ___345_g ___345_c 	%argrw{"wrr"}
+	mul		$tmp12 ___345_c $tmp11 	%argrw{"wrr"}
 	add		$tmp13 $tmp12 $const2 	%argrw{"wrr"}
-	div		___345_B $tmp10 $tmp13 	%argrw{"wrr"}
+	div		___346_B $tmp10 $tmp13 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:20
 #     result = 0.5 * A * A * (1 + B * B);
-	mul		$tmp14 $const6 ___345_A 	%line{20} %argrw{"wrr"}
-	mul		$tmp15 $tmp14 ___345_A 	%argrw{"wrr"}
-	mul		$tmp16 ___345_B ___345_B 	%argrw{"wrr"}
+	mul		$tmp14 $const6 ___346_A 	%line{20} %argrw{"wrr"}
+	mul		$tmp15 $tmp14 ___346_A 	%argrw{"wrr"}
+	mul		$tmp16 ___346_B ___346_B 	%argrw{"wrr"}
 	add		$tmp17 $const2 $tmp16 	%argrw{"wrr"}
-	mul		___344_result $tmp15 $tmp17 	%argrw{"wrr"}
+	mul		___345_result $tmp15 $tmp17 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:23
 #     result = 1.0; /* TIR (no refracted component) */
-	assign		___344_result $const2 	%line{23} %argrw{"wr"}
+	assign		___345_result $const2 	%line{23} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:26
 #   return result;
-	assign		Fac ___344_result 	%line{26} %argrw{"wr"}
+	assign		Fac ___345_result 	%line{26} %argrw{"wr"}
 	end

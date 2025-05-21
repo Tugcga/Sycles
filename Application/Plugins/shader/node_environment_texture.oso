@@ -1,5 +1,5 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
+# Compiled by oslc 1.14.4.0dev
 # options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_environment_texture.oso
 shader node_environment_texture
 param	int	use_mapping	0		%read{2,2} %write{2147483647,-1}
@@ -15,12 +15,12 @@ param	int	is_float	1		%read{64,64} %write{2147483647,-1}
 oparam	color	Color	0 0 0		%read{61,96} %write{49,109}
 oparam	float	Alpha	1		%read{54,61} %write{49,51}
 global	point	P	%read{0,0} %write{2147483647,-1} %derivs
-local	float	___404_u	%read{25,25} %write{13,13} %derivs
-local	float	___404_v	%read{25,25} %write{24,24} %derivs
-local	vector	___405_dir	%read{28,42} %write{27,38} %derivs
-local	float	___405_div	%read{36,38} %write{35,35} %derivs
-local	float	___405_u	%read{45,45} %write{41,41} %derivs
-local	float	___405_v	%read{45,45} %write{44,44} %derivs
+local	float	___408_u	%read{25,25} %write{13,13} %derivs
+local	float	___408_v	%read{25,25} %write{24,24} %derivs
+local	vector	___409_dir	%read{28,42} %write{27,38} %derivs
+local	float	___409_div	%read{36,38} %write{35,35} %derivs
+local	float	___409_u	%read{45,45} %write{41,41} %derivs
+local	float	___409_v	%read{45,45} %write{44,44} %derivs
 local	vector	p	%read{3,47} %write{1,45} %derivs
 const	string	$const1	"equirectangular"		%read{5,5} %write{2147483647,-1}
 temp	int	$tmp1	%read{6,6} %write{5,5}
@@ -131,7 +131,7 @@ code ___main___
 	atan2		$tmp2 $tmp3 $tmp4 	%argrw{"wrr"}
 	neg		$tmp5 $tmp2 	%argrw{"wr"}
 	div		$tmp6 $tmp5 $const5 	%argrw{"wrr"}
-	add		___404_u $tmp6 $const6 	%argrw{"wrr"}
+	add		___408_u $tmp6 $const6 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:11
 #   float v = atan2(dir[2], hypot(dir[0], dir[1])) / M_PI + 0.5;
 	compref		$tmp8 p $const7 	%line{11} %argrw{"wrr"}
@@ -148,48 +148,48 @@ code ___main___
 #   float v = atan2(dir[2], hypot(dir[0], dir[1])) / M_PI + 0.5;
 	atan2		$tmp7 $tmp8 $tmp9 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl"} %line{11} %argrw{"wrr"}
 	div		$tmp15 $tmp7 $const9 	%argrw{"wrr"}
-	add		___404_v $tmp15 $const6 	%argrw{"wrr"}
+	add		___408_v $tmp15 $const6 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:13
 #   return vector(u, v, 0.0);
-	vector		p ___404_u ___404_v $const10 	%line{13} %argrw{"wrrr"}
+	vector		p ___408_u ___408_v $const10 	%line{13} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:55
 #     p = environment_texture_direction_to_mirrorball(p);
 	functioncall	$const11 46 	%line{55} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:18
 #   vector dir = idir;
-	assign		___405_dir p 	%line{18} %argrw{"wr"}
+	assign		___409_dir p 	%line{18} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:19
 #   dir[1] -= 1.0;
-	compref		$tmp16 ___405_dir $const3 	%line{19} %argrw{"wrr"}
+	compref		$tmp16 ___409_dir $const3 	%line{19} %argrw{"wrr"}
 	sub		$tmp17 $tmp16 $const12 	%argrw{"wrr"}
-	compassign	___405_dir $const3 $tmp17 	%argrw{"wrr"}
+	compassign	___409_dir $const3 $tmp17 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:21
 #   float div = 2.0 * sqrt(max(-0.5 * dir[1], 0.0));
-	compref		$tmp20 ___405_dir $const3 	%line{21} %argrw{"wrr"}
+	compref		$tmp20 ___409_dir $const3 	%line{21} %argrw{"wrr"}
 	mul		$tmp21 $const14 $tmp20 	%argrw{"wrr"}
 	max		$tmp19 $tmp21 $const10 	%argrw{"wrr"}
 	sqrt		$tmp18 $tmp19 	%argrw{"wr"}
-	mul		___405_div $const13 $tmp18 	%argrw{"wrr"}
+	mul		___409_div $const13 $tmp18 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:22
 #   if (div > 0.0)
-	gt		$tmp22 ___405_div $const10 	%line{22} %argrw{"wrr"}
+	gt		$tmp22 ___409_div $const10 	%line{22} %argrw{"wrr"}
 	if		$tmp22 39 39 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:23
 #     dir /= div;
-	div		___405_dir ___405_dir ___405_div 	%line{23} %argrw{"wrr"}
+	div		___409_dir ___409_dir ___409_div 	%line{23} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:25
 #   float u = 0.5 * (dir[0] + 1.0);
-	compref		$tmp23 ___405_dir $const4 	%line{25} %argrw{"wrr"}
+	compref		$tmp23 ___409_dir $const4 	%line{25} %argrw{"wrr"}
 	add		$tmp24 $tmp23 $const12 	%argrw{"wrr"}
-	mul		___405_u $const6 $tmp24 	%argrw{"wrr"}
+	mul		___409_u $const6 $tmp24 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:26
 #   float v = 0.5 * (dir[2] + 1.0);
-	compref		$tmp25 ___405_dir $const7 	%line{26} %argrw{"wrr"}
+	compref		$tmp25 ___409_dir $const7 	%line{26} %argrw{"wrr"}
 	add		$tmp26 $tmp25 $const12 	%argrw{"wrr"}
-	mul		___405_v $const6 $tmp26 	%argrw{"wrr"}
+	mul		___409_v $const6 $tmp26 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:28
 #   return vector(u, v, 0.0);
-	vector		p ___405_u ___405_v $const10 	%line{28} %argrw{"wrrr"}
+	vector		p ___409_u ___409_v $const10 	%line{28} %argrw{"wrrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_environment_texture.osl:59
 #       filename, p[0], 1.0 - p[1], "wrap", "periodic", "interp", interpolation, "alpha", Alpha);
 	compref		$tmp27 p $const4 	%line{59} %argrw{"wrr"}

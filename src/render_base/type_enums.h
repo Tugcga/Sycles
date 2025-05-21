@@ -19,6 +19,8 @@ enum UpdateType
 	UpdateType_Mesh,
 	UpdateType_Pointcloud,
 	UpdateType_Hair,
+	UpdateType_Curve,
+	UpdateType_Surface,
 	UpdateType_XsiLight,
 	UpdateType_Visibility,
 	UpdateType_Subdivision,
@@ -29,6 +31,8 @@ enum UpdateType
 	UpdateType_VDBPrimitive,
 	UpdateType_MeshProperty,
 	UpdateType_HairProperty,
+	UpdateType_CurveProperty,
+	UpdateType_SurfaceProperty,
 	UpdateType_PointcloudProperty,
 	UpdateType_VolumeProperty,
 	UpdateType_LightLinkingProperty

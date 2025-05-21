@@ -19,3 +19,4 @@ int get_index_in_array(const std::vector<std::vector<ULONG>>& collection, const 
 float get_maximum(const std::vector<float> &array);
 
 bool is_sorted_array_contains_value(const std::vector<ULONG>& array, ULONG value);
+void copy_filtered(const std::vector<float> &src, std::vector<float> &dst, float limit_value);

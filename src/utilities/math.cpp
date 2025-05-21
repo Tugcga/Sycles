@@ -17,6 +17,7 @@
 #include "scene/camera.h"
 
 #include "../render_base/type_enums.h"
+#include "../render_cycles/cyc_scene/cyc_motion.h"
 
 const float epsilon = 0.0001f;
 
@@ -378,4 +379,21 @@ int powi(int base, unsigned int exp)
 		base *= base;
 	}
 	return res;
+}
+
+size_t calc_time_motion_step(size_t mi, size_t motion_steps, MotionSettingsPosition motion_position) {
+	size_t time_motion_step = mi;
+	if (motion_position == MotionSettingsPosition::MotionPosition_Start)
+	{
+		time_motion_step++;
+	}
+	else if (motion_position == MotionSettingsPosition::MotionPosition_Center)
+	{// center
+		if (mi >= motion_steps / 2)
+		{
+			time_motion_step++;
+		}
+	}
+
+	return time_motion_step;
 }

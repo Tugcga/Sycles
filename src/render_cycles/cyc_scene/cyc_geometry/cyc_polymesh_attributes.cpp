@@ -19,7 +19,7 @@
 #include "../../../utilities/math.h"
 #include "../../../utilities/logs.h"
 
-void sync_mesh_attribute_vertex_color(ccl::Scene* scene, ccl::Mesh* mesh, ccl::AttributeSet& attributes, const XSI::CGeometryAccessor& xsi_geo_acc, bool use_triangles, const XSI::CLongArray& triangle_nodes, const XSI::CPolygonFaceRefArray& faces)
+void sync_mesh_attribute_vertex_color(ccl::Scene* scene, ccl::Mesh* mesh, ccl::AttributeSet& attributes, const XSI::CGeometryAccessor& xsi_geo_acc, SubdivideMode subdiv_mode, const XSI::CLongArray& triangle_nodes, const XSI::CPolygonFaceRefArray& faces)
 {
 	XSI::CRefArray vertex_colors_array = xsi_geo_acc.GetVertexColors();
 	size_t vertex_colors_array_count = vertex_colors_array.GetCount();
@@ -33,9 +33,8 @@ void sync_mesh_attribute_vertex_color(ccl::Scene* scene, ccl::Mesh* mesh, ccl::A
 		if (mesh->need_attribute(scene, vc_name))
 		{
 			ccl::Attribute* vc_attr = attributes.add(vc_name, ccl::TypeRGBA, ccl::ATTR_ELEMENT_CORNER_BYTE);
-			vc_attr->flags |= ccl::ATTR_SUBDIVIDED;
 			ccl::uchar4* cdata = vc_attr->data_uchar4();
-			if (use_triangles)
+			if (subdiv_mode == SubdivideMode_None)
 			{
 				size_t triangles_count = triangle_nodes.GetCount() / 3;
 				for (size_t t_index = 0; t_index < triangles_count; t_index++)
@@ -74,7 +73,7 @@ void sync_mesh_attribute_vertex_color(ccl::Scene* scene, ccl::Mesh* mesh, ccl::A
 	}
 }
 
-void sync_mesh_attribute_random_per_island(ccl::Scene* scene, ccl::Mesh* mesh, ccl::AttributeSet& attributes, bool use_triangles, size_t nodes_count, size_t triangles_count, const XSI::CLongArray& triangle_nodes, const XSI::PolygonMesh& xsi_polymesh, const XSI::CPolygonFaceRefArray& faces)
+void sync_mesh_attribute_random_per_island(ccl::Scene* scene, ccl::Mesh* mesh, ccl::AttributeSet& attributes, SubdivideMode subdiv_mode, size_t nodes_count, size_t triangles_count, const XSI::CLongArray& triangle_nodes, const XSI::PolygonMesh& xsi_polymesh, const XSI::CPolygonFaceRefArray& faces)
 {
 	if (mesh->need_attribute(scene, ccl::ATTR_STD_RANDOM_PER_ISLAND))
 	{
@@ -98,7 +97,7 @@ void sync_mesh_attribute_random_per_island(ccl::Scene* scene, ccl::Mesh* mesh, c
 		ccl::Attribute* island_attribute = attributes.add(ccl::ATTR_STD_RANDOM_PER_ISLAND);
 		float* island_data = island_attribute->data_float();
 		// fill attribute for every triangle
-		if (!use_triangles)
+		if (subdiv_mode != SubdivideMode_None)
 		{// for subdivided mesh
 			size_t face_count = faces.GetCount();
 			for (size_t face_index = 0; face_index < face_count; face_index++)
@@ -178,14 +177,14 @@ protected:
 	std::set<std::pair<int, int>> edges_;
 };
 
-void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, bool use_triangles, size_t vertex_count, size_t nodes_count, const XSI::CVertexRefArray& vertices, const XSI::CFloatArray& node_normals, const XSI::PolygonMesh& xsi_polymesh)
+void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t vertex_count, size_t nodes_count, const XSI::CVertexRefArray& vertices, const XSI::CFloatArray& node_normals, const XSI::PolygonMesh& xsi_polymesh)
 {
 	if (!mesh->need_attribute(scene, ccl::ATTR_STD_POINTINESS))
 	{
 		return;
 	}
 
-	const size_t num_verts = !use_triangles ? vertex_count : nodes_count;
+	const size_t num_verts = subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count;
 	if (num_verts == 0)
 	{
 		return;
@@ -252,7 +251,7 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, bool use_
 	// First we accumulate all vertex normals in the original index.
 	for (size_t vert_index = 0; vert_index < num_verts; ++vert_index)
 	{
-		if (!use_triangles)
+		if (subdiv_mode == SubdivideMode_CatmulClark)
 		{
 			XSI::Vertex vertex(vertices[vert_index]);
 			const size_t orig_index = vert_orig_index[vert_index];
@@ -294,7 +293,7 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, bool use_
 
 		size_t v0 = 0;
 		size_t v1 = 0;
-		if (!use_triangles)
+		if (subdiv_mode == SubdivideMode_CatmulClark)
 		{
 			v0 = vert_orig_index[vert_0.GetIndex()];
 			v1 = vert_orig_index[vert_1.GetIndex()];
@@ -345,9 +344,8 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, bool use_
 		}
 	}
 	// STEP 3: Blur vertices to approximate 2 ring neighborhood. 
-	ccl::AttributeSet& attributes = (!use_triangles) ? mesh->subd_attributes : mesh->attributes;
+	ccl::AttributeSet& attributes = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes : mesh->attributes;
 	ccl::Attribute* attr = attributes.add(ccl::ATTR_STD_POINTINESS);
-	attr->flags |= ccl::ATTR_SUBDIVIDED;
 	float* data = attr->data_float();
 	memcpy(data, &raw_data[0], sizeof(float) * raw_data.size());
 	memset(&counter[0], 0, sizeof(size_t) * counter.size());
@@ -362,7 +360,7 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, bool use_
 
 		size_t v0 = 0;
 		size_t v1 = 0;
-		if (!use_triangles)
+		if (subdiv_mode == SubdivideMode_CatmulClark)
 		{
 			v0 = vert_orig_index[vert_0.GetIndex()];
 			v1 = vert_orig_index[vert_1.GetIndex()];
@@ -400,14 +398,18 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, bool use_
 	}
 }
 
-void sync_mesh_uvs(ccl::Mesh* mesh, bool use_triangles, size_t triangles_count, size_t nodes_count, const XSI::CRefArray &uv_refs, const XSI::CPolygonFaceRefArray& faces, const XSI::CLongArray& triangle_nodes)
+void sync_mesh_uvs(ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t triangles_count, size_t nodes_count, const XSI::CRefArray &uv_refs, const XSI::CPolygonFaceRefArray& faces, const XSI::CLongArray& triangle_nodes)
 {
+	// in non-subdivide mesh we use tyriangles
+	// for any subdivided mesh we use polygons
+	// but in linear subdivided mesh vertices are nodes
+	// in Catmul-Clark subdivided mesh vertices are geometry vertices
 	LONG uv_count = uv_refs.GetCount();
-	ULONG one_uv_length = !use_triangles ? nodes_count : (triangles_count * 3);
+	ULONG one_uv_length = subdiv_mode != SubdivideMode_None ? nodes_count : (triangles_count * 3);
 
 	ccl::ustring uv_name = ccl::ustring("std_uv");
 	ccl::Attribute* uv_attr;
-	if (!use_triangles)
+	if (subdiv_mode != SubdivideMode_None)
 	{
 		uv_attr = mesh->subd_attributes.add(ccl::ATTR_STD_UV, uv_name);
 	}
@@ -415,11 +417,7 @@ void sync_mesh_uvs(ccl::Mesh* mesh, bool use_triangles, size_t triangles_count, 
 	{
 		uv_attr = mesh->attributes.add(ccl::ATTR_STD_UV, uv_name);
 	}
-
-	if (!use_triangles)
-	{
-		uv_attr->flags |= ccl::ATTR_SUBDIVIDED;
-	}
+	uv_attr->flags |= ccl::ATTR_SUBDIVIDE_SMOOTH_FVAR;
 
 	ccl::float2* default_uv = uv_attr->data_float2();
 	for (size_t uv_index = 0; uv_index < uv_count; uv_index++)
@@ -431,7 +429,7 @@ void sync_mesh_uvs(ccl::Mesh* mesh, bool use_triangles, size_t triangles_count, 
 		ccl::Attribute* uv_attribute;
 		ccl::ustring uv_name = ccl::ustring(uv_prop.GetName().GetAsciiString());
 
-		if (!use_triangles)
+		if (subdiv_mode != SubdivideMode_None)
 		{
 			uv_attribute = mesh->subd_attributes.add(ccl::ATTR_STD_UV, uv_name);
 		}
@@ -439,14 +437,11 @@ void sync_mesh_uvs(ccl::Mesh* mesh, bool use_triangles, size_t triangles_count, 
 		{
 			uv_attribute = mesh->attributes.add(ccl::ATTR_STD_UV, uv_name);
 		}
-		if (!use_triangles)
-		{
-			uv_attribute->flags |= ccl::ATTR_SUBDIVIDED;
-		}
+		uv_attribute->flags |= ccl::ATTR_SUBDIVIDE_SMOOTH_FVAR;
 
 		ccl::float2* uv_attribute_data = uv_attribute->data_float2();
-		if (!use_triangles)
-		{
+		if (subdiv_mode != SubdivideMode_None)
+		{// use polygons and nodes
 			size_t faces_count = faces.GetCount();
 			for (size_t face_index = 0; face_index < faces_count; face_index++)
 			{
@@ -497,7 +492,7 @@ void sync_mesh_uvs(ccl::Mesh* mesh, bool use_triangles, size_t triangles_count, 
 	}
 }
 
-void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry &xsi_geometry, bool use_triangles, ULONG vertex_count, ULONG nodes_count, const std::vector<LONG>& nodes_to_vertex)
+void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry &xsi_geometry, SubdivideMode subdiv_mode, ULONG vertex_count, ULONG nodes_count, const std::vector<LONG>& nodes_to_vertex)
 {
 	XSI::CRefArray xsi_ice_attributes = xsi_geometry.GetICEAttributes();
 
@@ -525,11 +520,10 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					XSI::CICEAttributeDataArrayVector3f attr_data;
 					xsi_attribute.GetDataArray(attr_data);
 
-					ccl::Attribute* cycles_attribute = !use_triangles ? mesh->subd_attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_VERTEX);
-					cycles_attribute->flags |= ccl::ATTR_SUBDIVIDED;
+					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_VERTEX);
 
 					ccl::float3* cyc_attr_data = cycles_attribute->data_float3();
-					if (use_triangles)
+					if (subdiv_mode != SubdivideMode_CatmulClark)
 					{
 						for (size_t node_index = 0; node_index < nodes_count; node_index++)
 						{
@@ -551,12 +545,11 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					XSI::CICEAttributeDataArrayVector2f attr_data;
 					xsi_attribute.GetDataArray(attr_data);
 					
-					ccl::Attribute* cycles_attribute = !use_triangles ? mesh->subd_attributes.add(attr_name, ccl::TypeFloat2, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeFloat2, ccl::ATTR_ELEMENT_VERTEX);
-					cycles_attribute->flags |= ccl::ATTR_SUBDIVIDED;
+					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeFloat2, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeFloat2, ccl::ATTR_ELEMENT_VERTEX);
 
 					ccl::float2* cyc_attr_data = cycles_attribute->data_float2();
 
-					if (use_triangles)
+					if (subdiv_mode != SubdivideMode_CatmulClark)
 					{
 						for (size_t node_index = 0; node_index < nodes_count; node_index++)
 						{
@@ -578,12 +571,11 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					XSI::CICEAttributeDataArrayColor4f attr_data;
 					xsi_attribute.GetDataArray(attr_data);
 
-					ccl::Attribute* cycles_attribute = !use_triangles ? mesh->subd_attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX);
-					cycles_attribute->flags |= ccl::ATTR_SUBDIVIDED;
+					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX);
 
 					ccl::float4* cyc_attr_data = cycles_attribute->data_float4();
 
-					if (use_triangles)
+					if (subdiv_mode != SubdivideMode_CatmulClark)
 					{
 						for (size_t node_index = 0; node_index < nodes_count; node_index++)
 						{
@@ -602,8 +594,7 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 				}
 				else if (attr_data_type == XSI::siICENodeDataBool || attr_data_type == XSI::siICENodeDataFloat || attr_data_type == XSI::siICENodeDataLong)
 				{
-					ccl::Attribute* cycles_attribute = !use_triangles ? mesh->subd_attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_VERTEX);
-					cycles_attribute->flags |= ccl::ATTR_SUBDIVIDED;
+					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_VERTEX);
 
 					float* cyc_attr_data = cycles_attribute->data_float();
 
@@ -612,7 +603,7 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 						XSI::CICEAttributeDataArrayBool attr_data;
 						xsi_attribute.GetDataArray(attr_data);
 
-						if (use_triangles)
+						if (subdiv_mode != SubdivideMode_CatmulClark)
 						{
 							for (size_t node_index = 0; node_index < nodes_count; node_index++)
 							{
@@ -635,7 +626,7 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 						XSI::CICEAttributeDataArrayFloat attr_data;
 						xsi_attribute.GetDataArray(attr_data);
 
-						if (use_triangles)
+						if (subdiv_mode != SubdivideMode_CatmulClark)
 						{
 							for (size_t node_index = 0; node_index < nodes_count; node_index++)
 							{
@@ -657,7 +648,7 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 						XSI::CICEAttributeDataArrayLong attr_data;
 						xsi_attribute.GetDataArray(attr_data);
 
-						if (use_triangles)
+						if (subdiv_mode != SubdivideMode_CatmulClark)
 						{
 							for (size_t node_index = 0; node_index < nodes_count; node_index++)
 							{

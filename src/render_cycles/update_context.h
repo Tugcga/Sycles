@@ -157,6 +157,13 @@ public:
 	void set_displacement_mode(int in_mode);
 	int get_displacement_mode();
 	bool is_displacement_material(ULONG xsi_id);
+	void define_temp_path();  // create temp path only if is not defined in the current session
+	void clear_temp_path();  // clear when create the context, and also when delete the session
+	// so, if the saession is the same, then path is not removed
+	// it allows to store some cache in this folder
+	void set_temp_path(const XSI::CString& in_path);
+	bool has_temp_path();
+	XSI::CString get_temp_path();
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -202,6 +209,7 @@ private:
 	float motion_rolling_duration;  // only for rolling true
 
 	int displacement_mode;
+	XSI::CString temp_path;  // store here exr-files for tile rendering
 
 	RenderType render_type;
 
@@ -217,7 +225,7 @@ private:
 	// map from Softimage object id for Light (not for x3dobject) to index in the Cycles array of lights
 	// for custm light from x3dobject id to cycles index
 	// value is array, it contains indexes in Cycles lights array of one master light in scene and several instances
-	// when we change parameterse of the master light, then we should resync all lights in Cycles array with thiese indexes
+	// when we change parameterse of the master light, then we should resync all lights in Cycles array with these indexes
 	// this is a map from master light id to different cycles light indexes
 	std::unordered_map<ULONG, std::vector<size_t>> lights_xsi_to_cyc;
 

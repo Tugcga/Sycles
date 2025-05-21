@@ -146,8 +146,8 @@ std::unordered_map<std::string, VolumeAttributeType> build_volume_attributes_map
 
 void sync_volume_parameters(ccl::Volume* volume, XSI::X3DObject& xsi_object, const XSI::CTime &eval_time)
 {
-	XSI::Property xsi_property;
-	bool use_property = get_xsi_object_property(xsi_object, "CyclesVolume", xsi_property);
+	XSI::Property xsi_property = get_xsi_object_property(xsi_object, "CyclesVolume");
+	bool use_property = xsi_property.IsValid();
 	float clipping = 0.001f;
 	float step_size = 0.0f;
 	int object_space = 0;
@@ -182,7 +182,7 @@ void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_
 	{
 		ccl::ImageParams volume_params;
 		volume_params.frame = eval_time.GetTime();
-		attribute->data_voxel() = scene->image_manager->add_image(ice_loader, volume_params, false);
+		attribute->data_voxel() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(ice_loader), volume_params, false);
 	}
 }
 

@@ -152,3 +152,18 @@ bool is_sorted_array_contains_value(const std::vector<ULONG>& array, ULONG value
 	// use binary search
 	return binary_search(array, value) != -1;
 }
+
+void copy_filtered(const std::vector<float>& src, std::vector<float>& dst, float limit_value) {
+	size_t dst_iterator = 0;
+	for (size_t i = 0; i < src.size(); i++) {
+		float v = src[i];
+		if (v > limit_value) {
+			dst[dst_iterator] = v;
+			dst_iterator++;
+
+			if (dst_iterator >= dst.size()) {
+				break;
+			}
+		}
+	}
+}

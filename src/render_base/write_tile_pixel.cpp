@@ -68,7 +68,7 @@ void write_float32_pixel(void* ptr, size_t index, const std::vector<float>& in_p
 	}
 	else if (components == 1)
 	{
-		uint8_t v = float_to_float(in_pixels[components * index], is_srgb);
+		float v = float_to_float(in_pixels[components * index], is_srgb);
 		pixel[0] = v;
 		pixel[1] = v;
 		pixel[2] = v;

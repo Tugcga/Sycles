@@ -196,6 +196,21 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		}
 	},
 	{
+		"CyclesShadersPlugin.CyclesMetallicBSDF.1.0", {
+			{"BaseColor", "Base Color"},
+			{"EdgeTint", "Edge Tint"},
+			{"IOR", "IOR"},
+			{"Extinction", "Extinction"},
+			{"Roughness", "Roughness"},
+			{"Anisotropy", "Anisotropy"},
+			{"Rotation", "Rotation"},
+			{"Normal", "Normal"},
+			{"Tangent", "Tangent"},
+
+			{"outBSDF", "BSDF"}
+		}
+	},
+	{
 		"CyclesShadersPlugin.CyclesGlossyBSDF.1.0", {
 			{"Color", "Color"},
 			{"Normal", "Normal"},
@@ -262,6 +277,7 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Roughness", "Roughness"},
 			{"IOR", "IOR"},
 			{"Alpha", "Alpha"},
+			{"DiffuseRoughness", "Diffuse Roughness"},
 
 			{"Normal", "Normal"},
 
@@ -377,8 +393,13 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	{
 		"CyclesShadersPlugin.CyclesScatterVolume.1.0", {
 			{"Color", "Color"},
-			{"Density", "Density"}, {
-			"Anisotropy", "Anisotropy"},
+			{"Density", "Density"}, 
+			{"Anisotropy", "Anisotropy"},
+
+			{"IOR", "IOR"},
+			{"Backscatter", "Backscatter"},
+			{"Alpha", "Alpha"},
+			{"Diameter", "Diameter"},
 
 			{"outVolume", "Volume"}
 		}
@@ -863,10 +884,16 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	{
 		"CyclesShadersPlugin.CyclesBump.1.0", {
 			{"Height", "Height"},
-			// SampleCenter, SampleX and SampleY are missing in the Blender
+			
 			{"Normal", "Normal"},
 			{"Strength", "Strength"},
 			{"Distance", "Distance"},
+			{"FilterWidth", "Filter Width"},
+
+			// skip these names, because the shader does not contains these ports
+			// {"SampleCenter", "SampleCenter"},
+			// {"SampleX", "SampleX"},
+			// {"SampleY", "SampleY"},
 
 			{"outNormal", "Normal"}
 		}
@@ -911,7 +938,13 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"outAlpha", "Alpha"}
 		}
 	},
-	// SetNormalNode is missing in the Blender
+	{
+		"CyclesShadersPlugin.CyclesSetNormal.1.0", {
+			{"Direction", "Direction"},
+
+			{"outNormal", "Normal"}
+		}
+	},
 	{
 		"CyclesShadersPlugin.CyclesNormalMap.1.0", {
 			{"Strength", "Strength"},
@@ -1027,3 +1060,7 @@ ccl::NodeMathType get_math_type(const XSI::CString& math);
 ccl::NodeVectorMathType get_vector_math(const XSI::CString& math);
 ccl::NodeMapRangeType get_map_range_type(const XSI::CString& type);
 ccl::NodeClampType get_clamp_type(const XSI::CString& type);
+ccl::NodeNoiseType get_noise_type(const XSI::CString& type);
+ccl::ClosureType get_metallic_fresnel(const XSI::CString& type);
+ccl::ClosureType get_scatter_phase(const XSI::CString& type);
+ccl::ShaderBump get_shader_bump(const XSI::CString& type);

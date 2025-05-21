@@ -38,12 +38,24 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("sampling_advanced_light_threshold", "Light Threshold");
 	layout.EndGroup();
 
+	layout.AddGroup("Sampling Pattern");
+	XSI::CValueArray pattern_combo(4);
+	pattern_combo[0] = "Blue-Noise"; pattern_combo[1] = LONG(0);
+	pattern_combo[2] = "Classic"; pattern_combo[3] = LONG(1);
+	layout.AddEnumControl("sampling_advanced_pattern", pattern_combo, "Pattern", XSI::siControlCombo);
+	layout.AddItem("sampling_advanced_scrambling_distance", "Auto Scrambling Distance");
+	layout.AddItem("sampling_advanced_scrambling_multiplier", "Scrambling Distance Multiplier");
+	layout.EndGroup();
+
+	layout.AddGroup("Sample Subset");
+	layout.AddItem("sampling_advanced_subset", "Active Sample Subset");
+	layout.AddItem("sampling_advanced_offset", "Offset");
+	layout.AddItem("sampling_advanced_length", "Length");
+	layout.EndGroup();
+
 	layout.AddGroup("Advanced");
 	layout.AddItem("sampling_advanced_seed", "Seed");
 	layout.AddItem("sampling_advanced_animate_seed", "Animate Seed");
-	layout.AddItem("sampling_advanced_offset", "Sample Offset");
-	layout.AddItem("sampling_advanced_scrambling_distance", "Auto Scrambling Distance");
-	layout.AddItem("sampling_advanced_scrambling_multiplier", "Scrambling Distance Multiplier");
 	layout.AddItem("sampling_advanced_min_light_bounces", "Min Light Bounces");
 	layout.AddItem("sampling_advanced_min_transparent_bounces", "Min Transparent Bounces");
 	layout.EndGroup();
@@ -125,17 +137,10 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("performance_threads_count", "Threads");
 	layout.EndGroup();
 
-	// TODO: with activated tile rendering there are some problems to obtain pixels from the tile
-	// it adds some padding to the tile segment, and pixels of the tile have empty spaces
-	// so, pass pixels array to the tile.get_pass_pixels does not work, because it requires more pixels than size of the tile
-	// NOTE: in test console app all works fine, the tile does not contains any padding in pixels
-	// why it happens here?
-	// so, for now hode option for tile rendering from the UI
-	// by default it's false
-	// layout.AddGroup("Memory");
-	// layout.AddItem("performance_memory_use_auto_tile", "Use Tiling");
-	// layout.AddItem("performance_memory_tile_size", "Tile Size");
-	// layout.EndGroup();
+	layout.AddGroup("Memory");
+	layout.AddItem("performance_memory_use_auto_tile", "Use Tiling");
+	layout.AddItem("performance_memory_tile_size", "Tile Size");
+	layout.EndGroup();
 
 	layout.AddGroup("Acceleration Structure");
 	layout.AddItem("performance_acceleration_use_spatial_split", "Use Spatial Splits");
@@ -269,7 +274,6 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddItem("output_label_triangles_count", "Triangles");
 	layout.AddItem("output_label_curves_count", "Curves");
 	layout.AddItem("output_label_objects_count", "Objects");
-	layout.AddItem("output_label_lights_count", "Lights");
 	layout.EndGroup();
 
 	layout.AddTab("World");
@@ -383,10 +387,14 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.EndGroup();
 
 	layout.AddGroup("Displacement");
-	XSI::CValueArray displacement_combo(6);
+	// TODO: for now hybrid displacement is not working
+	// there are render artifacts with fragment normals
+	// disable it
+	// after this bug will be fixed in Cycles, we should revert it back
+	XSI::CValueArray displacement_combo(4);
 	displacement_combo[0] = "Bump"; displacement_combo[1] = 0;
 	displacement_combo[2] = "True Displacement"; displacement_combo[3] = 1;
-	displacement_combo[4] = "Both Displacement"; displacement_combo[5] = 2;
+	// displacement_combo[4] = "Both Displacement"; displacement_combo[5] = 2;
 	layout.AddEnumControl("options_displacement_method", displacement_combo, "Displacement Method", XSI::siControlCombo);
 	layout.EndGroup();
 
@@ -438,10 +446,24 @@ void set_advances_sampling(XSI::CustomProperty& prop)
 	int pattern = sampling_advanced_pattern.GetValue();
 
 	XSI::Parameter sampling_advanced_scrambling_distance = prop_array.GetItem("sampling_advanced_scrambling_distance");
-	sampling_advanced_scrambling_distance.PutCapabilityFlag(block_mode, pattern == 0);
+	sampling_advanced_scrambling_distance.PutCapabilityFlag(block_mode, pattern == 1);
 
 	XSI::Parameter sampling_advanced_scrambling_multiplier = prop_array.GetItem("sampling_advanced_scrambling_multiplier");
-	sampling_advanced_scrambling_multiplier.PutCapabilityFlag(block_mode, pattern == 0);
+	sampling_advanced_scrambling_multiplier.PutCapabilityFlag(block_mode, pattern == 1);
+}
+
+void set_advances_subset(XSI::CustomProperty& prop)
+{
+	XSI::CParameterRefArray prop_array = prop.GetParameters();
+
+	XSI::Parameter sampling_advanced_subset = prop_array.GetItem("sampling_advanced_subset");
+	int subset = sampling_advanced_subset.GetValue();
+
+	XSI::Parameter sampling_advanced_offset = prop_array.GetItem("sampling_advanced_offset");
+	sampling_advanced_offset.PutCapabilityFlag(block_mode, !subset);
+
+	XSI::Parameter sampling_advanced_length = prop_array.GetItem("sampling_advanced_length");
+	sampling_advanced_length.PutCapabilityFlag(block_mode, !subset);
 }
 
 void set_lights(XSI::CustomProperty& prop)
@@ -704,6 +726,7 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		set_sampling(cp_source);
 		set_path_guiding(cp_source);
 		set_advances_sampling(cp_source);
+		set_advances_subset(cp_source);
 		set_lights(cp_source);
 		set_fastgi(cp_source);
 		set_curves(cp_source);
@@ -738,6 +761,9 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		else if (param_name == "sampling_advanced_pattern")
 		{
 			set_advances_sampling(prop);
+		}
+		else if (param_name == "sampling_advanced_subset") {
+			set_advances_subset(prop);
 		}
 		else if (param_name == "sampling_advanced_light_tree")
 		{
@@ -850,8 +876,10 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	// advanced
 	property.AddParameter("sampling_advanced_seed", XSI::CValue::siInt4, caps, "", "", 0, param);
 	property.AddParameter("sampling_advanced_animate_seed", XSI::CValue::siBool, caps, "", "", false, param);
-	property.AddParameter("sampling_advanced_pattern", XSI::CValue::siInt4, caps, "", "", 1, 0, 1, 0, 1, param);
+	property.AddParameter("sampling_advanced_pattern", XSI::CValue::siInt4, caps, "", "", 0, 0, 1, 0, 1, param);
+	property.AddParameter("sampling_advanced_subset", XSI::CValue::siBool, caps, "", "", false, param);
 	property.AddParameter("sampling_advanced_offset", XSI::CValue::siInt4, caps, "", "", 0, 0, ccl::Integrator::MAX_SAMPLES, 0, 128, param);
+	property.AddParameter("sampling_advanced_length", XSI::CValue::siInt4, caps, "", "", 2048, 1, ccl::Integrator::MAX_SAMPLES, 1, 4096, param);
 	property.AddParameter("sampling_advanced_scrambling_distance", XSI::CValue::siBool, caps, "", "", false, param);
 	property.AddParameter("sampling_advanced_scrambling_multiplier", XSI::CValue::siFloat, caps, "", "", 1.0, 0.0, 1.0, 0.0, 1.0, param);
 	property.AddParameter("sampling_advanced_min_light_bounces", XSI::CValue::siInt4, caps, "", "", 0, 0, 1024, 1, 32, param);
@@ -967,7 +995,6 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("output_label_camera", XSI::CValue::siBool, caps, "", "", 0, param);
 	property.AddParameter("output_label_samples", XSI::CValue::siBool, caps, "", "", 0, param);
 	property.AddParameter("output_label_objects_count", XSI::CValue::siBool, caps, "", "", 0, param);
-	property.AddParameter("output_label_lights_count", XSI::CValue::siBool, caps, "", "", 0, param);
 	property.AddParameter("output_label_triangles_count", XSI::CValue::siBool, caps, "", "", 0, param);
 	property.AddParameter("output_label_curves_count", XSI::CValue::siBool, caps, "", "", 0, param);
 
@@ -1013,7 +1040,8 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("options_logging_log_profiling", XSI::CValue::siBool, caps, "", "", false, param);
 
 	// displacement
-	property.AddParameter("options_displacement_method", XSI::CValue::siInt4, caps, "", "", 2, param);
+	// TODO: after displacement will be fixed, set default value = 2 (both displacement)
+	property.AddParameter("options_displacement_method", XSI::CValue::siInt4, caps, "", "", 1, param);
 
 	// updates
 	property.AddParameter("options_update_method", XSI::CValue::siInt4, caps, "", "", 1, param);  // 0 - only abort, 1 - update and abort, 2 - only update (what it is mean?)

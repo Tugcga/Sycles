@@ -86,8 +86,8 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 	camera->set_full_height(update_context->get_full_height());
 
 	// get camera custom property
-	XSI::Property camera_property;
-	bool is_camera_extension = get_xsi_object_property(xsi_camera, "CyclesCamera", camera_property);
+	XSI::Property camera_property = get_xsi_object_property(xsi_camera, "CyclesCamera");
+	bool is_camera_extension = camera_property.IsValid();
 	 
 	float camera_aspect = float(xsi_camera.GetParameterValue("aspect", eval_time));
 	float fov_grad = float(xsi_camera.GetParameterValue("fov", eval_time));

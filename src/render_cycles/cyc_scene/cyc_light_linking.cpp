@@ -71,8 +71,8 @@ void geather_group_names_from_objects(const std::vector<ULONG>& xsi_ids, std::un
 		XSI::X3DObject xsi_object(XSI::Application().GetObjectFromID(xsi_id));
 		if (xsi_object.IsValid())
 		{
-			XSI::Property ll_prop;
-			bool is_prop_exists = get_xsi_object_property(xsi_object, "CyclesLightLinking", ll_prop);
+			XSI::Property ll_prop = get_xsi_object_property(xsi_object, "CyclesLightLinking");
+			bool is_prop_exists = ll_prop.IsValid();
 			if (is_prop_exists)
 			{
 				std::string light_group_name = ((XSI::CString)ll_prop.GetParameterValue("light_group_name")).GetAsciiString();
@@ -153,7 +153,7 @@ std::vector<std::vector<ULONG>> geather_sets(
 	return sets;
 }
 
-void define_member_sets(ccl::Scene* scene, const std::vector<std::vector<ULONG>>& sets, ULONG xsi_id, const std::vector<size_t>& cyc_indices, SET_TYPE set_type, OBJECT_TYPE object_type)
+void define_member_sets(ccl::Scene* scene, const std::vector<std::vector<ULONG>>& sets, ULONG xsi_id, const std::vector<size_t>& cyc_indices, SET_TYPE set_type)
 {
 	// if yes, then update the mask
 	uint64_t mask = 0;
@@ -171,20 +171,10 @@ void define_member_sets(ccl::Scene* scene, const std::vector<std::vector<ULONG>>
 	for (size_t i = 0; i < cyc_indices.size(); i++)
 	{
 		size_t cyc_index = cyc_indices[i];
-		if (object_type == OBJECT_TYPE::LIGHT)
-		{
-			ccl::Light* light = scene->lights[cyc_index];
-			if (set_type == SET_TYPE::RECEIVER_LIGHT) { light->set_light_set_membership(mask); }
-			else if (set_type == SET_TYPE::BLOCKER_SHADOW) { light->set_shadow_set_membership(mask); }
-			light->tag_update(scene);
-		}
-		else if (object_type == OBJECT_TYPE::OBJECT)
-		{
-			ccl::Object* object = scene->objects[cyc_index];
-			if (set_type == SET_TYPE::RECEIVER_LIGHT) { object->set_light_set_membership(mask); }
-			else if (set_type == SET_TYPE::BLOCKER_SHADOW) { object->set_shadow_set_membership(mask); }
-			object->tag_update(scene);
-		}
+		ccl::Object* object = scene->objects[cyc_index];
+		if (set_type == SET_TYPE::RECEIVER_LIGHT) { object->set_light_set_membership(mask); }
+		else if (set_type == SET_TYPE::BLOCKER_SHADOW) { object->set_shadow_set_membership(mask); }
+		object->tag_update(scene);
 	}
 }
 
@@ -224,8 +214,8 @@ void sync_light_linking(ccl::Scene* scene, UpdateContext* update_context)
 		ULONG light_id = xsi_light_ids[i];
 		std::vector<size_t> light_indices = update_context->get_xsi_light_cycles_indexes(light_id);
 		// iterate throw sets and check is light_id in this set
-		define_member_sets(scene, light_sets, light_id, light_indices, SET_TYPE::RECEIVER_LIGHT, OBJECT_TYPE::LIGHT);
-		define_member_sets(scene, shadow_sets, light_id, light_indices, SET_TYPE::BLOCKER_SHADOW, OBJECT_TYPE::LIGHT);
+		define_member_sets(scene, light_sets, light_id, light_indices, SET_TYPE::RECEIVER_LIGHT);
+		define_member_sets(scene, shadow_sets, light_id, light_indices, SET_TYPE::BLOCKER_SHADOW);
 	}
 
 	// the same for objects
@@ -233,7 +223,7 @@ void sync_light_linking(ccl::Scene* scene, UpdateContext* update_context)
 	{
 		ULONG object_id = xsi_object_ids[i];
 		std::vector<size_t> object_indices = update_context->get_object_cycles_indexes(object_id);
-		define_member_sets(scene, light_sets, object_id, object_indices, SET_TYPE::RECEIVER_LIGHT, OBJECT_TYPE::OBJECT);
-		define_member_sets(scene, shadow_sets, object_id, object_indices, SET_TYPE::BLOCKER_SHADOW, OBJECT_TYPE::OBJECT);
+		define_member_sets(scene, light_sets, object_id, object_indices, SET_TYPE::RECEIVER_LIGHT);
+		define_member_sets(scene, shadow_sets, object_id, object_indices, SET_TYPE::BLOCKER_SHADOW);
 	}
 }

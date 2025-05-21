@@ -29,7 +29,7 @@ void add_vdb_to_volume(ccl::Scene* scene, ccl::Volume* volume_geom, const XSI::C
 	ccl::ImageParams volume_params;
 	volume_params.frame = frame;
 
-	attr->data_voxel() = scene->image_manager->add_image(vdb_loader, volume_params, false);
+	attr->data_voxel() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(vdb_loader), volume_params, false);
 }
 
 bool is_vector_type(openvdb::GridBase::ConstPtr grid)

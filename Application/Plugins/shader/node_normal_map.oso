@@ -1,5 +1,5 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
+# Compiled by oslc 1.14.4.0dev
 # options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_normal_map.oso
 shader node_normal_map
 param	float	Strength	1		%read{40,103} %write{2147483647,-1}
@@ -12,11 +12,11 @@ global	normal	N	%read{0,105} %write{2147483647,-1}
 global	normal	Ng	%read{16,16} %write{2147483647,-1}
 local	color	mcolor	%read{39,91} %write{8,90}
 local	int	is_backfacing	%read{18,93} %write{9,9}
-local	vector	___362_tangent	%read{37,52} %write{20,20}
-local	vector	___362_ninterp	%read{19,57} %write{17,31}
-local	float	___362_tangent_sign	%read{38,38} %write{23,23}
-local	float	___362_is_smooth	%read{14,28} %write{12,13}
-local	vector	___365_B	%read{54,54} %write{38,38}
+local	vector	___366_tangent	%read{37,52} %write{20,20}
+local	vector	___366_ninterp	%read{19,57} %write{17,31}
+local	float	___366_tangent_sign	%read{38,38} %write{23,23}
+local	float	___366_is_smooth	%read{14,28} %write{12,13}
+local	vector	___369_B	%read{54,54} %write{38,38}
 const	float	$const1	2		%read{8,8} %write{2147483647,-1}
 temp	color	$tmp1	%read{8,8} %write{7,7}
 const	int	$const2	0		%read{1,99} %write{2147483647,-1}
@@ -122,40 +122,40 @@ code ___main___
 	if		$tmp8 63 93 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:21
 #     float is_smooth = 0.0;
-	assign		___362_is_smooth $const7 	%line{21} %argrw{"wr"}
+	assign		___366_is_smooth $const7 	%line{21} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:23
 #     getattribute("geom:is_smooth", is_smooth);
-	getattribute	$tmp9 $const8 ___362_is_smooth 	%line{23} %argrw{"wrw"}
+	getattribute	$tmp9 $const8 ___366_is_smooth 	%line{23} %argrw{"wrw"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:24
 #     if (!is_smooth) {
-	eq		$tmp10 ___362_is_smooth $const7 	%line{24} %argrw{"wrr"}
+	eq		$tmp10 ___366_is_smooth $const7 	%line{24} %argrw{"wrr"}
 	if		$tmp10 20 20 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:25
 #       ninterp = normalize(transform("world", "object", Ng));
 	transformn	$tmp11 $const9 $const10 Ng 	%line{25} %argrw{"wrrr"}
-	normalize	___362_ninterp $tmp11 	%argrw{"wr"}
+	normalize	___366_ninterp $tmp11 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:28
 #       if (is_backfacing) {
 	if		is_backfacing 20 20 	%line{28} %argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:29
 #         ninterp = -ninterp;
-	neg		___362_ninterp ___362_ninterp 	%line{29} %argrw{"wr"}
+	neg		___366_ninterp ___366_ninterp 	%line{29} %argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:34
 #     if (getattribute(attr_name, tangent) && getattribute(attr_sign_name, tangent_sign) &&
-	getattribute	$tmp12 attr_name ___362_tangent 	%line{34} %argrw{"wrw"}
+	getattribute	$tmp12 attr_name ___366_tangent 	%line{34} %argrw{"wrw"}
 	neq		$tmp13 $tmp12 $const2 	%argrw{"wrr"}
 	if		$tmp13 26 26 	%argrw{"r"}
-	getattribute	$tmp14 attr_sign_name ___362_tangent_sign 	%argrw{"wrw"}
+	getattribute	$tmp14 attr_sign_name ___366_tangent_sign 	%argrw{"wrw"}
 	neq		$tmp15 $tmp14 $const2 	%argrw{"wrr"}
 	assign		$tmp13 $tmp15 	%argrw{"wr"}
 	neq		$tmp16 $tmp13 $const2 	%argrw{"wrr"}
 	if		$tmp16 36 36 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:35
 #         (!is_smooth || getattribute("geom:normal_map_normal", ninterp)))
-	eq		$tmp17 ___362_is_smooth $const7 	%line{35} %argrw{"wrr"}
+	eq		$tmp17 ___366_is_smooth $const7 	%line{35} %argrw{"wrr"}
 	neq		$tmp18 $tmp17 $const2 	%argrw{"wrr"}
 	if		$tmp18 31 34 	%argrw{"r"}
-	getattribute	$tmp19 $const11 ___362_ninterp 	%argrw{"wrw"}
+	getattribute	$tmp19 $const11 ___366_ninterp 	%argrw{"wrw"}
 	neq		$tmp20 $tmp19 $const2 	%argrw{"wrr"}
 	assign		$tmp18 $tmp20 	%argrw{"wr"}
 	neq		$tmp21 $tmp18 $const2 	%argrw{"wrr"}
@@ -165,8 +165,8 @@ code ___main___
 	if		$tmp16 62 63 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:38
 #       vector B = tangent_sign * cross(ninterp, tangent);
-	cross		$tmp22 ___362_ninterp ___362_tangent 	%line{38} %argrw{"wrr"}
-	mul		___365_B ___362_tangent_sign $tmp22 	%argrw{"wrr"}
+	cross		$tmp22 ___366_ninterp ___366_tangent 	%line{38} %argrw{"wrr"}
+	mul		___369_B ___366_tangent_sign $tmp22 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:41
 #       mcolor[0] *= Strength;
 	compref		$tmp23 mcolor $const2 	%line{41} %argrw{"wrr"}
@@ -192,12 +192,12 @@ code ___main___
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:45
 #       Normal = normalize(mcolor[0] * tangent + mcolor[1] * B + mcolor[2] * ninterp);
 	compref		$tmp31 mcolor $const2 	%line{45} %argrw{"wrr"}
-	mul		$tmp32 $tmp31 ___362_tangent 	%argrw{"wrr"}
+	mul		$tmp32 $tmp31 ___366_tangent 	%argrw{"wrr"}
 	compref		$tmp33 mcolor $const4 	%argrw{"wrr"}
-	mul		$tmp34 $tmp33 ___365_B 	%argrw{"wrr"}
+	mul		$tmp34 $tmp33 ___369_B 	%argrw{"wrr"}
 	add		$tmp35 $tmp32 $tmp34 	%argrw{"wrr"}
 	compref		$tmp36 mcolor $const5 	%argrw{"wrr"}
-	mul		$tmp37 $tmp36 ___362_ninterp 	%argrw{"wrr"}
+	mul		$tmp37 $tmp36 ___366_ninterp 	%argrw{"wrr"}
 	add		$tmp38 $tmp35 $tmp37 	%argrw{"wrr"}
 	normalize	Normal $tmp38 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_normal_map.osl:48

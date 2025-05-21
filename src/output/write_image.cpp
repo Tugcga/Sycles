@@ -74,7 +74,7 @@ void write_output_pfm(size_t width, size_t height, size_t components, const std:
 	}
 	else
 	{
-		log_message(XSI::CString("Fails to save the file ") + XSI::CString(file_path.c_str()), XSI::siWarningMsg);
+		log_warning(XSI::CString("Fails to save the file ") + XSI::CString(file_path.c_str()));
 	}
 }
 
@@ -170,7 +170,7 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 			// check output directory
 			if (!create_dir(output_path))
 			{
-				log_message(XSI::CString("Fails to save the file ") + XSI::CString(output_path.c_str()), XSI::siWarningMsg);
+				log_warning(XSI::CString("Fails to save the file ") + XSI::CString(output_path.c_str()));
 				continue;
 			}
 
@@ -198,12 +198,12 @@ void write_outputs_separate_passes(OutputContext* output_context, ColorTransform
 			}
 			else
 			{
-				log_message("Unknown output format: " + XSI::CString(output_ext.c_str()), XSI::siWarningMsg);
+				log_warning("Unknown output format: " + XSI::CString(output_ext.c_str()));
 			}
 		}
 		else
 		{
-			log_message("Output path for the channel " + XSI::CString(output_context->get_output_pass_name(i).c_str()) + " is empty, it is not ok.", XSI::siWarningMsg);
+			log_warning("Output path for the channel " + XSI::CString(output_context->get_output_pass_name(i).c_str()) + " is empty, it is not ok.");
 		}
 
 		// clear output pixels
@@ -390,7 +390,7 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 			// check output directory
 			if (!create_dir(to_save_path))
 			{
-				log_message(XSI::CString("Fails to save the file ") + XSI::CString(to_save_path.c_str()), XSI::siWarningMsg);
+				log_warning(XSI::CString("Fails to save the file ") + XSI::CString(to_save_path.c_str()));
 			}
 			else
 			{
@@ -494,7 +494,7 @@ void write_cryptomatte_exr(size_t width, size_t height, OutputContext *output_co
 	}
 	else
 	{
-		log_message("Fails to generate output file name for cryptomatte passes, skip it.", XSI::siWarningMsg);
+		log_warning("Fails to generate output file name for cryptomatte passes, skip it.");
 	}
 }
 

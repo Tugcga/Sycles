@@ -89,7 +89,7 @@ void update_instance_light_transform(ccl::Scene* scene, UpdateContext* update_co
 	std::unordered_map<size_t, std::vector<ULONG>> object_index_map = update_context->get_light_from_instance_data(xsi_instance_id);
 	for (const auto& [light_index, xsi_ids] : object_index_map)
 	{
-		ccl::Light* light = scene->lights[light_index];
+		ccl::Object* light_object = scene->objects[light_index];
 
 		if (xsi_ids.size() >= 2)
 		{
@@ -100,14 +100,14 @@ void update_instance_light_transform(ccl::Scene* scene, UpdateContext* update_co
 			if (master_object_type == "light")
 			{
 				XSI::Light xsi_light(master_object);
-				sync_light_tfm(light, tweak_xsi_light_transform(xsi_tfm, xsi_light, eval_time).GetMatrix4());
+				sync_light_tfm(light_object, tweak_xsi_light_transform(xsi_tfm, xsi_light, eval_time).GetMatrix4());
 
-				light->tag_update(scene);
+				light_object->tag_update(scene);
 			}
 			else if (master_object_type == "cyclesPoint" || master_object_type == "cyclesSun" || master_object_type == "cyclesSpot" || master_object_type == "cyclesArea")
 			{
-				sync_light_tfm(light, xsi_tfm.GetMatrix4());
-				light->tag_update(scene);
+				sync_light_tfm(light_object, xsi_tfm.GetMatrix4());
+				light_object->tag_update(scene);
 			}
 		}
 	}
@@ -126,7 +126,7 @@ void update_instance_geometry_transform(ccl::Scene* scene, UpdateContext* update
 			XSI::X3DObject master_object;
 			XSI::MATH::CTransformation xsi_tfm = calc_finall_instance_tfm(master_object_type, master_object, xsi_ids, xsi_instance_root, eval_time);
 
-			if (master_object_type == "polymsh" || master_object_type == "hair")
+			if (master_object_type == "polymsh" || master_object_type == "hair" || master_object_type == "surfmsh" || master_object_type == "crvlist")
 			{
 				ccl::Transform tfm = xsi_matrix_to_transform(xsi_tfm.GetMatrix4());
 				object->set_tfm(tfm);
@@ -203,8 +203,8 @@ XSI::CStatus update_instance_transform(ccl::Scene* scene, UpdateContext *update_
 
 		return XSI::CStatus::OK;
 	}
-	{
-		log_message("no " + xsi_model.GetFullName());
+	else {
+		
 	}
 
 	return XSI::CStatus::Abort;

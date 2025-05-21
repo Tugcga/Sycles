@@ -1,5 +1,5 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
+# Compiled by oslc 1.14.4.0dev
 # options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_checker_texture.oso
 shader node_checker_texture
 param	int	use_mapping	0		%read{2,2} %write{2147483647,-1}
@@ -11,10 +11,10 @@ param	color	Color2	0.200000003 0.200000003 0.200000003		%read{43,43} %write{2147
 oparam	float	Fac	0		%read{40,40} %write{36,38}
 oparam	color	Color	0 0 0		%read{2147483647,-1} %write{42,43}
 global	point	P	%read{0,0} %write{2147483647,-1}
-local	point	___362_p	%read{18,26} %write{9,17}
-local	int	___362_xi	%read{30,30} %write{21,21}
-local	int	___362_yi	%read{31,31} %write{25,25}
-local	int	___362_zi	%read{33,33} %write{29,29}
+local	point	___366_p	%read{18,26} %write{9,17}
+local	int	___366_xi	%read{30,30} %write{21,21}
+local	int	___366_yi	%read{31,31} %write{25,25}
+local	int	___366_zi	%read{33,33} %write{29,29}
 local	point	p	%read{3,4} %write{1,3}
 temp	point	$tmp1	%read{6,14} %write{4,4}
 const	string	$const1	"checker"		%read{5,5} %write{2147483647,-1}
@@ -72,43 +72,43 @@ code ___main___
 	compref		$tmp2 $tmp1 $const2 	%line{12} %argrw{"wrr"}
 	add		$tmp3 $tmp2 $const3 	%argrw{"wrr"}
 	mul		$tmp4 $tmp3 $const4 	%argrw{"wrr"}
-	compassign	___362_p $const2 $tmp4 	%argrw{"wrr"}
+	compassign	___366_p $const2 $tmp4 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:13
 #   p[1] = (ip[1] + 0.000001) * 0.999999;
 	compref		$tmp5 $tmp1 $const5 	%line{13} %argrw{"wrr"}
 	add		$tmp6 $tmp5 $const3 	%argrw{"wrr"}
 	mul		$tmp7 $tmp6 $const4 	%argrw{"wrr"}
-	compassign	___362_p $const5 $tmp7 	%argrw{"wrr"}
+	compassign	___366_p $const5 $tmp7 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:14
 #   p[2] = (ip[2] + 0.000001) * 0.999999;
 	compref		$tmp8 $tmp1 $const6 	%line{14} %argrw{"wrr"}
 	add		$tmp9 $tmp8 $const3 	%argrw{"wrr"}
 	mul		$tmp10 $tmp9 $const4 	%argrw{"wrr"}
-	compassign	___362_p $const6 $tmp10 	%argrw{"wrr"}
+	compassign	___366_p $const6 $tmp10 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:16
 #   int xi = (int)fabs(floor(p[0]));
-	compref		$tmp13 ___362_p $const2 	%line{16} %argrw{"wrr"}
+	compref		$tmp13 ___366_p $const2 	%line{16} %argrw{"wrr"}
 	floor		$tmp12 $tmp13 	%argrw{"wr"}
 	fabs		$tmp11 $tmp12 	%argrw{"wr"}
-	assign		___362_xi $tmp11 	%argrw{"wr"}
+	assign		___366_xi $tmp11 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:17
 #   int yi = (int)fabs(floor(p[1]));
-	compref		$tmp16 ___362_p $const5 	%line{17} %argrw{"wrr"}
+	compref		$tmp16 ___366_p $const5 	%line{17} %argrw{"wrr"}
 	floor		$tmp15 $tmp16 	%argrw{"wr"}
 	fabs		$tmp14 $tmp15 	%argrw{"wr"}
-	assign		___362_yi $tmp14 	%argrw{"wr"}
+	assign		___366_yi $tmp14 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:18
 #   int zi = (int)fabs(floor(p[2]));
-	compref		$tmp19 ___362_p $const6 	%line{18} %argrw{"wrr"}
+	compref		$tmp19 ___366_p $const6 	%line{18} %argrw{"wrr"}
 	floor		$tmp18 $tmp19 	%argrw{"wr"}
 	fabs		$tmp17 $tmp18 	%argrw{"wr"}
-	assign		___362_zi $tmp17 	%argrw{"wr"}
+	assign		___366_zi $tmp17 	%argrw{"wr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:20
 #   if ((xi % 2 == yi % 2) == (zi % 2)) {
-	mod		$tmp20 ___362_xi $const6 	%line{20} %argrw{"wrr"}
-	mod		$tmp21 ___362_yi $const6 	%argrw{"wrr"}
+	mod		$tmp20 ___366_xi $const6 	%line{20} %argrw{"wrr"}
+	mod		$tmp21 ___366_yi $const6 	%argrw{"wrr"}
 	eq		$tmp22 $tmp20 $tmp21 	%argrw{"wrr"}
-	mod		$tmp23 ___362_zi $const6 	%argrw{"wrr"}
+	mod		$tmp23 ___366_zi $const6 	%argrw{"wrr"}
 	eq		$tmp24 $tmp22 $tmp23 	%argrw{"wrr"}
 	if		$tmp24 38 40 	%argrw{"r"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_checker_texture.osl:21

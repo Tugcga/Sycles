@@ -429,7 +429,7 @@ void OutputContext::set_output_passes(
 		// for lightgroups pass type is Combined
 		if (motion_type == MotionType_Blur && pass_type == ccl::PASS_MOTION)
 		{
-			log_message("It's impossible to render Motion Pass with activated motion blur. Skip this pass from output.", XSI::siWarningMsg);
+			log_warning("It's impossible to render Motion Pass with activated motion blur. Skip this pass from output.");
 			continue;
 		}
 
@@ -475,11 +475,11 @@ void OutputContext::set_output_passes(
 			if (pass_type == ccl::PASS_NONE)
 			{
 				// fails to convert channel name to the pass
-				log_message("Fails to convert channel " + output_channels[i] + " to the render pass, skip it", XSI::siWarningMsg);
+				log_warning("Fails to convert channel " + output_channels[i] + " to the render pass, skip it");
 			}
 			if (output_paths[i].Length() == 0)
 			{
-				log_message("There is empty output path, skip it", XSI::siWarningMsg);
+				log_warning("There is empty output path, skip it");
 			}
 		}
 	}

@@ -19,19 +19,19 @@
 ccl::ShaderNode* sync_osl_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader &xsi_shader, std::unordered_map<ULONG, ccl::ShaderNode*> &nodes_map, std::vector<XSI::CStringArray> &aovs, const XSI::CTime &eval_time)
 {
 #ifdef WITH_OSL
-	ccl::ShaderManager* manager = scene->shader_manager;
+	ccl::ShaderManager* manager = scene->shader_manager.get();
 	if (manager->use_osl())
 	{
 		XSI::CParameterRefArray params = xsi_shader.GetParameters();
 		XSI::CString path = get_string_parameter_value(params, "oslFilePath", eval_time);
 		std::string filepath = path.GetAsciiString();
 
-		ccl::OSLNode* node = ccl::OSLShaderManager::osl_node(shader_graph, manager, filepath, "");
+		ccl::OSLNode* node = ccl::OSLShaderManager::osl_node(shader_graph, scene, filepath, "");
 		if (!node)
 		{
 			return NULL;
 		}
-		shader_graph->add(node);
+
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		nodes_map[xsi_shader_id] = node;
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());

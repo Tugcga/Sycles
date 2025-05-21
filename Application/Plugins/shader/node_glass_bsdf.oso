@@ -1,5 +1,5 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
+# Compiled by oslc 1.14.4.0dev
 # options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_glass_bsdf.oso
 shader node_glass_bsdf
 param	color	Color	0.800000012 0.800000012 0.800000012		%read{1,1} %write{2147483647,-1}
@@ -9,7 +9,7 @@ param	float	IOR	1.45000005		%read{6,6} %write{2147483647,-1}
 param	normal	Normal	0 0 0		%read{18,18} %write{0,0} %initexpr
 oparam	closure color	BSDF			%read{2147483647,-1} %write{18,18}
 global	normal	N	%read{0,0} %write{2147483647,-1}
-local	float	___348_f0	%read{14,14} %write{13,13}
+local	float	___349_f0	%read{14,14} %write{13,13}
 local	color	base_color	%read{18,18} %write{1,1}
 local	float	r2	%read{5,18} %write{4,5}
 local	float	eta	%read{9,17} %write{6,9}
@@ -63,10 +63,10 @@ code ___main___
 #   float f0 = (eta - 1.0) / (eta + 1.0);
 	sub		$tmp5 eta $const3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h"} %line{42} %argrw{"wrr"}
 	add		$tmp6 eta $const3 	%argrw{"wrr"}
-	div		___348_f0 $tmp5 $tmp6 	%argrw{"wrr"}
+	div		___349_f0 $tmp5 $tmp6 	%argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_fresnel.h:43
 #   return f0 * f0;
-	mul		$tmp4 ___348_f0 ___348_f0 	%line{43} %argrw{"wrr"}
+	mul		$tmp4 ___349_f0 ___349_f0 	%line{43} %argrw{"wrr"}
 # C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glass_bsdf.osl:20
 #   color F0 = F0_from_ior(eta);
 	assign		F0 $tmp4 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_glass_bsdf.osl"} %line{20} %argrw{"wr"}

@@ -44,8 +44,8 @@ bool load_input_exr(const std::string &input_filepath, std::vector<float> &out_p
 	{
 		if (err) 
 		{
-			log_message("Fails to load exr file from the path " + XSI::CString(input_filepath.c_str()), XSI::siWarningMsg);
-			log_message("Error: " + XSI::CString(err));
+			log_warning("Fails to load exr file from the path " + XSI::CString(input_filepath.c_str()));
+			log_warning("Error: " + XSI::CString(err));
 			FreeEXRErrorMessage(err); // release memory of error message.
 		}
 

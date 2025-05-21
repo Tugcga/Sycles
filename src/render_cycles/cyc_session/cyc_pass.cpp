@@ -338,9 +338,9 @@ void check_visual_aov_lightgroup_name(RenderVisualBuffer* visual_buffer, const X
         if (!is_lightgroup_is_correct(pass_name, lightgroup_names))
         {
             bool is_switch = lightgroup_names.GetCount() > 0;
-            log_message("Display channel is set to Light Group with " +
+            log_warning("Display channel is set to Light Group with " +
                 XSI::CString(pass_name.Length() == 0 ? "empty name." : "name " + pass_name + ". There is no pass with this name.") +
-                XSI::CString(is_switch ? " Switch to " + lightgroup_names[0] + "." : ""), XSI::siWarningMsg);
+                XSI::CString(is_switch ? " Switch to " + lightgroup_names[0] + "." : ""));
 
             if (is_switch)
             {
@@ -362,10 +362,10 @@ void check_visual_aov_lightgroup_name(RenderVisualBuffer* visual_buffer, const X
             }
 
             // display warning message
-            log_message("Display channel is set to AOV " + XSI::CString(is_color ? "Color" : "Value") +
+            log_warning("Display channel is set to AOV " + XSI::CString(is_color ? "Color" : "Value") +
                 " with " +
                 XSI::CString(pass_name.Length() == 0 ? "empty name." : "name " + pass_name + ". There is no pass with this name.") +
-                XSI::CString(is_switch ? " Switch to " + switch_name  + "." : ""), XSI::siWarningMsg);
+                XSI::CString(is_switch ? " Switch to " + switch_name  + "." : ""));
 
             if (is_switch)
             {
@@ -402,7 +402,7 @@ void sync_passes(ccl::Scene* scene, UpdateContext* update_context, OutputContext
     {
         if (!use_denoising)
         {
-            log_message("You choose to include denoising passes in a single EXR, but denoising mode is disabled. Skip these passes.", XSI::siWarningMsg);
+            log_warning("You choose to include denoising passes in a single EXR, but denoising mode is disabled. Skip these passes.");
         }
         store_denoising = store_denoising & use_denoising;
     }

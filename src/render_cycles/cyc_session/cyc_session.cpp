@@ -13,9 +13,9 @@ void set_session_samples(ccl::SessionParams &session_params, const XSI::CParamet
 {
 	session_params.samples = render_parameters.GetValue("sampling_render_samples", eval_time);
 	session_params.samples = std::min(session_params.samples, ccl::Integrator::MAX_SAMPLES);
-	session_params.sample_offset = render_parameters.GetValue("sampling_advanced_offset", eval_time);
-	session_params.sample_offset = std::clamp(session_params.sample_offset, 0, ccl::Integrator::MAX_SAMPLES);
-	session_params.samples = std::clamp(session_params.samples, 0, ccl::Integrator::MAX_SAMPLES - session_params.sample_offset);
+	session_params.use_sample_subset = render_parameters.GetValue("sampling_advanced_subset", eval_time);
+	session_params.sample_subset_offset = render_parameters.GetValue("sampling_advanced_offset", eval_time);
+	session_params.sample_subset_length = render_parameters.GetValue("sampling_advanced_length", eval_time);
 
 	session_params.time_limit = render_parameters.GetValue("sampling_render_time_limit", eval_time);
 }
@@ -34,8 +34,8 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 		session_params.pixel_size = 1;
 		session_params.use_auto_tile = false;
 
-		bool use_osl = true;
 		int samples = 32;
+		bool use_osl = true;  // default values
 		bool use_gpu = false;
 		InputConfig input_config = get_input_config();
 		if (input_config.is_init)
@@ -44,16 +44,11 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 			use_osl = config_shaderball.use_osl;
 			use_gpu = config_shaderball.use_gpu;
 
-			if (use_osl && use_gpu)
-			{
-				// for now use osl rendering only at cpu device
-				// so, disable gpu
-				// svm/osl is more important than cpu/gpu
-				use_gpu = false;
-			}
 			samples = config_shaderball.samples;
 		}
 
+		// if requested, try to define gpu device
+		bool use_optix_gpu = false;
 		if (use_gpu)
 		{
 			ccl::vector<ccl::DeviceInfo> hip_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_HIP);
@@ -62,6 +57,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 			if (optix_devices.size() > 0)
 			{
 				session_params.device = optix_devices[0];
+				use_optix_gpu = true;
 			}
 			else if (cuda_devices.size() > 0)
 			{
@@ -78,6 +74,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 			}
 		}
 
+		bool use_cpu = false;
 		if (!use_gpu)
 		{
 			// assign cpu device either when it enabled in settings, or there are not gpus
@@ -85,11 +82,15 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 			// we assume that cpu always exists
 			// use the first cpu device
 			session_params.device = cpu_devices[0];
+			use_cpu = true;
 		}
 
 		// set shading system by using shaderball config
 #ifdef WITH_OSL
-		session_params.shadingsystem = use_osl ? ccl::SHADINGSYSTEM_OSL : ccl::SHADINGSYSTEM_SVM;
+		// osl can be activated only if either cpu or optix gpu is activated
+		session_params.shadingsystem = use_osl ? 
+			(use_cpu || use_optix_gpu ? ccl::SHADINGSYSTEM_OSL : ccl::SHADINGSYSTEM_SVM) :
+			ccl::SHADINGSYSTEM_SVM;
 #else
 		session_params.shadingsystem = ccl::SHADINGSYSTEM_SVM;
 #endif // WITH_OSL
@@ -99,6 +100,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 	}
 	else
 	{
+		// session for scene rendering
 		int threads_count = render_parameters.GetValue("performance_threads_count", eval_time);
 		int threads_mode = render_parameters.GetValue("performance_threads_mode", eval_time);
 		if (threads_mode == 0)
@@ -110,7 +112,6 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 
 		// find matching device 
 		bool is_cpu = true;
-		ccl::DeviceType cpu_device_type = ccl::DeviceType::DEVICE_CPU;
 		ccl::vector<ccl::DeviceInfo> available_devices = get_available_devices();
 
 		// find selected devices
@@ -124,7 +125,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 			}
 		}
 
-		bool use_cpu = false;
+		bool use_osl_device = false;  // for now osl can be rendered by cou and optix
 		size_t selected_count = selected_indices.size();
 		if (selected_count <= 1)
 		{
@@ -137,9 +138,10 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 				session_params.device = available_devices[selected_indices[0]];
 			}
 
-			if (session_params.device.type == cpu_device_type)
+			if (session_params.device.type == ccl::DeviceType::DEVICE_CPU ||
+				session_params.device.type == ccl::DeviceType::DEVICE_OPTIX)
 			{
-				use_cpu = true;
+				use_osl_device = true;
 			}
 		}
 		else
@@ -149,35 +151,44 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 			bool select_optix = false;
 			bool select_cuda = false;
 			bool select_non_optix = false;
+			bool select_cpu = false;
+			// osl renders incorrectly with several devices
+			use_osl_device = false;
 			for (size_t i = 0; i < selected_count; i++)
 			{
 				ccl::DeviceInfo selected_device = available_devices[selected_indices[i]];
 				ccl::DeviceType type = selected_device.type;
 				if ((select_optix == false && select_cuda == false) ||  // try to skip adding both cuda and optix devices (optix + cpu or cuda + cpu works fine)
 					(select_optix && type != ccl::DEVICE_CUDA) ||
-					(select_cuda && type != ccl::DEVICE_OPTIX))
-				{
+					(select_cuda && type != ccl::DEVICE_OPTIX)) {
 					used_devices.push_back(selected_device);
 				}
 
-				if (type == ccl::DEVICE_OPTIX)
-				{
+				if (type == ccl::DEVICE_OPTIX) {
 					select_optix = true;
 				}
-				else
-				{
+				else {
 					select_non_optix = true;
 				}
 
-				if (type == ccl::DEVICE_CUDA)
-				{
+				if (type == ccl::DEVICE_CUDA) {
 					select_cuda = true;
+				}
+
+				if (type == ccl::DEVICE_CPU) {
+					select_cpu = true;
 				}
 			}
 
-			session_params.device = ccl::Device::get_multi_device(used_devices, session_params.threads, session_params.background);
+			if (select_non_optix) {
+				use_osl_device = false;
+			}
 
-			use_cpu = false;
+			if (select_optix == select_cpu) {
+				use_osl_device = false;
+			}
+
+			session_params.device = ccl::Device::get_multi_device(used_devices, session_params.threads, session_params.background);
 		}
 		session_params.experimental = true;
 		set_session_samples(session_params, render_parameters, eval_time);
@@ -189,7 +200,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 		int shading_system = render_parameters.GetValue("options_shaders_system", eval_time);
 		bool client_want_osl = shading_system == 1;
 #ifdef WITH_OSL
-		if (use_cpu && client_want_osl)
+		if (use_osl_device && client_want_osl)
 		{
 			session_params.shadingsystem = ccl::ShadingSystem::SHADINGSYSTEM_OSL;
 		}
@@ -201,9 +212,9 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 		session_params.shadingsystem = ccl::ShadingSystem::SHADINGSYSTEM_SVM;
 #endif // WITH_OSL
 
-		if (client_want_osl && !use_cpu)
+		if (client_want_osl && !use_osl_device)
 		{
-			log_message(XSI::CString("OSL shading system supports only for CPU-rendering. Switched to SVM shading system."), XSI::siWarningMsg);
+			log_warning(XSI::CString("OSL shading system supports only single CPU or single OPTIX rendering. Switched to SVM shading system."));
 		}
 
 		session_params.use_profiling = false;
