@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_convert_from_color.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_convert_from_color.oso
 shader node_convert_from_color
 param	color	value_color	0 0 0		%read{0,27} %write{2147483647,-1}
 oparam	string	value_string	""		%read{2147483647,-1} %write{2147483647,-1}
@@ -40,9 +40,9 @@ temp	float	$tmp22	%read{28,28} %write{25,25}
 temp	float	$tmp23	%read{28,28} %write{26,26}
 temp	float	$tmp24	%read{28,28} %write{27,27}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_convert_from_color.osl:15
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_color.osl:15
 #   value_float = value_color[0] * 0.2126 + value_color[1] * 0.7152 + value_color[2] * 0.0722;
-	compref		$tmp1 value_color $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_convert_from_color.osl"} %line{15} %argrw{"wrr"}
+	compref		$tmp1 value_color $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_color.osl"} %line{15} %argrw{"wrr"}
 	mul		$tmp2 $tmp1 $const2 	%argrw{"wrr"}
 	compref		$tmp3 value_color $const3 	%argrw{"wrr"}
 	mul		$tmp4 $tmp3 $const4 	%argrw{"wrr"}
@@ -50,7 +50,7 @@ code ___main___
 	compref		$tmp6 value_color $const5 	%argrw{"wrr"}
 	mul		$tmp7 $tmp6 $const6 	%argrw{"wrr"}
 	add		value_float $tmp5 $tmp7 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_convert_from_color.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_color.osl:16
 #   value_int = (int)(value_color[0] * 0.2126 + value_color[1] * 0.7152 + value_color[2] * 0.0722);
 	compref		$tmp8 value_color $const1 	%line{16} %argrw{"wrr"}
 	mul		$tmp9 $tmp8 $const2 	%argrw{"wrr"}
@@ -61,19 +61,19 @@ code ___main___
 	mul		$tmp14 $tmp13 $const6 	%argrw{"wrr"}
 	add		$tmp15 $tmp12 $tmp14 	%argrw{"wrr"}
 	assign		value_int $tmp15 	%argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_convert_from_color.osl:17
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_color.osl:17
 #   value_vector = vector(value_color[0], value_color[1], value_color[2]);
 	compref		$tmp16 value_color $const1 	%line{17} %argrw{"wrr"}
 	compref		$tmp17 value_color $const3 	%argrw{"wrr"}
 	compref		$tmp18 value_color $const5 	%argrw{"wrr"}
 	vector		value_vector $tmp16 $tmp17 $tmp18 	%argrw{"wrrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_convert_from_color.osl:18
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_color.osl:18
 #   value_point = point(value_color[0], value_color[1], value_color[2]);
 	compref		$tmp19 value_color $const1 	%line{18} %argrw{"wrr"}
 	compref		$tmp20 value_color $const3 	%argrw{"wrr"}
 	compref		$tmp21 value_color $const5 	%argrw{"wrr"}
 	point		value_point $tmp19 $tmp20 $tmp21 	%argrw{"wrrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_convert_from_color.osl:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_convert_from_color.osl:19
 #   value_normal = normal(value_color[0], value_color[1], value_color[2]);
 	compref		$tmp22 value_color $const1 	%line{19} %argrw{"wrr"}
 	compref		$tmp23 value_color $const3 	%argrw{"wrr"}

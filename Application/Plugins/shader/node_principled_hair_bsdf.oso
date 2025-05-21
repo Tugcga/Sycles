@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_principled_hair_bsdf.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.oso
 shader node_principled_hair_bsdf
 param	color	Color	0.0175129995 0.00576299988 0.00205900008		%read{77,81} %write{2147483647,-1}
 param	float	Melanin	0.800000012		%read{27,27} %write{2147483647,-1}
@@ -25,22 +25,22 @@ param	float	TTlobe	1		%read{96,96} %write{2147483647,-1}
 param	float	TRTlobe	1		%read{96,96} %write{2147483647,-1}
 oparam	closure color	BSDF			%read{2147483647,-1} %write{96,97}
 global	normal	Ng	%read{0,0} %write{2147483647,-1}
-local	float	___367_x	%read{41,74} %write{40,65}
-local	float	___367_roughness_fac	%read{59,84} %write{50,75}
-local	color	___367_sigma	%read{60,85} %write{59,84}
+local	float	___368_x	%read{41,74} %write{40,65}
+local	float	___368_roughness_fac	%read{59,84} %write{50,75}
+local	color	___368_sigma	%read{60,85} %write{59,84}
 local	float	random_value	%read{8,23} %write{3,7}
 local	float	factor_random_roughness	%read{16,17} %write{11,11}
 local	float	m0_roughness	%read{97,97} %write{15,15}
 local	float	roughness	%read{96,97} %write{16,16}
 local	float	radial_roughness	%read{40,97} %write{17,17}
 local	color	sigma	%read{96,97} %write{20,89}
-local	float	___371_factor_random_color	%read{27,27} %write{26,26}
-local	float	___371_melanin	%read{28,34} %write{27,31}
-local	float	___371_eumelanin	%read{36,36} %write{33,33}
-local	float	___371_pheomelanin	%read{37,37} %write{34,34}
-local	color	___371_melanin_sigma	%read{61,61} %write{38,38}
-local	color	___371_tint_sigma	%read{61,61} %write{60,60}
-local	normal	___374_major_axis	%read{96,96} %write{92,95}
+local	float	___372_factor_random_color	%read{27,27} %write{26,26}
+local	float	___372_melanin	%read{28,34} %write{27,31}
+local	float	___372_eumelanin	%read{36,36} %write{33,33}
+local	float	___372_pheomelanin	%read{37,37} %write{34,34}
+local	color	___372_melanin_sigma	%read{61,61} %write{38,38}
+local	color	___372_tint_sigma	%read{61,61} %write{60,60}
+local	normal	___375_major_axis	%read{96,96} %write{92,95}
 const	int	$const1	2		%read{56,81} %write{2147483647,-1}
 const	float	$const2	2		%read{2,24} %write{2147483647,-1}
 const	string	$const3	"radians"		%read{1,1} %write{2147483647,-1}
@@ -128,115 +128,115 @@ const	string	$const28	"geom:N"		%read{95,95} %write{2147483647,-1}
 const	string	$const29	"hair_huang"		%read{96,96} %write{2147483647,-1}
 const	string	$const30	"hair_chiang"		%read{97,97} %write{2147483647,-1}
 code Normal
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:32
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:32
 #                                  normal Normal = Ng,
-	assign		Normal Ng 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl"} %line{32} %argrw{"wr"}
+	assign		Normal Ng 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl"} %line{32} %argrw{"wr"}
 code Offset
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:35
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:35
 #                                  float Offset = radians(2),
-	functioncall	$const3 3 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl"} %line{35} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:65
+	functioncall	$const3 3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl"} %line{35} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:65
 # float  radians (float x)  { return x*(M_PI/180.0); }
-	mul		Offset $const2 $const4 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{65} %argrw{"wrr"}
+	mul		Offset $const2 $const4 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{65} %argrw{"wrr"}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:51
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:51
 #   float random_value = 0.0;
-	assign		random_value $const5 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl"} %line{51} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:53
+	assign		random_value $const5 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl"} %line{51} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:53
 #   if (isconnected(Random)) {
 	isconnected	$tmp1 Random 	%line{53} %argrw{"wr"}
 	if		$tmp1 7 8 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:54
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:54
 #     random_value = Random;
 	assign		random_value Random 	%line{54} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:57
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:57
 #     getattribute(AttrRandom, random_value);
 	getattribute	$tmp2 AttrRandom random_value 	%line{57} %argrw{"wrw"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:61
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:61
 #   float factor_random_roughness = 1.0 + 2.0 * (random_value - 0.5) * RandomRoughness;
 	sub		$tmp3 random_value $const7 	%line{61} %argrw{"wrr"}
 	mul		$tmp4 $const2 $tmp3 	%argrw{"wrr"}
 	mul		$tmp5 $tmp4 RandomRoughness 	%argrw{"wrr"}
 	add		factor_random_roughness $const6 $tmp5 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:62
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:62
 #   float m0_roughness = 1.0 - clamp(Coat, 0.0, 1.0);
 	functioncall	$const8 15 	%line{62} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp7 Coat $const6 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp7 Coat $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp6 $tmp7 $const5 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:62
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:62
 #   float m0_roughness = 1.0 - clamp(Coat, 0.0, 1.0);
-	sub		m0_roughness $const6 $tmp6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl"} %line{62} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:63
+	sub		m0_roughness $const6 $tmp6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl"} %line{62} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:63
 #   float roughness = Roughness * factor_random_roughness;
 	mul		roughness Roughness factor_random_roughness 	%line{63} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:64
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:64
 #   float radial_roughness = RadialRoughness * factor_random_roughness;
 	mul		radial_roughness RadialRoughness factor_random_roughness 	%line{64} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:69
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:69
 #   if (parametrization == "Absorption coefficient") {
 	eq		$tmp8 parametrization $const9 	%line{69} %argrw{"wrr"}
 	if		$tmp8 21 90 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:70
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:70
 #     sigma = AbsorptionCoefficient;
 	assign		sigma AbsorptionCoefficient 	%line{70} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:72
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:72
 #   else if (parametrization == "Melanin concentration") {
 	eq		$tmp9 parametrization $const10 	%line{72} %argrw{"wrr"}
 	if		$tmp9 62 90 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:74
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:74
 #     float factor_random_color = 1.0 + 2.0 * (random_value - 0.5) * RandomColor;
 	sub		$tmp10 random_value $const7 	%line{74} %argrw{"wrr"}
 	mul		$tmp11 $const2 $tmp10 	%argrw{"wrr"}
 	mul		$tmp12 $tmp11 RandomColor 	%argrw{"wrr"}
-	add		___371_factor_random_color $const6 $tmp12 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:75
+	add		___372_factor_random_color $const6 $tmp12 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:75
 #     float melanin = Melanin * factor_random_color;
-	mul		___371_melanin Melanin ___371_factor_random_color 	%line{75} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:78
+	mul		___372_melanin Melanin ___372_factor_random_color 	%line{75} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:78
 #     melanin = -log(max(1.0 - melanin, 0.0001));
-	sub		$tmp15 $const6 ___371_melanin 	%line{78} %argrw{"wrr"}
+	sub		$tmp15 $const6 ___372_melanin 	%line{78} %argrw{"wrr"}
 	max		$tmp14 $tmp15 $const11 	%argrw{"wrr"}
 	log		$tmp13 $tmp14 	%argrw{"wr"}
-	neg		___371_melanin $tmp13 	%argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:81
+	neg		___372_melanin $tmp13 	%argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:81
 #     float eumelanin = melanin * (1.0 - MelaninRedness);
 	sub		$tmp16 $const6 MelaninRedness 	%line{81} %argrw{"wrr"}
-	mul		___371_eumelanin ___371_melanin $tmp16 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:82
+	mul		___372_eumelanin ___372_melanin $tmp16 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:82
 #     float pheomelanin = melanin * MelaninRedness;
-	mul		___371_pheomelanin ___371_melanin MelaninRedness 	%line{82} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:83
+	mul		___372_pheomelanin ___372_melanin MelaninRedness 	%line{82} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:83
 #     color melanin_sigma = sigma_from_concentration(eumelanin, pheomelanin);
 	functioncall	$const12 39 	%line{83} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:14
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:14
 #   return eumelanin * color(0.506, 0.841, 1.653) + pheomelanin * color(0.343, 0.733, 1.924);
-	mul		$tmp18 ___371_eumelanin $const13 	%line{14} %argrw{"wrr"}
-	mul		$tmp20 ___371_pheomelanin $const14 	%argrw{"wrr"}
-	add		___371_melanin_sigma $tmp18 $tmp20 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:86
+	mul		$tmp18 ___372_eumelanin $const13 	%line{14} %argrw{"wrr"}
+	mul		$tmp20 ___372_pheomelanin $const14 	%argrw{"wrr"}
+	add		___372_melanin_sigma $tmp18 $tmp20 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:86
 #     color tint_sigma = sigma_from_reflectance(Tint, radial_roughness);
 	functioncall	$const15 61 	%line{86} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:19
 #   float x = azimuthal_roughness;
-	assign		___367_x radial_roughness 	%line{19} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:20
+	assign		___368_x radial_roughness 	%line{19} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:20
 #   float roughness_fac = (((((0.245 * x) + 5.574) * x - 10.73) * x + 2.532) * x - 0.215) * x +
-	mul		$tmp21 $const16 ___367_x 	%line{20} %argrw{"wrr"}
+	mul		$tmp21 $const16 ___368_x 	%line{20} %argrw{"wrr"}
 	add		$tmp22 $tmp21 $const17 	%argrw{"wrr"}
-	mul		$tmp23 $tmp22 ___367_x 	%argrw{"wrr"}
+	mul		$tmp23 $tmp22 ___368_x 	%argrw{"wrr"}
 	sub		$tmp24 $tmp23 $const18 	%argrw{"wrr"}
-	mul		$tmp25 $tmp24 ___367_x 	%argrw{"wrr"}
+	mul		$tmp25 $tmp24 ___368_x 	%argrw{"wrr"}
 	add		$tmp26 $tmp25 $const19 	%argrw{"wrr"}
-	mul		$tmp27 $tmp26 ___367_x 	%argrw{"wrr"}
+	mul		$tmp27 $tmp26 ___368_x 	%argrw{"wrr"}
 	sub		$tmp28 $tmp27 $const20 	%argrw{"wrr"}
-	mul		$tmp29 $tmp28 ___367_x 	%argrw{"wrr"}
-	add		___367_roughness_fac $tmp29 $const21 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:22
+	mul		$tmp29 $tmp28 ___368_x 	%argrw{"wrr"}
+	add		___368_roughness_fac $tmp29 $const21 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:22
 #   color sigma = log3(c) / roughness_fac;
 	functioncall	$const22 59 	%line{22} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:9
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:9
 #   return color(log(a[0]), log(a[1]), log(a[2]));
 	compref		$tmp32 Tint $const23 	%line{9} %argrw{"wrr"}
 	log		$tmp31 $tmp32 	%argrw{"wr"}
@@ -245,41 +245,41 @@ code ___main___
 	compref		$tmp36 Tint $const1 	%argrw{"wrr"}
 	log		$tmp35 $tmp36 	%argrw{"wr"}
 	color		$tmp30 $tmp31 $tmp33 $tmp35 	%argrw{"wrrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:22
 #   color sigma = log3(c) / roughness_fac;
-	div		___367_sigma $tmp30 ___367_roughness_fac 	%line{22} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:23
+	div		___368_sigma $tmp30 ___368_roughness_fac 	%line{22} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:23
 #   return sigma * sigma;
-	mul		___371_tint_sigma ___367_sigma ___367_sigma 	%line{23} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:87
+	mul		___372_tint_sigma ___368_sigma ___368_sigma 	%line{23} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:87
 #     sigma = melanin_sigma + tint_sigma;
-	add		sigma ___371_melanin_sigma ___371_tint_sigma 	%line{87} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:89
+	add		sigma ___372_melanin_sigma ___372_tint_sigma 	%line{87} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:89
 #   else if (parametrization == "Direct coloring") {
 	eq		$tmp37 parametrization $const25 	%line{89} %argrw{"wrr"}
 	if		$tmp37 86 90 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:90
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:90
 #     sigma = sigma_from_reflectance(Color, radial_roughness);
 	functioncall	$const15 86 	%line{90} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:19
 #   float x = azimuthal_roughness;
-	assign		___367_x radial_roughness 	%line{19} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:20
+	assign		___368_x radial_roughness 	%line{19} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:20
 #   float roughness_fac = (((((0.245 * x) + 5.574) * x - 10.73) * x + 2.532) * x - 0.215) * x +
-	mul		$tmp38 $const16 ___367_x 	%line{20} %argrw{"wrr"}
+	mul		$tmp38 $const16 ___368_x 	%line{20} %argrw{"wrr"}
 	add		$tmp39 $tmp38 $const17 	%argrw{"wrr"}
-	mul		$tmp40 $tmp39 ___367_x 	%argrw{"wrr"}
+	mul		$tmp40 $tmp39 ___368_x 	%argrw{"wrr"}
 	sub		$tmp41 $tmp40 $const18 	%argrw{"wrr"}
-	mul		$tmp42 $tmp41 ___367_x 	%argrw{"wrr"}
+	mul		$tmp42 $tmp41 ___368_x 	%argrw{"wrr"}
 	add		$tmp43 $tmp42 $const19 	%argrw{"wrr"}
-	mul		$tmp44 $tmp43 ___367_x 	%argrw{"wrr"}
+	mul		$tmp44 $tmp43 ___368_x 	%argrw{"wrr"}
 	sub		$tmp45 $tmp44 $const20 	%argrw{"wrr"}
-	mul		$tmp46 $tmp45 ___367_x 	%argrw{"wrr"}
-	add		___367_roughness_fac $tmp46 $const21 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:22
+	mul		$tmp46 $tmp45 ___368_x 	%argrw{"wrr"}
+	add		___368_roughness_fac $tmp46 $const21 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:22
 #   color sigma = log3(c) / roughness_fac;
 	functioncall	$const22 84 	%line{22} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:9
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:9
 #   return color(log(a[0]), log(a[1]), log(a[2]));
 	compref		$tmp49 Color $const23 	%line{9} %argrw{"wrr"}
 	log		$tmp48 $tmp49 	%argrw{"wr"}
@@ -288,38 +288,38 @@ code ___main___
 	compref		$tmp53 Color $const1 	%argrw{"wrr"}
 	log		$tmp52 $tmp53 	%argrw{"wr"}
 	color		$tmp47 $tmp48 $tmp50 $tmp52 	%argrw{"wrrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:22
 #   color sigma = log3(c) / roughness_fac;
-	div		___367_sigma $tmp47 ___367_roughness_fac 	%line{22} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:23
+	div		___368_sigma $tmp47 ___368_roughness_fac 	%line{22} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:23
 #   return sigma * sigma;
-	mul		sigma ___367_sigma ___367_sigma 	%line{23} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:94
+	mul		sigma ___368_sigma ___368_sigma 	%line{23} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:94
 #     sigma = sigma_from_concentration(0.0, 0.8054375);
 	functioncall	$const12 90 	%line{94} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:14
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:14
 #   return eumelanin * color(0.506, 0.841, 1.653) + pheomelanin * color(0.343, 0.733, 1.924);
 	mul		$tmp55 $const5 $const13 	%line{14} %argrw{"wrr"}
 	mul		$tmp57 $const26 $const14 	%argrw{"wrr"}
 	add		sigma $tmp55 $tmp57 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:97
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:97
 #   if (model == "Huang") {
 	eq		$tmp58 model $const27 	%line{97} %argrw{"wrr"}
 	if		$tmp58 97 98 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:98
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:98
 #     normal major_axis = Normal;
-	assign		___374_major_axis Normal 	%line{98} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:99
+	assign		___375_major_axis Normal 	%line{98} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:99
 #     if (AspectRatio != 1.0) {
 	neq		$tmp59 AspectRatio $const6 	%line{99} %argrw{"wrr"}
 	if		$tmp59 96 96 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:100
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:100
 #       getattribute("geom:N", major_axis);
-	getattribute	$tmp60 $const28 ___374_major_axis 	%line{100} %argrw{"wrw"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:102
+	getattribute	$tmp60 $const28 ___375_major_axis 	%line{100} %argrw{"wrw"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:102
 #     BSDF = hair_huang(
-	closure		BSDF $const29 ___374_major_axis sigma roughness Offset IOR AspectRatio Rlobe TTlobe TRTlobe 	%line{102} %argrw{"wrrrrrrrrrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_principled_hair_bsdf.osl:106
+	closure		BSDF $const29 ___375_major_axis sigma roughness Offset IOR AspectRatio Rlobe TTlobe TRTlobe 	%line{102} %argrw{"wrrrrrrrrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_principled_hair_bsdf.osl:106
 #     BSDF = hair_chiang(Normal, sigma, roughness, radial_roughness, m0_roughness, Offset, IOR);
 	closure		BSDF $const30 Normal sigma roughness radial_roughness m0_roughness Offset IOR 	%line{106} %argrw{"wrrrrrrrr"}
 	end

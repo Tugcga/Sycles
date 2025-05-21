@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_combine_color.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_combine_color.oso
 shader node_combine_color
 param	string	color_type	"rgb"		%read{0,12} %write{2147483647,-1}
 param	float	Red	0		%read{12,12} %write{2147483647,-1}
@@ -21,9 +21,9 @@ temp	int	$tmp7	%read{10,10} %write{9,9}
 const	string	$const5	"%s"		%read{13,13} %write{2147483647,-1}
 const	string	$const6	"Unknown color space!"		%read{13,13} %write{2147483647,-1}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_combine_color.osl:13
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_combine_color.osl:13
 #   if (color_type == "rgb" || color_type == "hsv" || color_type == "hsl")
-	eq		$tmp1 color_type $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_combine_color.osl"} %line{13} %argrw{"wrr"}
+	eq		$tmp1 color_type $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_combine_color.osl"} %line{13} %argrw{"wrr"}
 	neq		$tmp2 $tmp1 $const2 	%argrw{"wrr"}
 	if		$tmp2 3 6 	%argrw{"r"}
 	eq		$tmp3 color_type $const3 	%argrw{"wrr"}
@@ -35,10 +35,10 @@ code ___main___
 	neq		$tmp7 $tmp6 $const2 	%argrw{"wrr"}
 	assign		$tmp5 $tmp7 	%argrw{"wr"}
 	if		$tmp5 13 14 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_combine_color.osl:14
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_combine_color.osl:14
 #     Color = color(color_type, Red, Green, Blue);
 	color		Color color_type Red Green Blue 	%line{14} %argrw{"wrrrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_combine_color.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_combine_color.osl:16
 #     warning("%s", "Unknown color space!");
 	warning		$const5 $const6 	%line{16} %argrw{"rr"}
 	end

@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_voxel_texture_zero.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_voxel_texture_zero.oso
 shader node_voxel_texture_zero
 param	string	filename	""		%read{2147483647,-1} %write{2147483647,-1}
 param	string	interpolation	"linear"		%read{2147483647,-1} %write{2147483647,-1}
@@ -13,14 +13,14 @@ global	point	P	%read{0,0} %write{2147483647,-1}
 const	int	$const1	0		%read{1,1} %write{2147483647,-1}
 const	color	$const2	0 0 0		%read{2,2} %write{2147483647,-1}
 code Vector
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_voxel_texture_zero.osl:12
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture_zero.osl:12
 #     point Vector = P,
-	assign		Vector P 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_voxel_texture_zero.osl"} %line{12} %argrw{"wr"}
+	assign		Vector P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture_zero.osl"} %line{12} %argrw{"wr"}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_voxel_texture_zero.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture_zero.osl:16
 #   Density = 0;
-	assign		Density $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_voxel_texture_zero.osl"} %line{16} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_voxel_texture_zero.osl:17
+	assign		Density $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture_zero.osl"} %line{16} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_voxel_texture_zero.osl:17
 #   Color = color(0, 0, 0);
 	assign		Color $const2 	%line{17} %argrw{"wr"}
 	end

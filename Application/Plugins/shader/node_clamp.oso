@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_clamp.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_clamp.oso
 shader node_clamp
 param	string	clamp_type	"minmax"		%read{0,0} %write{2147483647,-1}
 param	float	Value	1		%read{8,11} %write{2147483647,-1}
@@ -17,9 +17,9 @@ const	string	$const3	"clamp"		%read{7,10} %write{2147483647,-1}
 temp	float	$tmp5	%read{9,9} %write{8,8}
 temp	float	$tmp6	%read{12,12} %write{11,11}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_clamp.osl:13
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_clamp.osl:13
 #   Result = (clamp_type == "range" && (Min > Max)) ? clamp(Value, Max, Min) :
-	eq		$tmp1 clamp_type $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_clamp.osl"} %line{13} %argrw{"wrr"}
+	eq		$tmp1 clamp_type $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_clamp.osl"} %line{13} %argrw{"wrr"}
 	neq		$tmp2 $tmp1 $const2 	%argrw{"wrr"}
 	if		$tmp2 6 6 	%argrw{"r"}
 	gt		$tmp3 Min Max 	%argrw{"wrr"}
@@ -27,15 +27,15 @@ code ___main___
 	assign		$tmp2 $tmp4 	%argrw{"wr"}
 	if		$tmp2 10 13 	%argrw{"r"}
 	functioncall	$const3 10 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp5 Value Min 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp5 Value Min 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		Result $tmp5 Max 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_clamp.osl:14
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_clamp.osl:14
 #                                                     clamp(Value, Min, Max);
-	functioncall	$const3 13 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_clamp.osl"} %line{14} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+	functioncall	$const3 13 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_clamp.osl"} %line{14} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp6 Value Max 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp6 Value Max 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		Result $tmp6 Min 	%argrw{"wrr"}
 	end

@@ -1,14 +1,14 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_math.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_math.oso
 shader node_math
 param	string	math_type	"add"		%read{0,220} %write{2147483647,-1}
 param	float	Value1	0.5		%read{2,222} %write{2147483647,-1}
 param	float	Value2	0.5		%read{2,223} %write{2147483647,-1}
 param	float	Value3	0.5		%read{120,235} %write{2147483647,-1}
 oparam	float	Value	0		%read{2147483647,-1} %write{2,241}
-local	float	___350_h	%read{212,234} %write{210,231}
-local	float	___357_range	%read{121,126} %write{120,120}
+local	float	___351_h	%read{212,234} %write{210,231}
+local	float	___358_range	%read{121,126} %write{120,120}
 const	string	$const1	"add"		%read{0,0} %write{2147483647,-1}
 temp	int	$tmp1	%read{1,1} %write{0,0}
 const	string	$const2	"subtract"		%read{3,3} %write{2147483647,-1}
@@ -174,58 +174,58 @@ temp	float	$tmp106	%read{237,237} %write{236,236}
 const	string	$const57	"%s"		%read{242,242} %write{2147483647,-1}
 const	string	$const58	"Unknown math operator!"		%read{242,242} %write{2147483647,-1}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:15
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:15
 #   if (math_type == "add")
-	eq		$tmp1 math_type $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{15} %argrw{"wrr"}
+	eq		$tmp1 math_type $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{15} %argrw{"wrr"}
 	if		$tmp1 3 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:16
 #     Value = Value1 + Value2;
 	add		Value Value1 Value2 	%line{16} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:17
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:17
 #   else if (math_type == "subtract")
 	eq		$tmp2 math_type $const2 	%line{17} %argrw{"wrr"}
 	if		$tmp2 6 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:18
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:18
 #     Value = Value1 - Value2;
 	sub		Value Value1 Value2 	%line{18} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:19
 #   else if (math_type == "multiply")
 	eq		$tmp3 math_type $const3 	%line{19} %argrw{"wrr"}
 	if		$tmp3 9 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:20
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:20
 #     Value = Value1 * Value2;
 	mul		Value Value1 Value2 	%line{20} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:21
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:21
 #   else if (math_type == "divide")
 	eq		$tmp4 math_type $const4 	%line{21} %argrw{"wrr"}
 	if		$tmp4 17 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:22
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:22
 #     Value = safe_divide(Value1, Value2);
 	functioncall	$const5 17 	%line{22} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:7
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:7
 #   return (b != 0.0) ? a / b : 0.0;
-	neq		$tmp5 Value2 $const6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{7} %argrw{"wrr"}
+	neq		$tmp5 Value2 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{7} %argrw{"wrr"}
 	if		$tmp5 15 16 	%argrw{"r"}
 	div		Value Value1 Value2 	%argrw{"wrr"}
 	assign		Value $const6 	%argrw{"wr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:23
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:23
 #   else if (math_type == "power")
-	eq		$tmp6 math_type $const7 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{23} %argrw{"wrr"}
+	eq		$tmp6 math_type $const7 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{23} %argrw{"wrr"}
 	if		$tmp6 20 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:24
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:24
 #     Value = pow(Value1, Value2);
 	pow		Value Value1 Value2 	%line{24} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:25
 #   else if (math_type == "logarithm")
 	eq		$tmp7 math_type $const8 	%line{25} %argrw{"wrr"}
 	if		$tmp7 35 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:26
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:26
 #     Value = safe_log(Value1, Value2);
 	functioncall	$const9 35 	%line{26} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:56
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:56
 #   return (a > 0.0 && b > 0.0) ? log(a) / log(b) : 0.0;
-	gt		$tmp8 Value1 $const6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{56} %argrw{"wrr"}
+	gt		$tmp8 Value1 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{56} %argrw{"wrr"}
 	neq		$tmp9 $tmp8 $const10 	%argrw{"wrr"}
 	if		$tmp9 29 29 	%argrw{"r"}
 	gt		$tmp10 Value2 $const6 	%argrw{"wrr"}
@@ -237,138 +237,138 @@ code ___main___
 	div		Value $tmp12 $tmp13 	%argrw{"wrr"}
 	assign		Value $const6 	%argrw{"wr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:27
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:27
 #   else if (math_type == "sqrt")
-	eq		$tmp14 math_type $const11 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{27} %argrw{"wrr"}
+	eq		$tmp14 math_type $const11 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{27} %argrw{"wrr"}
 	if		$tmp14 43 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:28
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:28
 #     Value = safe_sqrt(Value1);
 	functioncall	$const12 43 	%line{28} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:51
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:51
 #   return (a > 0.0) ? sqrt(a) : 0.0;
-	gt		$tmp15 Value1 $const6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{51} %argrw{"wrr"}
+	gt		$tmp15 Value1 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{51} %argrw{"wrr"}
 	if		$tmp15 41 42 	%argrw{"r"}
 	sqrt		Value Value1 	%argrw{"wr"}
 	assign		Value $const6 	%argrw{"wr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:29
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:29
 #   else if (math_type == "inversesqrt")
-	eq		$tmp16 math_type $const13 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{29} %argrw{"wrr"}
+	eq		$tmp16 math_type $const13 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{29} %argrw{"wrr"}
 	if		$tmp16 46 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:30
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:30
 #     Value = inversesqrt(Value1);
 	inversesqrt	Value Value1 	%line{30} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:31
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:31
 #   else if (math_type == "absolute")
 	eq		$tmp17 math_type $const14 	%line{31} %argrw{"wrr"}
 	if		$tmp17 49 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:32
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:32
 #     Value = fabs(Value1);
 	fabs		Value Value1 	%line{32} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:33
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:33
 #   else if (math_type == "radians")
 	eq		$tmp18 math_type $const15 	%line{33} %argrw{"wrr"}
 	if		$tmp18 53 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:34
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:34
 #     Value = radians(Value1);
 	functioncall	$const15 53 	%line{34} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:65
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:65
 # float  radians (float x)  { return x*(M_PI/180.0); }
-	mul		Value Value1 $const16 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{65} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:35
+	mul		Value Value1 $const16 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{65} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:35
 #   else if (math_type == "degrees")
-	eq		$tmp19 math_type $const17 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{35} %argrw{"wrr"}
+	eq		$tmp19 math_type $const17 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{35} %argrw{"wrr"}
 	if		$tmp19 57 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:36
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:36
 #     Value = degrees(Value1);
 	functioncall	$const17 57 	%line{36} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:60
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:60
 # float  degrees (float x)  { return x*(180.0/M_PI); }
-	mul		Value Value1 $const18 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{60} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:37
+	mul		Value Value1 $const18 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{60} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:37
 #   else if (math_type == "minimum")
-	eq		$tmp20 math_type $const19 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{37} %argrw{"wrr"}
+	eq		$tmp20 math_type $const19 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{37} %argrw{"wrr"}
 	if		$tmp20 60 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:38
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:38
 #     Value = min(Value1, Value2);
 	min		Value Value1 Value2 	%line{38} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:39
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:39
 #   else if (math_type == "maximum")
 	eq		$tmp21 math_type $const20 	%line{39} %argrw{"wrr"}
 	if		$tmp21 63 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:40
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:40
 #     Value = max(Value1, Value2);
 	max		Value Value1 Value2 	%line{40} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:41
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:41
 #   else if (math_type == "less_than")
 	eq		$tmp22 math_type $const21 	%line{41} %argrw{"wrr"}
 	if		$tmp22 67 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:42
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:42
 #     Value = Value1 < Value2;
 	lt		$tmp23 Value1 Value2 	%line{42} %argrw{"wrr"}
 	assign		Value $tmp23 	%argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:43
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:43
 #   else if (math_type == "greater_than")
 	eq		$tmp24 math_type $const22 	%line{43} %argrw{"wrr"}
 	if		$tmp24 71 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:44
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:44
 #     Value = Value1 > Value2;
 	gt		$tmp25 Value1 Value2 	%line{44} %argrw{"wrr"}
 	assign		Value $tmp25 	%argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:45
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:45
 #   else if (math_type == "round")
 	eq		$tmp26 math_type $const23 	%line{45} %argrw{"wrr"}
 	if		$tmp26 75 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:46
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:46
 #     Value = floor(Value1 + 0.5);
 	add		$tmp27 Value1 $const24 	%line{46} %argrw{"wrr"}
 	floor		Value $tmp27 	%argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:47
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:47
 #   else if (math_type == "floor")
 	eq		$tmp28 math_type $const25 	%line{47} %argrw{"wrr"}
 	if		$tmp28 78 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:48
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:48
 #     Value = floor(Value1);
 	floor		Value Value1 	%line{48} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:49
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:49
 #   else if (math_type == "ceil")
 	eq		$tmp29 math_type $const26 	%line{49} %argrw{"wrr"}
 	if		$tmp29 81 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:50
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:50
 #     Value = ceil(Value1);
 	ceil		Value Value1 	%line{50} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:51
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:51
 #   else if (math_type == "fraction")
 	eq		$tmp30 math_type $const27 	%line{51} %argrw{"wrr"}
 	if		$tmp30 85 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:52
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:52
 #     Value = Value1 - floor(Value1);
 	floor		$tmp31 Value1 	%line{52} %argrw{"wr"}
 	sub		Value Value1 $tmp31 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:53
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:53
 #   else if (math_type == "modulo")
 	eq		$tmp32 math_type $const28 	%line{53} %argrw{"wrr"}
 	if		$tmp32 93 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:54
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:54
 #     Value = safe_modulo(Value1, Value2);
 	functioncall	$const29 93 	%line{54} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:19
 #   return (b != 0.0) ? fmod(a, b) : 0.0;
-	neq		$tmp33 Value2 $const6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{19} %argrw{"wrr"}
+	neq		$tmp33 Value2 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{19} %argrw{"wrr"}
 	if		$tmp33 91 92 	%argrw{"r"}
 	fmod		Value Value1 Value2 	%argrw{"wrr"}
 	assign		Value $const6 	%argrw{"wr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:55
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:55
 #   else if (math_type == "floored_modulo")
-	eq		$tmp34 math_type $const30 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{55} %argrw{"wrr"}
+	eq		$tmp34 math_type $const30 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{55} %argrw{"wrr"}
 	if		$tmp34 104 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:56
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:56
 #     Value = safe_floored_modulo(Value1, Value2);
 	functioncall	$const31 104 	%line{56} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:24
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:24
 #   return (b != 0.0) ? a - floor(a / b) * b : 0.0;
-	neq		$tmp35 Value2 $const6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{24} %argrw{"wrr"}
+	neq		$tmp35 Value2 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{24} %argrw{"wrr"}
 	if		$tmp35 102 103 	%argrw{"r"}
 	div		$tmp37 Value1 Value2 	%argrw{"wrr"}
 	floor		$tmp36 $tmp37 	%argrw{"wr"}
@@ -376,72 +376,72 @@ code ___main___
 	sub		Value Value1 $tmp38 	%argrw{"wrr"}
 	assign		Value $const6 	%argrw{"wr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:57
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:57
 #   else if (math_type == "trunc")
-	eq		$tmp39 math_type $const32 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{57} %argrw{"wrr"}
+	eq		$tmp39 math_type $const32 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{57} %argrw{"wrr"}
 	if		$tmp39 107 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:58
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:58
 #     Value = trunc(Value1);
 	trunc		Value Value1 	%line{58} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:59
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:59
 #   else if (math_type == "snap")
 	eq		$tmp40 math_type $const33 	%line{59} %argrw{"wrr"}
 	if		$tmp40 117 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:60
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:60
 #     Value = floor(safe_divide(Value1, Value2)) * Value2;
 	functioncall	$const5 115 	%line{60} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:7
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:7
 #   return (b != 0.0) ? a / b : 0.0;
-	neq		$tmp43 Value2 $const6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{7} %argrw{"wrr"}
+	neq		$tmp43 Value2 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{7} %argrw{"wrr"}
 	if		$tmp43 113 114 	%argrw{"r"}
 	div		$tmp42 Value1 Value2 	%argrw{"wrr"}
 	assign		$tmp42 $const6 	%argrw{"wr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:60
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:60
 #     Value = floor(safe_divide(Value1, Value2)) * Value2;
-	floor		$tmp41 $tmp42 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{60} %argrw{"wr"}
+	floor		$tmp41 $tmp42 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{60} %argrw{"wr"}
 	mul		Value $tmp41 Value2 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:61
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:61
 #   else if (math_type == "wrap")
 	eq		$tmp44 math_type $const34 	%line{61} %argrw{"wrr"}
 	if		$tmp44 130 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:62
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:62
 #     Value = wrap(Value1, Value2, Value3);
 	functioncall	$const34 130 	%line{62} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:73
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:73
 #   float range = max - min;
-	sub		___357_range Value2 Value3 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{73} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:74
+	sub		___358_range Value2 Value3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{73} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:74
 #   return (range != 0.0) ? value - (range * floor((value - min) / range)) : min;
-	neq		$tmp45 ___357_range $const6 	%line{74} %argrw{"wrr"}
+	neq		$tmp45 ___358_range $const6 	%line{74} %argrw{"wrr"}
 	if		$tmp45 128 129 	%argrw{"r"}
 	sub		$tmp47 Value1 Value3 	%argrw{"wrr"}
-	div		$tmp48 $tmp47 ___357_range 	%argrw{"wrr"}
+	div		$tmp48 $tmp47 ___358_range 	%argrw{"wrr"}
 	floor		$tmp46 $tmp48 	%argrw{"wr"}
-	mul		$tmp49 ___357_range $tmp46 	%argrw{"wrr"}
+	mul		$tmp49 ___358_range $tmp46 	%argrw{"wrr"}
 	sub		Value Value1 $tmp49 	%argrw{"wrr"}
 	assign		Value Value3 	%argrw{"wr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:63
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:63
 #   else if (math_type == "pingpong")
-	eq		$tmp50 math_type $const35 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{63} %argrw{"wrr"}
+	eq		$tmp50 math_type $const35 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{63} %argrw{"wrr"}
 	if		$tmp50 147 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:64
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:64
 #     Value = pingpong(Value1, Value2);
 	functioncall	$const35 147 	%line{64} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:46
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:46
 #   return (b != 0.0) ? abs(fract((a - b) / (b * 2.0)) * b * 2.0 - b) : 0.0;
-	neq		$tmp51 Value2 $const6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{46} %argrw{"wrr"}
+	neq		$tmp51 Value2 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{46} %argrw{"wrr"}
 	if		$tmp51 145 146 	%argrw{"r"}
 	sub		$tmp53 Value1 Value2 	%argrw{"wrr"}
 	mul		$tmp54 Value2 $const36 	%argrw{"wrr"}
 	div		$tmp55 $tmp53 $tmp54 	%argrw{"wrr"}
 	functioncall	$const37 141 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:29
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:29
 #   return a - floor(a);
 	floor		$tmp56 $tmp55 	%line{29} %argrw{"wr"}
 	sub		$tmp52 $tmp55 $tmp56 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:46
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:46
 #   return (b != 0.0) ? abs(fract((a - b) / (b * 2.0)) * b * 2.0 - b) : 0.0;
 	mul		$tmp57 $tmp52 Value2 	%line{46} %argrw{"wrr"}
 	mul		$tmp58 $tmp57 $const36 	%argrw{"wrr"}
@@ -449,95 +449,95 @@ code ___main___
 	abs		Value $tmp59 	%argrw{"wr"}
 	assign		Value $const6 	%argrw{"wr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:65
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:65
 #   else if (math_type == "sine")
-	eq		$tmp60 math_type $const38 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{65} %argrw{"wrr"}
+	eq		$tmp60 math_type $const38 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{65} %argrw{"wrr"}
 	if		$tmp60 150 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:66
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:66
 #     Value = sin(Value1);
 	sin		Value Value1 	%line{66} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:67
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:67
 #   else if (math_type == "cosine")
 	eq		$tmp61 math_type $const39 	%line{67} %argrw{"wrr"}
 	if		$tmp61 153 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:68
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:68
 #     Value = cos(Value1);
 	cos		Value Value1 	%line{68} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:69
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:69
 #   else if (math_type == "tangent")
 	eq		$tmp62 math_type $const40 	%line{69} %argrw{"wrr"}
 	if		$tmp62 156 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:70
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:70
 #     Value = tan(Value1);
 	tan		Value Value1 	%line{70} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:71
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:71
 #   else if (math_type == "sinh")
 	eq		$tmp63 math_type $const41 	%line{71} %argrw{"wrr"}
 	if		$tmp63 159 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:72
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:72
 #     Value = sinh(Value1);
 	sinh		Value Value1 	%line{72} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:73
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:73
 #   else if (math_type == "cosh")
 	eq		$tmp64 math_type $const42 	%line{73} %argrw{"wrr"}
 	if		$tmp64 162 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:74
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:74
 #     Value = cosh(Value1);
 	cosh		Value Value1 	%line{74} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:75
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:75
 #   else if (math_type == "tanh")
 	eq		$tmp65 math_type $const43 	%line{75} %argrw{"wrr"}
 	if		$tmp65 165 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:76
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:76
 #     Value = tanh(Value1);
 	tanh		Value Value1 	%line{76} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:77
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:77
 #   else if (math_type == "arcsine")
 	eq		$tmp66 math_type $const44 	%line{77} %argrw{"wrr"}
 	if		$tmp66 168 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:78
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:78
 #     Value = asin(Value1);
 	asin		Value Value1 	%line{78} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:79
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:79
 #   else if (math_type == "arccosine")
 	eq		$tmp67 math_type $const45 	%line{79} %argrw{"wrr"}
 	if		$tmp67 171 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:80
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:80
 #     Value = acos(Value1);
 	acos		Value Value1 	%line{80} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:81
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:81
 #   else if (math_type == "arctangent")
 	eq		$tmp68 math_type $const46 	%line{81} %argrw{"wrr"}
 	if		$tmp68 174 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:82
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:82
 #     Value = atan(Value1);
 	atan		Value Value1 	%line{82} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:83
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:83
 #   else if (math_type == "arctan2")
 	eq		$tmp69 math_type $const47 	%line{83} %argrw{"wrr"}
 	if		$tmp69 177 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:84
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:84
 #     Value = atan2(Value1, Value2);
 	atan2		Value Value1 Value2 	%line{84} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:85
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:85
 #   else if (math_type == "sign")
 	eq		$tmp70 math_type $const48 	%line{85} %argrw{"wrr"}
 	if		$tmp70 180 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:86
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:86
 #     Value = sign(Value1);
 	sign		Value Value1 	%line{86} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:87
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:87
 #   else if (math_type == "exponent")
 	eq		$tmp71 math_type $const49 	%line{87} %argrw{"wrr"}
 	if		$tmp71 183 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:88
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:88
 #     Value = exp(Value1);
 	exp		Value Value1 	%line{88} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:89
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:89
 #   else if (math_type == "compare")
 	eq		$tmp72 math_type $const50 	%line{89} %argrw{"wrr"}
 	if		$tmp72 197 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:90
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:90
 #     Value = ((Value1 == Value2) || (abs(Value1 - Value2) <= max(Value3, 1e-5))) ? 1.0 : 0.0;
 	eq		$tmp73 Value1 Value2 	%line{90} %argrw{"wrr"}
 	neq		$tmp74 $tmp73 $const10 	%argrw{"wrr"}
@@ -551,82 +551,82 @@ code ___main___
 	if		$tmp74 196 197 	%argrw{"r"}
 	assign		Value $const52 	%argrw{"wr"}
 	assign		Value $const6 	%argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:91
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:91
 #   else if (math_type == "multiply_add")
 	eq		$tmp80 math_type $const53 	%line{91} %argrw{"wrr"}
 	if		$tmp80 201 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:92
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:92
 #     Value = Value1 * Value2 + Value3;
 	mul		$tmp81 Value1 Value2 	%line{92} %argrw{"wrr"}
 	add		Value $tmp81 Value3 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:93
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:93
 #   else if (math_type == "smoothmin")
 	eq		$tmp82 math_type $const54 	%line{93} %argrw{"wrr"}
 	if		$tmp82 220 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:94
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:94
 #     Value = smoothmin(Value1, Value2, Value3);
 	functioncall	$const54 220 	%line{94} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:35
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:35
 #   if (c != 0.0) {
-	neq		$tmp83 Value3 $const6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{35} %argrw{"wrr"}
+	neq		$tmp83 Value3 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{35} %argrw{"wrr"}
 	if		$tmp83 218 220 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:36
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:36
 #     float h = max(c - abs(a - b), 0.0) / c;
 	sub		$tmp86 Value1 Value2 	%line{36} %argrw{"wrr"}
 	abs		$tmp85 $tmp86 	%argrw{"wr"}
 	sub		$tmp87 Value3 $tmp85 	%argrw{"wrr"}
 	max		$tmp84 $tmp87 $const6 	%argrw{"wrr"}
-	div		___350_h $tmp84 Value3 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:37
+	div		___351_h $tmp84 Value3 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:37
 #     return min(a, b) - h * h * h * c * (1.0 / 6.0);
 	min		$tmp88 Value1 Value2 	%line{37} %argrw{"wrr"}
-	mul		$tmp89 ___350_h ___350_h 	%argrw{"wrr"}
-	mul		$tmp90 $tmp89 ___350_h 	%argrw{"wrr"}
+	mul		$tmp89 ___351_h ___351_h 	%argrw{"wrr"}
+	mul		$tmp90 $tmp89 ___351_h 	%argrw{"wrr"}
 	mul		$tmp91 $tmp90 Value3 	%argrw{"wrr"}
 	mul		$tmp92 $tmp91 $const55 	%argrw{"wrr"}
 	sub		Value $tmp88 $tmp92 	%argrw{"wrr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:40
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:40
 #     return min(a, b);
 	min		Value Value1 Value2 	%line{40} %argrw{"wrr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:95
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:95
 #   else if (math_type == "smoothmax")
-	eq		$tmp93 math_type $const56 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{95} %argrw{"wrr"}
+	eq		$tmp93 math_type $const56 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{95} %argrw{"wrr"}
 	if		$tmp93 242 243 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:96
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:96
 #     Value = -(smoothmin(-Value1, -Value2, Value3));
 	neg		$tmp95 Value1 	%line{96} %argrw{"wr"}
 	neg		$tmp96 Value2 	%argrw{"wr"}
 	functioncall	$const54 241 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:35
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:35
 #   if (c != 0.0) {
-	neq		$tmp97 Value3 $const6 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h"} %line{35} %argrw{"wrr"}
+	neq		$tmp97 Value3 $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h"} %line{35} %argrw{"wrr"}
 	if		$tmp97 239 241 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:36
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:36
 #     float h = max(c - abs(a - b), 0.0) / c;
 	sub		$tmp100 $tmp95 $tmp96 	%line{36} %argrw{"wrr"}
 	abs		$tmp99 $tmp100 	%argrw{"wr"}
 	sub		$tmp101 Value3 $tmp99 	%argrw{"wrr"}
 	max		$tmp98 $tmp101 $const6 	%argrw{"wrr"}
-	div		___350_h $tmp98 Value3 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:37
+	div		___351_h $tmp98 Value3 	%argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:37
 #     return min(a, b) - h * h * h * c * (1.0 / 6.0);
 	min		$tmp102 $tmp95 $tmp96 	%line{37} %argrw{"wrr"}
-	mul		$tmp103 ___350_h ___350_h 	%argrw{"wrr"}
-	mul		$tmp104 $tmp103 ___350_h 	%argrw{"wrr"}
+	mul		$tmp103 ___351_h ___351_h 	%argrw{"wrr"}
+	mul		$tmp104 $tmp103 ___351_h 	%argrw{"wrr"}
 	mul		$tmp105 $tmp104 Value3 	%argrw{"wrr"}
 	mul		$tmp106 $tmp105 $const55 	%argrw{"wrr"}
 	sub		$tmp94 $tmp102 $tmp106 	%argrw{"wrr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders\\node_math.h:40
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders\\node_math.h:40
 #     return min(a, b);
 	min		$tmp94 $tmp95 $tmp96 	%line{40} %argrw{"wrr"}
 	return
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:96
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:96
 #     Value = -(smoothmin(-Value1, -Value2, Value3));
-	neg		Value $tmp94 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl"} %line{96} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_math.osl:98
+	neg		Value $tmp94 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl"} %line{96} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_math.osl:98
 #     warning("%s", "Unknown math operator!");
 	warning		$const57 $const58 	%line{98} %argrw{"rr"}
 	end

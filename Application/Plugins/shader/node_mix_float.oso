@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_mix_float.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_mix_float.oso
 shader node_mix_float
 param	int	use_clamp	0		%read{0,0} %write{2147483647,-1}
 param	float	Factor	0.5		%read{2,4} %write{2147483647,-1}
@@ -13,18 +13,18 @@ const	float	$const2	1		%read{2,2} %write{2147483647,-1}
 const	string	$const3	"clamp"		%read{1,1} %write{2147483647,-1}
 temp	float	$tmp1	%read{3,3} %write{2,2}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_mix_float.osl:10
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_float.osl:10
 #   float t = (use_clamp) ? clamp(Factor, 0.0, 1.0) : Factor;
-	if		use_clamp 4 5 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_mix_float.osl"} %line{10} %argrw{"r"}
+	if		use_clamp 4 5 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_float.osl"} %line{10} %argrw{"r"}
 	functioncall	$const3 4 	%argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp1 Factor $const2 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp1 Factor $const2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		t $tmp1 $const1 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_mix_float.osl:10
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_float.osl:10
 #   float t = (use_clamp) ? clamp(Factor, 0.0, 1.0) : Factor;
-	assign		t Factor 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_mix_float.osl"} %line{10} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_mix_float.osl:11
+	assign		t Factor 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_float.osl"} %line{10} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_float.osl:11
 #   Result = mix(A, B, t);
 	mix		Result A B t 	%line{11} %argrw{"wrrr"}
 	end

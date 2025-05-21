@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_bump.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_bump.oso
 surface node_bump
 param	int	invert	0		%read{23,23} %write{2147483647,-1}
 param	int	use_object_space	0		%read{4,37} %write{2147483647,-1}
@@ -49,76 +49,76 @@ temp	normal	$tmp15	%read{36,36} %write{35,35}
 temp	normal	$tmp16	%read{39,39} %write{38,38}
 const	string	$const7	"world"		%read{38,38} %write{2147483647,-1}
 code NormalIn
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:12
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:12
 #                   normal NormalIn = N,
-	assign		NormalIn N 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl"} %line{12} %argrw{"wr"}
+	assign		NormalIn N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl"} %line{12} %argrw{"wr"}
 code NormalOut
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:19
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:19
 #                   output normal NormalOut = N)
-	assign		NormalOut N 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl"} %line{19} %argrw{"wr"}
+	assign		NormalOut N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl"} %line{19} %argrw{"wr"}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:21
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:21
 #   point Ptmp = P;
-	assign		Ptmp P 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl"} %line{21} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:22
+	assign		Ptmp P 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl"} %line{21} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:22
 #   normal Normal = NormalIn;
 	assign		Normal NormalIn 	%line{22} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:24
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:24
 #   if (use_object_space) {
 	if		use_object_space 10 10 	%line{24} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:25
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:25
 #     Ptmp = transform("object", Ptmp);
 	functioncall	$const2 7 	%line{25} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:263
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:263
 # point  transform (string to, point p)  { return transform("common",to,p); }
-	transform	Ptmp $const3 $const1 Ptmp 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{263} %argrw{"wrrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:26
+	transform	Ptmp $const3 $const1 Ptmp 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{263} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:26
 #     Normal = normalize(transform("object", Normal));
-	functioncall	$const2 9 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl"} %line{26} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:261
+	functioncall	$const2 9 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl"} %line{26} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:261
 # normal transform (string to, normal p) { return transform("common",to,p); }
-	transformn	$tmp1 $const3 $const1 Normal 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{261} %argrw{"wrrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:26
+	transformn	$tmp1 $const3 $const1 Normal 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{261} %argrw{"wrrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:26
 #     Normal = normalize(transform("object", Normal));
-	normalize	Normal $tmp1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl"} %line{26} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:30
+	normalize	Normal $tmp1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl"} %line{26} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:30
 #   vector dPdx = Dx(Ptmp);
 	Dx		dPdx Ptmp 	%line{30} %argrw{"wr"} %argderivs{1}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:31
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:31
 #   vector dPdy = Dy(Ptmp);
 	Dy		dPdy Ptmp 	%line{31} %argrw{"wr"} %argderivs{1}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:33
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:33
 #   vector Rx = cross(dPdy, Normal);
 	cross		Rx dPdy Normal 	%line{33} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:34
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:34
 #   vector Ry = cross(Normal, dPdx);
 	cross		Ry Normal dPdx 	%line{34} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:37
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:37
 #   float det = dot(dPdx, Rx);
 	dot		det dPdx Rx 	%line{37} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:38
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:38
 #   vector surfgrad = (SampleX - SampleCenter) * Rx + (SampleY - SampleCenter) * Ry;
 	sub		$tmp2 SampleX SampleCenter 	%line{38} %argrw{"wrr"}
 	mul		$tmp3 $tmp2 Rx 	%argrw{"wrr"}
 	sub		$tmp4 SampleY SampleCenter 	%argrw{"wrr"}
 	mul		$tmp5 $tmp4 Ry 	%argrw{"wrr"}
 	add		surfgrad $tmp3 $tmp5 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:40
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:40
 #   float absdet = fabs(det);
 	fabs		absdet det 	%line{40} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:42
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:42
 #   float strength = max(Strength, 0.0);
 	max		strength Strength $const4 	%line{42} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:43
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:43
 #   float dist = Distance;
 	assign		dist Distance 	%line{43} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:45
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:45
 #   if (invert)
 	if		invert 25 25 	%line{45} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:46
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:46
 #     dist *= -1.0;
 	mul		dist dist $const5 	%line{46} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:49
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:49
 #   NormalOut = normalize(FilterWidth * absdet * Normal - dist * sign(det) * surfgrad);
 	mul		$tmp6 FilterWidth absdet 	%line{49} %argrw{"wrr"}
 	mul		$tmp7 $tmp6 Normal 	%argrw{"wrr"}
@@ -127,17 +127,17 @@ code ___main___
 	mul		$tmp10 $tmp9 surfgrad 	%argrw{"wrr"}
 	sub		$tmp11 $tmp7 $tmp10 	%argrw{"wrr"}
 	normalize	NormalOut $tmp11 	%argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:50
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:50
 #   NormalOut = normalize(strength * NormalOut + (1.0 - strength) * Normal);
 	mul		$tmp12 strength NormalOut 	%line{50} %argrw{"wrr"}
 	sub		$tmp13 $const6 strength 	%argrw{"wrr"}
 	mul		$tmp14 $tmp13 Normal 	%argrw{"wrr"}
 	add		$tmp15 $tmp12 $tmp14 	%argrw{"wrr"}
 	normalize	NormalOut $tmp15 	%argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:52
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:52
 #   if (use_object_space) {
 	if		use_object_space 40 40 	%line{52} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_bump.osl:53
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_bump.osl:53
 #     NormalOut = normalize(transform("object", "world", NormalOut));
 	transformn	$tmp16 $const1 $const7 NormalOut 	%line{53} %argrw{"wrrr"}
 	normalize	NormalOut $tmp16 	%argrw{"wr"}

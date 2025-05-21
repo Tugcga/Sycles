@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_mix_closure.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_mix_closure.oso
 shader node_mix_closure
 param	float	Fac	0.5		%read{1,1} %write{2147483647,-1}
 param	closure color	Closure1			%read{4,4} %write{2147483647,-1}
@@ -15,16 +15,16 @@ temp	float	$tmp2	%read{4,4} %write{3,3}
 temp	closure color	$tmp3	%read{6,6} %write{4,4}
 temp	closure color	$tmp4	%read{6,6} %write{5,5}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_mix_closure.osl:12
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_closure.osl:12
 #   float t = clamp(Fac, 0.0, 1.0);
-	functioncall	$const3 3 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_mix_closure.osl"} %line{12} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+	functioncall	$const3 3 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_closure.osl"} %line{12} %argrw{"r"}
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp1 Fac $const2 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp1 Fac $const2 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		t $tmp1 $const1 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_mix_closure.osl:13
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_closure.osl:13
 #   Closure = (1.0 - t) * Closure1 + t * Closure2;
-	sub		$tmp2 $const2 t 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_mix_closure.osl"} %line{13} %argrw{"wrr"}
+	sub		$tmp2 $const2 t 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_mix_closure.osl"} %line{13} %argrw{"wrr"}
 	mul		$tmp3 Closure1 $tmp2 	%argrw{"wrr"}
 	mul		$tmp4 Closure2 t 	%argrw{"wrr"}
 	add		Closure $tmp3 $tmp4 	%argrw{"wrr"}

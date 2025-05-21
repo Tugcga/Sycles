@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_rgb_to_bw.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_rgb_to_bw.oso
 shader node_rgb_to_bw
 param	color	Color	0 0 0		%read{0,5} %write{2147483647,-1}
 oparam	float	Val	0		%read{2147483647,-1} %write{7,7}
@@ -18,9 +18,9 @@ temp	float	$tmp6	%read{6,6} %write{5,5}
 const	float	$const6	0.0722000003		%read{6,6} %write{2147483647,-1}
 temp	float	$tmp7	%read{7,7} %write{6,6}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_rgb_to_bw.osl:9
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_rgb_to_bw.osl:9
 #   Val = Color[0] * 0.2126 + Color[1] * 0.7152 + Color[2] * 0.0722;
-	compref		$tmp1 Color $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_rgb_to_bw.osl"} %line{9} %argrw{"wrr"}
+	compref		$tmp1 Color $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_rgb_to_bw.osl"} %line{9} %argrw{"wrr"}
 	mul		$tmp2 $tmp1 $const2 	%argrw{"wrr"}
 	compref		$tmp3 Color $const3 	%argrw{"wrr"}
 	mul		$tmp4 $tmp3 $const4 	%argrw{"wrr"}

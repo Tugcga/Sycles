@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_subsurface_scattering.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_subsurface_scattering.oso
 shader node_subsurface_scattering
 param	color	Color	0.800000012 0.800000012 0.800000012		%read{1,1} %write{2147483647,-1}
 param	float	Scale	1		%read{2,2} %write{2147483647,-1}
@@ -26,25 +26,25 @@ const	string	$const7	"clamp"		%read{3,3} %write{2147483647,-1}
 temp	float	$tmp5	%read{5,5} %write{4,4}
 const	string	$const8	"bssrdf"		%read{6,6} %write{2147483647,-1}
 code Normal
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_subsurface_scattering.osl:14
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_subsurface_scattering.osl:14
 #                                   normal Normal = N,
-	assign		Normal N 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_subsurface_scattering.osl"} %line{14} %argrw{"wr"}
+	assign		Normal N 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_subsurface_scattering.osl"} %line{14} %argrw{"wr"}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_subsurface_scattering.osl:17
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_subsurface_scattering.osl:17
 #   color base_color = max(Color, color(0.0));
-	max		base_color Color $const1 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_subsurface_scattering.osl"} %line{17} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_subsurface_scattering.osl:20
+	max		base_color Color $const1 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_subsurface_scattering.osl"} %line{17} %argrw{"wrr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_subsurface_scattering.osl:20
 #                                Scale * Radius,
 	mul		$tmp3 Scale Radius 	%line{20} %argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_subsurface_scattering.osl:27
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_subsurface_scattering.osl:27
 #                                clamp(Roughness, 0.0, 1.0));
 	functioncall	$const7 6 	%line{27} %argrw{"r"}
-# F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h:141
+# C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h:141
 # float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
-	min		$tmp5 Roughness $const6 	%filename{"F:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
+	min		$tmp5 Roughness $const6 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders/stdosl.h"} %line{141} %argrw{"wrr"}
 	max		$tmp4 $tmp5 $const5 	%argrw{"wrr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_subsurface_scattering.osl:18
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_subsurface_scattering.osl:18
 #   BSSRDF = base_color * bssrdf(method,
-	closure		$tmp2 $const8 method Normal $tmp3 base_color $const2 IOR $const3 Anisotropy $const4 $tmp4 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_subsurface_scattering.osl"} %line{18} %argrw{"wrrrrrrrrrrr"}
+	closure		$tmp2 $const8 method Normal $tmp3 base_color $const2 IOR $const3 Anisotropy $const4 $tmp4 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_subsurface_scattering.osl"} %line{18} %argrw{"wrrrrrrrrrrr"}
 	mul		BSSRDF $tmp2 base_color 	%argrw{"wrr"}
 	end

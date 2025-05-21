@@ -587,17 +587,13 @@ closure color transparent_bsdf() BUILTIN;
 // Constructs a BSSRDF for subsurface scattering within a homogeneous medium.
 //
 //  \param  N                   Normal vector of the surface point being shaded.
-//  \param  albedo              Single-scattering albedo of the medium.
-//  \param  transmission_depth  Distance travelled inside the medium by white light before its color becomes transmission_color by Beer's law.
-//                              Given in scene length units, range [0,infinity). Together with transmission_color this determines the extinction
-//                              coefficient of the medium.
-//  \param  transmission_color  Desired color resulting from white light transmitted a distance of 'transmission_depth' through the medium.
-//                              Together with transmission_depth this determines the extinction coefficient of the medium.
+//  \param  albedo              Effective albedo of the medium (after multiple scattering). The renderer is expected to invert this color to derive the appropriate single-scattering albedo that will produce this color for the average random walk.
+//  \param  radius              Average distance travelled inside the medium per color channel. This is typically taken to be the mean-free path of the volume.
 //  \param  anisotropy          Scattering anisotropy [-1,1]. Negative values give backwards scattering, positive values give forward scattering, 
 //                              and 0.0 gives uniform scattering.
 //  \param  label               Optional string parameter to name this component. For use in AOVs / LPEs.
 //
-closure color subsurface_bssrdf(normal N, color albedo, float transmission_depth, color transmission_color, float anisotropy) BUILTIN;
+closure color subsurface_bssrdf(normal N, color albedo, color radius, float anisotropy) BUILTIN;
 
 // Constructs a microfacet BSDF for the back-scattering properties of cloth-like materials.
 // This closure may be vertically layered over a base BSDF, where energy that is not reflected
@@ -609,6 +605,39 @@ closure color subsurface_bssrdf(normal N, color albedo, float transmission_depth
 //  \param  label       Optional string parameter to name this component. For use in AOVs / LPEs.
 //
 closure color sheen_bsdf(normal N, color albedo, float roughness) BUILTIN;
+
+
+// Constructs a hair BSDF based on the Chiang hair shading model. This node does not support vertical layering.
+//  \param N                            Normal vector of the surface.
+//  \param curve_direction              Direction of the hair geometry.
+//  \param tint_R                       Color multiplier for the R-lobe.
+//  \param tint_TT                      Color multiplier for the TT-lobe.
+//  \param tint_TRT                     Color multiplier for the TRT-lobe.
+//  \param ior                          Index of refraction.
+//  \param longitudual_roughness_R      Longitudinal roughness (ν) for the R-lobe  , range [0.0, ∞)
+//  \param longitudual_roughness_TT     Longitudinal roughness (ν) for the TT-lobe , range [0.0, ∞)
+//  \param longitudual_roughness_TRT    Longitudinal roughness (ν) for the TRT-lobe, range [0.0, ∞)
+//  \param azimuthal_roughness_R        Azimuthal roughness (s) for the R-lobe  , range [0.0, ∞)
+//  \param azimuthal_roughness_TT       Azimuthal roughness (s) for the TT-lobe , range [0.0, ∞)
+//  \param azimuthal_roughness_TRT      Azimuthal roughness (s) for the TRT-lobe, range [0.0, ∞)
+//  \param cuticle_angle                Cuticle angle in radians, Values above 0.5 tilt the scales towards the root of the fiber, range [0.0, 1.0], with 0.5 specifying no tilt.
+//  \param absorption_coefficient       Absorption coefficient normalized to the hair fiber diameter.
+closure color chiang_hair_bsdf(
+    normal  N,
+    vector  curve_direction,
+    color   tint_R,
+    color   tint_TT,
+    color   tint_TRT,
+    float   ior,
+    float   longitudual_roughness_R,
+    float   longitudual_roughness_TT,
+    float   longitudual_roughness_TRT,
+    float   azimuthal_roughness_R,
+    float   azimuthal_roughness_TT,
+    float   azimuthal_roughness_TRT,
+    float   cuticle_angle,
+    color   absorption_coefficient
+) BUILTIN;
 
 
 // -------------------------------------------------------------//

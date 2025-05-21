@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
-# Compiled by oslc 1.13.7.0
-# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_value.oso
+# Compiled by oslc 1.14.4.0dev
+# options: -q -O2 -IC:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders -IC:/Users/blender/git/blender-vdev/blender.git/lib/windows_x64/osl/share/OSL/shaders -o C:/Users/blender/git/blender-vdev/build_release/intern/cycles/kernel/osl/shaders/node_value.oso
 shader node_value
 param	float	value_value	0		%read{0,0} %write{2147483647,-1}
 param	vector	vector_value	0 0 0		%read{1,1} %write{2147483647,-1}
@@ -9,13 +9,13 @@ oparam	float	Value	0		%read{2147483647,-1} %write{0,0}
 oparam	vector	Vector	0 0 0		%read{2147483647,-1} %write{1,1}
 oparam	color	Color	0 0 0		%read{2147483647,-1} %write{2,2}
 code ___main___
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_value.osl:14
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_value.osl:14
 #   Value = value_value;
-	assign		Value value_value 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_value.osl"} %line{14} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_value.osl:15
+	assign		Value value_value 	%filename{"C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_value.osl"} %line{14} %argrw{"wr"}
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_value.osl:15
 #   Vector = vector_value;
 	assign		Vector vector_value 	%line{15} %argrw{"wr"}
-# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_value.osl:16
+# C:/Users/blender/git/blender-vdev/blender.git/intern/cycles/kernel/osl/shaders/node_value.osl:16
 #   Color = color_value;
 	assign		Color color_value 	%line{16} %argrw{"wr"}
 	end
