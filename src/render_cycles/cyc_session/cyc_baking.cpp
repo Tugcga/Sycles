@@ -627,6 +627,7 @@ size_t get_uv_attribute_index(ccl::Mesh* mesh, const ccl::ustring &uv_name)
 	return 0;
 }
 
+// this function called after scene is synced
 void sync_baking(ccl::Scene* scene, UpdateContext* update_context, BakingContext* baking_context, XSI::X3DObject& bake_object, const XSI::CString& baking_uv_name, ULONG bake_width, ULONG bake_height)
 {
 	ULONG baking_object_id = bake_object.GetObjectID();
@@ -660,12 +661,21 @@ void sync_baking(ccl::Scene* scene, UpdateContext* update_context, BakingContext
 	
 	if (object)
 	{
+		// for all objects in the scene we should disable baking
+		for (size_t i = 0; i < scene->objects.size(); i++) {
+			ccl::Object* obj = scene->objects[i];
+
+			obj->set_is_bake_target(false);
+		}
+		// but for current object it's true
+		object->set_is_bake_target(true);
+
 		ccl::Mesh* mesh = (ccl::Mesh*)object->get_geometry();
 		baking_context->setup(bake_width, bake_height);
 		size_t uv_index = get_uv_attribute_index(mesh, ccl::ustring(baking_uv_name.GetAsciiString()));
 
 		populate_bake_data(mesh, uv_index, baking_context);
-		scene->bake_manager->set_baking(scene, object->name.c_str());
+		scene->bake_manager->set_baking(scene, true);
 		scene->bake_manager->set_use_camera(baking_context->get_use_camera());
 	}
 }
