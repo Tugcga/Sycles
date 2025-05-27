@@ -436,7 +436,7 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 		}
 	} 
 	else {
-		// for linear subdivision we should use nodes insted of vertices
+		// for linear subdivision we should use nodes instead of vertices
 		// here we should geather from geometry as node positions and node normals
 		for (LONG i = 0; i < nodes_count; i++)
 		{

@@ -249,6 +249,8 @@ void sync_xsi_light_object(ccl::Object* light_object, const XSI::Light& xsi_ligh
 
 	bool xsi_visible = xsi_light.GetParameterValue("LightAreaVisible", eval_time);
 	light_object->set_visibility(light_visibility_flag(xsi_visible, true, true, true, true));
+	// for xsi-light always mark it as shadow catcher
+	light_object->set_is_shadow_catcher(true);
 
 	light_object->set_random_id(ccl::hash_uint2(ccl::hash_string(xsi_light.GetUniqueName().GetAsciiString()), 0));
 	light_object->tag_visibility_modified();
@@ -451,6 +453,7 @@ void sync_custom_light_object(ccl::Object* light_object, const XSI::X3DObject& x
 		xsi_parameters.GetValue("use_glossy", eval_time),
 		xsi_parameters.GetValue("use_transmission", eval_time),
 		xsi_parameters.GetValue("use_scatter", eval_time)));
+	light_object->set_is_shadow_catcher(xsi_parameters.GetValue("is_shadow_catcher", eval_time));
 	
 	light_object->set_random_id(ccl::hash_uint2(ccl::hash_string(xsi_name.GetAsciiString()), 0));
 

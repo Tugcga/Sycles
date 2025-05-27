@@ -27,6 +27,12 @@ void find_devices()
 {
 	available_devices.clear();
 
+	// for simplicity, copy data from buil-in fucntion
+	/*const ccl::vector<ccl::DeviceInfo> cycles_devices = ccl::Device::available_devices();
+	for (size_t i = 0; i < cycles_devices.size(); i++) {
+		available_devices.push_back(cycles_devices[i]);
+	}*/
+
 	// cpu devices
 	ccl::vector<ccl::DeviceInfo> cpu_devices = ccl::Device::available_devices(ccl::DEVICE_MASK_CPU);
 	for (size_t i = 0; i < cpu_devices.size(); i++) {
