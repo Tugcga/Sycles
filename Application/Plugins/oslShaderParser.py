@@ -83,10 +83,11 @@ def FromNameToTypeIndex(typeName):
         return -1
 
 
-def ColorStringToTupple(colorString):
-    fiveSubstring = colorString[:5]
-    if fiveSubstring == "color":
-        valuesString = colorString[5:]
+def CommonVectorStringToTuple(string, key):
+    # key is a: string, normal, vector or point
+    substring = string[:len(key)]
+    if substring == key:
+        valuesString = string[len(key):]
         valuesString = valuesString.strip()
         valuesString = valuesString[1:-1]
         parts = valuesString.split(",")
@@ -105,10 +106,26 @@ def ColorStringToTupple(colorString):
             return (0.0, 0.0, 0.0)
     else:
         try:
-            v = float(colorString)
+            v = float(string)
         except ValueError:
             v = 0.0
         return (v, v, v)
+
+
+def ColorStringToTupple(colorString):
+    return CommonVectorStringToTuple(colorString, "color")
+
+
+def NormalStringToTuple(normalString):
+    return CommonVectorStringToTuple(normalString, "normal")
+
+
+def VectorStringToTuple(vectorString):
+    return CommonVectorStringToTuple(vectorString, "vector")
+
+
+def PointStringToTuple(pointString):
+    return CommonVectorStringToTuple(pointString, "point")
 
 
 def StringReduce(string):
@@ -159,14 +176,12 @@ def GetXsiCategory(textData):
         return None
 
 
-# def ParseTheFile(file, isShort):
 def ParseTheFile(fileName, isShort):
     parseData = []
     shaderName = None
     file = open(fileName, "r")
     textData = file.read()
     file.close()
-    # categoryString = GetXsiCategory(textData)
     file = open(fileName, "r")
     categoryString = GetXsiCategoryFromFile(file)
     file.close()
@@ -176,7 +191,6 @@ def ParseTheFile(fileName, isShort):
     textPlain = textDataNoComments.replace("\n", " ")
     textPlain = textPlain.replace("\t", "")
     textPlain = " ".join(textPlain.split())
-    # print(textPlain)
     shaderKeyIndex = textPlain.find("shader")
     if shaderKeyIndex == -1:
         shaderKeyIndex = textPlain.find("surface")
@@ -186,28 +200,23 @@ def ParseTheFile(fileName, isShort):
         if openBraketIndex != -1 and openBodyIndex != -1 and openBodyIndex > openBraketIndex:
             shaderName = textPlain[shaderKeyIndex + 7: openBraketIndex]
             shaderName = shaderName.strip()
-            # print(shaderName)
             if not isShort:
                 inputParametersText = textPlain[openBraketIndex + 1: openBodyIndex]
                 inputParametersText = inputParametersText.strip()
                 inputParametersText = inputParametersText[:-1]
-                # print(inputParametersText)
                 commasIndexes = GetAllIndexes(inputParametersText, ",")
                 openBracketIndexes = GetAllIndexes(inputParametersText, "(")
                 closeBracketIndexes = GetAllIndexes(inputParametersText, ")")
                 bracketIntervals = GetInsideBracketsIntervals(openBracketIndexes, closeBracketIndexes)
                 if bracketIntervals[0]:
-                    # print(bracketIntervals)
                     parameterStrings = []
                     lastSplitIndex = 0
                     for commaIndex in commasIndexes:
                         if IsIndexInsideIntervals(commaIndex, bracketIntervals[1]):
                             # dont split along this index
                             # nothing to do
-                            # print(str(commaIndex) + " inside brackets")
                             pass
                         else:
-                            # print(str(commaIndex) + " split parameters")
                             subString = inputParametersText[lastSplitIndex:commaIndex]
                             subString = subString.strip()
                             parameterStrings.append(subString)
@@ -220,13 +229,10 @@ def ParseTheFile(fileName, isShort):
                         if len(leftRightParts) == 2:
                             leftPart = leftRightParts[0].strip()
                             rightPart = leftRightParts[1].strip()
-                            # print("Left part: " + leftPart)
-                            # print("Right part: " + rightPart)
                             # left part split by spaces
                             leftPartParts = leftPart.split(" ")
                             if leftPartParts[0].strip() == "output":
                                 # this is output parameter
-                                # print(leftPart + " = " + rightPart)
                                 parameterType = FromNameToTypeIndex(leftPartParts[1].strip())
                                 if parameterType != -1:
                                     if parameterType == 7:
@@ -241,7 +247,6 @@ def ParseTheFile(fileName, isShort):
                                     pass
                             else:
                                 # this is input parameter
-                                # print(leftPart)
                                 parameterType = FromNameToTypeIndex(leftPartParts[0])
                                 if parameterType != -1:
                                     parameterName = leftPartParts[1].strip()
@@ -269,6 +274,15 @@ def ParseTheFile(fileName, isShort):
                                     elif parameterType == 3:
                                         # String
                                         parameterValue = StringReduce(rightPart)
+                                    elif parameterType == 4:
+                                        # Point
+                                        parameterValue = PointStringToTuple(rightPart)
+                                    elif parameterType == 5:
+                                        # Vector
+                                        parameterValue = VectorStringToTuple(rightPart)
+                                    elif parameterType == 6:
+                                        # Normal
+                                        parameterValue = NormalStringToTuple(rightPart)
                                     parseData.append((False, parameterType, parameterName, parameterValue))
                                 else:
                                     # wrong type
@@ -496,11 +510,7 @@ def CyclesOSL_QueryParserSettings(in_ctxt):
 
 def CyclesOSL_ParseInfo(in_ctxt):
     sFilename = in_ctxt.GetAttribute("Filename")
-    # Application.LogMessage("Parse file" + sFilename)
-    # file = open(sFilename, "r")
-    # fData = ParseTheFile(file, True)
     fData = ParseTheFile(sFilename, True)
-    # file.close()
     shaderName = fData[1]
     if shaderName is None:
         return False
@@ -568,14 +578,13 @@ def CyclesOSL_Parse(in_ctxt):
                 elif pType == 3:
                     AddInputString(StandartPramOptions(), params, baseValue, pname)
                 elif pType == 4:
-                    AddInputPoint(StandartPramOptions(), params, 0.0, pname)
+                    AddInputPoint(StandartPramOptions(), params, baseValue, pname)
                 elif pType == 5:
-                    AddInputVector(StandartPramOptions(), params, 0.0, pname)
+                    AddInputVector(StandartPramOptions(), params, baseValue, pname)
                 elif pType == 6:
-                    AddInputNormal(StandartPramOptions(), params, 0.0, pname)
+                    AddInputNormal(StandartPramOptions(), params, baseValue, pname)
                 elif pType == 7:
                     AddInputColor(StandartPramOptions(), params, baseValue, pname)
-        # params.AddParamDef("nodeType", c.siShaderDataTypeString, ParamOptionsForType("osl"))
         params.AddParamDef("oslFilePath", c.siShaderDataTypeString, ParamOptionsForType(sFilename))
 
         # next create ppg

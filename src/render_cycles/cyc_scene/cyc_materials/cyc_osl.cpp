@@ -52,7 +52,9 @@ ccl::ShaderNode* sync_osl_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			{
 				sync_float_parameter(scene, shader_graph, node, xsi_parameter, nodes_map, aovs, std::string(param_name.GetAsciiString()), eval_time);
 			}
-			else if (xsi_parameter_type == ShaderParameterType::ParameterType_Color3 || xsi_parameter_type == ShaderParameterType::ParameterType_Color4)
+			else if (xsi_parameter_type == ShaderParameterType::ParameterType_Color3 ||
+					 xsi_parameter_type == ShaderParameterType::ParameterType_Color4 ||
+					 xsi_parameter_type == ShaderParameterType::ParameterType_Vector3)
 			{
 				sync_float3_parameter(scene, shader_graph, node, xsi_parameter, nodes_map, aovs, std::string(param_name.GetAsciiString()), eval_time);
 			}
