@@ -224,7 +224,7 @@ bool is_output_extension_supported(const XSI::CString& extension)
 int time_to_sequence_frame(const XSI::CTime& eval_time, int image_frames, int start_frame, int offset, bool cyclic) {
 	int frame = get_frame(eval_time);
 	// image frames count from 1 to image_frames
-	frame = frame - start_frame + 1;
+	frame = frame - start_frame + 1 + offset;
 	if (cyclic) {
 		// make frame modulo image_frames
 		while (frame > image_frames) {
@@ -244,8 +244,6 @@ int time_to_sequence_frame(const XSI::CTime& eval_time, int image_frames, int st
 			frame = image_frames;
 		}
 	}
-
-	frame = frame + offset;
 
 	return frame;
 }
