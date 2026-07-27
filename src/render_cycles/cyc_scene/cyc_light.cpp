@@ -259,6 +259,8 @@ void sync_xsi_light_object(ccl::Object* light_object, const XSI::Light& xsi_ligh
 
 void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContext* update_context)
 {
+	update_context->add_sync_profiler_time_start(SyncType::Light, xsi_light.GetObjectID(), xsi_light.GetFullName());
+
 	XSI::CTime eval_time = update_context->get_time();
 
 	ccl::Object* light_object = scene->create_node<ccl::Object>();
@@ -277,6 +279,8 @@ void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContex
 
 	light->tag_update(scene);
 	light_object->tag_update(scene);
+
+	update_context->add_sync_profiler_time_finish(SyncType::Light, xsi_light.GetObjectID());
 }
 
 void sync_custom_light_geometry(ccl::Light* light, CustomLightType light_type, const XSI::CParameterRefArray &xsi_parameters, const XSI::CTime &eval_time)
@@ -422,6 +426,7 @@ void set_background_light(ccl::Scene* scene, ccl::Background* background, ccl::S
 
 void sync_custom_background(ccl::Scene* scene, const XSI::X3DObject &xsi_object, UpdateContext* update_context, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
 {
+	update_context->add_sync_profiler_time_start(SyncType::Light, xsi_object.GetObjectID(), xsi_object.GetFullName());
 	// at first we should get the shader
 	XSI::Material xsi_material = xsi_object.GetMaterial();
 	ULONG xsi_material_id = xsi_material.GetObjectID();
@@ -436,6 +441,8 @@ void sync_custom_background(ccl::Scene* scene, const XSI::X3DObject &xsi_object,
 			update_context->set_use_background_light(shader_index, xsi_material.GetObjectID());
 		}
 	}
+
+	update_context->add_sync_profiler_time_finish(SyncType::Light, xsi_object.GetObjectID());
 }
 
 void sync_custom_light_object(ccl::Object* light_object, const XSI::X3DObject& xsi_object, UpdateContext* update_context) {
@@ -463,6 +470,8 @@ void sync_custom_light_object(ccl::Object* light_object, const XSI::X3DObject& x
 
 void sync_custom_light(ccl::Scene* scene, const XSI::X3DObject & xsi_object, UpdateContext* update_context)
 {
+	update_context->add_sync_profiler_time_start(SyncType::Light, xsi_object.GetObjectID(), xsi_object.GetFullName());
+
 	XSI::CTime eval_time = update_context->get_time();
 	CustomLightType light_type = get_custom_light_type(xsi_object.GetType());
 	if (light_type != CustomLightType_Unknown)
@@ -493,6 +502,8 @@ void sync_custom_light(ccl::Scene* scene, const XSI::X3DObject & xsi_object, Upd
 			}
 		}
 	}
+
+	update_context->add_sync_profiler_time_finish(SyncType::Light, xsi_object.GetObjectID());
 }
 
 void build_backgound_default_graph(ccl::ShaderGraph* bg_graph, const XSI::MATH::CColor4f &color)

@@ -80,6 +80,8 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 	XSI::Camera xsi_camera = update_context->get_camera();
 	XSI::CTime eval_time = update_context->get_time();
 
+	update_context->add_sync_profiler_time_start(SyncType::Camera, xsi_camera.GetObjectID(), xsi_camera.GetFullName());
+
 	ccl::Camera* camera = scene->camera;
 
 	camera->set_full_width(update_context->get_full_width());
@@ -233,6 +235,8 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 	camera->tag_sensorwidth_modified();
 
 	camera->update(scene);
+
+	update_context->add_sync_profiler_time_finish(SyncType::Camera, xsi_camera.GetObjectID());
 
 	return XSI::CStatus::OK;
 }

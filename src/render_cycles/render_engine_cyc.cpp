@@ -309,6 +309,8 @@ void RenderEngineCyc::pre_bake()
 	const XSI::CString baking_object_type = baking_object.GetType();
 	if (baking_object_type == XSI::siPolyMeshType && baking_object.IsValid() && baking_uv.Length() > 0)
 	{
+		update_context->add_sync_profiler_time_start(SyncType::BakePreprocess);
+
 		baking_context->make_valid();
 		baking_context->set_use_camera(false);
 		XSI::Property bake_prop = get_xsi_object_property(baking_object, "CyclesBake");
@@ -389,6 +391,8 @@ void RenderEngineCyc::pre_bake()
 
 			baking_context->set_keys(true, true, true, true, true, true, true);
 		}
+
+		update_context->add_sync_profiler_time_finish(SyncType::BakePreprocess);
 	}
 	else
 	{
@@ -427,13 +431,18 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	baking_context->reset();
 	series_context->reset();
 
+	update_context->get_sync_profiler()->reset();
+	update_context->try_activate_sync_profiler(render_type, m_render_parameters.GetValue("options_logging_log_sync_time", eval_time));
+
 	if (render_type == RenderType::RenderType_Rendermap)
 	{
 		// in base implementation we get several parameters from default rendermap property
 		// here we can upgrade it by using custom property and setup additional parameters for cycles rendering
 		pre_bake();
 	}
-	else if(render_type == RenderType::RenderType_Pass)
+	
+	update_context->add_sync_profiler_time_start(SyncType::ScenePreprocess);
+	if(render_type == RenderType::RenderType_Pass)
 	{
 		bool use_tiles = m_render_parameters.GetValue("performance_memory_use_auto_tile", eval_time);
 		if (!use_tiles) {
@@ -565,6 +574,8 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	// this parameter used in post_scene, for example
 	update_context->set_is_update_scene(is_recreate_session);
 
+	update_context->add_sync_profiler_time_finish(SyncType::ScenePreprocess);
+
 	if (is_recreate_session)
 	{
 		// so, we will create new session and new scene
@@ -595,6 +606,10 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 
 	XSI::CStatus is_update = XSI::CStatus::OK;
+
+	SyncType sync_type = update_type_to_sync_type(update_type);
+	// even if sync_type is unknown, then nothing to do in add function
+	update_context->add_sync_profiler_time_start(sync_type, xsi_object.GetObjectID(), xsi_object.GetFullName());
 
 	if (update_type == UpdateType::UpdateType_Camera)
 	{
@@ -716,6 +731,8 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 
 	update_context->set_is_update_scene(true);
 
+	update_context->add_sync_profiler_time_finish(sync_type, xsi_object.GetObjectID());
+
 	if (is_update != XSI::CStatus::OK)
 	{
 		return XSI::CStatus::Abort;
@@ -753,7 +770,11 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 		std::vector<XSI::CStringArray> aovs(2);
 		aovs[0].Clear();
 		aovs[1].Clear();
+
+		// call sync profiler here, because update_material function does not contains update context object
+		update_context->add_sync_profiler_time_start(SyncType::Material, material_id, xsi_material.GetFullName());
 		is_update = update_material(session->scene.get(), xsi_material, update_context->get_xsi_material_cycles_index(material_id), update_context->get_time(), aovs);
+		update_context->add_sync_profiler_time_finish(SyncType::Material, material_id);
 
 		if (update_context->is_displacement_material(material_id))
 		{
@@ -850,13 +871,11 @@ XSI::CStatus RenderEngineCyc::create_scene()
 
 	// setup displacement mode after reset
 	update_context->set_displacement_mode(render_type == RenderType_Shaderball ? get_shaderball_displacement_method() : (int)m_render_parameters.GetValue("options_displacement_method", eval_time));
-
-	if (render_type == RenderType_Shaderball)
-	{
+	update_context->try_activate_sync_profiler(render_type, m_render_parameters.GetValue("options_logging_log_sync_time", eval_time));
+	
+	if (render_type == RenderType_Shaderball) {
 		sync_shaderball_scene(session->scene.get(), update_context, m_scene_list, m_shaderball_material, m_shaderball_type, m_shaderball_material_id);
-	}
-	else
-	{
+	} else {
 		sync_scene(session->scene.get(), update_context, m_isolation_list, m_lights_list, XSI::Application().FindObjects(XSI::siX3DObjectID), XSI::Application().FindObjects(XSI::siModelID));
 		if (render_type == RenderType::RenderType_Rendermap && baking_context->get_is_valid())
 		{
@@ -879,6 +898,8 @@ XSI::CStatus RenderEngineCyc::create_scene()
 // if return Abort, then the engine will recreate the scene
 XSI::CStatus RenderEngineCyc::post_scene()
 {
+	update_context->add_sync_profiler_time_start(SyncType::ScenePostprocess);
+
 	if (update_context->get_is_update_light_linking())
 	{
 		sync_light_linking(session->scene.get(), update_context);
@@ -1005,6 +1026,8 @@ XSI::CStatus RenderEngineCyc::post_scene()
 	// and rendered visual channel
 	update_context->set_prev_display_pass_name(display_pass_name);
 
+	update_context->add_sync_profiler_time_finish(SyncType::ScenePostprocess);
+
 	return XSI::CStatus::OK;
 }
 
@@ -1076,6 +1099,10 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 			ccl::RenderStats stats;
 			session->collect_statistics(&stats);
 			log_message(stats.full_report().c_str());
+
+			if (update_context->get_is_sync_profiler()) {
+				log_message(update_context->sync_profiler_message());
+			}
 		}
 	}
 

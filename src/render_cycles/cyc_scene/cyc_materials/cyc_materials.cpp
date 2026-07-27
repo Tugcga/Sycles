@@ -498,6 +498,8 @@ int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_textu
 
 void sync_material_process(ccl::Scene* scene, UpdateContext* update_context, const XSI::Material& xsi_material, std::vector<XSI::CStringArray>& aovs, const XSI::CTime& eval_time, bool ignore_empty) {
 	ULONG xsi_id = xsi_material.GetObjectID();
+
+	update_context->add_sync_profiler_time_start(SyncType::Material, xsi_id, xsi_material.GetFullName());
 	XSI::CRefArray used_objects = xsi_material.GetUsedBy();
 	if (ignore_empty || used_objects.GetCount() > 0)
 	{
@@ -510,6 +512,7 @@ void sync_material_process(ccl::Scene* scene, UpdateContext* update_context, con
 				ShaderballType_Unknown);
 		}
 	}
+	update_context->add_sync_profiler_time_finish(SyncType::Material, xsi_id);
 }
 
 void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context)
@@ -529,6 +532,7 @@ void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context)
 		for (LONG mat_index = 0; mat_index < materials.GetCount(); mat_index++)
 		{
 			XSI::Material xsi_material = materials.GetItem(mat_index);
+
 			sync_material_process(scene, update_context, xsi_material, aovs, eval_time, false);
 		}
 	}

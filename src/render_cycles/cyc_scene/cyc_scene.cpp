@@ -642,6 +642,8 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 
 void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object, const std::vector<XSI::MATH::CTransformation>& root_tfms)
 {
+	update_context->add_sync_profiler_time_start(SyncType::PoincloudInstances, xsi_object.GetObjectID(), xsi_object.GetFullName());
+
 	XSI::CTime eval_time = update_context->get_time();
 	std::vector<double> motion_times = update_context->get_motion_times();
 	size_t motion_times_count = motion_times.size();
@@ -852,16 +854,22 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 	}
 	ULONG xsi_id = xsi_object.GetObjectID();
 	update_context->add_abort_update_transform_id(xsi_id);
+
+	update_context->add_sync_profiler_time_finish(SyncType::PoincloudInstances, xsi_object.GetObjectID());
 }
 
 void sync_xsi_pointcloud_volume(ccl::Scene* scene, UpdateContext* update_context, ULONG xsi_id, XSI::X3DObject& xsi_object)
 {
+	update_context->add_sync_profiler_time_start(SyncType::Volume, xsi_id, xsi_object.GetFullName());
+
 	ccl::Object* volume_object = scene->create_node<ccl::Object>();
 	ccl::Volume* volume_geom = sync_volume_object(scene, volume_object, update_context, xsi_object);
 	volume_object->set_geometry(volume_geom);
 
 	update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 	sync_transform(volume_object, update_context, xsi_object.GetKinematics().GetGlobal());
+
+	update_context->add_sync_profiler_time_finish(SyncType::Volume, xsi_id);
 }
 
 void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRef &object_ref, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
@@ -902,6 +910,8 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 				}
 				if(!export_as_volume)
 				{
+					update_context->add_sync_profiler_time_start(SyncType::Polymesh, xsi_object.GetObjectID(), xsi_object.GetFullName());
+
 					ccl::Object* mesh_object = scene->create_node<ccl::Object>();
 					ccl::Mesh* mesh_geom = sync_polymesh_object(scene, mesh_object, update_context, xsi_object);
 
@@ -910,6 +920,8 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 
 					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 					sync_transform(mesh_object, update_context, xsi_object.GetKinematics().GetGlobal());
+
+					update_context->add_sync_profiler_time_finish(SyncType::Polymesh, xsi_object.GetObjectID());
 				}
 				
 			}
@@ -917,27 +929,37 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 				// create curve only if contains CyclesCurve property
 				XSI::Property curve_prop = get_xsi_object_property(xsi_object, "CyclesCurve");
 				if (curve_prop.IsValid()) {
+					update_context->add_sync_profiler_time_start(SyncType::Curve, xsi_object.GetObjectID(), xsi_object.GetFullName());
+
 					ccl::Object* curve_object = scene->create_node<ccl::Object>();
 					ccl::Hair* curve_geom = sync_curve_object(scene, curve_object, update_context, xsi_object, curve_prop);
 					curve_object->set_geometry(curve_geom);
 
 					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 					sync_transform(curve_object, update_context, xsi_object.GetKinematics().GetGlobal());
+
+					update_context->add_sync_profiler_time_finish(SyncType::Curve, xsi_object.GetObjectID());
 				}
 			}
 			else if (object_type == "surfmsh") {
 				XSI::Property surface_prop = get_xsi_object_property(xsi_object, "CyclesSurface");
 				if (surface_prop.IsValid()) {
+					update_context->add_sync_profiler_time_start(SyncType::Surface, xsi_object.GetObjectID(), xsi_object.GetFullName());
+
 					ccl::Object* surface_object = scene->create_node<ccl::Object>();
 					ccl::Mesh* surface_geom = sync_surface_object(scene, surface_object, update_context, xsi_object, surface_prop);
 					surface_object->set_geometry(surface_geom);
 
 					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 					sync_transform(surface_object, update_context, xsi_object.GetKinematics().GetGlobal());
+
+					update_context->add_sync_profiler_time_finish(SyncType::Surface, xsi_object.GetObjectID());
 				}
 			}
 			else if (object_type == "hair")
 			{
+				update_context->add_sync_profiler_time_start(SyncType::Hair, xsi_object.GetObjectID(), xsi_object.GetFullName());
+
 				ccl::Object* hair_object = scene->create_node<ccl::Object>();
 				// WARNING: there is a strange bug
 				// if we create cycles object inside the function, then the render is crash
@@ -946,27 +968,37 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 
 				update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 				sync_transform(hair_object, update_context, xsi_object.GetKinematics().GetGlobal());
+
+				update_context->add_sync_profiler_time_finish(SyncType::Hair, xsi_object.GetObjectID());
 			}
 			else if (object_type == "pointcloud")
 			{
 				PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
 				if (pointcloud_type == PointcloudType::PointcloudType_Strands)
 				{
+					update_context->add_sync_profiler_time_start(SyncType::Strands, xsi_object.GetObjectID(), xsi_object.GetFullName());
+
 					ccl::Object* strands_object = scene->create_node<ccl::Object>();
 					ccl::Hair* strands_geom = sync_strands_object(scene, strands_object, update_context, xsi_object);
 					strands_object->set_geometry(strands_geom);
 
 					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 					sync_transform(strands_object, update_context, xsi_object.GetKinematics().GetGlobal());
+
+					update_context->add_sync_profiler_time_finish(SyncType::Strands, xsi_object.GetObjectID());
 				}
 				else if (pointcloud_type == PointcloudType::PointcloudType_Points)
 				{
+					update_context->add_sync_profiler_time_start(SyncType::Points, xsi_object.GetObjectID(), xsi_object.GetFullName());
+
 					ccl::Object* points_object = scene->create_node<ccl::Object>();
 					ccl::PointCloud* points_geom = sync_points_object(scene, points_object, update_context, xsi_object);
 					points_object->set_geometry(points_geom);
 
 					update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 					sync_transform(points_object, update_context, xsi_object.GetKinematics().GetGlobal());
+
+					update_context->add_sync_profiler_time_finish(SyncType::Points, xsi_object.GetObjectID());
 				}
 				else if (pointcloud_type == PointcloudType::PointcloudType_Volume)
 				{
@@ -992,6 +1024,8 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 			}
 			else if (object_type == "VDBPrimitive")
 			{
+				update_context->add_sync_profiler_time_start(SyncType::VDB, xsi_object.GetObjectID(), xsi_object.GetFullName());
+
 				ccl::Object* vdb_object = scene->create_node<ccl::Object>();
 				XSI::CustomPrimitive xsi_prim(xsi_object.GetActivePrimitive(eval_time));
 				ccl::Volume* vdb_geom = sync_vdb_volume_object(scene, vdb_object, update_context, xsi_object, get_vdb_data(xsi_prim));
@@ -999,6 +1033,8 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 
 				update_context->add_object_index(xsi_id, scene->objects.size() - 1);
 				sync_transform(vdb_object, update_context, xsi_object.GetKinematics().GetGlobal());
+
+				update_context->add_sync_profiler_time_finish(SyncType::VDB, xsi_object.GetObjectID());
 			}
 		}
 	}

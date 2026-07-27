@@ -59,7 +59,7 @@ std::vector<float> denoise_buffer_optix(ImageBuffer* buffer, OutputContext* outp
         normal_pixels = get_pixels_from_passes(output_context, ccl::PassType::PASS_DENOISING_NORMAL);
         if (normal_pixels.size() != width * height * 3)
         {
-            use_albedo = false;
+            use_normal = false;
         }
     }
 

@@ -195,6 +195,9 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_geometry\cyc_surface.cpp">
       <Filter>render_cycles\cyc_scene\cyc_geometry</Filter>
     </ClCompile>
+    <ClCompile Include="render_cycles\cyc_scene\cyc_profiler.cpp">
+      <Filter>render_cycles\cyc_scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="render_base">
@@ -385,6 +388,9 @@
     </ClInclude>
     <ClInclude Include="render_cycles\cyc_output\denoising.h">
       <Filter>render_cycles\cyc_output</Filter>
+    </ClInclude>
+    <ClInclude Include="render_cycles\cyc_scene\cyc_profiler.h">
+      <Filter>render_cycles\cyc_scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

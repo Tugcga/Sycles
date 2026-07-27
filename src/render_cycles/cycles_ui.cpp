@@ -382,8 +382,9 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 	layout.AddGroup("Logging");
 	layout.AddItem("options_logging_log_rendertime", "Log Rendertime");
-	layout.AddItem("options_logging_log_details", "Log Statistics");
-	layout.AddItem("options_logging_log_profiling", "Profiling");
+	layout.AddItem("options_logging_log_sync_time", "Log Sync Statistics");
+	layout.AddItem("options_logging_log_details", "Log Render Statistics");
+	layout.AddItem("options_logging_log_profiling", "Render Profiling");
 	layout.EndGroup();
 
 	layout.AddGroup("Displacement");
@@ -1038,6 +1039,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("options_logging_log_rendertime", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("options_logging_log_details", XSI::CValue::siBool, caps, "", "", false, param);
 	property.AddParameter("options_logging_log_profiling", XSI::CValue::siBool, caps, "", "", false, param);
+	property.AddParameter("options_logging_log_sync_time", XSI::CValue::siBool, caps, "", "", false, param);
 
 	// displacement
 	// TODO: after displacement will be fixed, set default value = 2 (both displacement)

@@ -15,6 +15,7 @@
 #include "../render_cycles/cyc_scene/cyc_motion.h"
 #include "../render_base/type_enums.h"
 #include "cyc_scene/cyc_loaders/cyc_loaders.h"
+#include "cyc_scene/cyc_profiler.h"
 
 class UpdateContext
 {
@@ -142,7 +143,7 @@ public:
 	void add_geometry_instance_data(ULONG xsi_instance_root_id, size_t cycles_geometry_index, std::vector<ULONG> master_ids);
 	bool is_geometry_from_instance_data_contains_id(ULONG xsi_id);
 	std::unordered_map<size_t, std::vector<ULONG>> get_geometry_from_instance_data(ULONG xsi_id);
-	void add_geometry_nested_instance_data(ULONG nested_id, ULONG host_id);
+	// void add_geometry_nested_instance_data(ULONG nested_id, ULONG host_id);  // no implementation
 	bool is_geometry_id_to_instance_contains_id(ULONG id);
 	std::vector<ULONG> get_geometry_id_to_instance_ids(ULONG id);
 
@@ -164,6 +165,13 @@ public:
 	void set_temp_path(const XSI::CString& in_path);
 	bool has_temp_path();
 	XSI::CString get_temp_path();
+
+	ProfilerContext* get_sync_profiler();
+	bool get_is_sync_profiler();
+	XSI::CString sync_profiler_message();
+	void try_activate_sync_profiler(RenderType render_type, bool is_log);
+	void add_sync_profiler_time_start(SyncType sync_type, ULONG xsi_id = 0, const XSI::CString &xsi_name = "");
+	void add_sync_profiler_time_finish(SyncType sync_type, ULONG xsi_id = 0);
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -278,4 +286,7 @@ private:
 	// store here ids of materials with active displacement
 	// when we update any of these materials - then also update all objects, use this material
 	std::unordered_set<ULONG> xsi_displacement_materials;
+
+	bool is_sync_profiler;  // if true, then we should write time for different sync stages
+	ProfilerContext* sync_profiler;
 };

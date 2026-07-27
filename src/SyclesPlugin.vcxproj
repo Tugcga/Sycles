@@ -109,6 +109,7 @@
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\names_converter.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_materials\xsi_native.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_motion.cpp" />
+    <ClCompile Include="render_cycles\cyc_scene\cyc_profiler.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_scene.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_shaderball.cpp" />
     <ClCompile Include="render_cycles\cyc_scene\cyc_transform.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="render_cycles\cyc_scene\cyc_materials\cyc_materials.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_materials\names_converter.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_motion.h" />
+    <ClInclude Include="render_cycles\cyc_scene\cyc_profiler.h" />
     <ClInclude Include="render_cycles\cyc_scene\cyc_scene.h" />
     <ClInclude Include="render_cycles\cyc_scene\primitives_geometry.h" />
     <ClInclude Include="render_cycles\cyc_session\cyc_baking.h" />

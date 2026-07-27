@@ -13,12 +13,14 @@
 
 UpdateContext::UpdateContext()
 {
+	sync_profiler = new ProfilerContext();
 	reset();
 }
 
 UpdateContext::~UpdateContext()
 {
 	reset();
+	delete sync_profiler;
 }
 
 void UpdateContext::reset()
@@ -73,6 +75,9 @@ void UpdateContext::reset()
 	clear_temp_path();
 	primitive_shape_map.clear();
 	xsi_displacement_materials.clear();
+
+	is_sync_profiler = false;
+	sync_profiler->reset();
 }
 
 void UpdateContext::set_is_update_light_linking(bool value)
@@ -953,4 +958,79 @@ void UpdateContext::clear_temp_path() {
 
 XSI::CString UpdateContext::get_temp_path() {
 	return temp_path;
+}
+
+ProfilerContext* UpdateContext::get_sync_profiler() {
+	return sync_profiler;
+}
+
+bool UpdateContext::get_is_sync_profiler() {
+	return is_sync_profiler;
+}
+
+XSI::CString UpdateContext::sync_profiler_message() {
+	return sync_profiler->message();
+}
+
+void UpdateContext::try_activate_sync_profiler(RenderType render_type, bool is_log) {
+	is_sync_profiler = false;
+	if ((render_type == RenderType_Region || render_type == RenderType_Pass || render_type == RenderType_Rendermap) && is_log) {
+		is_sync_profiler = true;
+	}
+}
+
+void UpdateContext::add_sync_profiler_time_start(SyncType sync_type, ULONG xsi_id, const XSI::CString& xsi_name) {
+	if (is_sync_profiler) {
+		if (sync_type == SyncType::BakePreprocess) {
+			sync_profiler->prebake_start();
+		}
+		else if (sync_type == SyncType::ScenePreprocess) {
+			sync_profiler->prescene_start();
+		}
+		else if (sync_type == SyncType::ScenePostprocess) {
+			sync_profiler->postscene_start();
+		}
+		else if (sync_type == SyncType::Material ||
+			sync_type == SyncType::Camera ||
+			sync_type == SyncType::Light ||
+			sync_type == SyncType::Volume ||
+			sync_type == SyncType::Polymesh ||
+			sync_type == SyncType::Curve ||
+			sync_type == SyncType::Surface ||
+			sync_type == SyncType::Hair ||
+			sync_type == SyncType::Strands ||
+			sync_type == SyncType::Points ||
+			sync_type == SyncType::VDB ||
+			sync_type == SyncType::PoincloudInstances) {
+			sync_profiler->scene_item_start(sync_type, xsi_id, xsi_name);
+		}
+	}
+}
+
+void UpdateContext::add_sync_profiler_time_finish(SyncType sync_type, ULONG xsi_id) {
+	if (is_sync_profiler) {
+		if (sync_type == SyncType::BakePreprocess) {
+			sync_profiler->prebake_finish();
+		}
+		else if (sync_type == SyncType::ScenePreprocess) {
+			sync_profiler->prescene_finish();
+		}
+		else if (sync_type == SyncType::ScenePostprocess) {
+			sync_profiler->postscene_finish();
+		}
+		else if (sync_type == SyncType::Material || 
+			sync_type == SyncType::Camera ||
+			sync_type == SyncType::Light ||
+			sync_type == SyncType::Volume ||
+			sync_type == SyncType::Polymesh ||
+			sync_type == SyncType::Curve ||
+			sync_type == SyncType::Surface ||
+			sync_type == SyncType::Hair ||
+			sync_type == SyncType::Strands ||
+			sync_type == SyncType::Points ||
+			sync_type == SyncType::VDB ||
+			sync_type == SyncType::PoincloudInstances) {
+			sync_profiler->scene_item_finish(xsi_id);
+		}
+	}
 }
