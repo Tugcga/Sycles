@@ -5,6 +5,8 @@
 #include <xsi_time.h>
 #include <xsi_light.h>
 
+#include "scene/shader_nodes.h"
+
 #include <unordered_map>
 #include <map>
 #include <unordered_set>
@@ -95,6 +97,11 @@ public:
 	bool get_use_denoising_albedo();
 	bool get_use_denoising_normal();
 
+	void set_use_texture_cache(bool value);
+	void set_texture_limits(TextureLimits value);
+	bool get_use_texture_cache();
+	TextureLimits get_texture_limits();
+
 	void reset_need_update_background();
 	void activate_need_update_background();
 	bool is_need_update_background();
@@ -127,7 +134,10 @@ public:
 
 	void add_lightgroup(const XSI::CString& name);
 	XSI::CStringArray get_lightgropus();
-	void add_aov_names(const XSI::CStringArray &in_color_aovs, const XSI::CStringArray &in_value_aovs);
+	// void add_aov_names(const XSI::CStringArray &in_color_aovs, const XSI::CStringArray &in_value_aovs);
+	void add_aov_color(const XSI::CString color_aov);
+	void add_aov_value(const XSI::CString value_aov);
+	void clear_aovs();
 	XSI::CStringArray get_color_aovs();
 	XSI::CStringArray get_value_aovs();
 
@@ -172,6 +182,13 @@ public:
 	void try_activate_sync_profiler(RenderType render_type, bool is_log);
 	void add_sync_profiler_time_start(SyncType sync_type, ULONG xsi_id = 0, const XSI::CString &xsi_name = "");
 	void add_sync_profiler_time_finish(SyncType sync_type, ULONG xsi_id = 0);
+
+	void add_to_nodes_map(ULONG xsi_id, ccl::ShaderNode* cyc_node);
+	bool is_nodes_map_contains(ULONG xsi_id);
+	ccl::ShaderNode* get_from_nodes_map(ULONG xsi_id);
+	void clear_nodes_map();  // clear map from xsi_node to cycles node every time we start export the whole material
+
+	std::map<std::string, XSI::Image>& get_path_to_image();
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -218,6 +235,9 @@ private:
 
 	int displacement_mode;
 	XSI::CString temp_path;  // store here exr-files for tile rendering
+
+	bool use_texture_cache;
+	TextureLimits texture_limits;
 
 	RenderType render_type;
 
@@ -289,4 +309,9 @@ private:
 
 	bool is_sync_profiler;  // if true, then we should write time for different sync stages
 	ProfilerContext* sync_profiler;
+
+	std::unordered_map<ULONG, ccl::ShaderNode*> nodes_map;  // for each material we store here cycles shader nodes corresponds to Softimage nodes
+	// this map should be clear before start export material, it's not used between different render sessions
+
+	std::map<std::string, XSI::Image> path_to_image;  // store map from texture full path to Image object. Create and use when use texture cache is active
 };

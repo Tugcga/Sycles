@@ -10,6 +10,7 @@
 #include <unordered_map>
 
 #include "../../../render_base/type_enums.h"
+#include "../../update_context.h"
 
 // common
 // retun type of the shader node
@@ -25,27 +26,23 @@ void sync_float3_parameter(ccl::Scene* scene,
 	ccl::ShaderGraph* shader_graph,
 	ccl::ShaderNode* cycles_node,
 	XSI::ShaderParameter& xsi_parameter,
-	std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map,
-	std::vector<XSI::CStringArray>& aovs,
 	const std::string& cycles_name,
-	const XSI::CTime& eval_time);
+	UpdateContext* update_context);
 void sync_float_parameter(ccl::Scene* scene, 
 	ccl::ShaderGraph* shader_graph,
 	ccl::ShaderNode* cycles_node,
 	XSI::ShaderParameter& xsi_parameter,
-	std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map,
-	std::vector<XSI::CStringArray>& aovs,
 	const std::string& cycles_name,
-	const XSI::CTime& eval_time);
+	UpdateContext* update_context);
 
 // cycles shader nodes
-ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, const XSI::CParameterRefArray& xsi_parameters, const XSI::CTime& eval_time, ccl::ShaderGraph* shader_graph, std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, std::vector<XSI::CStringArray>& aovs);
+ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, const XSI::CParameterRefArray& xsi_parameters, ccl::ShaderGraph* shader_graph, UpdateContext* update_context);
 
 // osl
-ccl::ShaderNode* sync_osl_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, std::vector<XSI::CStringArray> &aovs, const XSI::CTime& eval_time);
+ccl::ShaderNode* sync_osl_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, UpdateContext* update_context);
 
 // XSI native shaders
-ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, std::vector<XSI::CStringArray>& aovs, const XSI::CTime& eval_time);
+ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, UpdateContext* update_context);
 
 // GLTF shaders
-ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, std::vector<XSI::CStringArray>& aovs, const XSI::CTime& eval_time);
+ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, UpdateContext* update_context);

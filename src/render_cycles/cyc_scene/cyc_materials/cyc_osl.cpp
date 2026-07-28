@@ -16,10 +16,11 @@
 #include "../../../utilities/logs.h"
 #include "cyc_materials.h"
 
-ccl::ShaderNode* sync_osl_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader &xsi_shader, std::unordered_map<ULONG, ccl::ShaderNode*> &nodes_map, std::vector<XSI::CStringArray> &aovs, const XSI::CTime &eval_time)
+ccl::ShaderNode* sync_osl_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader &xsi_shader, UpdateContext* update_context)
 {
 #ifdef WITH_OSL
 	ccl::ShaderManager* manager = scene->shader_manager.get();
+	XSI::CTime eval_time = update_context->get_time();
 	if (manager->use_osl())
 	{
 		XSI::CParameterRefArray params = xsi_shader.GetParameters();
@@ -33,7 +34,7 @@ ccl::ShaderNode* sync_osl_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		}
 
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
-		nodes_map[xsi_shader_id] = node;
+		update_context->add_to_nodes_map(xsi_shader_id, node);
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		// Set all input ports
@@ -50,13 +51,13 @@ ccl::ShaderNode* sync_osl_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			
 			if (xsi_parameter_type == ShaderParameterType::ParameterType_Float)
 			{
-				sync_float_parameter(scene, shader_graph, node, xsi_parameter, nodes_map, aovs, std::string(param_name.GetAsciiString()), eval_time);
+				sync_float_parameter(scene, shader_graph, node, xsi_parameter, std::string(param_name.GetAsciiString()), update_context);
 			}
 			else if (xsi_parameter_type == ShaderParameterType::ParameterType_Color3 ||
 					 xsi_parameter_type == ShaderParameterType::ParameterType_Color4 ||
 					 xsi_parameter_type == ShaderParameterType::ParameterType_Vector3)
 			{
-				sync_float3_parameter(scene, shader_graph, node, xsi_parameter, nodes_map, aovs, std::string(param_name.GetAsciiString()), eval_time);
+				sync_float3_parameter(scene, shader_graph, node, xsi_parameter, std::string(param_name.GetAsciiString()), update_context);
 			}
 			else if (xsi_parameter_type == ShaderParameterType::ParameterType_Integer)
 			{

@@ -1,12 +1,43 @@
 #include <xsi_arrayparameter.h>
 #include <xsi_parameter.h>
+#include <xsi_source.h>
 
 #include "cyc_loaders.h"
 #include "../../../utilities/logs.h"
 #include "../../../utilities/files_io.h"
 
-XSIImageLoader::XSIImageLoader(XSI::ImageClip2& xsi_clip, const ccl::ustring& selected_colorspace, int tile, const XSI::CString& image_path, const XSI::CTime& eval_time)
-{
+// WARNING: these values should synced with txture_limit_combo in cycles_ui.cpp
+std::vector<int> limit_values = { INT_MAX, 131072, 65536, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16 };
+XSI::siImageRatio limit_to_scale_ration(int size, TextureLimits texture_limit) {
+	// we should find the divisor for the size such that the result is less or equal to the limit value
+	// we can devide to 2, 4, 8, 16 only
+	int limit_index = static_cast<int>(texture_limit);
+	if (size <= limit_values[texture_limit]) {
+		return XSI::siImageRatio::siImageRatio1x1;
+	}
+	else if (size / 2 <= limit_values[texture_limit]) {
+		return XSI::siImageRatio::siImageRatio2x1;
+	}
+	else if (size / 4 <= limit_values[texture_limit]) {
+		return XSI::siImageRatio::siImageRatio4x1;
+	}
+	else if (size / 8 <= limit_values[texture_limit]) {
+		return XSI::siImageRatio::siImageRatio8x1;
+	}
+	else {
+		return XSI::siImageRatio::siImageRatio16x1;
+	}
+}
+
+XSIImageLoader::XSIImageLoader(
+	XSI::ImageClip2& xsi_clip, 
+	const ccl::ustring& selected_colorspace, 
+	int tile, 
+	const XSI::CString& image_path, 
+	bool use_texture_cache, 
+	std::map<std::string, XSI::Image>& path_to_image, 
+	TextureLimits texture_limits,
+	const XSI::CTime& eval_time) {
 	// if image_path is empty, then use clip as source image
 	// in other case, load pixels from the image_path
 	m_tile = tile;
@@ -15,11 +46,28 @@ XSIImageLoader::XSIImageLoader(XSI::ImageClip2& xsi_clip, const ccl::ustring& se
 	bool proper_source = false;
 	if (image_path.Length() == 0) {
 		m_use_clip = true;
-		m_xsi_clip_path = xsi_clip.GetFileName();
-		m_xsi_clip_id = xsi_clip.GetObjectID();
-		m_xsi_clip_name = xsi_clip.GetName();
+		XSI::Source clip_source(xsi_clip.GetSource());
+		m_xsi_clip_name = clip_source.GetParameterValue("path");
+		int x_res = clip_source.GetParameterValue("XRes");
+		int y_res = clip_source.GetParameterValue("YRes");
 
-		m_xsi_image = xsi_clip.GetImage(eval_time);
+		std::string clip_file_path = m_xsi_clip_name.GetAsciiString();
+		if (use_texture_cache && path_to_image.contains(clip_file_path)) {
+			m_xsi_image = path_to_image[clip_file_path];
+		} 
+		else{
+			// m_xsi_image = xsi_clip.GetImage(eval_time);
+			XSI::siImageRatio downscale = limit_to_scale_ration(std::max(x_res, y_res), texture_limits);
+			// WARNING: may be it's Softimage bug
+			// but with non-trivial downsample value the obtained Image have non-reduced size
+			// siImageRatio2x1 and siImageRatio4x1 are not effected
+			// siImageRatio8x1 and siImageRatio16x1 are the same (siImageRatio16x1)
+			m_xsi_image = xsi_clip.GetScaledDownImage(downscale, eval_time);
+			if (use_texture_cache) {
+				path_to_image[clip_file_path] = m_xsi_image;
+			}
+		}
+
 		m_width = m_xsi_image.GetResX();
 		m_height = m_xsi_image.GetResY();
 		m_channels = m_xsi_image.GetNumChannels();
@@ -244,9 +292,9 @@ std::string XSIImageLoader::name() const
 	return m_xsi_clip_name.GetAsciiString();
 }
 
-ULONG XSIImageLoader::get_clip_id() const
+XSI::CString XSIImageLoader::get_clip_id() const
 {
-	return m_xsi_clip_id;
+	return m_xsi_clip_name;
 }
 
 XSI::CString XSIImageLoader::get_image_path() const
@@ -257,7 +305,7 @@ XSI::CString XSIImageLoader::get_image_path() const
 bool XSIImageLoader::equals(const ImageLoader& other) const
 {
 	const XSIImageLoader& other_loader = (const XSIImageLoader&)other;
-	return m_xsi_clip_id == other_loader.get_clip_id() && m_tile == other_loader.get_tile_number() && m_image_path == other_loader.get_image_path();
+	return m_xsi_clip_name == other_loader.get_clip_id() && m_tile == other_loader.get_tile_number() && m_image_path == other_loader.get_image_path();
 }
 
 int XSIImageLoader::get_tile_number() const

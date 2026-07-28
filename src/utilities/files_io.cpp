@@ -160,7 +160,9 @@ std::vector<float> load_image(const XSI::CString &file_path, ULONG&out_width, UL
 			if (out_sucess)
 			{
 				// flip pixels
-				return flip_pixels(pixels_data, out_width, out_height, out_channels);
+				std::vector<float> flipped = flip_pixels(pixels_data, out_width, out_height, out_channels);
+				stbi_image_free(pixels_data);
+				return flipped;
 			}
 		}
 		else if (ext == "exr")

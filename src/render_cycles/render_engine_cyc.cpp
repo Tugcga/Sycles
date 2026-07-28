@@ -452,6 +452,14 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		}
 	}
 
+	if (!is_recreate_session && 
+		(update_context->get_use_texture_cache() != m_render_parameters.GetValue("performance_texture_cache", eval_time) ||
+		update_context->get_texture_limits() != m_render_parameters.GetValue("performance_texture_limits", eval_time))) {
+		is_recreate_session = true;
+	}
+	update_context->set_use_texture_cache(m_render_parameters.GetValue("performance_texture_cache", eval_time));
+	update_context->set_texture_limits(static_cast<TextureLimits>((int)m_render_parameters.GetValue("performance_texture_limits", eval_time)));
+
 	update_context->set_current_render_parameters(m_render_parameters);
 	update_context->set_image_size(image_full_size_width, image_full_size_height);
 	update_context->set_camera(camera);
@@ -765,15 +773,10 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 	XSI::CStatus is_update = XSI::CStatus::OK;
 
 	ULONG material_id = xsi_material.GetObjectID();
-	if (update_context->is_material_exists(material_id))
-	{
-		std::vector<XSI::CStringArray> aovs(2);
-		aovs[0].Clear();
-		aovs[1].Clear();
-
+	if (update_context->is_material_exists(material_id)) {
 		// call sync profiler here, because update_material function does not contains update context object
 		update_context->add_sync_profiler_time_start(SyncType::Material, material_id, xsi_material.GetFullName());
-		is_update = update_material(session->scene.get(), xsi_material, update_context->get_xsi_material_cycles_index(material_id), update_context->get_time(), aovs);
+		is_update = update_material(session->scene.get(), xsi_material, update_context->get_xsi_material_cycles_index(material_id), update_context);
 		update_context->add_sync_profiler_time_finish(SyncType::Material, material_id);
 
 		if (update_context->is_displacement_material(material_id))
@@ -811,8 +814,6 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 				}
 			}
 		}
-
-		update_context->add_aov_names(aovs[0], aovs[1]);
 	}
 	else
 	{
@@ -822,7 +823,7 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 			ULONG shader_id = update_context->get_shaderball_material_node(material_id);
 			if (update_context->is_material_exists(shader_id))
 			{
-				is_update = update_shaderball_shadernode(session->scene.get(), shader_id, m_shaderball_type, update_context->get_xsi_material_cycles_index(shader_id), update_context->get_time());
+				is_update = update_shaderball_shadernode(session->scene.get(), shader_id, m_shaderball_type, update_context->get_xsi_material_cycles_index(shader_id), update_context);
 			}
 		}
 	}

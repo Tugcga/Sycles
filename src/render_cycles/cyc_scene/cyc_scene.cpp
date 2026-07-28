@@ -295,22 +295,22 @@ void sync_shaderball_scene(ccl::Scene* scene, UpdateContext* update_context, con
 
 			xsi_material_id = xsi_material.GetObjectID();
 
-			shader_index = sync_material(scene, xsi_material, eval_time, aovs);
+			shader_index = sync_material(scene, xsi_material, update_context);
 		}
 		else if (shaderball_type == ShaderballType_SurfaceShader)
 		{
 			XSI::Shader xsi_shader(shaderball_material);
-			shader_index = sync_shaderball_shadernode(scene, xsi_shader, true, eval_time);
+			shader_index = sync_shaderball_shadernode(scene, xsi_shader, true, update_context);
 		}
 		else if (shaderball_type == ShaderballType_VolumeShader)
 		{
 			XSI::Shader xsi_shader(shaderball_material);
-			shader_index = sync_shaderball_shadernode(scene, xsi_shader, false, eval_time);
+			shader_index = sync_shaderball_shadernode(scene, xsi_shader, false, update_context);
 		}
 		else if (shaderball_type == ShaderballType_Texture)
 		{
 			XSI::Texture xsi_texture(shaderball_material);
-			shader_index = sync_shaderball_texturenode(scene, xsi_texture, eval_time);
+			shader_index = sync_shaderball_texturenode(scene, xsi_texture, update_context);
 		}
 		else
 		{

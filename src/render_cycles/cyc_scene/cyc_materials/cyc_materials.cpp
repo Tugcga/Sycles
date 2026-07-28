@@ -19,124 +19,6 @@
 #include "cyc_materials.h"
 #include "names_converter.h"
 
-void log_ports(ccl::ShaderNode* node, bool is_inputs)
-{
-	if (is_inputs)
-	{
-		for (size_t i = 0; i < node->inputs.size(); i++)
-		{
-			log_message("input " + XSI::CString(i) + ": " + XSI::CString(node->inputs[i]->name().c_str()));
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < node->outputs.size(); i++)
-		{
-			log_message("output " + XSI::CString(i) + ": " + XSI::CString(node->outputs[i]->name().c_str()));
-		}
-	}
-}
-
-void log_one_shader(const XSI::CString &name, ccl::ShaderNode* node)
-{
-	log_message("-------" + name + "-------");
-	log_ports(node, true);
-	log_ports(node, false);
-}
-
-void log_all_shaders()
-{
-	log_one_shader("CyclesCombineColor", new ccl::CombineColorNode());
-	//log_one_shader("CyclesDiffuseBSDF", new ccl::DiffuseBsdfNode());
-	//log_one_shader("CyclesPrincipledBSDF", new ccl::PrincipledBsdfNode());
-	//log_one_shader("CyclesAnisotropicBSDF", new ccl::AnisotropicBsdfNode());
-	/*log_one_shader("CyclesTranslucentBSDF", new ccl::TranslucentBsdfNode());
-	log_one_shader("CyclesTransparentBSDF", new ccl::TransparentBsdfNode());
-	log_one_shader("CyclesVelvetBSDF", new ccl::VelvetBsdfNode());
-	log_one_shader("CyclesToonBSDF", new ccl::ToonBsdfNode());
-	log_one_shader("CyclesGlossyBSDF", new ccl::GlossyBsdfNode());
-	log_one_shader("CyclesGlassBSDF", new ccl::GlassBsdfNode());
-	log_one_shader("CyclesRefractionBSDF", new ccl::RefractionBsdfNode());
-	log_one_shader("CyclesHairBSDF", new ccl::HairBsdfNode());
-	log_one_shader("CyclesEmission", new ccl::EmissionNode());
-	log_one_shader("CyclesAmbientOcclusion", new ccl::AmbientOcclusionNode());
-	log_one_shader("CyclesBackground", new ccl::BackgroundNode());
-	log_one_shader("CyclesHoldout", new ccl::HoldoutNode());
-	log_one_shader("CyclesAbsorptionVolume", new ccl::AbsorptionVolumeNode());
-	log_one_shader("CyclesScatterVolume", new ccl::ScatterVolumeNode());
-	log_one_shader("CyclesPrincipledVolume", new ccl::PrincipledVolumeNode());
-	log_one_shader("CyclesPrincipledHairBSDF", new ccl::PrincipledHairBsdfNode());
-	log_one_shader("CyclesSubsurfaceScattering", new ccl::SubsurfaceScatteringNode());
-	log_one_shader("CyclesImageTexture", new ccl::ImageTextureNode());
-	log_one_shader("CyclesEnvironmentTexture", new ccl::EnvironmentTextureNode());
-	log_one_shader("CyclesSkyTexture", new ccl::SkyTextureNode());
-	log_one_shader("CyclesNoiseTexture", new ccl::NoiseTextureNode());
-	log_one_shader("CyclesCheckerTexture", new ccl::CheckerTextureNode());
-	log_one_shader("CyclesBrickTexture", new ccl::BrickTextureNode());
-	log_one_shader("CyclesGradientTexture", new ccl::GradientTextureNode());
-	log_one_shader("CyclesVoronoiTexture", new ccl::VoronoiTextureNode());
-	log_one_shader("CyclesMusgraveTexture", new ccl::MusgraveTextureNode());
-	log_one_shader("CyclesMagicTexture", new ccl::MagicTextureNode());
-	log_one_shader("CyclesWaveTexture", new ccl::WaveTextureNode());
-	log_one_shader("CyclesIESTexture", new ccl::IESLightNode());
-	log_one_shader("CyclesWhiteNoiseTexture", new ccl::WhiteNoiseTextureNode());
-	log_one_shader("CyclesNormal", new ccl::NormalNode());
-	log_one_shader("CyclesBump", new ccl::BumpNode());
-	log_one_shader("CyclesMapping", new ccl::MappingNode());
-	log_one_shader("CyclesNormalMap", new ccl::NormalMapNode());
-	log_one_shader("CyclesVectorTransform", new ccl::VectorTransformNode());
-	log_one_shader("CyclesVectorRotate", new ccl::VectorRotateNode());
-	log_one_shader("CyclesVectorCurves", new ccl::VectorCurvesNode());
-	log_one_shader("CyclesDisplacement", new ccl::DisplacementNode());
-	log_one_shader("CyclesVectorDisplacement", new ccl::VectorDisplacementNode());
-	log_one_shader("CyclesGeometry", new ccl::GeometryNode());
-	log_one_shader("CyclesTextureCoordinate", new ccl::TextureCoordinateNode());
-	log_one_shader("CyclesLightPath", new ccl::LightPathNode());
-	log_one_shader("CyclesObjectInfo", new ccl::ObjectInfoNode());
-	log_one_shader("CyclesVolumeInfo", new ccl::VolumeInfoNode());
-	log_one_shader("CyclesPointInfo", new ccl::PointInfoNode());
-	log_one_shader("CyclesParticleInfo", new ccl::ParticleInfoNode());
-	log_one_shader("CyclesHairInfo", new ccl::HairInfoNode());
-	log_one_shader("CyclesValue", new ccl::ValueNode());
-	log_one_shader("CyclesColor", new ccl::ColorNode());
-	log_one_shader("CyclesAttribute", new ccl::AttributeNode());
-	log_one_shader("CyclesOutputColorAOV", new ccl::OutputAOVNode());
-	log_one_shader("CyclesVertexColor", new ccl::VertexColorNode());
-	log_one_shader("CyclesBevel", new ccl::BevelNode());
-	log_one_shader("CyclesUVMap", new ccl::UVMapNode());
-	log_one_shader("CyclesCamera", new ccl::CameraNode());
-	log_one_shader("CyclesFresnel", new ccl::FresnelNode());
-	log_one_shader("CyclesLayerWeight", new ccl::LayerWeightNode());
-	log_one_shader("CyclesWireframe", new ccl::WireframeNode());
-	log_one_shader("CyclesTangent", new ccl::TangentNode());
-	log_one_shader("CyclesLightFalloff", new ccl::LightFalloffNode());
-	log_one_shader("CyclesInvert", new ccl::InvertNode());
-	log_one_shader("CyclesMixRGB", new ccl::MixColorNode());
-	log_one_shader("CyclesGamma", new ccl::GammaNode());
-	log_one_shader("CyclesBrightContrast", new ccl::BrightContrastNode());
-	log_one_shader("CyclesHSV", new ccl::HSVNode());
-	log_one_shader("CyclesRGBCurves", new ccl::RGBCurvesNode());
-	log_one_shader("CyclesWavelength", new ccl::WavelengthNode());
-	log_one_shader("CyclesBlackbody", new ccl::BlackbodyNode());
-	log_one_shader("CyclesMixClosure", new ccl::MixClosureNode());
-	log_one_shader("CyclesAddClosure", new ccl::AddClosureNode());
-	log_one_shader("CyclesCombineRGB", new ccl::CombineRGBNode());
-	log_one_shader("CyclesCombineHSV", new ccl::CombineHSVNode());
-	log_one_shader("CyclesCombineXYZ", new ccl::CombineXYZNode());
-	log_one_shader("CyclesSeparateRGB", new ccl::SeparateRGBNode());
-	log_one_shader("CyclesSeparateHSV", new ccl::SeparateHSVNode());
-	log_one_shader("CyclesSeparateXYZ", new ccl::SeparateXYZNode());
-	log_one_shader("CyclesMath", new ccl::MathNode());
-	log_one_shader("CyclesVectorMath", new ccl::VectorMathNode());
-	log_one_shader("CyclesColorRamp", new ccl::RGBRampNode());
-	log_one_shader("CyclesMapRange", new ccl::MapRangeNode());
-	log_one_shader("CyclesVectorMapRange", new ccl::VectorMapRangeNode());
-	log_one_shader("CyclesFloatCurve", new ccl::FloatCurveNode());
-	log_one_shader("CyclesClamp", new ccl::ClampNode());
-	log_one_shader("CyclesRGBToBW", new ccl::RGBToBWNode());*/
-	// 87 nodes
-}
-
 int create_default_shader(ccl::Scene* scene)
 {
 	ccl::Shader* shader = scene->create_node<ccl::Shader>();
@@ -184,15 +66,12 @@ int create_emission_checker(ccl::Scene* scene, float checker_scale)
 ccl::ShaderNode* xsi_node_to_cycles(
 	ccl::Scene* scene,  // we need scene for osl shader manager
 	ccl::ShaderGraph* shader_graph,
-	std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map,
-	std::vector<XSI::CStringArray>& aovs,
 	const XSI::Shader& xsi_shader,
-	const XSI::CTime& eval_time)
+	UpdateContext* update_context)
 {
 	ULONG xsi_id = xsi_shader.GetObjectID();
-	if (nodes_map.contains(xsi_id))
-	{
-		return nodes_map[xsi_id];
+	if (update_context->is_nodes_map_contains(xsi_id)) {
+		return update_context->get_from_nodes_map(xsi_id);
 	}
 	else
 	{
@@ -202,19 +81,19 @@ ccl::ShaderNode* xsi_node_to_cycles(
 		if (shadernode_type == ShadernodeType::ShadernodeType_Cycles || shadernode_type == ShadernodeType::ShadernodeType_CyclesAOV)
 		{
 			XSI::CParameterRefArray params = xsi_shader.GetParameters();
-			return sync_cycles_shader(scene, xsi_shader, out_type, params, eval_time, shader_graph, nodes_map, aovs);
+			return sync_cycles_shader(scene, xsi_shader, out_type, params, shader_graph, update_context);
 		}
 		else if (shadernode_type == ShadernodeType::ShadernodeType_OSL)
 		{
-			return sync_osl_shader(scene, shader_graph, xsi_shader, nodes_map, aovs, eval_time);
+			return sync_osl_shader(scene, shader_graph, xsi_shader, update_context);
 		}
 		else if (shadernode_type == ShadernodeType::ShadernodeType_NativeXSI)
 		{
-			return sync_xsi_shader(scene, shader_graph, xsi_shader, out_type, nodes_map, aovs, eval_time);
+			return sync_xsi_shader(scene, shader_graph, xsi_shader, out_type, update_context);
 		}
 		else if (shadernode_type == ShadernodeType::ShadernodeType_GLTF)
 		{
-			return sync_gltf_shader(scene, shader_graph, xsi_shader, out_type, nodes_map, aovs, eval_time);
+			return sync_gltf_shader(scene, shader_graph, xsi_shader, out_type, update_context);
 		}
 		else
 		{
@@ -228,20 +107,19 @@ bool sync_shader_parameter_connection(
 	ccl::Scene* scene,
 	ccl::ShaderGraph* shader_graph,
 	ccl::ShaderNode* cycles_node,
-	std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map,
-	std::vector<XSI::CStringArray>& aovs,
 	const XSI::ShaderParameter& xsi_parameter,
 	const std::string& cycles_name,
-	const XSI::CTime& eval_time)
+	UpdateContext* update_context)
 {
 	// check is this final parameter is connected to something
 	XSI::CRef source = xsi_parameter.GetSource();
+	XSI::CTime eval_time = update_context->get_time();
 	if (source.IsValid() && source.GetClassID() == XSI::siShaderParameterID)
 	{// there is connection with shader parameter 
 		XSI::ShaderParameter xsi_source_parameter(source);
 		XSI::Shader xsi_source_node(xsi_source_parameter.GetParent());
 
-		ccl::ShaderNode* source_node = xsi_node_to_cycles(scene, shader_graph, nodes_map, aovs, xsi_source_node, eval_time);
+		ccl::ShaderNode* source_node = xsi_node_to_cycles(scene, shader_graph, xsi_source_node, update_context);
 		if (source_node != NULL)
 		{
 			bool is_connect = make_nodes_connection(shader_graph, source_node, cycles_node, xsi_source_node, xsi_source_parameter.GetName(), cycles_name, eval_time);
@@ -256,14 +134,12 @@ void sync_float_parameter(ccl::Scene* scene,
 	ccl::ShaderGraph* shader_graph,
 	ccl::ShaderNode* cycles_node,
 	XSI::ShaderParameter& xsi_parameter,
-	std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map,
-	std::vector<XSI::CStringArray>& aovs,
 	const std::string& cycles_name,
-	const XSI::CTime& eval_time)
-{
+	UpdateContext* update_context) {
+	XSI::CTime eval_time = update_context->get_time();
 	XSI::ShaderParameter xsi_finall_parameter = get_source_parameter(xsi_parameter);
 
-	bool is_connect = sync_shader_parameter_connection(scene, shader_graph, cycles_node, nodes_map, aovs, xsi_finall_parameter, cycles_name, eval_time);
+	bool is_connect = sync_shader_parameter_connection(scene, shader_graph, cycles_node, xsi_finall_parameter, cycles_name, update_context);
 
 	ShaderParameterType parameter_type = get_shader_parameter_type(xsi_finall_parameter);
 	XSI::Shader xsi_finall_parameter_shader = xsi_finall_parameter.GetParent();
@@ -281,15 +157,13 @@ void sync_float3_parameter(ccl::Scene* scene,
 	ccl::ShaderGraph* shader_graph,
 	ccl::ShaderNode* cycles_node,
 	XSI::ShaderParameter& xsi_parameter,
-	std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map,
-	std::vector<XSI::CStringArray>& aovs,
 	const std::string& cycles_name,
-	const XSI::CTime& eval_time)
-{
+	UpdateContext* update_context) {
 	// return final float3 value of the parameter
 	XSI::ShaderParameter xsi_finall_parameter = get_source_parameter(xsi_parameter);
+	XSI::CTime eval_time = update_context->get_time();
 	
-	bool is_connect = sync_shader_parameter_connection(scene, shader_graph, cycles_node, nodes_map, aovs, xsi_finall_parameter, cycles_name, eval_time);
+	bool is_connect = sync_shader_parameter_connection(scene, shader_graph, cycles_node, xsi_finall_parameter, cycles_name, update_context);
 
 	ShaderParameterType parameter_type = get_shader_parameter_type(xsi_finall_parameter);
 	XSI::Shader xsi_finall_parameter_shader = xsi_finall_parameter.GetParent();
@@ -314,20 +188,17 @@ void sync_float3_parameter(ccl::Scene* scene,
 // xsi_node_prog_id should contains the prog_id of the first node
 ccl::ShaderNode* sync_material_port(ccl::Scene* scene, 
 	ccl::ShaderGraph* shader_graph,
-	std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map,
-	std::vector<XSI::CStringArray>& aovs,
 	XSI::CString &xsi_node_port_name,
 	XSI::Shader &xsi_shader,
 	const XSI::ShaderParameter& material_port,
-	const XSI::CTime& eval_time)
-{
+	UpdateContext* update_context) {
 	XSI::ShaderParameter material_port_source = get_source_parameter(material_port, true);  // return output parameter
 	if (material_port_source.IsValid())
 	{
 		XSI::Shader xsi_node(material_port_source.GetParent());
 		if (xsi_node.IsValid())
 		{
-			ccl::ShaderNode* to_return = xsi_node_to_cycles(scene, shader_graph, nodes_map, aovs, xsi_node, eval_time);
+			ccl::ShaderNode* to_return = xsi_node_to_cycles(scene, shader_graph, xsi_node, update_context);
 			if (to_return != NULL)
 			{
 				xsi_node_port_name = material_port_source.GetName();
@@ -347,24 +218,26 @@ ccl::ShaderNode* sync_material_port(ccl::Scene* scene,
 	}
 }
 
-void material_to_graph(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Material& xsi_material, const XSI::CTime& eval_time, std::vector<XSI::CStringArray>& aovs)
+void material_to_graph(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Material& xsi_material, UpdateContext* update_context)
 {
-	std::unordered_map<ULONG, ccl::ShaderNode*> nodes_map;  // key - render tree shader node id, value - Cycles shader node
+	// start export new material, so, we should clear map from xsi nodes id to cycles nodes
+	update_context->clear_nodes_map();
 
 	XSI::CString xsi_node_surface_port_name = "";
 	XSI::Shader xsi_shader_surface;
 	XSI::CParameterRefArray xsi_material_parameters = xsi_material.GetParameters();
-	ccl::ShaderNode* surface_node = sync_material_port(scene, shader_graph, nodes_map, aovs, xsi_node_surface_port_name, xsi_shader_surface, xsi_material_parameters.GetItem("surface"), eval_time);
+	ccl::ShaderNode* surface_node = sync_material_port(scene, shader_graph, xsi_node_surface_port_name, xsi_shader_surface, xsi_material_parameters.GetItem("surface"), update_context);
 	
 	XSI::CString xsi_node_volume_port_name = "";
 	XSI::Shader xsi_shader_volume;
-	ccl::ShaderNode* volume_node = sync_material_port(scene, shader_graph, nodes_map, aovs, xsi_node_volume_port_name, xsi_shader_volume, xsi_material_parameters.GetItem("volume"), eval_time);
+	ccl::ShaderNode* volume_node = sync_material_port(scene, shader_graph, xsi_node_volume_port_name, xsi_shader_volume, xsi_material_parameters.GetItem("volume"), update_context);
 
 	XSI::CString xsi_node_displace_port_name = "";
 	XSI::Shader xsi_shader_displacement;
-	ccl::ShaderNode* displacement_node = sync_material_port(scene, shader_graph, nodes_map, aovs, xsi_node_displace_port_name, xsi_shader_displacement, xsi_material_parameters.GetItem("normal"), eval_time);
+	ccl::ShaderNode* displacement_node = sync_material_port(scene, shader_graph, xsi_node_displace_port_name, xsi_shader_displacement, xsi_material_parameters.GetItem("normal"), update_context);
 
 	bool is_empty_surface = true;
+	XSI::CTime eval_time = update_context->get_time();
 	if (surface_node != NULL && xsi_node_surface_port_name.Length() > 0 && xsi_shader_surface.IsValid())
 	{
 		bool is_connect = make_nodes_connection(shader_graph, surface_node, shader_graph->output(), xsi_shader_surface, xsi_node_surface_port_name, "Surface", eval_time);
@@ -407,10 +280,10 @@ void material_to_graph(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const 
 }
 
 // in this function we should crate the shader, add it to the shaders array and retun it index in this array
-int sync_material(ccl::Scene* scene, const XSI::Material &xsi_material, const XSI::CTime &eval_time, std::vector<XSI::CStringArray> &aovs)
+int sync_material(ccl::Scene* scene, const XSI::Material &xsi_material, UpdateContext* update_context)
 {
 	std::unique_ptr<ccl::ShaderGraph> shader_graph = std::make_unique<ccl::ShaderGraph>();
-	material_to_graph(scene, shader_graph.get(), xsi_material, eval_time, aovs);
+	material_to_graph(scene, shader_graph.get(), xsi_material, update_context);
 
 	// create output shader
 	ccl::Shader* shader = scene->create_node<ccl::Shader>();
@@ -421,15 +294,14 @@ int sync_material(ccl::Scene* scene, const XSI::Material &xsi_material, const XS
 	return scene->shaders.size() - 1;
 }
 
-void shaderball_shadernode_to_graph(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, bool is_surface, const XSI::CTime& eval_time, bool &out_success)
+void shaderball_shadernode_to_graph(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, bool is_surface, UpdateContext* update_context, bool &out_success)
 {
 	// convert shader node to Cycles one
-	std::unordered_map<ULONG, ccl::ShaderNode*> nodes_map;
+	update_context->clear_nodes_map();
+	// also clear aovs, because in shaderball rendering it does not used
+	update_context->clear_aovs();
 
-	std::vector<XSI::CStringArray> aovs(2);
-	aovs[0].Clear();
-	aovs[1].Clear();
-	ccl::ShaderNode* shader_node = xsi_node_to_cycles(scene, shader_graph, nodes_map, aovs, xsi_shader, eval_time);
+	ccl::ShaderNode* shader_node = xsi_node_to_cycles(scene, shader_graph, xsi_shader, update_context);
 	// we does not need aovs for shaderballs, because it's impossible to render these passes
 
 	if (shader_node != NULL)
@@ -458,7 +330,7 @@ void shaderball_shadernode_to_graph(ccl::Scene* scene, ccl::ShaderGraph* shader_
 }
 
 // call this function when we should previre shaderball rendertree node instead of whole material
-int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader, bool is_surface, const XSI::CTime& eval_time)
+int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader, bool is_surface, UpdateContext* update_context)
 {
 	// get parent material
 	XSI::CRef parent = xsi_shader.GetRoot();
@@ -472,7 +344,7 @@ int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader,
 
 	bool is_success = false;
 	std::unique_ptr<ccl::ShaderGraph> shader_graph = std::make_unique<ccl::ShaderGraph>();
-	shaderball_shadernode_to_graph(scene, shader_graph.get(), xsi_shader, is_surface, eval_time, is_success);
+	shaderball_shadernode_to_graph(scene, shader_graph.get(), xsi_shader, is_surface, update_context, is_success);
 
 	if (is_success)
 	{
@@ -489,21 +361,21 @@ int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader,
 	}
 }
 
-int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_texture, const XSI::CTime& eval_time)
+int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_texture, UpdateContext* update_context)
 {
 	XSI::Shader xsi_texture_shader(xsi_texture);
 
-	return sync_shaderball_shadernode(scene, xsi_texture_shader, true, eval_time);
+	return sync_shaderball_shadernode(scene, xsi_texture_shader, true, update_context);
 }
 
-void sync_material_process(ccl::Scene* scene, UpdateContext* update_context, const XSI::Material& xsi_material, std::vector<XSI::CStringArray>& aovs, const XSI::CTime& eval_time, bool ignore_empty) {
+void sync_material_process(ccl::Scene* scene, UpdateContext* update_context, const XSI::Material& xsi_material, bool ignore_empty) {
 	ULONG xsi_id = xsi_material.GetObjectID();
 
 	update_context->add_sync_profiler_time_start(SyncType::Material, xsi_id, xsi_material.GetFullName());
 	XSI::CRefArray used_objects = xsi_material.GetUsedBy();
 	if (ignore_empty || used_objects.GetCount() > 0)
 	{
-		int shader_index = sync_material(scene, xsi_material, eval_time, aovs);
+		int shader_index = sync_material(scene, xsi_material, update_context);
 		if (shader_index >= 0)
 		{
 			update_context->add_material_index(xsi_id,
@@ -521,9 +393,8 @@ void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context)
 	XSI::CRefArray material_libs = xsi_scene.GetMaterialLibraries();
 	XSI::CTime eval_time = update_context->get_time();
 
-	std::vector<XSI::CStringArray> aovs(2);
-	aovs[0].Clear();  // for colors
-	aovs[1].Clear();  // for values
+	// before we start export all materials - clear previously exported aovs
+	update_context->clear_aovs();
 
 	for (LONG lib_index = 0; lib_index < material_libs.GetCount(); lib_index++)
 	{
@@ -533,19 +404,21 @@ void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context)
 		{
 			XSI::Material xsi_material = materials.GetItem(mat_index);
 
-			sync_material_process(scene, update_context, xsi_material, aovs, eval_time, false);
+			sync_material_process(scene, update_context, xsi_material, false);
 		}
 	}
 
+	// after export we does not need to add aovs to update context, becasue each node add it
+
 	// add aov names to update context
 	// it will be used later in pass sync
-	update_context->add_aov_names(aovs[0], aovs[1]);
+	// update_context->add_aov_names(aovs[0], aovs[1]);
 }
 
-XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material &xsi_material, size_t shader_index, const XSI::CTime &eval_time, std::vector<XSI::CStringArray> &aovs)
+XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material &xsi_material, size_t shader_index, UpdateContext* update_context)
 {
 	std::unique_ptr<ccl::ShaderGraph> shader_graph = std::make_unique<ccl::ShaderGraph>();
-	material_to_graph(scene, shader_graph.get(), xsi_material, eval_time, aovs);
+	material_to_graph(scene, shader_graph.get(), xsi_material, update_context);
 	ccl::Shader* shader = scene->shaders[shader_index];
 
 	// TODO: there is a bug
@@ -558,14 +431,14 @@ XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material &xsi_materia
 	return XSI::CStatus::OK;
 }
 
-XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, const XSI::CTime& eval_time)
+XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, UpdateContext* update_context)
 {
 	XSI::ProjectItem item = XSI::Application().GetObjectFromID(xsi_id);
 	XSI::Shader xsi_shader(item);
 
 	bool is_success = false;
 	std::unique_ptr<ccl::ShaderGraph> shader_graph = std::make_unique<ccl::ShaderGraph>();
-	shaderball_shadernode_to_graph(scene, shader_graph.get(), xsi_shader, !(shaderball_type == ShaderballType_VolumeShader), eval_time, is_success);
+	shaderball_shadernode_to_graph(scene, shader_graph.get(), xsi_shader, !(shaderball_type == ShaderballType_VolumeShader), update_context, is_success);
 	if (is_success)
 	{
 		ccl::Shader* shader = scene->shaders[shader_index];
@@ -619,12 +492,10 @@ XSI::CStatus sync_missed_material(ccl::Scene* scene, UpdateContext* update_conte
 
 	XSI::Material xsi_material(xsi_item);
 	XSI::CTime eval_time = update_context->get_time();
-	std::vector<XSI::CStringArray> aovs(2);
-	aovs[0].Clear();
-	aovs[1].Clear();
-
-	sync_material_process(scene, update_context, xsi_material, aovs, eval_time, true);
-	update_context->add_aov_names(aovs[0], aovs[1]);
+	
+	sync_material_process(scene, update_context, xsi_material, true);
+	// does not need to ad aovs, it add at export methods
+	// update_context->add_aov_names(aovs[0], aovs[1]);
 
 	return XSI::CStatus::OK;
 }

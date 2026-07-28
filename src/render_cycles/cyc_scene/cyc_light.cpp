@@ -37,7 +37,7 @@ ccl::uint light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glos
 	return flag;
 }
 
-ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_light, const XSI::CTime& eval_time)
+ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_light, UpdateContext* update_context)
 {
 	XSI::CRefArray xsi_shaders = xsi_light.GetShaders();
 	XSI::ShaderParameter root_parameter = get_root_shader_parameter(xsi_shaders, "LightShader", false);
@@ -68,12 +68,10 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 	// emission node has input Color and Strength ports
 	// so, we should try to connect it to nodes, connected to original color and intensity ports
 	// we should get shader node, connected to the color shader parameter (if it valid)
-	std::vector<XSI::CStringArray> aovs(2);
-	aovs[0].Clear();
-	aovs[1].Clear();
+	
 	if (color_parameter.IsValid())
 	{
-		sync_float3_parameter(scene, graph.get(), node, color_parameter, nodes_map, aovs, "Color", eval_time);
+		sync_float3_parameter(scene, graph.get(), node, color_parameter, "Color", update_context);
 	}
 	else
 	{
@@ -82,7 +80,7 @@ ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_lig
 
 	if (intensity_parameter.IsValid())
 	{
-		sync_float_parameter(scene, graph.get(), node, intensity_parameter, nodes_map, aovs, "Strength", eval_time);
+		sync_float_parameter(scene, graph.get(), node, intensity_parameter, "Strength", update_context);
 	}
 	else
 	{
@@ -271,7 +269,7 @@ void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContex
 	ccl::Light* light = scene->create_node<ccl::Light>();
 	light_object->set_geometry(light);
 
-	ccl::Shader* light_shader = build_xsi_light_shader(scene, xsi_light, eval_time);
+	ccl::Shader* light_shader = build_xsi_light_shader(scene, xsi_light, update_context);
 
 	// setup light parameters
 	sync_xsi_light_geometry(scene, light, light_shader, xsi_light, eval_time);
@@ -603,7 +601,7 @@ XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, 
 			ccl::Geometry* object_geometry = light_object->get_geometry();
 			if (object_geometry->geometry_type == ccl::Geometry::LIGHT) {
 				ccl::Light* light = static_cast<ccl::Light*>(object_geometry);
-				sync_xsi_light_geometry(scene, light, build_xsi_light_shader(scene, xsi_light, eval_time), xsi_light, eval_time);
+				sync_xsi_light_geometry(scene, light, build_xsi_light_shader(scene, xsi_light, update_context), xsi_light, eval_time);
 				sync_xsi_light_object(light_object, xsi_light, update_context);
 				
 				light->tag_update(scene);
@@ -737,10 +735,7 @@ void update_background(ccl::Scene* scene, UpdateContext* update_context)
 		XSI::ProjectItem item = XSI::Application().GetObjectFromID(material_id);
 		XSI::Material xsi_material(item);
 
-		std::vector<XSI::CStringArray> aovs(2);
-		aovs[0].Clear();
-		aovs[1].Clear();
-		XSI::CStatus is_update = update_material(scene, xsi_material, shader_index, update_context->get_time(), aovs);
+		XSI::CStatus is_update = update_material(scene, xsi_material, shader_index, update_context);
 		set_background_light(scene, scene->background, scene->default_background, update_context, update_context->get_current_render_parameters(), update_context->get_time());
 	}
 }

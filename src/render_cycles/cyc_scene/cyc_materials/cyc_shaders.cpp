@@ -13,6 +13,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <chrono>
 
 #include "../cyc_loaders/cyc_loaders.h"
 #include "../../../input/input.h"
@@ -29,11 +30,9 @@
 void common_routine(ccl::Scene* scene, 
 	ccl::ShaderNode* node,
 	ccl::ShaderGraph* shader_graph, 
-	std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, 
 	const XSI::Shader& xsi_shader, 
 	const XSI::CParameterRefArray& xsi_parameters, 
-	const XSI::CTime &eval_time,
-	std::vector<XSI::CStringArray>& aovs)
+	UpdateContext* update_context)
 {
 	ULONG xsi_shader_id = xsi_shader.GetObjectID();
 	ccl::ustring node_name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
@@ -41,8 +40,10 @@ void common_routine(ccl::Scene* scene,
 
 	// add node to the map
 	// because when we will connect parameters, we should connect this node with other nodes
-	nodes_map[xsi_shader_id] = node;
+	update_context->add_to_nodes_map(xsi_shader_id, node);
 	node->name = node_name;
+
+	XSI::CTime eval_time = update_context->get_time();
 
 	// does not setup these node bump properies
 	// it's not clear how it actually works
@@ -73,11 +74,11 @@ void common_routine(ccl::Scene* scene,
 					ShaderParameterType parameter_type = get_shader_parameter_type(xsi_param);
 					if (parameter_type == ShaderParameterType::ParameterType_Color3 || parameter_type == ShaderParameterType::ParameterType_Vector3 || parameter_type == ShaderParameterType::ParameterType_Color4)
 					{
-						sync_float3_parameter(scene, shader_graph, node, xsi_param, nodes_map, aovs, cycles_port_name, eval_time);
+						sync_float3_parameter(scene, shader_graph, node, xsi_param, cycles_port_name, update_context);
 					}
 					else
 					{
-						sync_float_parameter(scene, shader_graph, node, xsi_param, nodes_map, aovs, cycles_port_name, eval_time);
+						sync_float_parameter(scene, shader_graph, node, xsi_param, cycles_port_name, update_context);
 					}
 				}
 			}
@@ -206,21 +207,20 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	const XSI::Shader& xsi_shader,
 	const XSI::CString &shader_type, 
 	const XSI::CParameterRefArray &xsi_parameters,
-	const XSI::CTime &eval_time, 
-	ccl::ShaderGraph* shader_graph, 
-	std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map,
-	std::vector<XSI::CStringArray>& aovs)
-{
+	ccl::ShaderGraph* shader_graph,
+	UpdateContext* update_context) {
+	XSI::CTime eval_time = update_context->get_time();
+
 	if (shader_type == "DiffuseBSDF")
 	{
 		ccl::DiffuseBsdfNode* node = shader_graph->create_node<ccl::DiffuseBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "MetallicBSDF") {
 		ccl::MetallicBsdfNode* node = shader_graph->create_node<ccl::MetallicBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "distribution", eval_time);
 		XSI::CString fresnel_type = get_string_parameter_value(xsi_parameters, "fresnel_type", eval_time);
@@ -242,7 +242,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "PrincipledBSDF")
 	{
 		ccl::PrincipledBsdfNode* node = shader_graph->create_node<ccl::PrincipledBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "Distribution", eval_time);
 		XSI::CString ssmethod = get_string_parameter_value(xsi_parameters, "subsurface_method", eval_time);
@@ -259,19 +259,19 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "TranslucentBSDF")
 	{
 		ccl::TranslucentBsdfNode* node = shader_graph->create_node<ccl::TranslucentBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 		return node;
 	}
 	else if (shader_type == "TransparentBSDF")
 	{
 		ccl::TransparentBsdfNode* node = shader_graph->create_node<ccl::TransparentBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 		return node;
 	}
 	else if (shader_type == "ToonBSDF")
 	{
 		ccl::ToonBsdfNode* node = shader_graph->create_node<ccl::ToonBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString component = get_string_parameter_value(xsi_parameters, "Component", eval_time);
 		node->set_component(get_distribution(component, DistributionModes_Toon));
@@ -281,7 +281,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "GlossyBSDF")
 	{
 		ccl::GlossyBsdfNode* node = shader_graph->create_node<ccl::GlossyBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "Distribution", eval_time);
 		node->set_distribution(get_distribution(distribution, DistributionModes_Glossy));
@@ -291,7 +291,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "GlassBSDF")
 	{
 		ccl::GlassBsdfNode* node = shader_graph->create_node<ccl::GlassBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "Distribution", eval_time);
 		node->set_distribution(get_distribution(distribution, DistributionModes_Glass));
@@ -301,7 +301,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "RefractionBSDF")
 	{
 		ccl::RefractionBsdfNode* node = shader_graph->create_node<ccl::RefractionBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "Distribution", eval_time);
 		node->set_distribution(get_distribution(distribution, DistributionModes_Refraction));
@@ -311,7 +311,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "HairBSDF")
 	{
 		ccl::HairBsdfNode* node = shader_graph->create_node<ccl::HairBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString component = get_string_parameter_value(xsi_parameters, "Component", eval_time);
 		node->set_component(get_distribution(component, DistributionModes_Hair));
@@ -321,14 +321,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Emission")
 	{
 		ccl::EmissionNode* node = shader_graph->create_node<ccl::EmissionNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "AmbientOcclusion")
 	{
 		ccl::AmbientOcclusionNode* node = shader_graph->create_node<ccl::AmbientOcclusionNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		int samples = get_int_parameter_value(xsi_parameters, "Samples", eval_time);
 		bool inside = get_bool_parameter_value(xsi_parameters, "Inside", eval_time);
@@ -343,28 +343,28 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Background")
 	{
 		ccl::BackgroundNode* node = shader_graph->create_node<ccl::BackgroundNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "Holdout")
 	{
 		ccl::HoldoutNode* node = shader_graph->create_node<ccl::HoldoutNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "AbsorptionVolume")
 	{
 		ccl::AbsorptionVolumeNode* node = shader_graph->create_node<ccl::AbsorptionVolumeNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "ScatterVolume")
 	{
 		ccl::ScatterVolumeNode* node = shader_graph->create_node<ccl::ScatterVolumeNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString phase = get_string_parameter_value(xsi_parameters, "phase", eval_time);
 		node->set_phase(get_scatter_phase(phase));
@@ -374,7 +374,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "PrincipledVolume")
 	{
 		ccl::PrincipledVolumeNode* node = shader_graph->create_node<ccl::PrincipledVolumeNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString density_attribute = get_string_parameter_value(xsi_parameters, "DensityAttribute", eval_time);
 		XSI::CString color_attribute = get_string_parameter_value(xsi_parameters, "ColorAttribute", eval_time);
@@ -389,7 +389,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "PrincipledHairBSDF")
 	{
 		ccl::PrincipledHairBsdfNode* node = shader_graph->create_node<ccl::PrincipledHairBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString parameterization = get_string_parameter_value(xsi_parameters, "Parametrization", eval_time);
 		XSI::CString model = get_string_parameter_value(xsi_parameters, "Model", eval_time);
@@ -406,7 +406,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "SheenBSDF")
 	{
 		ccl::SheenBsdfNode* node = shader_graph->create_node<ccl::SheenBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString distributeion = get_string_parameter_value(xsi_parameters, "distribution", eval_time);
 		node->set_distribution(sheen_distribution(distributeion));
@@ -416,30 +416,27 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "RayPortalBSDF")
 	{
 		ccl::RayPortalBsdfNode* node = shader_graph->create_node<ccl::RayPortalBsdfNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "SubsurfaceScattering")
 	{
 		ccl::SubsurfaceScatteringNode* node = shader_graph->create_node<ccl::SubsurfaceScatteringNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString falloff = get_string_parameter_value(xsi_parameters, "Falloff", eval_time);
 		float radius_x = get_float_parameter_value(xsi_parameters, "RadiusX", eval_time);
 		float radius_y = get_float_parameter_value(xsi_parameters, "RadiusY", eval_time);
 		float radius_z = get_float_parameter_value(xsi_parameters, "RadiusZ", eval_time);
 
-		if (falloff == "random_walk")
-		{
+		if (falloff == "random_walk") {
 			node->set_method(ccl::CLOSURE_BSSRDF_RANDOM_WALK_ID);
 		}
-		else if (falloff == "random_walk_fixed")
-		{
+		else if (falloff == "random_walk_fixed") {
 			node->set_method(ccl::CLOSURE_BSSRDF_RANDOM_WALK_SKIN_ID);
 		}
-		else
-		{
+		else {
 			node->set_method(ccl::CLOSURE_BSSRDF_BURLEY_ID);
 		}
 		node->set_radius(ccl::make_float3(radius_x, radius_y, radius_z));
@@ -449,7 +446,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "ImageTexture")
 	{
 		ccl::ImageTextureNode* node = shader_graph->create_node<ccl::ImageTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::ImageClip2 clip = get_clip_parameter_value(xsi_parameters, "image", eval_time);
 		XSI::CString file_path = "";
@@ -505,11 +502,27 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 					XSI::CString tile_path = tile_to_path_map[tile_value];
 					if (tile_path != file_path)
 					{
-						loaders.push_back(std::make_unique<XSIImageLoader>(clip, selected_colorscape, tile_value, tile_path, eval_time));
+						loaders.push_back(std::make_unique<XSIImageLoader>(
+							clip, 
+							selected_colorscape, 
+							tile_value, 
+							tile_path, 
+							update_context->get_use_texture_cache(),
+							update_context->get_path_to_image(),
+							update_context->get_texture_limits(),
+							update_context->get_time()));
 					}
 					else
 					{
-						loaders.push_back(std::make_unique<XSIImageLoader>(clip, selected_colorscape, tile_value, "", eval_time));
+						loaders.push_back(std::make_unique<XSIImageLoader>(
+							clip, 
+							selected_colorscape, 
+							tile_value, 
+							"",
+							update_context->get_use_texture_cache(),
+							update_context->get_path_to_image(),
+							update_context->get_texture_limits(),
+							update_context->get_time()));
 					}
 				}
 
@@ -517,7 +530,15 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			}
 			else
 			{
-				XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, image_source == "image_sequence" ? file_path : "", eval_time);
+				XSIImageLoader* image_loader = new XSIImageLoader(
+					clip, 
+					selected_colorscape, 
+					0, 
+					image_source == "image_sequence" ? file_path : "", 
+					update_context->get_use_texture_cache(),
+					update_context->get_path_to_image(),
+					update_context->get_texture_limits(),
+					update_context->get_time());
 				node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 			}
 
@@ -533,7 +554,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "EnvironmentTexture")
 	{
 		ccl::EnvironmentTextureNode* node = shader_graph->create_node<ccl::EnvironmentTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		node->tex_mapping.rotation = ccl::make_float3(-0.5f * XSI::MATH::PI, 0.0f, 0.0f);
 
@@ -569,7 +590,15 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));
 			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 
-			XSIImageLoader* image_loader = new XSIImageLoader(clip, selected_colorscape, 0, image_source == "image_sequence" ? file_path : "", eval_time);
+			XSIImageLoader* image_loader = new XSIImageLoader(
+				clip, 
+				selected_colorscape, 
+				0, 
+				image_source == "image_sequence" ? file_path : "",
+				update_context->get_use_texture_cache(),
+				update_context->get_path_to_image(),
+				update_context->get_texture_limits(),
+				update_context->get_time());
 			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 
 			return node;
@@ -582,7 +611,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "SkyTexture")
 	{
 		ccl::SkyTextureNode* node = shader_graph->create_node<ccl::SkyTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		float sun_direction_x = get_float_parameter_value(xsi_parameters, "SunDirectionX", eval_time);
@@ -653,7 +682,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "NoiseTexture")
 	{
 		ccl::NoiseTextureNode* node = shader_graph->create_node<ccl::NoiseTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString noise_dimensions = get_string_parameter_value(xsi_parameters, "NoiseDimensions", eval_time);
 		node->set_dimensions(get_dimensions_type(noise_dimensions));
@@ -667,14 +696,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "CheckerTexture")
 	{
 		ccl::CheckerTextureNode* node = shader_graph->create_node<ccl::CheckerTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "BrickTexture")
 	{
 		ccl::BrickTextureNode* node = shader_graph->create_node<ccl::BrickTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		float offset = get_float_parameter_value(xsi_parameters, "Offset", eval_time);
 		int offset_frequency = get_int_parameter_value(xsi_parameters, "OffsetFrequency", eval_time);
@@ -690,7 +719,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "GradientTexture")
 	{
 		ccl::GradientTextureNode* node = shader_graph->create_node<ccl::GradientTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		node->set_gradient_type(get_gradient_type(type));
@@ -700,7 +729,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "VoronoiTexture")
 	{
 		ccl::VoronoiTextureNode* node = shader_graph->create_node<ccl::VoronoiTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString dimensions = get_string_parameter_value(xsi_parameters, "VoronoiDimensions", eval_time);
 		XSI::CString distance = get_string_parameter_value(xsi_parameters, "Distance", eval_time);
@@ -716,7 +745,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "MagicTexture")
 	{
 		ccl::MagicTextureNode* node = shader_graph->create_node<ccl::MagicTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		int depth = get_int_parameter_value(xsi_parameters, "Depth", eval_time);
 		node->set_depth(depth);
@@ -726,7 +755,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "WaveTexture")
 	{
 		ccl::WaveTextureNode* node = shader_graph->create_node<ccl::WaveTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		XSI::CString bands_direction = get_string_parameter_value(xsi_parameters, "bands_direction", eval_time);
@@ -742,7 +771,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "IESTexture")
 	{
 		ccl::IESLightNode* node = shader_graph->create_node<ccl::IESLightNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString file_path = get_string_parameter_value(xsi_parameters, "FilePath", eval_time);
 		if (file_path.Length() > 0 && !XSI::CUtils::IsAbsolutePath(file_path))
@@ -763,7 +792,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "WhiteNoiseTexture")
 	{
 		ccl::WhiteNoiseTextureNode* node = shader_graph->create_node<ccl::WhiteNoiseTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString dimensions = get_string_parameter_value(xsi_parameters, "NoiseDimensions", eval_time);
 		float vector_x = get_float_parameter_value(xsi_parameters, "VectorX", eval_time);
@@ -778,7 +807,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "GaborTexture")
 	{
 		ccl::GaborTextureNode* node = shader_graph->create_node<ccl::GaborTextureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 		XSI::CString gabor_type = get_string_parameter_value(xsi_parameters, "gabor_type", eval_time);
 		float orientation_3d_x = get_float_parameter_value(xsi_parameters, "orientation_3d_x", eval_time);
 		float orientation_3d_y = get_float_parameter_value(xsi_parameters, "orientation_3d_y", eval_time);
@@ -792,7 +821,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Normal")
 	{
 		ccl::NormalNode* node = shader_graph->create_node<ccl::NormalNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		float direction_x = get_float_parameter_value(xsi_parameters, "DirectionX", eval_time);
 		float direction_y = get_float_parameter_value(xsi_parameters, "DirectionY", eval_time);
@@ -809,7 +838,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Bump")
 	{
 		ccl::BumpNode* node = shader_graph->create_node<ccl::BumpNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		bool invert = get_bool_parameter_value(xsi_parameters, "Invert", eval_time);
 		bool use_object_space = get_bool_parameter_value(xsi_parameters, "use_object_space", eval_time);
@@ -821,7 +850,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Mapping")
 	{
 		ccl::MappingNode* node = shader_graph->create_node<ccl::MappingNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		float translation_x = get_float_parameter_value(xsi_parameters, "TranslationX", eval_time);
@@ -847,7 +876,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	}
 	else if (shader_type == "SetNormal") {
 		ccl::SetNormalNode* node = shader_graph->create_node<ccl::SetNormalNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		float direction_x = get_float_parameter_value(xsi_parameters, "direction_x", eval_time);
 		float direction_y = get_float_parameter_value(xsi_parameters, "direction_y", eval_time);
@@ -860,7 +889,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "NormalMap")
 	{
 		ccl::NormalMapNode* node = shader_graph->create_node<ccl::NormalMapNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString space = get_string_parameter_value(xsi_parameters, "Space", eval_time);
 		XSI::CString attribute = get_string_parameter_value(xsi_parameters, "Attribute", eval_time);
@@ -873,7 +902,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "VectorTransform")
 	{
 		ccl::VectorTransformNode* node = shader_graph->create_node<ccl::VectorTransformNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		XSI::CString convert_from = get_string_parameter_value(xsi_parameters, "ConvertFrom", eval_time);
@@ -892,7 +921,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "VectorRotate")
 	{
 		ccl::VectorRotateNode* node = shader_graph->create_node<ccl::VectorRotateNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		bool invert = get_bool_parameter_value(xsi_parameters, "Invert", eval_time);
@@ -919,7 +948,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "VectorCurves")
 	{
 		ccl::VectorCurvesNode* node = shader_graph->create_node<ccl::VectorCurvesNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::FCurve x_curve = get_fcurve_parameter_value(xsi_parameters, "xCurve", eval_time);
 		XSI::FCurve y_curve = get_fcurve_parameter_value(xsi_parameters, "yCurve", eval_time);
@@ -936,7 +965,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Displacement")
 	{
 		ccl::DisplacementNode* node = shader_graph->create_node<ccl::DisplacementNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString space = get_string_parameter_value(xsi_parameters, "Space", eval_time);
 		node->set_space(space == "object" ? ccl::NODE_NORMAL_MAP_OBJECT : ccl::NODE_NORMAL_MAP_WORLD);
@@ -946,7 +975,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "VectorDisplacement")
 	{
 		ccl::VectorDisplacementNode* node = shader_graph->create_node<ccl::VectorDisplacementNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString space = get_string_parameter_value(xsi_parameters, "Space", eval_time);
 		node->set_space(space == "object" ? ccl::NODE_NORMAL_MAP_OBJECT : (space == "tangent" ? ccl::NODE_NORMAL_MAP_TANGENT : ccl::NODE_NORMAL_MAP_WORLD));
@@ -956,63 +985,63 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Geometry")
 	{
 		ccl::GeometryNode* node = shader_graph->create_node<ccl::GeometryNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "TextureCoordinate")
 	{
 		ccl::TextureCoordinateNode* node = shader_graph->create_node<ccl::TextureCoordinateNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "LightPath")
 	{
 		ccl::LightPathNode* node = shader_graph->create_node<ccl::LightPathNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "ObjectInfo")
 	{
 		ccl::ObjectInfoNode* node = shader_graph->create_node<ccl::ObjectInfoNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "VolumeInfo")
 	{
 		ccl::VolumeInfoNode* node = shader_graph->create_node<ccl::VolumeInfoNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "PointInfo")
 	{
 		ccl::PointInfoNode* node = shader_graph->create_node<ccl::PointInfoNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "ParticleInfo")
 	{
 		ccl::ParticleInfoNode* node = shader_graph->create_node<ccl::ParticleInfoNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "HairInfo")
 	{
 		ccl::HairInfoNode* node = shader_graph->create_node<ccl::HairInfoNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "Value")
 	{
 		ccl::ValueNode* node = shader_graph->create_node<ccl::ValueNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		float value_in = get_float_parameter_value(xsi_parameters, "ValueIn", eval_time);
 		node->set_value(value_in);
@@ -1022,7 +1051,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Color")
 	{
 		ccl::ColorNode* node = shader_graph->create_node<ccl::ColorNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::MATH::CColor4f color = get_color_parameter_value(xsi_parameters, "ColorIn", eval_time);
 		node->set_value(color4_to_float3(color));
@@ -1032,7 +1061,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Attribute")
 	{
 		ccl::AttributeNode* node = shader_graph->create_node<ccl::AttributeNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString attribute = get_string_parameter_value(xsi_parameters, "Attribute", eval_time);
 		node->set_attribute(ccl::ustring(attribute.GetAsciiString()));
@@ -1042,29 +1071,29 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "OutputColorAOV")
 	{
 		ccl::OutputAOVNode* node = shader_graph->create_node<ccl::OutputAOVNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString channel_name = get_string_parameter_value(xsi_parameters, "aov_name", eval_time);
 		node->set_name(OIIO::ustring(add_prefix_to_aov_name(channel_name, true).GetAsciiString()));
-		aovs[0].Add(channel_name);
+		update_context->add_aov_color(channel_name);
 
 		return node;
 	}
 	else if (shader_type == "OutputValueAOV")
 	{
 		ccl::OutputAOVNode* node = shader_graph->create_node<ccl::OutputAOVNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString channel_name = get_string_parameter_value(xsi_parameters, "aov_name", eval_time);
 		node->set_name(OIIO::ustring(add_prefix_to_aov_name(channel_name, false).GetAsciiString()));
-		aovs[1].Add(channel_name);
+		update_context->add_aov_value(channel_name);
 
 		return node;
 	}
 	else if (shader_type == "VertexColor")
 	{
 		ccl::VertexColorNode* node = shader_graph->create_node<ccl::VertexColorNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString name = get_string_parameter_value(xsi_parameters, "LayerName", eval_time);
 		node->set_layer_name(ccl::ustring(name.GetAsciiString()));
@@ -1074,7 +1103,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Bevel")
 	{
 		ccl::BevelNode* node = shader_graph->create_node<ccl::BevelNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		int samples = get_int_parameter_value(xsi_parameters, "Samples", eval_time);
 		node->set_samples(samples);
@@ -1084,7 +1113,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "UVMap")
 	{
 		ccl::UVMapNode* node = shader_graph->create_node<ccl::UVMapNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString attribute = get_string_parameter_value(xsi_parameters, "Attribute", eval_time);
 		node->set_attribute(ccl::ustring(attribute.GetAsciiString()));
@@ -1094,28 +1123,28 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Camera")
 	{
 		ccl::CameraNode* node = shader_graph->create_node<ccl::CameraNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "Fresnel")
 	{
 		ccl::FresnelNode* node = shader_graph->create_node<ccl::FresnelNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "LayerWeight")
 	{
 		ccl::LayerWeightNode* node = shader_graph->create_node<ccl::LayerWeightNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "Wireframe")
 	{
 		ccl::WireframeNode* node = shader_graph->create_node<ccl::WireframeNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		bool use_pixel = get_bool_parameter_value(xsi_parameters, "UsePixelSize", eval_time);
 		node->set_use_pixel_size(use_pixel);
@@ -1125,7 +1154,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Tangent")
 	{
 		ccl::TangentNode* node = shader_graph->create_node<ccl::TangentNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString direction_type = get_string_parameter_value(xsi_parameters, "DirectionType", eval_time);
 		XSI::CString axis = get_string_parameter_value(xsi_parameters, "Axis", eval_time);
@@ -1140,21 +1169,21 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "LightFalloff")
 	{
 		ccl::LightFalloffNode* node = shader_graph->create_node<ccl::LightFalloffNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "Invert")
 	{
 		ccl::InvertNode* node = shader_graph->create_node<ccl::InvertNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "MixRGB")
 	{
 		ccl::MixNode* node = shader_graph->create_node<ccl::MixNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
@@ -1167,7 +1196,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "MixColor")
 	{
 		ccl::MixColorNode* node = shader_graph->create_node<ccl::MixColorNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
@@ -1182,7 +1211,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "MixFloat")
 	{
 		ccl::MixFloatNode* node = shader_graph->create_node<ccl::MixFloatNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
 		node->set_use_clamp(use_clamp);
@@ -1191,7 +1220,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "MixVector")
 	{
 		ccl::MixVectorNode* node = shader_graph->create_node<ccl::MixVectorNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
 		node->set_use_clamp(use_clamp);
@@ -1200,7 +1229,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "MixVectorNonUniform")
 	{
 		ccl::MixVectorNonUniformNode* node = shader_graph->create_node<ccl::MixVectorNonUniformNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
 		node->set_use_clamp(use_clamp);
@@ -1209,28 +1238,28 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Gamma")
 	{
 		ccl::GammaNode* node = shader_graph->create_node<ccl::GammaNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "BrightContrast")
 	{
 		ccl::BrightContrastNode* node = shader_graph->create_node<ccl::BrightContrastNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "HSV")
 	{
 		ccl::HSVNode* node = shader_graph->create_node<ccl::HSVNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "RGBCurves")
 	{
 		ccl::RGBCurvesNode* node = shader_graph->create_node<ccl::RGBCurvesNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::FCurve r_curve = get_fcurve_parameter_value(xsi_parameters, "rCurve", eval_time);
 		XSI::FCurve g_curve = get_fcurve_parameter_value(xsi_parameters, "gCurve", eval_time);
@@ -1247,7 +1276,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "ColorCurves")
 	{
 		ccl::RGBCurvesNode* node = shader_graph->create_node<ccl::RGBCurvesNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::FCurve curve = get_fcurve_parameter_value(xsi_parameters, "Curve", eval_time);
 
@@ -1262,35 +1291,35 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Wavelength")
 	{
 		ccl::WavelengthNode* node = shader_graph->create_node<ccl::WavelengthNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "Blackbody")
 	{
 		ccl::BlackbodyNode* node = shader_graph->create_node<ccl::BlackbodyNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "MixClosure")
 	{
 		ccl::MixClosureNode* node = shader_graph->create_node<ccl::MixClosureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "AddClosure")
 	{
 		ccl::AddClosureNode* node = shader_graph->create_node<ccl::AddClosureNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "CombineColor")
 	{
 		ccl::CombineColorNode* node = shader_graph->create_node<ccl::CombineColorNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString mode = get_string_parameter_value(xsi_parameters, "mode", eval_time);
 		node->set_color_type(mode == "rgb" ? ccl::NODE_COMBSEP_COLOR_RGB : (mode == "hsv" ? ccl::NODE_COMBSEP_COLOR_HSV : ccl::NODE_COMBSEP_COLOR_HSL));
@@ -1300,28 +1329,28 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "CombineRGB")
 	{
 		ccl::CombineRGBNode* node = shader_graph->create_node<ccl::CombineRGBNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "CombineHSV")
 	{
 		ccl::CombineHSVNode* node = shader_graph->create_node<ccl::CombineHSVNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "CombineXYZ")
 	{
 		ccl::CombineXYZNode* node = shader_graph->create_node<ccl::CombineXYZNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "SeparateColor")
 	{
 		ccl::SeparateColorNode* node = shader_graph->create_node<ccl::SeparateColorNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString mode = get_string_parameter_value(xsi_parameters, "mode", eval_time);
 		node->set_color_type(mode == "rgb" ? ccl::NODE_COMBSEP_COLOR_RGB : (mode == "hsv" ? ccl::NODE_COMBSEP_COLOR_HSV : ccl::NODE_COMBSEP_COLOR_HSL));
@@ -1331,21 +1360,21 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "SeparateRGB")
 	{
 		ccl::SeparateRGBNode* node = shader_graph->create_node<ccl::SeparateRGBNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "SeparateHSV")
 	{
 		ccl::SeparateHSVNode* node = shader_graph->create_node<ccl::SeparateHSVNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}
 	else if (shader_type == "SeparateXYZ")
 	{
 		ccl::SeparateXYZNode* node = shader_graph->create_node<ccl::SeparateXYZNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		float vector_x = get_float_parameter_value(xsi_parameters, "VectorX", eval_time);
 		float vector_y = get_float_parameter_value(xsi_parameters, "VectorY", eval_time);
@@ -1358,7 +1387,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Math")
 	{
 		ccl::MathNode* node = shader_graph->create_node<ccl::MathNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		bool clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
@@ -1371,7 +1400,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "VectorMath")
 	{
 		ccl::VectorMathNode* node = shader_graph->create_node<ccl::VectorMathNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 	
@@ -1397,7 +1426,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "ColorRamp")
 	{
 		ccl::RGBRampNode* node = shader_graph->create_node<ccl::RGBRampNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		node->set_interpolate(true);
 		XSI::ShaderParameter gradient_parameter = xsi_parameters.GetItem("Gradient");
@@ -1436,7 +1465,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "MapRange")
 	{
 		ccl::MapRangeNode* node = shader_graph->create_node<ccl::MapRangeNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		bool clamp = get_bool_parameter_value(xsi_parameters, "Clamp", eval_time);
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
@@ -1449,7 +1478,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "VectorMapRange")
 	{
 		ccl::VectorMapRangeNode* node = shader_graph->create_node<ccl::VectorMapRangeNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		bool clamp = get_bool_parameter_value(xsi_parameters, "Clamp", eval_time);
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
@@ -1488,7 +1517,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "FloatCurve")
 	{
 		ccl::FloatCurveNode* node = shader_graph->create_node<ccl::FloatCurveNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::FCurve curve = get_fcurve_parameter_value(xsi_parameters, "Curve", eval_time);
 		float min = curve.GetKeyAtIndex(0).GetTime();
@@ -1512,7 +1541,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "Clamp")
 	{
 		ccl::ClampNode* node = shader_graph->create_node<ccl::ClampNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		node->set_clamp_type(get_clamp_type(type));
@@ -1522,7 +1551,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	else if (shader_type == "RGBToBW")
 	{
 		ccl::RGBToBWNode* node = shader_graph->create_node<ccl::RGBToBWNode>();
-		common_routine(scene, node, shader_graph, nodes_map, xsi_shader, xsi_parameters, eval_time, aovs);
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		return node;
 	}

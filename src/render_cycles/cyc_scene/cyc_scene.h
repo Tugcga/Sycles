@@ -51,17 +51,15 @@ XSI::CStatus update_custom_light_transform(ccl::Scene* scene, UpdateContext* upd
 void update_background(ccl::Scene* scene, UpdateContext* update_context);
 
 // cyc_materials
-// this method used only for developing
-void log_all_shaders();
 // for test only, create some default shader and return the index in the sahders array
 int create_default_shader(ccl::Scene* scene);
 int create_emission_checker(ccl::Scene* scene, float checker_scale);
-int sync_material(ccl::Scene* scene, const XSI::Material& xsi_material, const XSI::CTime& eval_time, std::vector<XSI::CStringArray>& aovs);  // return shader index in the Cycles shaders array
-int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader, bool is_surface, const XSI::CTime& eval_time);
-int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_texture, const XSI::CTime& eval_time);
+int sync_material(ccl::Scene* scene, const XSI::Material& xsi_material, UpdateContext* update_context);  // return shader index in the Cycles shaders array
+int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader, bool is_surface, UpdateContext* update_context);
+int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_texture, UpdateContext* update_context);
 void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context);
-XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_material, size_t shader_index, const XSI::CTime& eval_time, std::vector<XSI::CStringArray>& aovs);
-XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, const XSI::CTime& eval_time);
+XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_material, size_t shader_index, UpdateContext* update_context);
+XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, UpdateContext* update_context);
 bool get_material_id_from_name(const XSI::CString& material_identificator, ULONG& io_id);
 XSI::CStatus sync_missed_material(ccl::Scene* scene, UpdateContext* update_context, int material_id);
 

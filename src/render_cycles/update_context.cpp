@@ -78,6 +78,9 @@ void UpdateContext::reset()
 
 	is_sync_profiler = false;
 	sync_profiler->reset();
+
+	nodes_map.clear();
+	path_to_image.clear();
 }
 
 void UpdateContext::set_is_update_light_linking(bool value)
@@ -136,6 +139,22 @@ bool UpdateContext::get_use_denoising_albedo()
 bool UpdateContext::get_use_denoising_normal()
 {
 	return use_denoising_normal;
+}
+
+void UpdateContext::set_use_texture_cache(bool value) {
+	use_texture_cache = value;
+}
+
+void UpdateContext::set_texture_limits(TextureLimits value) {
+	texture_limits = value;
+}
+
+bool UpdateContext::get_use_texture_cache() {
+	return use_texture_cache;
+}
+
+TextureLimits UpdateContext::get_texture_limits() {
+	return texture_limits;
 }
 
 void UpdateContext::set_current_render_parameters(const XSI::CParameterRefArray& render_parameters)
@@ -720,7 +739,7 @@ XSI::CStringArray UpdateContext::get_lightgropus()
 	return to_return;
 }
 
-void UpdateContext::add_aov_names(const XSI::CStringArray& in_color_aovs, const XSI::CStringArray& in_value_aovs)
+/*void UpdateContext::add_aov_names(const XSI::CStringArray& in_color_aovs, const XSI::CStringArray& in_value_aovs)
 {
 	for (ULONG i = 0; i < in_color_aovs.GetCount(); i++)
 	{
@@ -739,6 +758,25 @@ void UpdateContext::add_aov_names(const XSI::CStringArray& in_color_aovs, const 
 			value_aovs.insert(new_value);
 		}
 	}
+}*/
+
+void UpdateContext::add_aov_color(const XSI::CString color_aov) {
+	std::string new_color = std::string(color_aov.GetAsciiString());
+	if (new_color.length() > 0) {
+		color_aovs.insert(new_color);
+	}
+}
+
+void UpdateContext::add_aov_value(const XSI::CString value_aov) {
+	std::string new_value = std::string(value_aov.GetAsciiString());
+	if (new_value.length() > 0) {
+		value_aovs.insert(new_value);
+	}
+}
+
+void UpdateContext::clear_aovs() {
+	value_aovs.clear();
+	color_aovs.clear();
 }
 
 XSI::CStringArray UpdateContext::get_color_aovs()
@@ -1033,4 +1071,24 @@ void UpdateContext::add_sync_profiler_time_finish(SyncType sync_type, ULONG xsi_
 			sync_profiler->scene_item_finish(xsi_id);
 		}
 	}
+}
+
+void UpdateContext::add_to_nodes_map(ULONG xsi_id, ccl::ShaderNode* cyc_node) {
+	nodes_map[xsi_id] = cyc_node;
+}
+
+bool UpdateContext::is_nodes_map_contains(ULONG xsi_id) {
+	return nodes_map.contains(xsi_id);
+}
+
+ccl::ShaderNode* UpdateContext::get_from_nodes_map(ULONG xsi_id) {
+	return nodes_map[xsi_id];
+}
+
+void UpdateContext::clear_nodes_map() {
+	nodes_map.clear();
+}
+
+std::map<std::string, XSI::Image>& UpdateContext::get_path_to_image() {
+	return path_to_image;
 }

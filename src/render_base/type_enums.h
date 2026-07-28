@@ -95,3 +95,21 @@ enum VolumeAttributeType
 	VolumeAttributeType_Vector,
 	VolumeAttributeType_Color
 };
+
+enum TextureLimits {
+	Unlimited,
+	Size128K,
+	Size64K,
+	Size32K,
+	Size16K,
+	Size8K,
+	Size4K,
+	Size2K,
+	Size1K,
+	Size512,
+	Size256,
+	Size128,
+	Size64,
+	Size32,
+	Size16
+};

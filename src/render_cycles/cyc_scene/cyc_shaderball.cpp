@@ -88,9 +88,7 @@ void sync_shaderball_background_object(ccl::Scene* scene, UpdateContext* update_
 		XSI::CRefArray xsi_geo_materials = xsi_geo_acc.GetMaterials();
 
 		XSI::CTime eval_time = update_context->get_time();
-		std::vector<XSI::CStringArray> aovs(2);
-		aovs[0].Clear();
-		aovs[1].Clear();
+		update_context->clear_aovs();
 
 		ccl::array<ccl::Node*> used_shaders;
 
@@ -101,7 +99,7 @@ void sync_shaderball_background_object(ccl::Scene* scene, UpdateContext* update_
 			if (!update_context->is_material_exists(xsi_material_id))
 			{
 				// sync this material
-				int shader_index = sync_material(scene, xsi_material, eval_time, aovs);
+				int shader_index = sync_material(scene, xsi_material, update_context);
 				if (shader_index >= 0)
 				{
 					// here we assume that background object use material without displacement

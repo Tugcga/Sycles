@@ -18,8 +18,9 @@
 #include "cyc_materials.h"
 #include "../cyc_loaders/cyc_loaders.h"
 
-ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString &shader_type, std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, std::vector<XSI::CStringArray>& aovs, const XSI::CTime& eval_time)
+ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString &shader_type, UpdateContext* update_context)
 {
+	XSI::CTime eval_time = update_context->get_time();
 	if (shader_type == "sib_vector_to_color")
 	{
 		ccl::SeparateXYZNode* separate_node = shader_graph->create_node<ccl::SeparateXYZNode>();
@@ -27,7 +28,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 
 		// use combine node as output node
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
-		nodes_map[xsi_shader_id] = combine_node;
+		update_context->add_to_nodes_map(xsi_shader_id, combine_node);
 		combine_node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		shader_graph->connect(separate_node->output("X"), combine_node->input("R"));
@@ -35,14 +36,14 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		shader_graph->connect(separate_node->output("Z"), combine_node->input("B"));
 
 		XSI::ShaderParameter input_param(xsi_shader.GetParameter("input"));
-		sync_float3_parameter(scene, shader_graph, separate_node, input_param, nodes_map, aovs, "Vector", eval_time);
+		sync_float3_parameter(scene, shader_graph, separate_node, input_param, "Vector", update_context);
 		return combine_node;
 	}
 	else if (shader_type == "sib_scalar_to_color")
 	{
 		ccl::RGBRampNode* node = shader_graph->create_node<ccl::RGBRampNode>();
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
-		nodes_map[xsi_shader_id] = node;
+		update_context->add_to_nodes_map(xsi_shader_id, node);
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		node->set_interpolate(true);
@@ -56,7 +57,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		node->set_ramp_alpha(alpha_ramp);
 
 		XSI::ShaderParameter input_param(xsi_shader.GetParameter("input"));
-		sync_float_parameter(scene, shader_graph, node, input_param, nodes_map, aovs, "Fac", eval_time);
+		sync_float_parameter(scene, shader_graph, node, input_param, "Fac", update_context);
 
 		return node;
 	}
@@ -70,7 +71,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		// if we use this node again, then we should connect to output math node
 		// so, add it to the nodes map
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
-		nodes_map[xsi_shader_id] = math_divide;
+		update_context->add_to_nodes_map(xsi_shader_id, math_divide);
 		separate_node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		math_add_01->set_math_type(ccl::NodeMathType::NODE_MATH_ADD);
@@ -85,7 +86,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		shader_graph->connect(math_add_02->output("Value"), math_divide->input("Value1"));
 
 		XSI::ShaderParameter input_param(xsi_shader.GetParameter("input"));
-		sync_float3_parameter(scene, shader_graph, separate_node, input_param, nodes_map, aovs, "Vector", eval_time);
+		sync_float3_parameter(scene, shader_graph, separate_node, input_param, "Vector", update_context);
 
 		return math_divide;
 	}
@@ -93,11 +94,11 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 	{
 		ccl::RGBToBWNode* node = shader_graph->create_node<ccl::RGBToBWNode>();
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
-		nodes_map[xsi_shader_id] = node;
+		update_context->add_to_nodes_map(xsi_shader_id, node);
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		XSI::ShaderParameter input_param(xsi_shader.GetParameter("input"));
-		sync_float3_parameter(scene, shader_graph, node, input_param, nodes_map, aovs, "Color", eval_time);
+		sync_float3_parameter(scene, shader_graph, node, input_param, "Color", update_context);
 
 		return node;
 	}
@@ -130,7 +131,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			ccl::ImageTextureNode* node = shader_graph->create_node<ccl::ImageTextureNode>();
 			// this node is output, so, add it to the nodes map
 			ULONG xsi_shader_id = xsi_shader.GetObjectID();
-			nodes_map[xsi_shader_id] = node;
+			update_context->add_to_nodes_map(xsi_shader_id, node);
 			node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 			node->set_colorspace(ccl::u_colorspace_srgb);
@@ -141,7 +142,15 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			node->set_alpha_type(alpha_output ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 			node->set_animated(false);
 			
-			XSIImageLoader* image_loader = new XSIImageLoader(clip, ccl::u_colorspace_srgb, 0, "", eval_time);
+			XSIImageLoader* image_loader = new XSIImageLoader(
+				clip, 
+				ccl::u_colorspace_srgb, 
+				0, 
+				"",
+				update_context->get_use_texture_cache(),
+				update_context->get_path_to_image(),
+				update_context->get_texture_limits(),
+				update_context->get_time());
 			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
 
 			// uv node
@@ -211,11 +220,11 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		ccl::DiffuseBsdfNode* node = shader_graph->create_node<ccl::DiffuseBsdfNode>();
 
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
-		nodes_map[xsi_shader_id] = node;
+		update_context->add_to_nodes_map(xsi_shader_id, node);
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		XSI::ShaderParameter diffuse_parameter(xsi_shader.GetParameter("diffuse"));
-		sync_float3_parameter(scene, shader_graph, node, diffuse_parameter, nodes_map, aovs, "Color", eval_time);
+		sync_float3_parameter(scene, shader_graph, node, diffuse_parameter, "Color", update_context);
 
 		return node;
 	}
@@ -225,13 +234,13 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		ccl::PrincipledBsdfNode* node = shader_graph->create_node<ccl::PrincipledBsdfNode>();
 
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
-		nodes_map[xsi_shader_id] = node;
+		update_context->add_to_nodes_map(xsi_shader_id, node);
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		XSI::CParameterRefArray xsi_parameters = xsi_shader.GetParameters();
 
 		XSI::ShaderParameter diffuse_parameter(xsi_parameters.GetItem("diffuse"));
-		sync_float3_parameter(scene, shader_graph, node, diffuse_parameter, nodes_map, aovs, "Base Color", eval_time);
+		sync_float3_parameter(scene, shader_graph, node, diffuse_parameter, "Base Color", update_context);
 
 		bool use_spec = get_bool_parameter_value(xsi_parameters, "specular_inuse", eval_time);
 		if (use_spec)
@@ -259,7 +268,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			shader_graph->connect(clamp_node->output("Result"), node->input("Roughness"));
 
 			XSI::ShaderParameter shiny_param = xsi_parameters.GetItem("shiny");
-			sync_float_parameter(scene, shader_graph, math_divide, shiny_param, nodes_map, aovs, "Value1", eval_time);
+			sync_float_parameter(scene, shader_graph, math_divide, shiny_param, "Value1", update_context);
 		}
 		else
 		{
@@ -276,7 +285,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		
 		// we should setup only the color
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
-		nodes_map[xsi_shader_id] = hair_node;
+		update_context->add_to_nodes_map(xsi_shader_id, hair_node);
 		hair_node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		XSI::CParameterRefArray xsi_parameters = xsi_shader.GetParameters();
@@ -307,12 +316,12 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		shader_graph->connect(finall_mix->output("Color"), hair_node->input("Color"));
 
 		// for this finall mix node we should connect input root color, mixed tips colors and coefficient
-		sync_float3_parameter(scene, shader_graph, finall_mix, diffuse_root_parameter, nodes_map, aovs, "Color1", eval_time);
+		sync_float3_parameter(scene, shader_graph, finall_mix, diffuse_root_parameter, "Color1", update_context);
 
 		// for tips colors
 		ccl::MixNode* tips_mix = shader_graph->create_node<ccl::MixNode>();
-		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_a_parameter, nodes_map, aovs, "Color1", eval_time);
-		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_b_parameter, nodes_map, aovs, "Color2", eval_time);
+		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_a_parameter, "Color1", update_context);
+		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_b_parameter, "Color2", update_context);
 		shader_graph->connect(tips_mix->output("Color"), finall_mix->input("Color2"));
 
 		// calculate coefficient for tips mix
@@ -320,7 +329,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		balance_clamp->set_clamp_type(ccl::NodeClampType::NODE_CLAMP_MINMAX);
 		balance_clamp->set_min(0.0001f);
 		balance_clamp->set_max(0.9999f);
-		sync_float_parameter(scene, shader_graph, balance_clamp, tip_balance_parameter, nodes_map, aovs, "Value", eval_time);
+		sync_float_parameter(scene, shader_graph, balance_clamp, tip_balance_parameter, "Value", update_context);
 
 		ccl::MathNode* balance_subtract_01 = shader_graph->create_node<ccl::MathNode>();
 		balance_subtract_01->set_math_type(ccl::NodeMathType::NODE_MATH_SUBTRACT);
@@ -351,13 +360,13 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		center_clamp->set_clamp_type(ccl::NodeClampType::NODE_CLAMP_MINMAX);
 		center_clamp->set_min(0.0f);
 		center_clamp->set_max(1.0f);
-		sync_float_parameter(scene, shader_graph, center_clamp, diffuse_center_parameter, nodes_map, aovs, "Value", eval_time);
+		sync_float_parameter(scene, shader_graph, center_clamp, diffuse_center_parameter, "Value", update_context);
 
 		ccl::ClampNode* range_clamp = shader_graph->create_node<ccl::ClampNode>();
 		range_clamp->set_clamp_type(ccl::NodeClampType::NODE_CLAMP_MINMAX);
 		range_clamp->set_min(0.0001f);
 		range_clamp->set_max(0.9999f);
-		sync_float_parameter(scene, shader_graph, range_clamp, diffuse_range_parameter, nodes_map, aovs, "Value", eval_time);
+		sync_float_parameter(scene, shader_graph, range_clamp, diffuse_range_parameter, "Value", update_context);
 
 		ccl::MathNode* c_r_multiply = shader_graph->create_node<ccl::MathNode>();
 		c_r_multiply->set_math_type(ccl::NodeMathType::NODE_MATH_MULTIPLY);

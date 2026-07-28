@@ -44,8 +44,9 @@ void find_texture(const XSI::ShaderParameter &xsi_texture, ULONG & source_id, bo
 	}
 }
 
-ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, std::unordered_map<ULONG, ccl::ShaderNode*>& nodes_map, std::vector<XSI::CStringArray>& aovs, const XSI::CTime& eval_time)
+ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, UpdateContext* update_context)
 {
+	XSI::CTime eval_time = update_context->get_time();
 	if (shader_type == "MetallicRoughness")
 	{
 		XSI::CParameterRefArray xsi_gltf_params = xsi_shader.GetParameters();
@@ -62,7 +63,7 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 		// base color is mix of the actual base color texture and occlusion
 		ccl::SeparateColorNode* occlusion_separator = shader_graph->create_node<ccl::SeparateColorNode>();
 		XSI::ShaderParameter xsi_occlusion_texture = xsi_gltf_params.GetItem("occlusionTexture");
-		sync_float3_parameter(scene, shader_graph, occlusion_separator, xsi_occlusion_texture, nodes_map, aovs, "Color", eval_time);
+		sync_float3_parameter(scene, shader_graph, occlusion_separator, xsi_occlusion_texture, "Color", update_context);
 		occlusion_separator->set_color(ccl::make_float3(1.0f, 1.0f, 1.0f));
 		// extract only R channel from occlusion color
 		// conver it to the color
@@ -81,7 +82,7 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 		ccl::MixNode* base_mix = shader_graph->create_node<ccl::MixNode>();
 
 		XSI::ShaderParameter xsi_base_texture = xsi_gltf_params.GetItem("baseColorTexture");
-		sync_float3_parameter(scene, shader_graph, base_mix, xsi_base_texture, nodes_map, aovs, "Color1", eval_time);
+		sync_float3_parameter(scene, shader_graph, base_mix, xsi_base_texture, "Color1", update_context);
 		base_mix->set_color1(ccl::make_float3(1.0f, 1.0f, 1.0f));
 		base_mix->set_color2(color4_to_float3(xsi_base_color));
 		base_mix->set_mix_type(ccl::NodeMix::NODE_MIX_MUL);
@@ -94,7 +95,7 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 		// roughness is g-channel of the map
 		ccl::SeparateColorNode* mr_separator = shader_graph->create_node<ccl::SeparateColorNode>();
 		XSI::ShaderParameter xsi_mr_texture = xsi_gltf_params.GetItem("metallicRoughnessTexture");
-		sync_float3_parameter(scene, shader_graph, mr_separator, xsi_mr_texture, nodes_map, aovs, "Color", eval_time);
+		sync_float3_parameter(scene, shader_graph, mr_separator, xsi_mr_texture, "Color", update_context);
 		mr_separator->set_color(ccl::make_float3(1.0f, 1.0f, 1.0f));
 
 		ccl::MathNode* metallic_mix = shader_graph->create_node<ccl::MathNode>();
@@ -113,7 +114,7 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 		ccl::MixNode* emission_mix = shader_graph->create_node<ccl::MixNode>();
 
 		XSI::ShaderParameter xsi_emissive_texture = xsi_gltf_params.GetItem("emissiveTexture");
-		sync_float3_parameter(scene, shader_graph, emission_mix, xsi_emissive_texture, nodes_map, aovs, "Color1", eval_time);
+		sync_float3_parameter(scene, shader_graph, emission_mix, xsi_emissive_texture, "Color1", update_context);
 		emission_mix->set_color1(ccl::make_float3(1.0f, 1.0f, 1.0f));
 		emission_mix->set_color2(color4_to_float3(xsi_emissive_color));
 		emission_mix->set_mix_type(ccl::NodeMix::NODE_MIX_MUL);
@@ -147,7 +148,15 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 					// manualy export image node
 					ccl::ImageTextureNode* image_node = shader_graph->create_node<ccl::ImageTextureNode>();
 
-					XSIImageLoader* image_node_loader = new XSIImageLoader(normal_clip, ccl::u_colorspace_raw, 0, "", eval_time);
+					XSIImageLoader* image_node_loader = new XSIImageLoader(
+						normal_clip, 
+						ccl::u_colorspace_raw, 
+						0, 
+						"", 
+						update_context->get_use_texture_cache(),
+						update_context->get_path_to_image(),
+						update_context->get_texture_limits(),
+						update_context->get_time());
 					image_node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_node_loader), image_node->image_params());
 
 					image_node->set_colorspace(ccl::u_colorspace_raw);
@@ -164,7 +173,7 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 			}
 			else
 			{
-				sync_float3_parameter(scene, shader_graph, normal_node, xsi_normal_texture, nodes_map, aovs, "Color", eval_time);
+				sync_float3_parameter(scene, shader_graph, normal_node, xsi_normal_texture, "Color", update_context);
 			}
 		}
 
@@ -184,9 +193,9 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 			ULONG base_texture_id = 0;
 			XSI::Shader xsi_base_texture_source;
 			find_texture(xsi_base_texture, base_texture_id, is_base_texture, is_base_xsi_texture, xsi_base_texture_source);
-			if (is_base_texture && nodes_map.contains(base_texture_id))
+			if (is_base_texture && update_context->is_nodes_map_contains(base_texture_id))
 			{
-				ccl::ImageTextureNode* base_image = static_cast<ccl::ImageTextureNode*>(nodes_map[base_texture_id]);
+				ccl::ImageTextureNode* base_image = static_cast<ccl::ImageTextureNode*>(update_context->get_from_nodes_map(base_texture_id));
 				shader_graph->connect(base_image->output("Alpha"), transparent_mix->input("Value1"));
 			}
 
