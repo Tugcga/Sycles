@@ -1084,14 +1084,16 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 	}
 
 	//log render time
-	if (render_type != RenderType_Shaderball && make_render && render_time > 0.00001)
-	{
-		if (update_context->get_is_log_rendertime())
-		{
+	if (render_type != RenderType_Shaderball && make_render && render_time > 0.00001) {
+		if (update_context->get_is_log_rendertime()) {
 			log_message("Render time: " + XSI::CString(render_time) + " seconds");
 		}
-		if (update_context->get_is_log_details())
-		{
+
+		if (update_context->get_is_sync_profiler()) {
+			log_message(update_context->sync_profiler_message());
+		}
+
+		if (update_context->get_is_log_details()) {
 			// otuput scene prepare time
 			double prepare_time = (start_render_time - start_prepare_render_time) / CLOCKS_PER_SEC;
 			log_message("Scene export time: " + XSI::CString(prepare_time) + " seconds");
@@ -1099,10 +1101,6 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 			ccl::RenderStats stats;
 			session->collect_statistics(&stats);
 			log_message(stats.full_report().c_str());
-
-			if (update_context->get_is_sync_profiler()) {
-				log_message(update_context->sync_profiler_message());
-			}
 		}
 	}
 
