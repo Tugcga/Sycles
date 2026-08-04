@@ -505,6 +505,8 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 		}
 	}
 
+	// update_context->get_temp_path();
+
 	// check is current session parameters coincide with the previous one
 	session_params = get_session_params(render_type, m_render_parameters, eval_time);
 	scene_params = get_scene_params(render_type, session_params, m_render_parameters, eval_time);

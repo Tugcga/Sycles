@@ -38,7 +38,8 @@ struct XsiHairWeightMap
 
 void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* update_context, const XSI::HairPrimitive &xsi_hair, bool use_motion_blur, ccl::vector<ccl::float4> &out_original_positions, LONG &out_num_keys)
 {
-	XSI::CTime eval_time = update_context->get_time();
+	// TODO: make proper hair exports
+	/*XSI::CTime eval_time = update_context->get_time();
 
 	LONG hairs_count = xsi_hair.GetParameterValue("TotalHairs", eval_time);
 	LONG strand_multiplicity = xsi_hair.GetParameterValue("StrandMult", eval_time);
@@ -116,7 +117,7 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 		out_original_positions.resize(out_num_keys);
 	}
 
-	hair_geom->reserve_curves(num_curves, out_num_keys);
+	hair_geom->resize_curves(num_curves, out_num_keys);
 
 	rha.Reset();
 	// set hair data
@@ -325,12 +326,13 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 		weight_data[weight_index].data.shrink_to_fit();
 	}
 	weight_data.clear();
-	weight_data.shrink_to_fit();
+	weight_data.shrink_to_fit();*/
 }
 
 void sync_hair_motion_deform(ccl::Hair* hair, UpdateContext* update_context, const XSI::X3DObject &xsi_object, LONG num_keys, const ccl::vector<ccl::float4> &original_positions)
 {
-	size_t motion_steps = update_context->get_motion_steps();
+	// TODO: make proper hair motios
+	/*size_t motion_steps = update_context->get_motion_steps();
 	hair->set_motion_steps(motion_steps);
 	hair->set_use_motion_blur(true);
 
@@ -401,7 +403,7 @@ void sync_hair_motion_deform(ccl::Hair* hair, UpdateContext* update_context, con
 				motion_positions[attribute_index++] = original_positions[k_index];
 			}
 		}
-	}
+	}*/
 }
 
 void sync_hair_geom_process(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* update_context, const XSI::HairPrimitive &xsi_hair, XSI::X3DObject &xsi_object, bool motion_deform)
@@ -514,8 +516,9 @@ XSI::CStatus update_hair(ccl::Scene* scene, UpdateContext* update_context, XSI::
 
 				sync_hair_geom_process(scene, hair_geom, update_context, xsi_prim, xsi_object, motion_deform);
 
-				bool rebuild = hair_geom->curve_keys_is_modified() || hair_geom->curve_radius_is_modified();
-				hair_geom->tag_update(scene, rebuild);
+				// bool rebuild = hair_geom->curve_keys_is_modified() || hair_geom->curve_radius_is_modified();
+				// TODO: should we already nee true?
+				hair_geom->tag_update(scene, true);
 			}
 			else
 			{

@@ -10,7 +10,7 @@ void mikk_compute_tangents(ccl::Mesh* mesh, std::string uv_name, bool need_sign)
 	ccl::ustring name = ccl::ustring((std::string(uv_name) + ".tangent").c_str());
 	attr = attributes.add(ccl::ATTR_STD_UV_TANGENT, name);
 	
-	ccl::float3* tangent = attr->data_float3();
+	ccl::float3* tangent = attr->data_for_write<ccl::float3>();
 	// create bitangent sign attribute
 	float* tangent_sign = NULL;
 
@@ -20,7 +20,7 @@ void mikk_compute_tangents(ccl::Mesh* mesh, std::string uv_name, bool need_sign)
 		ccl::ustring name_sign = ccl::ustring((uv_name + ".tangent_sign").c_str());
 		attr_sign = attributes.add(ccl::ATTR_STD_UV_TANGENT_SIGN, name_sign);
 
-		tangent_sign = attr_sign->data_float();
+		tangent_sign = attr_sign->data_for_write<float>();
 	}
 
 	// setup userdata

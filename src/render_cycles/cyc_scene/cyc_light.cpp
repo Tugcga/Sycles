@@ -26,15 +26,25 @@
 #include "../../utilities/math.h"
 #include "../../render_base/type_enums.h"
 
-ccl::uint light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glossy, bool use_transmission, bool use_scatter) {
-	ccl::uint flag = 0;
+ccl::PathRayVisibility light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glossy, bool use_transmission, bool use_shadow, bool use_scatter, bool use_raycast) {
+	ccl::PathRayVisibility visibility = ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= use_camera ? ccl::PATH_RAY_VISIBILITY_CAMERA : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= use_diffuse ? ccl::PATH_RAY_VISIBILITY_DIFFUSE : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= use_glossy ? ccl::PATH_RAY_VISIBILITY_GLOSSY : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= use_transmission ? ccl::PATH_RAY_VISIBILITY_TRANSMIT : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= use_shadow ? ccl::PATH_RAY_VISIBILITY_SHADOW : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= use_scatter ? ccl::PATH_RAY_VISIBILITY_VOLUME_SCATTER : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= use_raycast ? ccl::PATH_RAY_VISIBILITY_RAYCAST : ccl::PATH_RAY_VISIBILITY_NONE;
+
+	return visibility;
+	/*ccl::uint flag = 0;
 	flag |= use_camera ? ccl::PATH_RAY_CAMERA : 0;
 	flag |= use_diffuse ? ccl::PATH_RAY_DIFFUSE : 0;
 	flag |= use_glossy ? ccl::PATH_RAY_GLOSSY : 0;
 	flag |= use_transmission ? ccl::PATH_RAY_TRANSMIT : 0;
 	flag |= use_scatter ? ccl::PATH_RAY_VOLUME_SCATTER : 0;
 
-	return flag;
+	return flag;*/
 }
 
 ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_light, UpdateContext* update_context)
@@ -135,7 +145,34 @@ void sync_xsi_light_tfm(ccl::Object* light_object, const XSI::Light& xsi_light, 
 	sync_light_tfm(light_object, xsi_tweaked_tfm.GetMatrix4());
 }
 
-void sync_xsi_light_geometry(ccl::Scene* scene, ccl::Light* light, ccl::Shader* light_shader, const XSI::Light &xsi_light, const XSI::CTime &eval_time)
+ccl::LightType recognise_light_type(const XSI::Light& xsi_light, const XSI::CTime &eval_time) {
+	bool xsi_area = xsi_light.GetParameterValue("LightArea", eval_time);
+	int xsi_area_shape = xsi_light.GetParameterValue("LightAreaGeom", eval_time);
+	int xsi_light_type = xsi_light.GetParameterValue("Type", eval_time);
+
+	if (xsi_area && xsi_area_shape != 3) {
+		return ccl::LightType::LIGHT_AREA;
+	}
+	else {
+		if ((xsi_area && xsi_area_shape == 3) || xsi_light_type == 0) {
+			return ccl::LightType::LIGHT_POINT;
+		}
+		else if (xsi_light_type == 1) {
+			return ccl::LightType::LIGHT_SUN;
+		}
+		else if (xsi_light_type == 2) {
+			return ccl::LightType::LIGHT_SPOT;
+		}
+		else {
+			// use triangle as unknown light type
+			return ccl::LightType::LIGHT_TRIANGLE;
+		}
+	}
+
+	return ccl::LightType::LIGHT_TRIANGLE;
+}
+
+void sync_xsi_light_geometry(ccl::Scene* scene, ccl::Light* light, ccl::LightType light_type, ccl::Shader* light_shader, const XSI::Light &xsi_light, const XSI::CTime &eval_time)
 {
 	// get light shader
 	// here we need shader only for light parameters (spread and umbra)
@@ -172,64 +209,68 @@ void sync_xsi_light_geometry(ccl::Scene* scene, ccl::Light* light, ccl::Shader* 
 	float xsi_size_x = xsi_light.GetParameterValue("LightAreaXformSX", eval_time);
 	float xsi_size_y = xsi_light.GetParameterValue("LightAreaXformSY", eval_time);
 
-	if (xsi_area && xsi_area_shape != 3)
+	if (light_type == ccl::LightType::LIGHT_AREA)
 	{// active area, but shape is not a sphere (sphere is a simple point light)
 		light->set_light_type(ccl::LightType::LIGHT_AREA);
+		ccl::AreaLight* area_light = dynamic_cast<ccl::AreaLight*>(light);
 
 		// consider different shapes
 		if (xsi_area_shape == 2)
 		{// disc
 			// use only x size
-			light->set_ellipse(true);
-			light->set_sizeu(xsi_size_x * 2.0f);
-			light->set_sizev(xsi_size_x * 2.0f);
+			area_light->set_ellipse(true);
+			area_light->set_sizeu(xsi_size_x * 2.0f);
+			area_light->set_sizev(xsi_size_x * 2.0f);
 		}
 		else
 		{// all other shapes are rectangles
-			light->set_ellipse(false);
-			light->set_sizeu(xsi_size_x);
-			light->set_sizev(xsi_size_y);
+			area_light->set_ellipse(false);
+			area_light->set_sizeu(xsi_size_x);
+			area_light->set_sizev(xsi_size_y);
 		}
 		
-		light->set_size(1);
-		light->set_is_portal(false);
-		light->set_spread(XSI::MATH::PI);
+		area_light->set_is_portal(false);
+		area_light->set_spread(XSI::MATH::PI);
 	}
 	else
 	{
-		if ((xsi_area && xsi_area_shape == 3) || xsi_light_type == 0)
+		if (light_type == ccl::LightType::LIGHT_POINT)
 		{// point light
 			light->set_light_type(ccl::LightType::LIGHT_POINT);
+			ccl::PointLight* point_light = dynamic_cast<ccl::PointLight*>(light);
 			if (xsi_area)
 			{
-				light->set_size(xsi_size_x);
+				point_light->set_radius(xsi_size_x);
+				point_light->set_is_sphere(true);
 			}
 			else
 			{
-				light->set_size(0.001f);  // use constant value
+				point_light->set_radius(0.001f);  // use constant value
 			}
 		}
-		else if (xsi_light_type == 1)
+		else if (light_type == ccl::LightType::LIGHT_SUN)
 		{// infinite light
-			light->set_light_type(ccl::LightType::LIGHT_DISTANT);
+			light->set_light_type(ccl::LightType::LIGHT_SUN);
+			ccl::SunLight* sun_light = dynamic_cast<ccl::SunLight*>(light);
 			// set angle from spread value
-			light->set_angle(xsi_spread * XSI::MATH::PI / 180.0f);
+			sun_light->set_angle(xsi_spread * XSI::MATH::PI / 180.0f);
 			// for infinite light set unit power
 			xsi_power = 1.0f;
 		}
-		else if (xsi_light_type == 2)
+		else if (light_type == ccl::LightType::LIGHT_SPOT)
 		{// spot light
 			light->set_light_type(ccl::LightType::LIGHT_SPOT);
-			light->set_size(0.001f);
+			ccl::SpotLight* spot_light = dynamic_cast<ccl::SpotLight*>(light);
 
-			light->set_spot_angle(cone * XSI::MATH::PI / 180.0);
-			light->set_spot_smooth(xsi_umbra);
+			spot_light->set_angle(cone * XSI::MATH::PI / 180.0);
+			spot_light->set_smooth(xsi_umbra);
 		}
-		else
+		else //light_type == ccl::LightType::LIGHT_TRIANGLE
 		{// unknown light type
 			// set as point
 			light->set_light_type(ccl::LightType::LIGHT_POINT);
-			light->set_size(0.001f);
+			ccl::PointLight* point_light = dynamic_cast<ccl::PointLight*>(light);
+			point_light->set_radius(0.001f);
 		}
 	}
 
@@ -246,7 +287,7 @@ void sync_xsi_light_object(ccl::Object* light_object, const XSI::Light& xsi_ligh
 	sync_xsi_light_tfm(light_object, xsi_light, eval_time);
 
 	bool xsi_visible = xsi_light.GetParameterValue("LightAreaVisible", eval_time);
-	light_object->set_visibility(light_visibility_flag(xsi_visible, true, true, true, true));
+	light_object->set_visibility(light_visibility_flag(xsi_visible, true, true, true, true, true, true));
 	// for xsi-light always mark it as shadow catcher
 	light_object->set_is_shadow_catcher(true);
 
@@ -266,19 +307,34 @@ void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContex
 	update_context->add_light_index(xsi_light.GetObjectID(), scene->objects.size() - 1);
 
 	// create Cycles light
-	ccl::Light* light = scene->create_node<ccl::Light>();
-	light_object->set_geometry(light);
+	ccl::LightType light_type = recognise_light_type(xsi_light, eval_time);
+	ccl::Light* light = NULL;
+	if (light_type == ccl::LIGHT_POINT) {
+		light = scene->create_light_node<ccl::PointLight>();
+	}
+	else if (light_type == ccl::LIGHT_SPOT) {
+		light = scene->create_light_node<ccl::SpotLight>();
+	}
+	else if (light_type == ccl::LIGHT_SUN) {
+		light = scene->create_light_node<ccl::SunLight>();
+	}
+	else if (light_type == ccl::LIGHT_AREA) {
+		light = scene->create_light_node<ccl::AreaLight>();
+	}
+	if (light != NULL) {
+		light_object->set_geometry(light);
 
-	ccl::Shader* light_shader = build_xsi_light_shader(scene, xsi_light, update_context);
+		ccl::Shader* light_shader = build_xsi_light_shader(scene, xsi_light, update_context);
 
-	// setup light parameters
-	sync_xsi_light_geometry(scene, light, light_shader, xsi_light, eval_time);
-	sync_xsi_light_object(light_object, xsi_light, update_context);
+		// setup light parameters
+		sync_xsi_light_geometry(scene, light, light_type, light_shader, xsi_light, eval_time);
+		sync_xsi_light_object(light_object, xsi_light, update_context);
 
-	light->tag_update(scene);
-	light_object->tag_update(scene);
+		light->tag_update(scene);
+		light_object->tag_update(scene);
 
-	update_context->add_sync_profiler_time_finish(SyncType::Light, xsi_light.GetObjectID());
+		update_context->add_sync_profiler_time_finish(SyncType::Light, xsi_light.GetObjectID());
+	}
 }
 
 void sync_custom_light_geometry(ccl::Light* light, CustomLightType light_type, const XSI::CParameterRefArray &xsi_parameters, const XSI::CTime &eval_time)
@@ -288,35 +344,43 @@ void sync_custom_light_geometry(ccl::Light* light, CustomLightType light_type, c
 	if (light_type == CustomLightType_Point)
 	{
 		light->set_light_type(ccl::LightType::LIGHT_POINT);
-		light->set_size(xsi_parameters.GetValue("size", eval_time));
+		ccl::PointLight* point_light = dynamic_cast<ccl::PointLight*>(light);
+
+		point_light->set_radius(xsi_parameters.GetValue("size", eval_time));
+		point_light->set_is_sphere(true);
 	}
 	else if (light_type == CustomLightType_Sun)
 	{
-		light->set_light_type(ccl::LightType::LIGHT_DISTANT);
-		light->set_angle((float)xsi_parameters.GetValue("angle", eval_time) * XSI::MATH::PI / 180.0f);
+		light->set_light_type(ccl::LightType::LIGHT_SUN);
+		ccl::SunLight* sun_light = dynamic_cast<ccl::SunLight*>(light);
+
+		sun_light->set_angle((float)xsi_parameters.GetValue("angle", eval_time) * XSI::MATH::PI / 180.0f);
 	}
 	else if (light_type == CustomLightType_Spot)
 	{
 		light->set_light_type(ccl::LightType::LIGHT_SPOT);
-		light->set_size(xsi_parameters.GetValue("size", eval_time));
-		light->set_spot_angle(DEG2RADF((float)xsi_parameters.GetValue("spot_angle", eval_time)));
-		light->set_spot_smooth(xsi_parameters.GetValue("spot_smooth", eval_time));
+		ccl::SpotLight* spot_light = dynamic_cast<ccl::SpotLight*>(light);
+
+		spot_light->set_radius(xsi_parameters.GetValue("size", eval_time));
+		spot_light->set_angle(DEG2RADF((float)xsi_parameters.GetValue("spot_angle", eval_time)));
+		spot_light->set_smooth(xsi_parameters.GetValue("spot_smooth", eval_time));
 	}
 	else if (light_type == CustomLightType_Area)
 	{
 		light->set_light_type(ccl::LightType::LIGHT_AREA);
-		light->set_size(1.0f);
-		light->set_sizeu(xsi_parameters.GetValue("sizeU", eval_time));
-		light->set_sizev(xsi_parameters.GetValue("sizeV", eval_time));
-		light->set_is_portal(xsi_parameters.GetValue("is_portal", eval_time));
-		light->set_spread(DEG2RADF((float)xsi_parameters.GetValue("spread", eval_time)));
+		ccl::AreaLight* area_light = dynamic_cast<ccl::AreaLight*>(light);
+
+		area_light->set_sizeu(xsi_parameters.GetValue("sizeU", eval_time));
+		area_light->set_sizev(xsi_parameters.GetValue("sizeV", eval_time));
+		area_light->set_is_portal(xsi_parameters.GetValue("is_portal", eval_time));
+		area_light->set_spread(DEG2RADF((float)xsi_parameters.GetValue("spread", eval_time)));
 		XSI::CValue shape_value = xsi_parameters.GetValue("shape", eval_time);
 		bool is_round = false;
 		if (!shape_value.IsEmpty())
 		{
 			is_round = static_cast<int>(shape_value) != 0;
 		}
-		light->set_ellipse(is_round);
+		area_light->set_ellipse(is_round);
 	}
 
 	light->set_strength(ccl::one_float3() * (float)xsi_parameters.GetValue("power", eval_time));
@@ -362,10 +426,13 @@ void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, 
 		render_parameters.GetValue("background_ray_visibility_diffuse", eval_time),
 		render_parameters.GetValue("background_ray_visibility_glossy", eval_time),
 		render_parameters.GetValue("background_ray_visibility_transmission", eval_time),
-		render_parameters.GetValue("background_ray_visibility_scatter", eval_time)));
+		render_parameters.GetValue("background_ray_visibility_shadow", eval_time),
+		render_parameters.GetValue("background_ray_visibility_scatter", eval_time),
+		render_parameters.GetValue("background_ray_visibility_rayvast", eval_time)));
 	background->set_lightgroup(ccl::ustring(lightgroup.GetAsciiString()));
 
-	bg_shader->set_heterogeneous_volume(render_parameters.GetValue("background_volume_homogeneous", eval_time));
+	// TODO: remove it from settings
+	// bg_shader->set_heterogeneous_volume(render_parameters.GetValue("background_volume_homogeneous", eval_time));
 	int background_volume_sampling = render_parameters.GetValue("background_volume_sampling", eval_time);
 	bg_shader->set_volume_sampling_method(background_volume_sampling == 2 ? ccl::VolumeSampling::VOLUME_SAMPLING_MULTIPLE_IMPORTANCE : (background_volume_sampling == 1 ? ccl::VolumeSampling::VOLUME_SAMPLING_EQUIANGULAR : ccl::VolumeSampling::VOLUME_SAMPLING_DISTANCE));
 	int background_volume_interpolation = render_parameters.GetValue("background_volume_interpolation", eval_time);
@@ -373,7 +440,7 @@ void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, 
 	bg_shader->set_volume_step_rate(render_parameters.GetValue("background_volume_step_rate", eval_time));
 }
 
-void set_background_light_params(ccl::Scene* scene, ccl::Light* light, ccl::Shader* bg_shader, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
+void set_background_light_params(ccl::Scene* scene, ccl::BackgroundLight* light, ccl::Shader* bg_shader, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
 {
 	int background_surface_sampling_method = render_parameters.GetValue("background_surface_sampling_method", eval_time);
 	int background_surface_resolution = render_parameters.GetValue("background_surface_resolution", eval_time);
@@ -412,7 +479,7 @@ void set_background_light(ccl::Scene* scene, ccl::Background* background, ccl::S
 		update_context->set_background_light_index(scene->objects.size() - 1);
 	}
 
-	ccl::Light* light = scene->create_node<ccl::Light>();
+	ccl::BackgroundLight* light = scene->create_node<ccl::BackgroundLight>();
 	bg_object->set_geometry(light);
 
 	light->set_is_enabled(true);
@@ -457,7 +524,9 @@ void sync_custom_light_object(ccl::Object* light_object, const XSI::X3DObject& x
 		xsi_parameters.GetValue("use_diffuse", eval_time),
 		xsi_parameters.GetValue("use_glossy", eval_time),
 		xsi_parameters.GetValue("use_transmission", eval_time),
-		xsi_parameters.GetValue("use_scatter", eval_time)));
+		xsi_parameters.GetValue("use_shadow", eval_time),
+		xsi_parameters.GetValue("use_scatter", eval_time),
+		xsi_parameters.GetValue("use_raycast", eval_time)));
 	light_object->set_is_shadow_catcher(xsi_parameters.GetValue("is_shadow_catcher", eval_time));
 	
 	light_object->set_random_id(ccl::hash_uint2(ccl::hash_string(xsi_name.GetAsciiString()), 0));
@@ -486,7 +555,20 @@ void sync_custom_light(ccl::Scene* scene, const XSI::X3DObject & xsi_object, Upd
 				ccl::Object* light_object = scene->create_node<ccl::Object>();
 				update_context->add_light_index(xsi_object.GetObjectID(), scene->objects.size() - 1);
 
-				ccl::Light* light = scene->create_node<ccl::Light>();
+				ccl::Light* light = NULL;
+				if (light_type == CustomLightType_Point) {
+					light = scene->create_light_node<ccl::PointLight>();
+				}
+				else if (light_type == CustomLightType_Spot) {
+					light = scene->create_light_node<ccl::SpotLight>();
+				}
+				else if (light_type == CustomLightType_Sun) {
+					light = scene->create_light_node<ccl::SunLight>();
+				}
+				else if (light_type == CustomLightType_Area) {
+					light = scene->create_light_node<ccl::AreaLight>();
+				}
+
 				light_object->set_geometry(light);
 				ccl::Shader* shader = scene->shaders[shader_index];
 				ccl::array<ccl::Node*> used_shaders;
@@ -599,9 +681,13 @@ XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, 
 			size_t light_index = light_indexes[i];
 			ccl::Object* light_object = scene->objects[light_index];
 			ccl::Geometry* object_geometry = light_object->get_geometry();
-			if (object_geometry->geometry_type == ccl::Geometry::LIGHT) {
+			if (object_geometry->geometry_type == ccl::Geometry::POINT_LIGHT || 
+				object_geometry->geometry_type == ccl::Geometry::SPOT_LIGHT || 
+				object_geometry->geometry_type == ccl::Geometry::SUN_LIGHT || 
+				object_geometry->geometry_type == ccl::Geometry::AREA_LIGHT) {
 				ccl::Light* light = static_cast<ccl::Light*>(object_geometry);
-				sync_xsi_light_geometry(scene, light, build_xsi_light_shader(scene, xsi_light, update_context), xsi_light, eval_time);
+				ccl::LightType light_type = recognise_light_type(xsi_light, eval_time);
+				sync_xsi_light_geometry(scene, light, light_type, build_xsi_light_shader(scene, xsi_light, update_context), xsi_light, eval_time);
 				sync_xsi_light_object(light_object, xsi_light, update_context);
 				
 				light->tag_update(scene);
@@ -637,7 +723,10 @@ XSI::CStatus update_custom_light(ccl::Scene* scene, UpdateContext* update_contex
 
 			ccl::Object* light_object = scene->objects[light_index];
 			ccl::Geometry* object_geometry = light_object->get_geometry();
-			if (object_geometry->geometry_type == ccl::Geometry::LIGHT) {
+			if (object_geometry->geometry_type == ccl::Geometry::POINT_LIGHT ||
+				object_geometry->geometry_type == ccl::Geometry::SPOT_LIGHT ||
+				object_geometry->geometry_type == ccl::Geometry::SUN_LIGHT ||
+				object_geometry->geometry_type == ccl::Geometry::AREA_LIGHT) {
 				ccl::Light* light = static_cast<ccl::Light*>(object_geometry);
 
 				sync_custom_light_geometry(light, light_type, xsi_object.GetParameters(), eval_time);

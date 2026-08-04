@@ -24,7 +24,8 @@
 
 void sync_surface_motion_deform(ccl::Mesh* surface, UpdateContext* update_context, const XSI::X3DObject& xsi_object, float u_sample_step, int u_samples, float v_sample_step, int v_samples)
 {
-	size_t motion_steps = update_context->get_motion_steps();
+	// TODO: make proper surface motion deform
+	/*size_t motion_steps = update_context->get_motion_steps();
 	surface->set_motion_steps(motion_steps);
 	surface->set_use_motion_blur(true);
 
@@ -62,11 +63,12 @@ void sync_surface_motion_deform(ccl::Mesh* surface, UpdateContext* update_contex
 				}
 			}
 		}
-	}
+	}*/
 }
 
 void sync_surface_geom(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update_context, const XSI::CNurbsSurfaceRefArray& xsi_surfaces, float u_sample_step, int u_samples, float v_sample_step, int v_samples) {
-	XSI::CTime eval_time = update_context->get_time();
+	// TODO: make other surfaecs, obtain geometry from Softimage API
+	/*XSI::CTime eval_time = update_context->get_time();
 
 	ULONG surfaces_count = xsi_surfaces.GetCount();
 	size_t vertex_count = surfaces_count * u_samples * v_samples;
@@ -146,7 +148,7 @@ void sync_surface_geom(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update
 
 	if (uv_attr != NULL) {
 		mikk_compute_tangents(mesh, ccl::Attribute::standard_name(ccl::ATTR_STD_UV), true);
-	}
+	}*/
 }
 
 void sync_surface_geom_process(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, const XSI::Property& surface_property, bool motion_deform) {

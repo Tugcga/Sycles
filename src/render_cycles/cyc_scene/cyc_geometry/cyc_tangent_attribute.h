@@ -17,12 +17,12 @@ template<bool is_subd> struct MikkMeshWrapper
         const ccl::AttributeSet& attributes = is_subd ? mesh->subd_attributes : mesh->attributes;
 
         ccl::Attribute* attr_vN = attributes.find(ccl::ATTR_STD_VERTEX_NORMAL);
-        vertex_normal = attr_vN->data_float3();
+        vertex_normal = attr_vN->data_for_write<ccl::float3>();
 
         ccl::Attribute* attr_uv = attributes.find(uv_name);
         if (attr_uv != NULL)
         {
-            texface = attr_uv->data_float2();
+            texface = attr_uv->data_for_write<ccl::float2>();
         }
     }
 
@@ -78,7 +78,7 @@ template<bool is_subd> struct MikkMeshWrapper
 
     mikk::float3 GetPosition(const int face_num, const int vert_num)
     {
-        const ccl::float3 vP = mesh->get_verts()[VertexIndex(face_num, vert_num)];
+        const ccl::float3 vP = mesh->get_position()[VertexIndex(face_num, vert_num)];
         return mikk::float3(vP.x, vP.y, vP.z);
     }
 
@@ -128,7 +128,7 @@ template<bool is_subd> struct MikkMeshWrapper
             else
             {
                 const Mesh::Triangle tri = mesh->get_triangle(face_num);
-                vN = tri.compute_normal(&mesh->get_verts()[0]);
+                vN = tri.compute_normal(&mesh->get_position()[0]);
             }
         }
         return mikk::float3(vN.x, vN.y, vN.z);

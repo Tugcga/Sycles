@@ -140,24 +140,18 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddGroup("Memory");
 	layout.AddItem("performance_memory_use_auto_tile", "Use Tiling");
 	layout.AddItem("performance_memory_tile_size", "Tile Size");
-	XSI::CValueArray texture_limit_combo(30);
-	texture_limit_combo[0] = "Unlimited"; texture_limit_combo[1] = LONG(0);
-	texture_limit_combo[2] = "131 072 (128k) pixels"; texture_limit_combo[3] = LONG(1);
-	texture_limit_combo[4] = "65 536 (64k) pixels"; texture_limit_combo[5] = LONG(2);
-	texture_limit_combo[6] = "32 768 (32k) pixels"; texture_limit_combo[7] = LONG(3);
-	texture_limit_combo[8] = "16 384 (16k) pixels"; texture_limit_combo[9] = LONG(4);
-	texture_limit_combo[10] = "8 192 (8k) pixels"; texture_limit_combo[11] = LONG(5);
-	texture_limit_combo[12] = "4 096 (4k) pixels"; texture_limit_combo[13] = LONG(6);
-	texture_limit_combo[14] = "2 048 (2k) pixels"; texture_limit_combo[15] = LONG(7);
-	texture_limit_combo[16] = "1 024 (1k) pixels"; texture_limit_combo[17] = LONG(8);
-	texture_limit_combo[18] = "512 pixels"; texture_limit_combo[19] = LONG(9);
-	texture_limit_combo[20] = "256 pixels"; texture_limit_combo[21] = LONG(10);
-	texture_limit_combo[22] = "128 pixels"; texture_limit_combo[23] = LONG(11);
-	texture_limit_combo[24] = "64 pixels"; texture_limit_combo[25] = LONG(12);
-	texture_limit_combo[26] = "32 pixels"; texture_limit_combo[27] = LONG(13);
-	texture_limit_combo[28] = "16 pixels"; texture_limit_combo[29] = LONG(14);
+	layout.AddItem("performance_texture_resolution", "Texture Resolution");
+	XSI::CValueArray texture_limit_combo(16);
+	texture_limit_combo[0] = "No Limit"; texture_limit_combo[1] = LONG(0);
+	texture_limit_combo[2] = "128"; texture_limit_combo[3] = LONG(1);
+	texture_limit_combo[4] = "256"; texture_limit_combo[5] = LONG(2);
+	texture_limit_combo[6] = "512"; texture_limit_combo[7] = LONG(3);
+	texture_limit_combo[8] = "1024"; texture_limit_combo[9] = LONG(4);
+	texture_limit_combo[10] = "2048"; texture_limit_combo[11] = LONG(5);
+	texture_limit_combo[12] = "4096"; texture_limit_combo[13] = LONG(6);
+	texture_limit_combo[14] = "8192"; texture_limit_combo[15] = LONG(7);
 	layout.AddEnumControl("performance_texture_limits", texture_limit_combo, "Texture Limit", XSI::siControlCombo);
-	layout.AddItem("performance_texture_cache", "Cache textures on Session");
+	layout.AddItem("performance_texture_cache", "Texture Cache");
 	layout.EndGroup();
 
 	layout.AddGroup("Acceleration Structure");
@@ -961,6 +955,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("performance_memory_tile_size", XSI::CValue::siInt4, caps, "", "", 2048, 8, INT_MAX, 8, 4096, param);
 
 	property.AddParameter("performance_texture_limits", XSI::CValue::siInt4, caps, "", "", 0, param);
+	property.AddParameter("performance_texture_resolution", XSI::CValue::siFloat, caps, "", "", 1.0, 0.0, 1.0, 0.0, 1.0, param);
 	property.AddParameter("performance_texture_cache", XSI::CValue::siBool, caps, "", "", true, param);
 
 	// acceleration structure

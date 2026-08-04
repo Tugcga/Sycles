@@ -23,7 +23,8 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 	XSI::CTime eval_time = update_context->get_time();
 	if (shader_type == "sib_vector_to_color")
 	{
-		ccl::SeparateXYZNode* separate_node = shader_graph->create_node<ccl::SeparateXYZNode>();
+		// TODO: make proper node
+		/* ccl::SeparateXYZNode* separate_node = shader_graph->create_node<ccl::SeparateXYZNode>();
 		ccl::CombineRGBNode* combine_node = shader_graph->create_node<ccl::CombineRGBNode>();
 
 		// use combine node as output node
@@ -37,7 +38,8 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 
 		XSI::ShaderParameter input_param(xsi_shader.GetParameter("input"));
 		sync_float3_parameter(scene, shader_graph, separate_node, input_param, "Vector", update_context);
-		return combine_node;
+		return combine_node;*/
+		return NULL;
 	}
 	else if (shader_type == "sib_scalar_to_color")
 	{
@@ -53,7 +55,8 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		ccl::array<float> alpha_ramp(2);
 		alpha_ramp[0] = 1.0f;
 		alpha_ramp[1] = 1.0f;
-		node->set_ramp(ramp);
+		// TODO: make proper ramp
+		// node->set_ramp(ramp);
 		node->set_ramp_alpha(alpha_ramp);
 
 		XSI::ShaderParameter input_param(xsi_shader.GetParameter("input"));
@@ -142,7 +145,8 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			node->set_alpha_type(alpha_output ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 			node->set_animated(false);
 			
-			XSIImageLoader* image_loader = new XSIImageLoader(
+			node->set_filename(ccl::ustring(file_path.GetAsciiString()));
+			/*XSIImageLoader* image_loader = new XSIImageLoader(
 				clip, 
 				ccl::u_colorspace_srgb, 
 				0, 
@@ -151,7 +155,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 				update_context->get_path_to_image(),
 				update_context->get_texture_limits(),
 				update_context->get_time());
-			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
+			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());*/
 
 			// uv node
 			ccl::UVMapNode* uv_node = shader_graph->create_node<ccl::UVMapNode>();

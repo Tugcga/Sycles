@@ -52,6 +52,14 @@ bool create_dir(const std::string& file_path)
 	return true;
 }
 
+void check_and_create_directory(const XSI::CString &path) {
+	std::string path_str = path.GetAsciiString();
+
+	if (!std::filesystem::is_directory(path_str) || !std::filesystem::exists(path_str)) {
+		std::filesystem::create_directories(path_str);
+	}
+}
+
 XSI::CString create_temp_path()
 {
 	UUID uuid;
@@ -61,14 +69,15 @@ XSI::CString create_temp_path()
 	XSI::CString temp_path = get_project_path() + "\\sycles_cache\\" + XSI::CString(uuid_str);
 	RpcStringFreeA((RPC_CSTR*)&uuid_str);
 
-	std::string temp_path_str = temp_path.GetAsciiString();
-
-	if (!std::filesystem::is_directory(temp_path_str) || !std::filesystem::exists(temp_path_str))
-	{
-		std::filesystem::create_directories(temp_path_str);
-	}
+	check_and_create_directory(temp_path);
 
 	return temp_path;
+}
+
+XSI::CString create_texture_cache_path() {
+	XSI::CString texture_path = get_project_path() + "\\sycles_cache\\";
+	check_and_create_directory(texture_path);
+	return texture_path;
 }
 
 void remove_temp_path(const XSI::CString &temp_path)

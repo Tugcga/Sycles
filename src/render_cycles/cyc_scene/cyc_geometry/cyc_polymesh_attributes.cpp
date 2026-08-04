@@ -33,7 +33,7 @@ void sync_mesh_attribute_vertex_color(ccl::Scene* scene, ccl::Mesh* mesh, ccl::A
 		if (mesh->need_attribute(scene, vc_name))
 		{
 			ccl::Attribute* vc_attr = attributes.add(vc_name, ccl::TypeRGBA, ccl::ATTR_ELEMENT_CORNER_BYTE);
-			ccl::uchar4* cdata = vc_attr->data_uchar4();
+			ccl::uchar4* cdata = vc_attr->data_for_write<ccl::uchar4>();
 			if (subdiv_mode == SubdivideMode_None)
 			{
 				size_t triangles_count = triangle_nodes.GetCount() / 3;
@@ -95,7 +95,7 @@ void sync_mesh_attribute_random_per_island(ccl::Scene* scene, ccl::Mesh* mesh, c
 		}
 
 		ccl::Attribute* island_attribute = attributes.add(ccl::ATTR_STD_RANDOM_PER_ISLAND);
-		float* island_data = island_attribute->data_float();
+		float* island_data = island_attribute->data_for_write<float>();
 		// fill attribute for every triangle
 		if (subdiv_mode != SubdivideMode_None)
 		{// for subdivided mesh
@@ -179,7 +179,9 @@ protected:
 
 void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t vertex_count, size_t nodes_count, const XSI::CVertexRefArray& vertices, const XSI::CFloatArray& node_normals, const XSI::PolygonMesh& xsi_polymesh)
 {
-	if (!mesh->need_attribute(scene, ccl::ATTR_STD_POINTINESS))
+	// TODO: make proper attribute
+
+	/*if (!mesh->need_attribute(scene, ccl::ATTR_STD_POINTINESS))
 	{
 		return;
 	}
@@ -395,7 +397,7 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, Subdivide
 	{
 		const size_t orig_index = vert_orig_index[vert_index];
 		data[vert_index] = data[orig_index];
-	}
+	}*/
 }
 
 void sync_mesh_uvs(ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t triangles_count, size_t nodes_count, const XSI::CRefArray &uv_refs, const XSI::CPolygonFaceRefArray& faces, const XSI::CLongArray& triangle_nodes)
@@ -409,19 +411,17 @@ void sync_mesh_uvs(ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t triangles_
 
 	ccl::ustring uv_name = ccl::ustring("std_uv");
 	ccl::Attribute* uv_attr;
-	if (subdiv_mode != SubdivideMode_None)
-	{
+	if (subdiv_mode != SubdivideMode_None) {
 		uv_attr = mesh->subd_attributes.add(ccl::ATTR_STD_UV, uv_name);
 	}
-	else
-	{
+	else {
 		uv_attr = mesh->attributes.add(ccl::ATTR_STD_UV, uv_name);
 	}
+	uv_attr->resize(one_uv_length);
 	uv_attr->flags |= ccl::ATTR_SUBDIVIDE_SMOOTH_FVAR;
 
-	ccl::float2* default_uv = uv_attr->data_float2();
-	for (size_t uv_index = 0; uv_index < uv_count; uv_index++)
-	{
+	ccl::float2* default_uv = uv_attr->data_for_write<ccl::float2>();
+	for (size_t uv_index = 0; uv_index < uv_count; uv_index++) {
 		XSI::ClusterProperty uv_prop(uv_refs[uv_index]);
 		XSI::CFloatArray uv_values;
 		uv_prop.GetValues(uv_values);
@@ -429,44 +429,39 @@ void sync_mesh_uvs(ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t triangles_
 		ccl::Attribute* uv_attribute;
 		ccl::ustring uv_name = ccl::ustring(uv_prop.GetName().GetAsciiString());
 
-		if (subdiv_mode != SubdivideMode_None)
-		{
+		if (subdiv_mode != SubdivideMode_None) {
 			uv_attribute = mesh->subd_attributes.add(ccl::ATTR_STD_UV, uv_name);
 		}
-		else
-		{
+		else {
 			uv_attribute = mesh->attributes.add(ccl::ATTR_STD_UV, uv_name);
 		}
+		uv_attribute->resize(one_uv_length);
 		uv_attribute->flags |= ccl::ATTR_SUBDIVIDE_SMOOTH_FVAR;
 
-		ccl::float2* uv_attribute_data = uv_attribute->data_float2();
-		if (subdiv_mode != SubdivideMode_None)
-		{// use polygons and nodes
+		ccl::float2* uv_attribute_data = uv_attribute->data_for_write<ccl::float2>();
+		if (subdiv_mode != SubdivideMode_None) {
+			// use polygons and nodes
 			size_t faces_count = faces.GetCount();
-			for (size_t face_index = 0; face_index < faces_count; face_index++)
-			{
+			for (size_t face_index = 0; face_index < faces_count; face_index++) {
 				XSI::PolygonFace face(faces[face_index]);
 				XSI::CPolygonNodeRefArray face_nodes = face.GetNodes();
 				size_t face_nodes_count = face_nodes.GetCount();
-				for (size_t node_index = 0; node_index < face_nodes_count; node_index++)
-				{
+				for (size_t node_index = 0; node_index < face_nodes_count; node_index++) {
 					XSI::PolygonNode node(face_nodes[node_index]);
 					ccl::float2 uv_value = ccl::make_float2(uv_values[node.GetIndex() * 3], uv_values[node.GetIndex() * 3 + 1]);
 					uv_attribute_data[0] = ccl::make_float2(uv_value.x, uv_value.y);
 					uv_attribute_data++;
 
-					if (uv_index == 0)
-					{
+					if (uv_index == 0) {
 						default_uv[0] = ccl::make_float2(uv_value.x, uv_value.y);
 						default_uv++;
 					}
 				}
 			}
 		}
-		else
-		{// for plane mesh use triangles (and use triangle_to_node map to find valid node index)
-			for (size_t t_index = 0; t_index < triangles_count; t_index++)
-			{
+		else {
+			// for plane mesh use triangles (and use triangle_to_node map to find valid node index)
+			for (size_t t_index = 0; t_index < triangles_count; t_index++) {
 				size_t p1 = triangle_nodes[3 * t_index];
 				size_t p2 = triangle_nodes[3 * t_index + 1];
 				size_t p3 = triangle_nodes[3 * t_index + 2];
@@ -480,8 +475,7 @@ void sync_mesh_uvs(ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t triangles_
 				uv_attribute_data[2] = ccl::make_float2(uv_value_2.x, uv_value_2.y);
 				uv_attribute_data += 3;
 
-				if (uv_index == 0)
-				{
+				if (uv_index == 0) {
 					default_uv[0] = ccl::make_float2(uv_value_0.x, uv_value_0.y);
 					default_uv[1] = ccl::make_float2(uv_value_1.x, uv_value_1.y);
 					default_uv[2] = ccl::make_float2(uv_value_2.x, uv_value_2.y);
@@ -521,20 +515,16 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					xsi_attribute.GetDataArray(attr_data);
 
 					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_VERTEX);
-
-					ccl::float3* cyc_attr_data = cycles_attribute->data_float3();
-					if (subdiv_mode != SubdivideMode_CatmulClark)
-					{
-						for (size_t node_index = 0; node_index < nodes_count; node_index++)
-						{
+					cycles_attribute->resize(subdiv_mode == SubdivideMode_None ? nodes_count : vertex_count);
+					ccl::float3* cyc_attr_data = cycles_attribute->data_for_write<ccl::float3>();
+					if (subdiv_mode == SubdivideMode_None) {
+						for (size_t node_index = 0; node_index < nodes_count; node_index++) {
 							*cyc_attr_data = vector3_to_float3(attr_data[is_array ? nodes_to_vertex[node_index] : 0]);
 							cyc_attr_data++;
 						}
 					}
-					else
-					{
-						for (size_t v_index = 0; v_index < vertex_count; v_index++)
-						{
+					else {
+						for (size_t v_index = 0; v_index < vertex_count; v_index++) {
 							*cyc_attr_data = vector3_to_float3(attr_data[is_array ? v_index : 0]);
 							cyc_attr_data++;
 						}
@@ -546,21 +536,17 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					xsi_attribute.GetDataArray(attr_data);
 					
 					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeFloat2, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeFloat2, ccl::ATTR_ELEMENT_VERTEX);
+					cycles_attribute->resize(subdiv_mode == SubdivideMode_None ? nodes_count : vertex_count);
+					ccl::float2* cyc_attr_data = cycles_attribute->data_for_write<ccl::float2>();
 
-					ccl::float2* cyc_attr_data = cycles_attribute->data_float2();
-
-					if (subdiv_mode != SubdivideMode_CatmulClark)
-					{
-						for (size_t node_index = 0; node_index < nodes_count; node_index++)
-						{
+					if (subdiv_mode == SubdivideMode_None) {
+						for (size_t node_index = 0; node_index < nodes_count; node_index++) {
 							*cyc_attr_data = vector2_to_float2(attr_data[is_array ? nodes_to_vertex[node_index] : 0]);
 							cyc_attr_data++;
 						}
 					}
-					else
-					{
-						for (size_t v_index = 0; v_index < vertex_count; v_index++)
-						{
+					else {
+						for (size_t v_index = 0; v_index < vertex_count; v_index++) {
 							*cyc_attr_data = vector2_to_float2(attr_data[is_array ? v_index : 0]);
 							cyc_attr_data++;
 						}
@@ -572,21 +558,17 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					xsi_attribute.GetDataArray(attr_data);
 
 					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX);
+					cycles_attribute->resize(subdiv_mode == SubdivideMode_None ? nodes_count : vertex_count);
+					ccl::float4* cyc_attr_data = cycles_attribute->data_for_write<ccl::float4>();
 
-					ccl::float4* cyc_attr_data = cycles_attribute->data_float4();
-
-					if (subdiv_mode != SubdivideMode_CatmulClark)
-					{
-						for (size_t node_index = 0; node_index < nodes_count; node_index++)
-						{
+					if (subdiv_mode == SubdivideMode_None) {
+						for (size_t node_index = 0; node_index < nodes_count; node_index++) {
 							*cyc_attr_data = color4_to_float4(attr_data[is_array ? nodes_to_vertex[node_index] : 0]);
 							cyc_attr_data++;
 						}
 					}
-					else
-					{
-						for (size_t v_index = 0; v_index < vertex_count; v_index++)
-						{
+					else {
+						for (size_t v_index = 0; v_index < vertex_count; v_index++) {
 							*cyc_attr_data = color4_to_float4(attr_data[is_array ? v_index : 0]);
 							cyc_attr_data++;
 						}
@@ -595,26 +577,21 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 				else if (attr_data_type == XSI::siICENodeDataBool || attr_data_type == XSI::siICENodeDataFloat || attr_data_type == XSI::siICENodeDataLong)
 				{
 					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_VERTEX);
+					cycles_attribute->resize(subdiv_mode == SubdivideMode_None ? nodes_count : vertex_count);
+					float* cyc_attr_data = cycles_attribute->data_for_write<float>();
 
-					float* cyc_attr_data = cycles_attribute->data_float();
-
-					if (attr_data_type == XSI::siICENodeDataBool)
-					{
+					if (attr_data_type == XSI::siICENodeDataBool){
 						XSI::CICEAttributeDataArrayBool attr_data;
 						xsi_attribute.GetDataArray(attr_data);
 
-						if (subdiv_mode != SubdivideMode_CatmulClark)
-						{
-							for (size_t node_index = 0; node_index < nodes_count; node_index++)
-							{
+						if (subdiv_mode == SubdivideMode_None) {
+							for (size_t node_index = 0; node_index < nodes_count; node_index++) {
 								*cyc_attr_data = attr_data[is_array ? nodes_to_vertex[node_index] : 0] ? 1.0f : 0.0f;
 								cyc_attr_data++;
 							}
 						}
-						else
-						{
-							for (size_t v_index = 0; v_index < vertex_count; v_index++)
-							{
+						else {
+							for (size_t v_index = 0; v_index < vertex_count; v_index++) {
 								*cyc_attr_data = attr_data[is_array ? v_index : 0] ? 1.0f : 0.0f;
 								cyc_attr_data++;
 							}
@@ -626,18 +603,14 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 						XSI::CICEAttributeDataArrayFloat attr_data;
 						xsi_attribute.GetDataArray(attr_data);
 
-						if (subdiv_mode != SubdivideMode_CatmulClark)
-						{
-							for (size_t node_index = 0; node_index < nodes_count; node_index++)
-							{
+						if (subdiv_mode == SubdivideMode_None) {
+							for (size_t node_index = 0; node_index < nodes_count; node_index++) {
 								*cyc_attr_data = attr_data[is_array ? nodes_to_vertex[node_index] : 0];
 								cyc_attr_data++;
 							}
 						}
-						else
-						{
-							for (size_t v_index = 0; v_index < vertex_count; v_index++)
-							{
+						else {
+							for (size_t v_index = 0; v_index < vertex_count; v_index++) {
 								*cyc_attr_data = attr_data[is_array ? v_index : 0];
 								cyc_attr_data++;
 							}
@@ -648,18 +621,14 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 						XSI::CICEAttributeDataArrayLong attr_data;
 						xsi_attribute.GetDataArray(attr_data);
 
-						if (subdiv_mode != SubdivideMode_CatmulClark)
-						{
-							for (size_t node_index = 0; node_index < nodes_count; node_index++)
-							{
+						if (subdiv_mode == SubdivideMode_None) {
+							for (size_t node_index = 0; node_index < nodes_count; node_index++) {
 								*cyc_attr_data = (float)attr_data[is_array ? nodes_to_vertex[node_index] : 0];
 								cyc_attr_data++;
 							}
 						}
-						else
-						{
-							for (size_t v_index = 0; v_index < vertex_count; v_index++)
-							{
+						else {
+							for (size_t v_index = 0; v_index < vertex_count; v_index++) {
 								*cyc_attr_data = (float)attr_data[is_array ? v_index : 0];
 								cyc_attr_data++;
 							}

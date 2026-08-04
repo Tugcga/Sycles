@@ -161,7 +161,8 @@ void sync_volume_parameters(ccl::Volume* volume, XSI::X3DObject& xsi_object, con
 		object_space = xsi_params.GetValue("volume_object_space");
 	}
 
-	volume->set_clipping(clipping);
+	// TODO: sync volume parameters
+	// volume->set_clipping(clipping);
 	volume->set_step_size(step_size);
 	volume->set_object_space(object_space == 0);
 }
@@ -182,7 +183,8 @@ void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_
 	{
 		ccl::ImageParams volume_params;
 		volume_params.frame = eval_time.GetTime();
-		attribute->data_voxel() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(ice_loader), volume_params, false);
+		// TODO: set volum data in proper way
+		// attribute->data_voxel() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(ice_loader), volume_params, false);
 	}
 }
 

@@ -48,11 +48,22 @@ ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices,
 	{
 		num_triangles += face_sizes[i] - 2;
 	}
-	mesh->reserve_mesh(vertex_coordinates.size(), num_triangles);
-	mesh->set_verts(vertex_coordinates);
+	mesh->resize_mesh(vertex_coordinates.size(), num_triangles);
+	ccl::Attribute* attr_position = mesh->attributes.add(ccl::ATTR_STD_POSITION);
+	attr_position->resize(vertex_coordinates.size());
+	ccl::packed_float3* verts = attr_position->data_for_write<ccl::packed_float3>();
+	for (size_t i = 0; i < vertex_coordinates.size(); i++) {
+		verts[i] = vertex_coordinates[i];
+	}
 
 	// create triangles
 	int index_offset = 0;
+
+	int* data_triangles = mesh->get_triangles().data();
+	bool* data_smooth = mesh->get_smooth().data();
+	int* data_shader = mesh->get_shader().data();
+
+	size_t counter = 0;
 
 	for (size_t i = 0; i < faces_count; i++)  // iterate over polygons
 	{
@@ -61,7 +72,13 @@ ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices,
 			int v0 = face_indexes[index_offset];
 			int v1 = face_indexes[index_offset + j + 1];
 			int v2 = face_indexes[index_offset + j + 2];
-			mesh->add_triangle(v0, v1, v2, 0, smooth);
+			data_triangles[3 * counter] = v0;
+			data_triangles[3 * counter + 1] = v1;
+			data_triangles[3 * counter + 2] = v2;
+			data_smooth[counter] = smooth;
+			data_shader[counter] = 0;
+
+			counter += 1;
 		}
 
 		index_offset += face_sizes[i];
@@ -140,7 +157,8 @@ void get_geo_accessor_normals(const XSI::CGeometryAccessor &in_geo_acc, LONG in_
 
 void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context, const XSI::X3DObject &xsi_object, SubdivideMode subdiv_mode, bool geo_use_angle, float geo_angle)
 {
-	size_t motion_steps = update_context->get_motion_steps();
+	// TODO: implement proper motion deform
+	/*size_t motion_steps = update_context->get_motion_steps();
 	
 	// check we can add motion blur
 	// the number of vertices should be the same in all steps
@@ -248,7 +266,7 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 	else
 	{
 		mesh->set_use_motion_blur(false);
-	}
+	}*/
 }
 
 void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor &xsi_geo_acc, const XSI::PolygonMesh &xsi_polymesh)
@@ -292,31 +310,39 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 	}
 
 	// for triagle mesh vertices are xsi nodes
-	mesh->reserve_mesh(nodes_count, triangles_count);
+	mesh->resize_mesh(nodes_count, triangles_count);
 
 	// form vertices array
-	ccl::array<ccl::float3> mesh_vertices(nodes_count);
-	for (LONG i = 0; i < nodes_count; i++)
-	{
+	ccl::array<ccl::packed_float3> mesh_vertices(nodes_count);
+	for (LONG i = 0; i < nodes_count; i++) {
 		LONG v_index = xsi_node_to_vertex[i];
 		mesh_vertices[i] = ccl::make_float3(vertex_positions[3*v_index], vertex_positions[3 * v_index + 1], vertex_positions[3 * v_index + 2]);
 	}
 
 	// set mesh vertices
-	mesh->set_verts(mesh_vertices);
+	ccl::Attribute* attr_position = mesh->attributes.add(ccl::ATTR_STD_POSITION);
+	attr_position->resize(mesh_vertices.size());
+	ccl::packed_float3* verts = attr_position->data_for_write<ccl::packed_float3>();
+	std::copy_n(mesh_vertices.data(), mesh_vertices.size(), attr_position->data_for_write<ccl::packed_float3>());
+	mesh->tag_position_modified();
 
 	// next triangles
-	for (size_t i = 0; i < triangles_count; i++)
-	{
-		// get triangle nodes
+	int* mesh_triangles = mesh->get_triangles().data();
+	bool* mesh_smooth = mesh->get_smooth().data();
+	int* mesh_shader = mesh->get_shader().data();
+	for (size_t i = 0; i < triangles_count; i++) {
 		LONG n0 = triangle_nodes[3 * i];
 		LONG n1 = triangle_nodes[3 * i + 1];
 		LONG n2 = triangle_nodes[3 * i + 2];
 
 		LONG material_index = polygon_materials[triangle_polygons[i]];
 
-		// add triangle
-		mesh->add_triangle(n0, n1, n2, material_index, true);
+		mesh_triangles[3 * i] = n0;
+		mesh_triangles[3 * i + 1] = n1;
+		mesh_triangles[3 * i + 2] = n2;
+
+		mesh_smooth[i] = true;
+		mesh_shader[i] = material_index;
 	}
 
 	// normals
@@ -326,7 +352,7 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 
 	ccl::AttributeSet& attributes = mesh->attributes;
 	ccl::Attribute* attr_n = attributes.add(ccl::ATTR_STD_VERTEX_NORMAL, ccl::ustring("std_normal"));
-	ccl::float3* normal_data = attr_n->data_float3();
+	ccl::packed_normal* normal_data = attr_n->data_for_write<ccl::packed_normal>();
 	for (size_t node_index = 0; node_index < nodes_count; node_index++)
 	{
 		*normal_data = ccl::make_float3(node_normals[3 * node_index], node_normals[3 * node_index + 1], node_normals[3 * node_index + 2]);
@@ -335,7 +361,7 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 
 	// generated attribute
 	ccl::Attribute* gen_attr = attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
-	std::memcpy(gen_attr->data_float3(), mesh->get_verts().data(), sizeof(ccl::float3) * mesh->get_verts().size());
+	std::copy_n(mesh->get_position(), mesh->num_verts(), gen_attr->data_for_write<packed_float3>());
 
 	// use common method for export attrbutes
 	XSI::CPolygonFaceRefArray faces;
@@ -348,17 +374,18 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 	// export first uv as default uv attribute
 	sync_mesh_uvs(mesh, SubdivideMode_None, triangles_count, nodes_count, uv_refs, faces, triangle_nodes);
 	// export tangent for each uv
-	for (size_t i = 0; i < uv_refs.GetCount(); i++)
-	{
+	for (size_t i = 0; i < uv_refs.GetCount(); i++) {
 		XSI::ClusterProperty uv_prop(uv_refs[i]);
-		mikk_compute_tangents(mesh, uv_prop.GetName().GetAsciiString(), true);
+		// TODO: make proper tangents
+		// mikk_compute_tangents(mesh, uv_prop.GetName().GetAsciiString(), true);
 	}
 	sync_ice_attributes(scene, mesh, xsi_polymesh, SubdivideMode_None, vertex_count, nodes_count, xsi_node_to_vertex);
 }
 
 void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor& xsi_geo_acc, const XSI::PolygonMesh& xsi_polymesh, SubdivideMode subdiv_mode, ULONG subdiv_level, float subdiv_dicing_rate, const XSI::MATH::CMatrix4 &xsi_matrix)
 {
-	XSI::CLongArray xsi_polygon_material_indices;
+	// TODO: make proper subdivide meshes
+	/*XSI::CLongArray xsi_polygon_material_indices;
 	xsi_geo_acc.GetPolygonMaterialIndices(xsi_polygon_material_indices);
 
 	XSI::CDoubleArray vertex_positions;
@@ -563,6 +590,7 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 
 	// without open subdiv the mode always is Linear
 	mesh->set_subdivision_type(subdiv_mode == SubdivideMode_Linear ? ccl::Mesh::SUBDIVISION_LINEAR : ccl::Mesh::SUBDIVISION_CATMULL_CLARK);
+	*/
 }
 
 void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, SubdivideMode &io_mode, float &io_dicing_rate, int &io_smooth_boundary, int &io_smooth_uv, const XSI::CTime &eval_time)

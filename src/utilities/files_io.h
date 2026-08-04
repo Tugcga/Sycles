@@ -7,6 +7,7 @@
 
 bool create_dir(const std::string& file_path);
 XSI::CString create_temp_path();
+XSI::CString create_texture_cache_path();
 void remove_temp_path(const XSI::CString& temp_path);
 
 // kye - tile number, value - full path to the image

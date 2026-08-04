@@ -30,7 +30,6 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 	{
 		// for shaderball rendering use simple parameters
 		session_params.threads = 0;
-		session_params.experimental = true;
 		session_params.pixel_size = 1;
 		session_params.use_auto_tile = false;
 
@@ -190,7 +189,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 
 			session_params.device = ccl::Device::get_multi_device(used_devices, session_params.threads, session_params.background);
 		}
-		session_params.experimental = true;
+		session_params.denoise_device = session_params.device;
 		set_session_samples(session_params, render_parameters, eval_time);
 
 		session_params.pixel_size = 1;
@@ -258,6 +257,20 @@ ccl::SceneParams get_scene_params(RenderType render_type, const ccl::SessionPara
 
 	scene_params.shadingsystem = session_params.shadingsystem;
 	scene_params.background = true;
+	bool use_texture_cache = render_parameters.GetValue("performance_texture_cache", eval_time);
+	if (use_texture_cache) {
+		scene_params.use_texture_cache = true;
+		scene_params.auto_texture_cache = true;
+		scene_params.texture_cache_path = create_texture_cache_path().GetAsciiString();
+	}
+	else {
+		scene_params.use_texture_cache = false;
+		scene_params.auto_texture_cache = false;
+		scene_params.texture_cache_path = "";
+	}
+	int texture_limit = render_parameters.GetValue("performance_texture_limits", eval_time);
+	scene_params.texture_limit = (texture_limit > 0) ? (1 << (texture_limit + 6)) : 0;
+	scene_params.texture_resolution = (float)render_parameters.GetValue("performance_texture_resolution", eval_time);
 
 	return scene_params;
 }

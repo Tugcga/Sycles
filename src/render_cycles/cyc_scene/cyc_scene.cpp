@@ -46,148 +46,6 @@ ccl::Mesh* build_sphere(ccl::Scene* scene)
 	return build_primitive(scene, sphere_vertex_count, sphere_vertices, sphere_faces_count, sphere_face_sizes, sphere_face_indexes);
 }
 
-void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
-{
-	// for test purpose only we create simple scene with one plane and one cube with sky light
-	// from actual xsi scene we get only camera position
-	// for meshes use default surface shader (it has index 0)
-
-	// create shader for shpere
-	ccl::Shader* sphere_shader = scene->create_node<ccl::Shader>();
-	sphere_shader->name = "sphere_shader";
-	std::unique_ptr<ccl::ShaderGraph> sphere_shader_graph = std::make_unique<ccl::ShaderGraph>();
-	ccl::SubsurfaceScatteringNode* sss_node = sphere_shader_graph->create_node<ccl::SubsurfaceScatteringNode>();
-	ccl::ColorNode* color_node = sphere_shader_graph->create_node<ccl::ColorNode>();
-	color_node->set_value(ccl::make_float3(1.0, 0.2, 0.2));
-	ccl::OutputAOVNode* color_aov_node = sphere_shader_graph->create_node<ccl::OutputAOVNode>();
-	color_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name(XSI::CString("sphere_color_aov"), true).GetAsciiString()));
-	// we use changed names for attributes, but output to the passes original name
-	// these names will be changed by the same function
-	ccl::OutputAOVNode* value_aov_node = sphere_shader_graph->create_node<ccl::OutputAOVNode>();
-	value_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name("sphere_value_aov", false).GetAsciiString()));
-	ccl::NoiseTextureNode* noise_node = sphere_shader_graph->create_node<ccl::NoiseTextureNode>();
-	// make connections
-	sphere_shader_graph->connect(color_node->output("Color"), sss_node->input("Color"));
-	sphere_shader_graph->connect(color_node->output("Color"), color_aov_node->input("Color"));
-	sphere_shader_graph->connect(noise_node->output("Color"), value_aov_node->input("Value"));
-	sphere_shader_graph->connect(noise_node->output("Color"), sss_node->input("Scale"));
-
-	ccl::ShaderNode* sphere_out = sphere_shader_graph->output();
-	sphere_shader_graph->connect(sss_node->output("BSSRDF"), sphere_out->input("Surface"));
-	sphere_shader->set_graph(std::move(sphere_shader_graph));
-	sphere_shader->tag_update(scene);
-	int sphere_shader_id = scene->shaders.size() - 1;
-
-	// create shader for plane
-	ccl::Shader* plane_shader = scene->create_node<ccl::Shader>();
-	plane_shader->name = "plane_shader";
-	std::unique_ptr<ccl::ShaderGraph> plane_shader_graph = std::make_unique<ccl::ShaderGraph>();
-	ccl::GlossyBsdfNode* glossy_node = plane_shader_graph->create_node<ccl::GlossyBsdfNode>();
-	glossy_node->set_roughness(0.25f);
-	ccl::OutputAOVNode* plane_value_aov_node = plane_shader_graph->create_node<ccl::OutputAOVNode>();
-	plane_value_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name("plane_value_aov", false).GetAsciiString()));
-	ccl::CheckerTextureNode* checker_node = plane_shader_graph->create_node<ccl::CheckerTextureNode>();
-	checker_node->set_scale(0.3f);
-	checker_node->set_color1(ccl::make_float3(0.2, 0.2, 0.2));
-	checker_node->set_color2(ccl::make_float3(0.8, 0.8, 0.8));
-	// connections
-	plane_shader_graph->connect(checker_node->output("Color"), plane_value_aov_node->input("Value"));
-	plane_shader_graph->connect(checker_node->output("Color"), glossy_node->input("Color"));
-	ccl::ShaderNode* plane_out = plane_shader_graph->output();
-	plane_shader_graph->connect(glossy_node->output("BSDF"), plane_out->input("Surface"));
-	plane_shader->set_graph(std::move(plane_shader_graph));
-	plane_shader->tag_update(scene);
-
-	int plane_shader_id = scene->shaders.size() - 1;
-
-	// add plane
-	ccl::Mesh* plane_mesh = scene->create_node<ccl::Mesh>();
-
-	ccl::array<ccl::Node*> plane_used_shaders;
-	plane_used_shaders.push_back_slow(scene->shaders[plane_shader_id]);
-	plane_mesh->set_used_shaders(plane_used_shaders);
-
-	ccl::Object* plane_object = scene->create_node<ccl::Object>();
-	plane_object->set_geometry(plane_mesh);
-	plane_object->name = "plane";
-	plane_object->set_asset_name(ccl::ustring("plane"));
-	//plane_object->set_is_shadow_catcher(true);
-
-	ccl::Transform plane_tfm = ccl::transform_identity();
-	plane_object->set_tfm(plane_tfm);
-
-	plane_mesh->reserve_mesh(4, 2);  // on plane 4 vertices, 2 triangles
-	float plane_radius = 48.0;  // large plane for shadow catcher
-	ccl::array<ccl::float3> vertices(4);
-	vertices[0] = ccl::make_float3(plane_radius, 0, plane_radius);
-	vertices[1] = ccl::make_float3(-plane_radius, 0, plane_radius);
-	vertices[2] = ccl::make_float3(-plane_radius, 0, -plane_radius);
-	vertices[3] = ccl::make_float3(plane_radius, 0, -plane_radius);
-	plane_mesh->set_verts(vertices);
-
-	// triangles
-	plane_mesh->add_triangle(0, 1, 2, 0, false);
-	plane_mesh->add_triangle(0, 2, 3, 0, false);
-
-	// uvs
-	ccl::Attribute* uv_attr = plane_mesh->attributes.add(ccl::ATTR_STD_UV, ccl::ustring("std_uv"));
-	ccl::float2* default_uv = uv_attr->data_float2();
-	float scale = 0.75f;
-	default_uv[0] = ccl::make_float2(scale, scale);
-	default_uv[1] = ccl::make_float2(0.0, scale);
-	default_uv[2] = ccl::make_float2(0.0, 0.0);
-	default_uv[3] = ccl::make_float2(scale, scale);
-	default_uv[4] = ccl::make_float2(0.0, 0.0);
-	default_uv[5] = ccl::make_float2(scale, 0.0);
-
-	// shaders
-	ccl::array<ccl::Node*> used_shaders;
-	used_shaders.push_back_slow(scene->shaders[0]);
-
-	// add sphere
-	ccl::array<ccl::Node*> sphere_used_shaders;
-	sphere_used_shaders.push_back_slow(scene->shaders[sphere_shader_id]);
-	ccl::Mesh* sphere_mesh = build_sphere(scene);
-	sphere_mesh->set_used_shaders(sphere_used_shaders);
-	ccl::Object* sphere_object = scene->create_node<ccl::Object>();
-	sphere_object->set_geometry(sphere_mesh);
-	sphere_object->name = "sphere";
-	sphere_object->set_asset_name(ccl::ustring("sphere"));
-	ccl::Transform sphere_tfm = ccl::transform_identity();
-	sphere_tfm = sphere_tfm * ccl::transform_translate(ccl::make_float3(0, 6, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
-	sphere_object->set_tfm(sphere_tfm);
-
-	// add cube
-	ccl::Mesh* cube_mesh = build_cube(scene);
-	cube_mesh->set_used_shaders(used_shaders);
-	
-	/*ccl::Object* cube_object = scene->create_node<ccl::Object>();
-	cube_object->set_geometry(cube_mesh);
-	cube_object->name = "cube";
-	cube_object->set_asset_name(ccl::ustring("cube"));
-	ccl::Transform cube_tfm = ccl::transform_identity();
-	cube_tfm = cube_tfm * ccl::transform_translate(ccl::make_float3(0, 2, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
-	cube_object->set_tfm(cube_tfm);*/
-	ccl::Hair* hair_geom = scene->create_node<ccl::Hair>();
-	hair_geom->set_used_shaders(used_shaders);
-	hair_geom->reserve_curves(0, 0);
-	hair_geom->add_curve_key(ccl::make_float3(0.0, 0.0, 0.0), 1.0);
-	hair_geom->add_curve_key(ccl::make_float3(0.0, 4.0, 0.0), 1.0);
-	hair_geom->add_curve(0, 0);
-
-	ccl::Object* hair_object = scene->create_node<ccl::Object>();
-	hair_object->set_geometry(hair_geom);
-
-	// add one more cube
-	ccl::Object* second_cube_object = scene->create_node<ccl::Object>();
-	second_cube_object->set_geometry(cube_mesh);
-	second_cube_object->name = "second_cube";
-	second_cube_object->set_asset_name(ccl::ustring("second cube"));
-	ccl::Transform second_cube_tfm = ccl::transform_identity();
-	second_cube_tfm = second_cube_tfm * ccl::transform_translate(ccl::make_float3(3.5, 1, 2)) * ccl::transform_scale(1.0f, 1.0f, 1.0f);
-	second_cube_object->set_tfm(second_cube_tfm);
-}
-
 void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const ULONG shaderball_displacement, const XSI::CTime& eval_time)
 {
 	// set common shader parameters for all shaders
@@ -1066,8 +924,9 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 
 	sync_camera(scene, update_context);
 
-	if (isolation_list.GetCount() > 0)
-	{// render isolation view
+	if (isolation_list.GetCount() > 0) {
+		// TODO: in isolation view export only required materials (for isolated objects and for lights)
+		// render isolation view
 		// we should use all objects from isolation list and all light objects (build-in and custom) from all objects list
 		size_t isolation_objects_count = isolation_list.GetCount();
 

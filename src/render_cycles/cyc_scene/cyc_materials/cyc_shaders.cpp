@@ -472,7 +472,16 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 				clip = XSI::ImageClip2();
 			}
 
-			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
+			// TODO: find proper name of the colorscape
+			// May be introduce more colorspaces
+			// ustring u_colorspace_auto;
+			// ustring u_colorspace_data("data");
+			// ustring u_colorspace_scene_linear("scene_linear");
+			// ustring u_colorspace_scene_linear_srgb("scene_linear_srgb");
+			// ustring u_colorspace_srgb("__builtin_srgb");
+			// in Blednder: image->set_colorspace(ustring(b_image->colorspace_settings.name));
+			// ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
+			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_scene_linear_srgb : ccl::u_colorspace_scene_linear;
 
 			// we add each clip separately (without caching in update context)
 			// because one clip in different materials can have different effects (crop, blur and so on)
@@ -482,7 +491,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			ccl::array<int> tiles = exctract_tiles(tile_to_path_map);
 
 			// set node parameters before loader, because it use these parameters for define alpha
-			node->set_colorspace(selected_colorscape);
+			// node->set_colorspace(selected_colorscape);
 			node->set_projection(projection == "flat" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT : (projection == "box" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_BOX : (projection == "sphere" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_SPHERE : (projection == "tube" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_TUBE : ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT))));
 			node->set_projection_blend(projection_blend);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
@@ -491,7 +500,11 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 			node->set_animated(false);
 
-			if(image_source == "tiled")
+			// TODO: check that tiled images are work
+			// but in Blender only Builtin images are loaded by using custom loader
+			node->set_filename(ccl::ustring(file_path.GetAsciiString()));
+
+			/*if (image_source == "tiled")
 			{
 				// we should create array of loaders
 				ccl::vector<std::unique_ptr<ccl::ImageLoader>> loaders;
@@ -540,7 +553,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 					update_context->get_texture_limits(),
 					update_context->get_time());
 				node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
-			}
+			}*/
 
 			node->set_tiles(tiles);
 
@@ -583,14 +596,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 			bool temp_flag = false;
 			std::string filename = build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, false, temp_flag);
-			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
+			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_scene_linear_srgb : ccl::u_colorspace_scene_linear;
 
 			node->set_colorspace(selected_colorscape);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));
 			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
 
-			XSIImageLoader* image_loader = new XSIImageLoader(
+			/*XSIImageLoader* image_loader = new XSIImageLoader(
 				clip, 
 				selected_colorscape, 
 				0, 
@@ -599,7 +612,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 				update_context->get_path_to_image(),
 				update_context->get_texture_limits(),
 				update_context->get_time());
-			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
+			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());*/
+
+			node->set_filename(ccl::ustring(file_path.GetAsciiString()));
 
 			return node;
 		}
@@ -648,7 +663,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		float dz = sun_direction_y;
 
 		node->tex_mapping.rotation = ccl::make_float3(-0.5 * XSI::MATH::PI, 0, 0);
-		node->set_sky_type(type == "preetham" ? ccl::NodeSkyType::NODE_SKY_PREETHAM : (type == "hosekwilkil" ? ccl::NodeSkyType::NODE_SKY_HOSEK : ccl::NodeSkyType::NODE_SKY_NISHITA));
+		// TODO: instroduce new type of sky scaterring in the SkyTextureNode
+		node->set_sky_type(type == "preetham" ? ccl::NodeSkyType::NODE_SKY_PREETHAM : (type == "hosekwilkil" ? ccl::NodeSkyType::NODE_SKY_HOSEK : ccl::NodeSkyType::NODE_SKY_SINGLE_SCATTERING));
 		if (is_subsun)
 		{
 			node->set_sun_direction(ccl::make_float3(sun_x, -1 * sun_z, sun_y));
@@ -673,7 +689,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		node->set_sun_rotation(sun_rotation);
 		node->set_altitude(altitude);
 		node->set_air_density(air);
-		node->set_dust_density(dust);
+		// TODO: check the port name, may be it should be changed
+		node->set_aerosol_density(dust);
 		node->set_ozone_density(ozone);
 
 		return node;
@@ -958,7 +975,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		node->set_min_x(min_max[0]);
 		node->set_max_x(min_max[1]);
 		ccl::array<ccl::float3> curves_array = three_curves_to_array(x_curve, y_curve, z_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
-		node->set_curves(curves_array);
+		// TODO: curves_array should be array<packed_float3>
+		// and also need curves->set_extrapolate((mapping.flag & blender::CUMA_EXTEND_EXTRAPOLATE) != 0);
+		// node->set_curves(curves_array);
 
 		return node;
 	}
@@ -1269,7 +1288,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		node->set_min_x(min_max[0]);
 		node->set_max_x(min_max[1]);
 		ccl::array<ccl::float3> curves = three_curves_to_array(r_curve, g_curve, b_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
-		node->set_curves(curves);
+		// TODO: similary to curves
+		// another type and set_extrapolate
+		// node->set_curves(curves);
 
 		return node;
 	}
@@ -1284,7 +1305,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		node->set_min_x(min_max[0]);
 		node->set_max_x(min_max[1]);
 		ccl::array<ccl::float3> curves = three_curves_to_array(curve, curve, curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
-		node->set_curves(curves);
+		// TODO: also here
+		// node->set_curves(curves);
 
 		return node;	
 	}
@@ -1328,17 +1350,21 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	}
 	else if (shader_type == "CombineRGB")
 	{
-		ccl::CombineRGBNode* node = shader_graph->create_node<ccl::CombineRGBNode>();
+		// TODO: nodes are removed, use another one fior mimic this node
+		/*ccl::CombineRGBNode* node = shader_graph->create_node<ccl::CombineRGBNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
-		return node;
+		return node;*/
+		return NULL;
 	}
 	else if (shader_type == "CombineHSV")
 	{
-		ccl::CombineHSVNode* node = shader_graph->create_node<ccl::CombineHSVNode>();
+		// TODO: use another node
+		/* ccl::CombineHSVNode* node = shader_graph->create_node<ccl::CombineHSVNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
-		return node;
+		return node;*/
+		return NULL;
 	}
 	else if (shader_type == "CombineXYZ")
 	{
@@ -1359,17 +1385,21 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	}
 	else if (shader_type == "SeparateRGB")
 	{
-		ccl::SeparateRGBNode* node = shader_graph->create_node<ccl::SeparateRGBNode>();
+		// TODO: use another node
+		/*ccl::SeparateRGBNode* node = shader_graph->create_node<ccl::SeparateRGBNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
-		return node;
+		return node;*/
+		return NULL;
 	}
 	else if (shader_type == "SeparateHSV")
 	{
-		ccl::SeparateHSVNode* node = shader_graph->create_node<ccl::SeparateHSVNode>();
+		// TODO: use another node
+		/*ccl::SeparateHSVNode* node = shader_graph->create_node<ccl::SeparateHSVNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
-		return node;
+		return node;*/
+		return NULL;
 	}
 	else if (shader_type == "SeparateXYZ")
 	{
@@ -1457,7 +1487,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		ccl::array<ccl::float3> ramp;
 		ccl::array<float> ramp_alpha;
 		form_ramp(gradient_data, RAMP_TABLE_SIZE, ramp, ramp_alpha);
-		node->set_ramp(ramp);
+		// TODO: ramp should be array<packed_float3>
+		// and also add ramp->set_interpolate(b_color_ramp.ipotype != blender::COLBAND_INTERP_CONSTANT);
+		// node->set_ramp(ramp);
 		node->set_ramp_alpha(ramp_alpha);
 
 		return node;

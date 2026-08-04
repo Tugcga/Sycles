@@ -111,13 +111,13 @@ XSIImageLoader::~XSIImageLoader()
 	m_image_pixels.shrink_to_fit();
 }
 
-bool XSIImageLoader::load_metadata(const ccl::ImageDeviceFeatures& features, ccl::ImageMetaData& metadata)
+bool XSIImageLoader::load_metadata(ccl::ImageMetaData& metadata, const ccl::ImageLoaderParams& params, ccl::Progress& progress)
 {
 	metadata.width = m_width;
 	metadata.height = m_height;
 	metadata.channels = m_channels;
-	metadata.depth = 1;
 	metadata.colorspace = m_color_profile;
+	// TODO: should we define is_unassociated_alpha and what value
 
 	if (m_use_clip)
 	{
@@ -142,10 +142,11 @@ bool XSIImageLoader::load_metadata(const ccl::ImageDeviceFeatures& features, ccl
 	return true;
 }
 
-bool XSIImageLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixels, const size_t pixels_size, const bool associate_alpha)
+bool XSIImageLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixels)
 {
 	// our image may contains some channels, but output pixels always either 1 or 4 channels
-	ULONG pixels_count = m_width * m_height;
+	// TODO: implement the method
+	/*ULONG pixels_count = m_width * m_height;
 	ULONG output_channels = pixels_size / pixels_count;
 
 	if (m_use_clip)
@@ -276,7 +277,7 @@ bool XSIImageLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixel
 		}
 
 		return true;
-	}
+	}*/
 
 	return false;
 }

@@ -55,13 +55,16 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 
 	ULONG num_points = position_data.GetCount();
 	ULONG size_count = size_data.GetCount();
-	points_geom->reserve(num_points);
+	points_geom->resize(num_points);
 
-	ccl::Attribute* attr_random = NULL;
-	if (points_geom->need_attribute(scene, ccl::ATTR_STD_POINT_RANDOM))
-	{
-		attr_random = points_geom->attributes.add(ccl::ATTR_STD_POINT_RANDOM);
+	float* random_data = NULL;
+	if (points_geom->need_attribute(scene, ccl::ATTR_STD_POINT_RANDOM)) {
+		ccl::Attribute* attr_random = points_geom->attributes.add(ccl::ATTR_STD_POINT_RANDOM);
+		random_data = attr_random->data_for_write<float>();
 	}
+
+	ccl::packed_float3* attr_position_data = points_geom->get_position_for_write();
+	float* attr_radius_data = points_geom->get_radius_for_write();
 
 	out_original_positions.resize(num_points);
 	for (size_t i = 0; i < num_points; i++)
@@ -69,11 +72,13 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 		XSI::MATH::CVector3f position = position_data[i];
 		float size = i < size_count ? size_data[i] : 0.0f;
 		ccl::float3 position_float3 = vector3_to_float3(position);
-		points_geom->add_point(position_float3, size);
+		// points_geom->add_point(position_float3, size);
+		attr_position_data[i] = position_float3;
+		attr_radius_data[i] = size;
+
 		out_original_positions[i] = ccl::make_float4(position_float3.x, position_float3.y, position_float3.z, size);
-		if (attr_random != NULL)
-		{
-			attr_random->add(ccl::hash_uint2_to_float(i, 0));
+		if (random_data != NULL) {
+			random_data[i] = ccl::hash_uint2_to_float(i, 0);
 		}
 	}
 
@@ -102,7 +107,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 					XSI::CICEAttributeDataArrayFloat attr_data;
 					ice_attribute.GetDataArray(attr_data);
 					ccl::Attribute* attr = cycles_attributes.add(name, ccl::TypeFloat, element);
-					float* data = attr->data_float();
+					float* data = attr->data_for_write<float>();
 					for (size_t v = 0; v < num_points; v++)
 					{
 						data[v] = attr_data[v];
@@ -113,7 +118,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 					XSI::CICEAttributeDataArrayBool attr_data;
 					ice_attribute.GetDataArray(attr_data);
 					ccl::Attribute* attr = cycles_attributes.add(name, ccl::TypeFloat, element);
-					float* data = attr->data_float();
+					float* data = attr->data_for_write<float>();
 					for (size_t v = 0; v < num_points; v++)
 					{
 						data[v] = attr_data[v] ? 1.0 : 0.0;
@@ -124,7 +129,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 					XSI::CICEAttributeDataArrayLong attr_data;
 					ice_attribute.GetDataArray(attr_data);
 					ccl::Attribute* attr = cycles_attributes.add(name, ccl::TypeFloat, element);
-					float* data = attr->data_float();
+					float* data = attr->data_for_write<float>();
 					for (size_t v = 0; v < num_points; v++)
 					{
 						data[v] = attr_data[v];
@@ -135,7 +140,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 					XSI::CICEAttributeDataArrayVector3f attr_data;
 					ice_attribute.GetDataArray(attr_data);
 					ccl::Attribute* attr = cycles_attributes.add(name, ccl::TypeVector, element);
-					ccl::float3* data = attr->data_float3();
+					ccl::float3* data = attr->data_for_write<ccl::float3>();
 					for (size_t v = 0; v < num_points; v++)
 					{
 						XSI::MATH::CVector3f vector = attr_data[v];
@@ -147,7 +152,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 					XSI::CICEAttributeDataArrayColor4f attr_data;
 					ice_attribute.GetDataArray(attr_data);
 					ccl::Attribute* attr = cycles_attributes.add(name, ccl::TypeRGBA, element);
-					ccl::float4* data = attr->data_float4();
+					ccl::float4* data = attr->data_for_write<ccl::float4>();
 					for (size_t v = 0; v < num_points; v++)
 					{
 						XSI::MATH::CColor4f color = attr_data[v];
@@ -159,7 +164,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 					XSI::CICEAttributeDataArrayVector2f attr_data;
 					ice_attribute.GetDataArray(attr_data);
 					ccl::Attribute* attr = cycles_attributes.add(name, ccl::TypeFloat2, element);
-					ccl::float2* data = attr->data_float2();
+					ccl::float2* data = attr->data_for_write<ccl::float2>();
 					for (size_t v = 0; v < num_points; v++)
 					{
 						XSI::MATH::CVector2f vector = attr_data[v];
@@ -173,7 +178,8 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 
 void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_context, const XSI::X3DObject& xsi_object, const std::vector<ccl::float4> &original_positions)
 {
-	size_t motion_steps = update_context->get_motion_steps();
+	// TODO: make proper points deform
+	/*size_t motion_steps = update_context->get_motion_steps();
 	ULONG original_points_count = original_positions.size();
 	points_geom->set_motion_steps(motion_steps);
 	points_geom->set_use_motion_blur(true);
@@ -219,7 +225,7 @@ void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_cont
 		{
 			motion_positions[attribute_index++] = original_positions[point_index];
 		}
-	}
+	}*/
 }
 
 void sync_points_geom_process(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, bool motion_deform)

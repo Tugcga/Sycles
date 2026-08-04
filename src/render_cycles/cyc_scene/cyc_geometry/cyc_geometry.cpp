@@ -10,25 +10,35 @@
 #include "../../../utilities/math.h"
 #include "../../../utilities/logs.h"
 
-ccl::uint get_ray_visibility(const XSI::CParameterRefArray &property_params, const XSI::CTime &eval_time)
+ccl::PathRayVisibility get_ray_visibility(const XSI::CParameterRefArray &property_params, const XSI::CTime &eval_time)
 {
-	ccl::uint flag = 0;
+	ccl::PathRayVisibility visibility = ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_camera", eval_time)) ? ccl::PATH_RAY_VISIBILITY_CAMERA : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_diffuse", eval_time)) ? ccl::PATH_RAY_VISIBILITY_DIFFUSE : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_glossy", eval_time)) ? ccl::PATH_RAY_VISIBILITY_GLOSSY : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_transmission", eval_time)) ? ccl::PATH_RAY_VISIBILITY_TRANSMIT : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_shadow", eval_time)) ? ccl::PATH_RAY_VISIBILITY_SHADOW : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_volume_scatter", eval_time)) ? ccl::PATH_RAY_VISIBILITY_VOLUME_SCATTER : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_raycast", eval_time)) ? ccl::PATH_RAY_VISIBILITY_RAYCAST : ccl::PATH_RAY_VISIBILITY_NONE;
+
+	/*ccl::uint flag = 0;
 	flag |= bool(property_params.GetValue("ray_visibility_camera", eval_time)) ? ccl::PATH_RAY_CAMERA : 0;
 	flag |= bool(property_params.GetValue("ray_visibility_diffuse", eval_time)) ? ccl::PATH_RAY_DIFFUSE : 0;
 	flag |= bool(property_params.GetValue("ray_visibility_glossy", eval_time)) ? ccl::PATH_RAY_GLOSSY : 0;
 	flag |= bool(property_params.GetValue("ray_visibility_transmission", eval_time)) ? ccl::PATH_RAY_TRANSMIT : 0;
 	flag |= bool(property_params.GetValue("ray_visibility_shadow", eval_time)) ? ccl::PATH_RAY_SHADOW : 0;
-	flag |= bool(property_params.GetValue("ray_visibility_volume_scatter", eval_time)) ? ccl::PATH_RAY_VOLUME_SCATTER : 0;
+	flag |= bool(property_params.GetValue("ray_visibility_volume_scatter", eval_time)) ? ccl::PATH_RAY_VOLUME_SCATTER : 0;*/
 
 	XSI::Parameter is_holdout_param = property_params.GetItem("is_holdout");
 	if (is_holdout_param.IsValid())
 	{
 		if (bool(is_holdout_param.GetValue(eval_time)))
 		{
-			flag &= ~(ccl::PATH_RAY_ALL_VISIBILITY - ccl::PATH_RAY_CAMERA);
+			// flag &= ~(ccl::PATH_RAY_ALL_VISIBILITY - ccl::PATH_RAY_CAMERA);
+			visibility &= ~ccl::PATH_RAY_VISIBILITY_CAMERA;
 		}
 	}
-	return flag;
+	return visibility;
 }
 
 void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject &xsi_object, XSI::CString &lightgroup, bool &out_motion_deform, const XSI::CString &property_name, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time, bool full_update)

@@ -25,7 +25,8 @@ ccl::DenoiseParams get_denoise_params(const XSI::CParameterRefArray &render_para
 
 	denoising.quality = ccl::DENOISER_QUALITY_BALANCED;
 
-	denoising.use_pass_albedo = false;
+	// TODO: may be remove this function, because we does not need denoising params
+	/*denoising.use_pass_albedo = false;
 	denoising.use_pass_normal = false;
 
 	int denoise_channels = render_parameters.GetValue("denoise_channels", eval_time);
@@ -37,7 +38,7 @@ ccl::DenoiseParams get_denoise_params(const XSI::CParameterRefArray &render_para
 	{
 		denoising.use_pass_albedo = true;
 		denoising.use_pass_normal = true;
-	}
+	}*/
 
 	return denoising;
 }
@@ -105,8 +106,10 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		int patttern = render_parameters.GetValue("sampling_advanced_pattern", eval_time);
 		integrator->set_sampling_pattern(patttern == 1 ? ccl::SamplingPattern::SAMPLING_PATTERN_TABULATED_SOBOL: ccl::SamplingPattern::SAMPLING_PATTERN_SOBOL_BURLEY);
 
-		ccl::DenoiseParams denoise_params = get_denoise_params(render_parameters, eval_time);
-		integrator->set_use_denoise(denoise_params.use);
+		integrator->set_use_denoise(false);
+		// Neve use build-in denoiser
+		// ccl::DenoiseParams denoise_params = get_denoise_params(render_parameters, eval_time);
+		/*integrator->set_use_denoise(denoise_params.use);
 		if (denoise_params.use)
 		{
 			integrator->set_denoiser_type(denoise_params.type);
@@ -116,7 +119,7 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 			integrator->set_use_denoise_pass_normal(denoise_params.use_pass_normal);
 			integrator->set_denoiser_prefilter(denoise_params.prefilter);
 			integrator->set_denoiser_quality(denoise_params.quality);
-		}
+		}*/
 
 		float scrambling_distance = render_parameters.GetValue("sampling_advanced_scrambling_multiplier", eval_time);
 		bool auto_scrambling_distance = render_parameters.GetValue("sampling_advanced_scrambling_distance", eval_time);

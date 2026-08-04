@@ -567,7 +567,9 @@ void populate_bake_data(ccl::Mesh* mesh, size_t uv_map_index, BakingContext* bak
 		{
 			if (i == uv_map_index)
 			{
-				fdata = attr_i->data_float2();
+				// fdata = attr_i->data_float2();
+				// TODO: check baking, we change uv attribute
+				fdata = attr_i->data_for_write<ccl::float2>();
 			}
 			i++;
 		}

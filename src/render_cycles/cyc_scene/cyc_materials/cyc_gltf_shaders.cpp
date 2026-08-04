@@ -148,7 +148,7 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 					// manualy export image node
 					ccl::ImageTextureNode* image_node = shader_graph->create_node<ccl::ImageTextureNode>();
 
-					XSIImageLoader* image_node_loader = new XSIImageLoader(
+					/*XSIImageLoader* image_node_loader = new XSIImageLoader(
 						normal_clip, 
 						ccl::u_colorspace_raw, 
 						0, 
@@ -157,15 +157,17 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 						update_context->get_path_to_image(),
 						update_context->get_texture_limits(),
 						update_context->get_time());
-					image_node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_node_loader), image_node->image_params());
+					image_node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_node_loader), image_node->image_params());*/
 
-					image_node->set_colorspace(ccl::u_colorspace_raw);
+					// TODO: may be more proper will be set u_colorspace_data
+					image_node->set_colorspace(ccl::u_colorspace_scene_linear);
 					image_node->set_projection(ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT);
 					image_node->set_projection_blend(0.0);
 					image_node->set_interpolation(ccl::InterpolationType::INTERPOLATION_SMART);
 					image_node->set_extension(ccl::ExtensionType::EXTENSION_REPEAT);
 					image_node->set_alpha_type(ccl::ImageAlphaType::IMAGE_ALPHA_AUTO);
 					image_node->set_animated(false);
+					image_node->set_filename(ccl::ustring(normal_clip.GetFileName().GetAsciiString()));
 
 					// connect
 					shader_graph->connect(image_node->output("Color"), normal_node->input("Color"));

@@ -57,7 +57,7 @@ ICEVolumeLoader::~ICEVolumeLoader()
 
 }
 
-bool ICEVolumeLoader::load_metadata(const ccl::ImageDeviceFeatures& features, ccl::ImageMetaData& metadata)
+bool ICEVolumeLoader::load_metadata(ccl::ImageMetaData& metadata, const ccl::ImageLoaderParams& params, ccl::Progress& progress)
 {
 	if(m_attribute_type == VolumeAttributeType::VolumeAttributeType_Float)
 	{
@@ -76,7 +76,8 @@ bool ICEVolumeLoader::load_metadata(const ccl::ImageDeviceFeatures& features, cc
 	}
 	metadata.width = m_size_x;
 	metadata.height = m_size_y;
-	metadata.depth = m_size_z;
+	// TODO: how to define size Z for volumes, in Blender VDBImageLoader is the extension of Image loader
+	// metadata.depth = m_size_z;
 
 	metadata.use_transform_3d = true;
 	metadata.transform_3d =
@@ -87,7 +88,7 @@ bool ICEVolumeLoader::load_metadata(const ccl::ImageDeviceFeatures& features, cc
 	return true;
 }
 
-bool ICEVolumeLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixels, const size_t pixels_size, const bool associate_alpha)
+bool ICEVolumeLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixels)
 {
 	if (m_attribute_type == VolumeAttributeType::VolumeAttributeType_Float)
 	{
@@ -97,8 +98,9 @@ bool ICEVolumeLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixe
 		float_array_data.GetSubArray(0, float_data);
 
 		size_t floats_count = float_data.GetCount();
-		if (read_status == XSI::CStatus::OK && floats_count == pixels_size)
-		{
+		// TODO: fix here
+		// if (read_status == XSI::CStatus::OK && floats_count == pixels_size)
+		if (read_status == XSI::CStatus::OK) {
 			float* fpixels = (float*)pixels;
 			for (size_t i = 0; i < floats_count; i++)
 			{
@@ -117,7 +119,9 @@ bool ICEVolumeLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixe
 		vector_array_data.GetSubArray(0, vector_data);
 
 		size_t vectors_count = vector_data.GetCount();
-		if (read_status == XSI::CStatus::OK && vectors_count * 3 == pixels_size)
+		// TODO: and here
+		// if (read_status == XSI::CStatus::OK && vectors_count * 3 == pixels_size)
+		if (read_status == XSI::CStatus::OK)
 		{
 			float* fpixels = (float*)pixels;
 			for (size_t i = 0; i < vectors_count; i++)
@@ -140,7 +144,9 @@ bool ICEVolumeLoader::load_pixels(const ccl::ImageMetaData& metadata, void* pixe
 		color_array_data.GetSubArray(0, color_data);
 
 		size_t colors_count = color_data.GetCount();
-		if (read_status == XSI::CStatus::OK && colors_count * 4 == pixels_size)
+		// TODO: and also here
+		// if (read_status == XSI::CStatus::OK && colors_count * 4 == pixels_size)
+		if (read_status == XSI::CStatus::OK)
 		{
 			float* fpixels = (float*)pixels;
 			for (size_t i = 0; i < colors_count; i++)

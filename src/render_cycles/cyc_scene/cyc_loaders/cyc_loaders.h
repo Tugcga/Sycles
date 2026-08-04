@@ -30,8 +30,8 @@ public:
 		const XSI::CTime &eval_time);
 	~XSIImageLoader();
 
-	bool load_metadata(const ccl::ImageDeviceFeatures& features, ccl::ImageMetaData& metadata) override;
-	bool load_pixels(const ccl::ImageMetaData& metadata, void* pixels, const size_t pixels_size, const bool associate_alpha) override;
+	bool load_metadata(ccl::ImageMetaData& metadata, const ccl::ImageLoaderParams& params, ccl::Progress& progress) override;
+	bool load_pixels(const ccl::ImageMetaData& metadata, void* pixels) override;
 	std::string name() const override;
 	bool equals(const ImageLoader& other) const override;
 	void cleanup() override;
@@ -63,8 +63,8 @@ public:
 	ICEVolumeLoader(VolumeAttributeType attribute_type, const XSI::Primitive &xsi_primitive, const std::string &attribute_name, const XSI::CTime &eval_time);
 	~ICEVolumeLoader();
 
-	bool load_metadata(const ccl::ImageDeviceFeatures& features, ccl::ImageMetaData& metadata) override;
-	bool load_pixels(const ccl::ImageMetaData& metadata, void* pixels, const size_t pixels_size, const bool associate_alpha) override;
+	bool load_metadata(ccl::ImageMetaData& metadata, const ccl::ImageLoaderParams& params, ccl::Progress& progress) override;
+	bool load_pixels(const ccl::ImageMetaData& metadata, void* pixels) override;
 	std::string name() const override;
 	bool equals(const ImageLoader& other) const override;
 	void cleanup() override;

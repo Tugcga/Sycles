@@ -93,7 +93,8 @@ void sync_strands_geom(ccl::Scene* scene,
 	ccl::vector<size_t> &out_strand_lengths  // store here strand sizes (the length of strand position attribute), consider only non-zero strands
 )
 {
-	XSI::CTime eval_time = update_context->get_time();
+	// TODO: implement starnds export
+	/*XSI::CTime eval_time = update_context->get_time();
 	XSI::Geometry xsi_geometry = xsi_primitive.GetGeometry(eval_time);
 
 	// get strands data from ICE
@@ -333,7 +334,7 @@ void sync_strands_geom(ccl::Scene* scene,
 				}
 			}
 		}
-	}
+	}*/
 }
 
 void sync_strands_deform(ccl::Hair* hair, 
@@ -343,7 +344,8 @@ void sync_strands_deform(ccl::Hair* hair,
 	const ccl::vector<size_t> &strand_points,
 	const ccl::vector<size_t>& strand_length)
 {
-	size_t motion_steps = update_context->get_motion_steps();
+	// TODO: implement strands motions
+	/*size_t motion_steps = update_context->get_motion_steps();
 	hair->set_motion_steps(motion_steps);
 	hair->set_use_motion_blur(true);
 
@@ -455,7 +457,7 @@ void sync_strands_deform(ccl::Hair* hair,
 				motion_positions[attribute_index++] = original_positions[k_index];
 			}
 		}
-	}
+	}*/
 }
 
 // in this function we actually create geometry
@@ -564,8 +566,9 @@ XSI::CStatus update_strands(ccl::Scene* scene, UpdateContext* update_context, XS
 
 				sync_strands_geom_process(scene, strands_geom, update_context, xsi_prim, xsi_object, motion_deform);
 
-				bool rebuild = strands_geom->curve_keys_is_modified() || strands_geom->curve_radius_is_modified();
-				strands_geom->tag_update(scene, rebuild);
+				// bool rebuild = strands_geom->curve_keys_is_modified() || strands_geom->curve_radius_is_modified();
+				// TODO: need true?
+				strands_geom->tag_update(scene, true);
 			}
 			else
 			{
