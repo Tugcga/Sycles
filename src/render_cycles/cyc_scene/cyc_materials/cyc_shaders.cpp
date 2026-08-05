@@ -249,10 +249,12 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		float radiusx = get_float_parameter_value(xsi_parameters, "RadiusX", eval_time);
 		float radiusy = get_float_parameter_value(xsi_parameters, "RadiusY", eval_time);
 		float radiusz = get_float_parameter_value(xsi_parameters, "RadiusZ", eval_time);
+		bool this_wall = get_bool_parameter_value(xsi_parameters, "thin_wall_bool", eval_time);
 
 		node->set_distribution(get_distribution(distribution, DistributionModes_Principle));
 		node->set_subsurface_method(get_subsurface_method(ssmethod));
 		node->set_subsurface_radius(ccl::make_float3(radiusx, radiusy, radiusz));
+		node->set_thin_wall(this_wall ? 1 : 0);
 
 		return node;
 	}

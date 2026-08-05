@@ -750,6 +750,8 @@ def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_Define(in_ctxt):
     add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Rotation", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "ThinFilmThickness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.33, "ThinFilmIOR", 1.0, 4.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
     add_input_normal(standard_pram_options(), params, 0.0, "Tangent")
 
@@ -780,6 +782,10 @@ def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_Define(in_ctxt):
     ppg_layout.AddItem("Roughness", "Roughness")
     ppg_layout.AddItem("Anisotropy", "Anisotropy")
     ppg_layout.AddItem("Rotation", "Rotation")
+    ppg_layout.EndGroup()
+    ppg_layout.AddGroup("This Film")
+    ppg_layout.AddItem("ThinFilmThickness", "Thickness")
+    ppg_layout.AddItem("ThinFilmIOR", "IOR")
     ppg_layout.EndGroup()
 
     ppg_layout.Language = "Python"
@@ -844,6 +850,11 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     add_input_float(standard_pram_options(), params, 0.0, "DiffuseRoughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.45, "IOR", 0.0, 4.0)
     add_input_float(standard_pram_options(), params, 1.0, "Alpha", 0.0, 1.0)
+    
+    # this parameter for connections, does not show on UI
+    add_input_integer(standard_pram_options(), params, 0, "ThinWall", 0, 1)
+    # this show on PPG, does not used for conenctions
+    add_input_boolean(no_port_pram_options(), params, False, "thin_wall_bool")
 
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
 
@@ -892,6 +903,8 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     ppg_layout.AddItem("Metallic", "Metallic")
     ppg_layout.AddItem("Roughness", "Roughness")
     ppg_layout.AddItem("IOR", "IOR")
+    ppg_layout.AddItem("Alpha", "Alpha")
+    ppg_layout.AddItem("thin_wall_bool", "Thin Wall")
     ppg_layout.EndGroup()
 
     ppg_layout.AddTab("Diffuse")
@@ -952,7 +965,7 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
 
     ppg_layout.AddTab("Thin Film")
     ppg_layout.AddGroup("Thin Film Parameters")
-    ppg_layout.AddColor("ThinFilmThickness", "Thickness")
+    ppg_layout.AddItem("ThinFilmThickness", "Thickness")
     ppg_layout.AddItem("ThinFilmIOR", "IOR")
     ppg_layout.EndGroup()
 
@@ -1154,6 +1167,8 @@ def CyclesShadersPlugin_CyclesGlassBSDF_1_0_Define(in_ctxt):
     add_input_color(standard_pram_options(), params, 0.8, "Color")
     add_input_float(standard_pram_options(), params, 0.0, "Roughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.45, "IOR", 1.0, 2.0)
+    add_input_float(standard_pram_options(), params, 0.0, "ThinFilmThickness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.33, "ThinFilmIOR", 1.0, 4.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
 
     # Output Parameter: out
@@ -1166,7 +1181,8 @@ def CyclesShadersPlugin_CyclesGlassBSDF_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.AddItem("Roughness", "Roughness")
     ppgLayout.AddItem("IOR", "IOR")
-    ppgLayout.EndGroup()
+    ppg_layout.AddItem("ThinFilmThickness", "Thin Film Thickness")
+    ppg_layout.AddItem("ThinFilmIOR", "Thin Film IOR")
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")

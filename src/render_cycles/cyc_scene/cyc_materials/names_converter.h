@@ -207,6 +207,9 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Normal", "Normal"},
 			{"Tangent", "Tangent"},
 
+			{"ThinFilmThickness", "Thin Film Thickness"},
+			{"ThinFilmIOR", "Thin Film IOR"},
+
 			{"outBSDF", "BSDF"}
 		}
 	},
@@ -228,6 +231,9 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Normal", "Normal"},
 			{"Roughness", "Roughness"},
 			{"IOR", "IOR"},
+
+			{"ThinFilmThickness", "Thin Film Thickness"},
+			{"ThinFilmIOR", "Thin Film IOR"},
 
 			{"outBSDF", "BSDF"}
 		}
@@ -277,6 +283,7 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Roughness", "Roughness"},
 			{"IOR", "IOR"},
 			{"Alpha", "Alpha"},
+			{"ThinWall", "Thin Wall"},
 			{"DiffuseRoughness", "Diffuse Roughness"},
 
 			{"Normal", "Normal"},
