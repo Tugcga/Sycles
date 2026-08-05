@@ -594,10 +594,11 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		float dz = sun_direction_y;
 
 		node->tex_mapping.rotation = ccl::make_float3(-0.5 * XSI::MATH::PI, 0, 0);
-		// TODO: instroduce new type of sky scaterring in the SkyTextureNode
-		node->set_sky_type(type == "preetham" ? ccl::NodeSkyType::NODE_SKY_PREETHAM : (type == "hosekwilkil" ? ccl::NodeSkyType::NODE_SKY_HOSEK : ccl::NodeSkyType::NODE_SKY_SINGLE_SCATTERING));
-		if (is_subsun)
-		{
+		node->set_sky_type(
+			type == "preetham" ? ccl::NodeSkyType::NODE_SKY_PREETHAM : (
+			type == "hosekwilkil" ? ccl::NodeSkyType::NODE_SKY_HOSEK : (
+			type == "single_scattering" ? ccl::NodeSkyType::NODE_SKY_SINGLE_SCATTERING : ccl::NodeSkyType::NODE_SKY_MULTIPLE_SCATTERING)));
+		if (is_subsun) {
 			node->set_sun_direction(ccl::make_float3(sun_x, -1 * sun_z, sun_y));
 			float a_sin_z = std::asin(sun_z);
 			float xz_length = sqrtf(sun_x * sun_x + sun_z * sun_z);
@@ -605,8 +606,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			sun_rotation = a_sin_z > 0 ? -std::asin(sun_x) + XSI::MATH::PI : asin(sun_x);
 			sun_elevation = std::asin(sun_y);
 		}
-		else
-		{
+		else {
 			node->set_sun_direction(ccl::make_float3(dx, dy, dz));
 		}
 
@@ -620,8 +620,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		node->set_sun_rotation(sun_rotation);
 		node->set_altitude(altitude);
 		node->set_air_density(air);
-		// TODO: check the port name, may be it should be changed
-		node->set_aerosol_density(dust);
+		node->set_aerosol_density(dust);  // now it change the name, use the same parameter
 		node->set_ozone_density(ozone);
 
 		return node;

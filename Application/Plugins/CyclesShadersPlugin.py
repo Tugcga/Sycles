@@ -52,7 +52,8 @@ env_projection_enum = [
 sky_type_enum = [
     "Preetham", "preetham",
     "Hosek/Wilkil", "hosekwilkil",
-    "Nishita", "nishita"
+    "Single Scattering", "single_scattering",
+    "Multiple Scattering", "multiple_scattering"
 ]
 
 gradient_type_enum = [
@@ -2025,7 +2026,6 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
     ppg_layout.AddEnumControl("ColorSpace", color_space_enum, "Color Space")
     ppg_layout.AddEnumControl("Interpolation", interpolation_enum, "Interpolation")
     ppg_layout.AddEnumControl("Projection", env_projection_enum, "Projection")
-    # ppg_layout.AddItem("premultiply_alpha", "Premultiply Alpha")
     ppg_layout.AddEnumControl("alpha_type", alphas_enum, "Alpha")
     ppg_layout.EndGroup()
     ppg_layout.AddGroup("Source")
@@ -2083,7 +2083,7 @@ def CyclesShadersPlugin_CyclesSkyTexture_1_0_Define(in_ctxt):
 
     # Input Parameters
     params = shader_def.InputParamDefs
-    add_input_string(no_port_pram_options(), params, "nishita", "Type")
+    add_input_string(no_port_pram_options(), params, "multiple_scattering", "Type")
     add_input_float(no_port_pram_options(), params, 0, "SunDirectionX")
     add_input_float(no_port_pram_options(), params, 0, "SunDirectionY")
     add_input_float(no_port_pram_options(), params, 1, "SunDirectionZ")
@@ -2122,7 +2122,7 @@ def CyclesShadersPlugin_CyclesSkyTexture_1_0_Define(in_ctxt):
     ppg_layout.AddItem("GroundAlbedo", "Ground Albedo")
     ppg_layout.EndGroup()
 
-    ppg_layout.AddGroup("Nishita")
+    ppg_layout.AddGroup("Scattering")
     ppg_layout.AddItem("SunDisc", "Sun Disc")
     ppg_layout.AddItem("SunSize", "Sun Size")
     ppg_layout.AddItem("SunIntensity", "Sun Intensity")
@@ -2130,7 +2130,7 @@ def CyclesShadersPlugin_CyclesSkyTexture_1_0_Define(in_ctxt):
     ppg_layout.AddItem("SunRotation", "Sun Rotation")
     ppg_layout.AddItem("Altitude", "Altitude")
     ppg_layout.AddItem("Air", "Air")
-    ppg_layout.AddItem("Dust", "Dust")
+    ppg_layout.AddItem("Dust", "Aerosols")
     ppg_layout.AddItem("Ozone", "Ozone")
     ppg_layout.EndGroup()
 
