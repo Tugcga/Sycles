@@ -114,7 +114,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		XSI::ShaderParameter repeats_param = params.GetItem("repeats");
 		XSI::ShaderParameter uv_param = params.GetItem("tspace_id");
 		bool alpha_output = get_bool_parameter_value(params, "alpha_output", eval_time);
-		// float alpha_factor = get_float_parameter_value(params, "alpha_factor", eval_time);  // does not used
 
 		if (clip.IsValid() && alt_x_param.IsValid() && alt_y_param.IsValid() && repeats_param.IsValid() && uv_param.IsValid())
 		{
@@ -137,26 +136,15 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			update_context->add_to_nodes_map(xsi_shader_id, node);
 			node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
-			node->set_colorspace(ccl::u_colorspace_srgb);
+			node->set_colorspace(ccl::u_colorspace_scene_linear_srgb);  // alphays set sRGB
 			node->set_projection(ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT);
 			node->set_projection_blend(0.0);
 			node->set_interpolation(ccl::InterpolationType::INTERPOLATION_SMART);
 			node->set_extension(ccl::ExtensionType::EXTENSION_REPEAT);
-			node->set_alpha_type(alpha_output ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
+			node->set_alpha_type(alpha_output ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_UNASSOCIATED);
 			node->set_animated(false);
 			
 			node->set_filename(ccl::ustring(file_path.GetAsciiString()));
-			/*XSIImageLoader* image_loader = new XSIImageLoader(
-				clip, 
-				ccl::u_colorspace_srgb, 
-				0, 
-				"",
-				update_context->get_use_texture_cache(),
-				update_context->get_path_to_image(),
-				update_context->get_texture_limits(),
-				update_context->get_time());
-			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());*/
-
 			// uv node
 			ccl::UVMapNode* uv_node = shader_graph->create_node<ccl::UVMapNode>();
 			uv_node->set_attribute(ccl::ustring(uv_name.GetAsciiString()));

@@ -148,19 +148,7 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 					// manualy export image node
 					ccl::ImageTextureNode* image_node = shader_graph->create_node<ccl::ImageTextureNode>();
 
-					/*XSIImageLoader* image_node_loader = new XSIImageLoader(
-						normal_clip, 
-						ccl::u_colorspace_raw, 
-						0, 
-						"", 
-						update_context->get_use_texture_cache(),
-						update_context->get_path_to_image(),
-						update_context->get_texture_limits(),
-						update_context->get_time());
-					image_node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_node_loader), image_node->image_params());*/
-
-					// TODO: may be more proper will be set u_colorspace_data
-					image_node->set_colorspace(ccl::u_colorspace_scene_linear);
+					image_node->set_colorspace(ccl::u_colorspace_data);
 					image_node->set_projection(ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT);
 					image_node->set_projection_blend(0.0);
 					image_node->set_interpolation(ccl::InterpolationType::INTERPOLATION_SMART);

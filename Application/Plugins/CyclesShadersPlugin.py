@@ -36,6 +36,14 @@ projection_enum = [
     "Tube", "tube"
 ]
 
+alphas_enum = [
+    "Auto", "auto",
+    "Streight", "unassociated",
+    "Premultiply", "associated",
+    "Channel Packed", "channel_packed",
+    "None", "ignore"
+]
+
 env_projection_enum = [
     "Equirectangular", "equirectangular",
     "Mirror Ball", "mirrorball"
@@ -1897,7 +1905,9 @@ def CyclesShadersPlugin_CyclesImageTexture_1_0_Define(in_ctxt):
     add_input_float(no_port_pram_options(), params, 0.0, "ProjectionBlend", 0.0, 1.0)
     add_input_string(no_port_pram_options(), params, "Repeat", "Extension")
     add_input_vector(standard_pram_options(), params, 0.0, "Vector")
+    # this parameters stay here, but disable in ui
     add_input_boolean(no_port_pram_options(), params, True, "premultiply_alpha")
+    add_input_string(no_port_pram_options(), params, "auto", "alpha_type")
     # parameters for image sequences
     add_input_string(no_port_pram_options(), params, "single_image", "ImageSource")
     add_input_integer(no_port_pram_options(), params, 100, "ImageFrames", 0, 200)
@@ -1919,7 +1929,8 @@ def CyclesShadersPlugin_CyclesImageTexture_1_0_Define(in_ctxt):
     ppg_layout.AddEnumControl("Projection", projection_enum, "Projection")
     ppg_layout.AddItem("ProjectionBlend", "Blend")
     ppg_layout.AddEnumControl("Extension", extension_enum, "Extension")
-    ppg_layout.AddItem("premultiply_alpha", "Premultiply Alpha")
+    # ppg_layout.AddItem("premultiply_alpha", "Premultiply Alpha")
+    ppg_layout.AddEnumControl("alpha_type", alphas_enum, "Alpha")
     ppg_layout.EndGroup()
 
     ppg_layout.AddGroup("Source")
@@ -1995,6 +2006,7 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
     add_input_string(no_port_pram_options(), params, "equirectangular", "Projection")
     add_input_vector(standard_pram_options(), params, 0.0, "Vector")
     add_input_boolean(no_port_pram_options(), params, True, "premultiply_alpha")
+    add_input_string(no_port_pram_options(), params, "auto", "alpha_type")
     # parameters for image sequences
     add_input_string(no_port_pram_options(), params, "single_image", "ImageSource")
     add_input_integer(no_port_pram_options(), params, 100, "ImageFrames", 0, 200)
@@ -2013,7 +2025,8 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
     ppg_layout.AddEnumControl("ColorSpace", color_space_enum, "Color Space")
     ppg_layout.AddEnumControl("Interpolation", interpolation_enum, "Interpolation")
     ppg_layout.AddEnumControl("Projection", env_projection_enum, "Projection")
-    ppg_layout.AddItem("premultiply_alpha", "Premultiply Alpha")
+    # ppg_layout.AddItem("premultiply_alpha", "Premultiply Alpha")
+    ppg_layout.AddEnumControl("alpha_type", alphas_enum, "Alpha")
     ppg_layout.EndGroup()
     ppg_layout.AddGroup("Source")
     ppg_layout.AddEnumControl("ImageSource", environment_image_mode_enum, "Image Source")

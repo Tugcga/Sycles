@@ -455,8 +455,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString projection = get_string_parameter_value(xsi_parameters, "Projection", eval_time);
 		float projection_blend = get_float_parameter_value(xsi_parameters, "ProjectionBlend", eval_time);
 		XSI::CString extension = get_string_parameter_value(xsi_parameters, "Extension", eval_time);
-		bool premultiply_alpha = get_bool_parameter_value(xsi_parameters, "premultiply_alpha", eval_time);
 		XSI::CString image_source = get_string_parameter_value(xsi_parameters, "ImageSource", eval_time);
+		XSI::CString alpha_type = get_string_parameter_value(xsi_parameters, "alpha_type", eval_time);
 		
 		int image_frames = get_int_parameter_value(xsi_parameters, "ImageFrames", eval_time);
 		int start_frame = get_int_parameter_value(xsi_parameters, "ImageStartFrame", eval_time);
@@ -472,89 +472,25 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 				clip = XSI::ImageClip2();
 			}
 
-			// TODO: find proper name of the colorscape
-			// May be introduce more colorspaces
-			// ustring u_colorspace_auto;
-			// ustring u_colorspace_data("data");
-			// ustring u_colorspace_scene_linear("scene_linear");
-			// ustring u_colorspace_scene_linear_srgb("scene_linear_srgb");
-			// ustring u_colorspace_srgb("__builtin_srgb");
-			// in Blednder: image->set_colorspace(ustring(b_image->colorspace_settings.name));
-			// ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
-			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_scene_linear_srgb : ccl::u_colorspace_scene_linear;
+			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_scene_linear_srgb : ccl::u_colorspace_data;
+			node->set_colorspace(selected_colorscape);
 
-			// we add each clip separately (without caching in update context)
-			// because one clip in different materials can have different effects (crop, blur and so on)
-			// so, we should use different images
-			// get tiles
 			std::map<int, XSI::CString> tile_to_path_map = sync_image_tiles(file_path);
 			ccl::array<int> tiles = exctract_tiles(tile_to_path_map);
 
-			// set node parameters before loader, because it use these parameters for define alpha
-			// node->set_colorspace(selected_colorscape);
 			node->set_projection(projection == "flat" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT : (projection == "box" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_BOX : (projection == "sphere" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_SPHERE : (projection == "tube" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_TUBE : ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT))));
 			node->set_projection_blend(projection_blend);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
 			node->set_extension(extension == "Clip" ? ccl::ExtensionType::EXTENSION_CLIP : (extension == "Extend" ? ccl::ExtensionType::EXTENSION_EXTEND : ccl::ExtensionType::EXTENSION_REPEAT));
+			node->set_alpha_type(
+				alpha_type == "auto" ? ccl::ImageAlphaType::IMAGE_ALPHA_AUTO : (
+				alpha_type == "unassociated" ? ccl::ImageAlphaType::IMAGE_ALPHA_UNASSOCIATED : (
+				alpha_type == "associated" ? ccl::IMAGE_ALPHA_ASSOCIATED : (
+				alpha_type == "channel_packed" ? ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED : (
+				alpha_type == "ignore" ? ccl::ImageAlphaType::IMAGE_ALPHA_IGNORE : ccl::ImageAlphaType::IMAGE_ALPHA_AUTO)))));
+			node->set_animated(image_source == "image_sequence");
 
-			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
-			node->set_animated(false);
-
-			// TODO: check that tiled images are work
-			// but in Blender only Builtin images are loaded by using custom loader
 			node->set_filename(ccl::ustring(file_path.GetAsciiString()));
-
-			/*if (image_source == "tiled")
-			{
-				// we should create array of loaders
-				ccl::vector<std::unique_ptr<ccl::ImageLoader>> loaders;
-				loaders.reserve(tiles.size());
-				for (size_t i = 0; i < tiles.size(); i++)
-				{
-					int tile_value = tiles[i];
-					XSI::CString tile_path = tile_to_path_map[tile_value];
-					if (tile_path != file_path)
-					{
-						loaders.push_back(std::make_unique<XSIImageLoader>(
-							clip, 
-							selected_colorscape, 
-							tile_value, 
-							tile_path, 
-							update_context->get_use_texture_cache(),
-							update_context->get_path_to_image(),
-							update_context->get_texture_limits(),
-							update_context->get_time()));
-					}
-					else
-					{
-						loaders.push_back(std::make_unique<XSIImageLoader>(
-							clip, 
-							selected_colorscape, 
-							tile_value, 
-							"",
-							update_context->get_use_texture_cache(),
-							update_context->get_path_to_image(),
-							update_context->get_texture_limits(),
-							update_context->get_time()));
-					}
-				}
-
-				node->handle = scene->image_manager->add_image(std::move(loaders), node->image_params());
-			}
-			else
-			{
-				XSIImageLoader* image_loader = new XSIImageLoader(
-					clip, 
-					selected_colorscape, 
-					0, 
-					image_source == "image_sequence" ? file_path : "", 
-					update_context->get_use_texture_cache(),
-					update_context->get_path_to_image(),
-					update_context->get_texture_limits(),
-					update_context->get_time());
-				node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
-			}*/
-
 			node->set_tiles(tiles);
 
 			return node;
@@ -577,7 +513,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString color_space = get_string_parameter_value(xsi_parameters, "ColorSpace", eval_time);
 		XSI::CString interpolation = get_string_parameter_value(xsi_parameters, "Interpolation", eval_time);
 		XSI::CString projection = get_string_parameter_value(xsi_parameters, "Projection", eval_time);
-		bool premultiply_alpha = get_bool_parameter_value(xsi_parameters, "premultiply_alpha", eval_time);
+		XSI::CString alpha_type = get_string_parameter_value(xsi_parameters, "alpha_type", eval_time);
 
 		XSI::CString image_source = get_string_parameter_value(xsi_parameters, "ImageSource", eval_time);
 		int image_frames = get_int_parameter_value(xsi_parameters, "ImageFrames", eval_time);
@@ -596,23 +532,18 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 			bool temp_flag = false;
 			std::string filename = build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, false, temp_flag);
-			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_scene_linear_srgb : ccl::u_colorspace_scene_linear;
+			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_scene_linear_srgb : ccl::u_colorspace_data;
 
 			node->set_colorspace(selected_colorscape);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));
-			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
-
-			/*XSIImageLoader* image_loader = new XSIImageLoader(
-				clip, 
-				selected_colorscape, 
-				0, 
-				image_source == "image_sequence" ? file_path : "",
-				update_context->get_use_texture_cache(),
-				update_context->get_path_to_image(),
-				update_context->get_texture_limits(),
-				update_context->get_time());
-			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());*/
+			node->set_alpha_type(
+				alpha_type == "auto" ? ccl::ImageAlphaType::IMAGE_ALPHA_AUTO : (
+				alpha_type == "unassociated" ? ccl::ImageAlphaType::IMAGE_ALPHA_UNASSOCIATED : (
+				alpha_type == "associated" ? ccl::IMAGE_ALPHA_ASSOCIATED : (
+				alpha_type == "channel_packed" ? ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED : (
+				alpha_type == "ignore" ? ccl::ImageAlphaType::IMAGE_ALPHA_IGNORE : ccl::ImageAlphaType::IMAGE_ALPHA_AUTO)))));
+			node->set_animated(image_source == "image_sequence");
 
 			node->set_filename(ccl::ustring(file_path.GetAsciiString()));
 
