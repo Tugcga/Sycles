@@ -269,6 +269,28 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 	}*/
 }
 
+std::vector<LONG> build_node_to_vertex_map(const XSI::CGeometryAccessor& geometry, size_t nodes_count) {
+	XSI::CLongArray triangle_nodes;
+	XSI::CLongArray triangle_vertices;
+	geometry.GetTriangleNodeIndices(triangle_nodes);
+	geometry.GetTriangleVertexIndices(triangle_vertices);
+
+	LONG triangles_count = geometry.GetTriangleCount();
+	LONG tri_indices_count = triangles_count * 3;
+
+	std::vector<LONG> xsi_node_to_vertex(nodes_count, 0);
+	LONG samples_count = triangle_nodes.GetCount();
+
+	LONG* raw_tri_nodes = (LONG*)triangle_nodes.GetArray();
+	LONG* raw_tri_verts = (LONG*)triangle_vertices.GetArray();
+
+	for (LONG i = 0; i < samples_count; i++) {
+		xsi_node_to_vertex[raw_tri_nodes[i]] = raw_tri_verts[i];
+	}
+
+	return xsi_node_to_vertex;
+}
+
 void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor &xsi_geo_acc, const XSI::PolygonMesh &xsi_polymesh)
 {
 	XSI::CLongArray xsi_polygon_material_indices;
@@ -293,7 +315,7 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 
 	// use simple array as map
 	// index - node index, value - corresponding vertex index
-	std::vector<LONG> xsi_node_to_vertex(nodes_count);
+	/*std::vector<LONG> xsi_node_to_vertex(nodes_count);
 	XSI::CVertexRefArray xsi_vertices = xsi_polymesh.GetVertices();
 	for (LONG i = 0; i < vertex_count; i++)
 	{
@@ -307,7 +329,8 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 			LONG node_index = v_node.GetIndex();
 			xsi_node_to_vertex[node_index] = v_index;
 		}
-	}
+	}*/
+	std::vector<LONG> xsi_node_to_vertex = build_node_to_vertex_map(xsi_geo_acc, nodes_count);
 
 	// for triagle mesh vertices are xsi nodes
 	mesh->resize_mesh(nodes_count, triangles_count);
@@ -367,7 +390,11 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 	XSI::CPolygonFaceRefArray faces;
 	sync_mesh_attribute_vertex_color(scene, mesh, attributes, xsi_geo_acc, SubdivideMode_None, triangle_nodes, faces);
 	sync_mesh_attribute_random_per_island(scene, mesh, attributes, SubdivideMode_None, nodes_count, triangles_count, triangle_nodes, xsi_polymesh, faces);
-	sync_mesh_attribute_pointness(scene, mesh, SubdivideMode_None, vertex_count, nodes_count, xsi_vertices, node_normals, xsi_polymesh);
+	if (mesh->need_attribute(scene, ccl::ATTR_STD_POINTINESS)) {
+		// use slow vertices structs
+		XSI::CVertexRefArray xsi_vertices = xsi_polymesh.GetVertices();
+		sync_mesh_attribute_pointness(scene, mesh, SubdivideMode_None, vertex_count, nodes_count, xsi_vertices, node_normals, xsi_polymesh);
+	}
 	
 	// uvs
 	XSI::CRefArray uv_refs = xsi_geo_acc.GetUVs();
