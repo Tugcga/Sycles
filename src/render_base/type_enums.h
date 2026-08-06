@@ -80,6 +80,12 @@ enum SubdivideMode
 	SubdivideMode_CatmulClark
 };
 
+enum SubdivideSpace
+{
+	SubdivideMode_Pixel,
+	SubdivideMode_Object
+};
+
 enum PointcloudType
 {
 	PointcloudType_Strands,

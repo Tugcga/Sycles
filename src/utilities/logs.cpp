@@ -365,6 +365,33 @@ XSI::CString to_string(const ccl::vector<ccl::float3>& array)
 	return to_return;
 }
 
+XSI::CString to_string(const ccl::array<ccl::packed_float3>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ", " + XSI::CString(array[i].z) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
+XSI::CString to_string(const ccl::array<ccl::packed_normal>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		ccl::float3 vector = array[i].decode();
+		to_return += "(" + XSI::CString(vector.x) + ", " + XSI::CString(vector.y) + ", " + XSI::CString(vector.z) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
 XSI::CString to_string(const ccl::vector<ccl::float4>& array)
 {
 	XSI::CString to_return = "[";

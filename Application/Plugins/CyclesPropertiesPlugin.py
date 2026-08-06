@@ -13,10 +13,12 @@ false = 0
 true = 1
 
 subdivTypes = ["None", 0, "Linear", 1, "Catmull-Clark", 2]
+
 subdiv_boundary_smooth_enum = [
     "Preserve Corners", 0,
     "Smooth All", 1
 ]
+
 subdiv_uv_smooth_enum = [
     "None", 0,
     "Preserve Corners", 1,
@@ -25,6 +27,13 @@ subdiv_uv_smooth_enum = [
     "Preserve Boundaries", 4,
     "Smooth All", 5
 ]
+
+subdiv_space_enum = [
+    "Pixel", 0,
+    "Object", 1
+]
+
+
 volume_space_types = ["Object", 0, "World", 1]
 
 baking_shaders = ["Position", "Cycles Position",
@@ -371,7 +380,10 @@ def CyclesMesh_Define(in_ctxt):
     prop = in_ctxt.Source
     prop.AddParameter3("subdiv_type", c.siInt2, 0)
     prop.AddParameter2("subdiv_max_level", c.siInt2, 1, 0, 64, 0, 8, False, True)
-    prop.AddParameter2("subdiv_dicing_rate", c.siFloat, 1.0, 0.1, 1024.0, 0.5, 16.0, False, True)
+    # prop.AddParameter2("subdiv_dicing_rate", c.siFloat, 1.0, 0.1, 1024.0, 0.5, 16.0, False, True)
+    prop.AddParameter3("subdiv_space", c.siInt2, 0)
+    prop.AddParameter2("subdiv_pixel_size", c.siFloat, 1.0, 0.5, 1024.0, 0.5, 2.0, False, True)
+    prop.AddParameter2("subdiv_edge_length", c.siFloat, 0.01, 0.001, 1024.0, 0.005, 0.05, False, True)
     prop.AddParameter3("subdiv_boundary_smooth", c.siInt2, 0)
     prop.AddParameter3("subdiv_uv_smooth", c.siInt2, 4)
     setup_common_properties(prop)
@@ -660,12 +672,19 @@ def CyclesBake_baking_shader_OnChanged():
 
 def mesh_ui_update(prop):
     subdiv_type = prop.Parameters("subdiv_type").Value
+    subdiv_space = prop.Parameters("subdiv_space").Value
     if subdiv_type == 0:
         prop.Parameters("subdiv_max_level").ReadOnly = True
-        prop.Parameters("subdiv_dicing_rate").ReadOnly = True
+        # prop.Parameters("subdiv_dicing_rate").ReadOnly = True
+        prop.Parameters("subdiv_pixel_size").ReadOnly = True
+        prop.Parameters("subdiv_edge_length").ReadOnly = True
+        prop.Parameters("subdiv_space").ReadOnly = True
     else:
         prop.Parameters("subdiv_max_level").ReadOnly = False
-        prop.Parameters("subdiv_dicing_rate").ReadOnly = False
+        # prop.Parameters("subdiv_dicing_rate").ReadOnly = False
+        prop.Parameters("subdiv_pixel_size").ReadOnly = True
+        prop.Parameters("subdiv_edge_length").ReadOnly = True
+        prop.Parameters("subdiv_space").ReadOnly = False
 
     if subdiv_type == 2:
         prop.Parameters("subdiv_boundary_smooth").ReadOnly = False
@@ -673,6 +692,14 @@ def mesh_ui_update(prop):
     else:
         prop.Parameters("subdiv_boundary_smooth").ReadOnly = True
         prop.Parameters("subdiv_uv_smooth").ReadOnly = True
+
+    if subdiv_type != 0:
+        if subdiv_space == 0:
+            prop.Parameters("subdiv_pixel_size").ReadOnly = False
+            prop.Parameters("subdiv_edge_length").ReadOnly = True
+        else:
+            prop.Parameters("subdiv_pixel_size").ReadOnly = True
+            prop.Parameters("subdiv_edge_length").ReadOnly = False
 
 
 def build_common_property_ui(layout):
@@ -737,7 +764,10 @@ def mesh_property_build_ui():
     layout.AddGroup("Properties")
     layout.AddEnumControl("subdiv_type", subdivTypes, "Subdivision Type")
     layout.AddItem("subdiv_max_level", "Subdivision Level")
-    layout.AddItem("subdiv_dicing_rate", "Dicing Rate")  # implemented in built-in osd
+    # layout.AddItem("subdiv_dicing_rate", "Dicing Rate")  # implemented in built-in osd
+    layout.AddEnumControl("subdiv_space", subdiv_space_enum, "Subdivision Space")
+    layout.AddItem("subdiv_pixel_size", "Pixel Size")
+    layout.AddItem("subdiv_edge_length", "Edge Length")
     layout.AddEnumControl("subdiv_boundary_smooth", subdiv_boundary_smooth_enum, "Boundary Smooth")
     layout.AddEnumControl("subdiv_uv_smooth", subdiv_uv_smooth_enum, "UV Smooth")
     layout.EndGroup()
@@ -748,6 +778,11 @@ def mesh_property_build_ui():
 
 
 def CyclesMesh_subdiv_type_OnChanged():
+    prop = PPG.Inspected(0)
+    mesh_ui_update(prop)
+
+
+def CyclesMesh_subdiv_space_OnChanged():
     prop = PPG.Inspected(0)
     mesh_ui_update(prop)
 
