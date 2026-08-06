@@ -461,6 +461,8 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterShader("CyclesWireframe", 1, 0)
     in_reg.RegisterShader("CyclesVolumeInfo", 1, 0)
     in_reg.RegisterShader("CyclesPointInfo", 1, 0)
+    in_reg.RegisterShader("CyclesRaycast", 1, 0)
+    in_reg.RegisterShader("CyclesSceneTime", 1, 0)
     # Color
     in_reg.RegisterShader("CyclesLightFalloff", 1, 0)
     in_reg.RegisterShader("CyclesInvert", 1, 0)
@@ -3611,6 +3613,65 @@ def CyclesShadersPlugin_CyclesPointInfo_1_0_Define(in_ctxt):
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "PointInfo"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesRaycast_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Input")
+    in_ctxt.SetAttribute("DisplayName", "cycRaycast")
+    return True
+
+
+def CyclesShadersPlugin_CyclesRaycast_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+    add_input_boolean(no_port_pram_options(), params, False, "only_local")
+    add_input_vector(standard_pram_options(), params, 0.0, "Position")
+    add_input_vector(standard_pram_options(), params, 0.0, "Direction")
+    add_input_float(standard_pram_options(), params, 1.0, "Length", 0.0, 1.0)
+
+    # Output Parameter: out
+    add_output_float(shader_def, "IsHit")
+    add_output_float(shader_def, "SelfHit")
+    add_output_float(shader_def, "HitDistance")
+    add_output_vector(shader_def, "HitPosition")
+    add_output_float(shader_def, "HitNormal")
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "Raycast"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesSceneTime_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Input")
+    in_ctxt.SetAttribute("DisplayName", "cycSceneTime")
+    return True
+
+
+def CyclesShadersPlugin_CyclesSceneTime_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+
+    # Output Parameter: out
+    add_output_float(shader_def, "Seconds")
+    add_output_float(shader_def, "Frame")
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "SceneTime"
 
     return True
 

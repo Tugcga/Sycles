@@ -993,6 +993,25 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		}
 	},
 	{
+		"CyclesShadersPlugin.CyclesRaycast.1.0", {
+			{"Position", "Position"},
+			{"Direction", "Direction"},
+			{"Length", "Length"},
+
+			{"outIsHit", "Is Hit"},
+			{"outSelfHit", "Self Hit"},
+			{"outHitDistance", "Hit Distance"},
+			{"outHitPosition", "Hit Position"},
+			{"outHitNormal", "Hit Normal"}
+		}
+	},
+	{
+		"CyclesShadersPlugin.CyclesSceneTime.1.0", {
+			{"outSeconds", "Seconds"},
+			{"outFrame", "Frame"}
+		}
+	},
+	{
 		"Softimage.sib_scalar_to_color.1.0", {
 			{"out", "Color"}  // replace by RGBRampNode
 		}

@@ -292,6 +292,14 @@ ccl::BufferParams get_buffer_params(int full_width, int full_height, int offset_
 	return buffer_params;
 }
 
+void sync_scene_attributes(ccl::Session *session, const XSI::CTime &eval_time) {
+	ccl::SceneAttributes* scene_attribute = session->scene->scene_attribute;
+	float frame = (float)get_frame(eval_time);
+	float time = frame / eval_time.GetFrameRate();
+	scene_attribute->set_frame(frame);
+	scene_attribute->set_time(time);
+}
+
 ccl::Session* create_session(ccl::SessionParams session_params, ccl::SceneParams scene_params)
 {
 	ccl::Session* session = new ccl::Session(session_params, scene_params);

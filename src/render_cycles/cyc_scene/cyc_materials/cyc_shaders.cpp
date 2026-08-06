@@ -122,7 +122,7 @@ ccl::array<ccl::float3> three_curves_to_array(const XSI::FCurve& c1, const XSI::
 	return data;
 }
 
-void form_ramp(std::vector<GradientPoint>& gradient, int size, ccl::array<ccl::float3>& colors, ccl::array<float>& alphas)
+void form_ramp(std::vector<GradientPoint>& gradient, int size, ccl::array<ccl::packed_float3>& colors, ccl::array<float>& alphas)
 {
 	ccl::array<int> order_indexes;
 	order_indexes.resize(gradient.size());
@@ -975,6 +975,23 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		return node;
 	}
+	else if (shader_type == "Raycast")
+	{
+		ccl::RaycastNode* node = shader_graph->create_node<ccl::RaycastNode>();
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
+		bool only_local = get_bool_parameter_value(xsi_parameters, "only_local", eval_time);
+
+		node->set_only_local(only_local);
+
+		return node;
+	}
+	else if (shader_type == "SceneTime")
+	{
+		ccl::SceneTimeNode* node = shader_graph->create_node<ccl::SceneTimeNode>();
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
+
+		return node;
+		}
 	else if (shader_type == "ParticleInfo")
 	{
 		ccl::ParticleInfoNode* node = shader_graph->create_node<ccl::ParticleInfoNode>();
@@ -982,6 +999,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		return node;
 	}
+
 	else if (shader_type == "HairInfo")
 	{
 		ccl::HairInfoNode* node = shader_graph->create_node<ccl::HairInfoNode>();
@@ -1416,13 +1434,12 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 				gradient_data.push_back(new_data);
 			}
 		}
-		ccl::array<ccl::float3> ramp;
+		ccl::array<ccl::packed_float3> ramp;
 		ccl::array<float> ramp_alpha;
 		form_ramp(gradient_data, RAMP_TABLE_SIZE, ramp, ramp_alpha);
-		// TODO: ramp should be array<packed_float3>
-		// and also add ramp->set_interpolate(b_color_ramp.ipotype != blender::COLBAND_INTERP_CONSTANT);
-		// node->set_ramp(ramp);
+		node->set_ramp(ramp);
 		node->set_ramp_alpha(ramp_alpha);
+		node->set_interpolate(true);
 
 		return node;
 	}

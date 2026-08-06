@@ -972,6 +972,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			display_pass_name,
 			m_render_parameters, eval_time);
 
+		sync_scene_attributes(session, eval_time);
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
 		sync_passes(session->scene.get(), update_context, output_context, series_context, baking_context, visual_buffer);
 		series_context->set_common_path(output_context);

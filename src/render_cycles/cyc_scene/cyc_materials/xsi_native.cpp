@@ -49,14 +49,13 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		node->set_interpolate(true);
-		ccl::array<ccl::float3> ramp(2);
+		ccl::array<ccl::packed_float3> ramp(2);
 		ramp[0] = ccl::zero_float3();
 		ramp[1] = ccl::one_float3();
 		ccl::array<float> alpha_ramp(2);
 		alpha_ramp[0] = 1.0f;
 		alpha_ramp[1] = 1.0f;
-		// TODO: make proper ramp
-		// node->set_ramp(ramp);
+		node->set_ramp(ramp);
 		node->set_ramp_alpha(alpha_ramp);
 
 		XSI::ShaderParameter input_param(xsi_shader.GetParameter("input"));
