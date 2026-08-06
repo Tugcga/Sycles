@@ -146,10 +146,45 @@ void sync_float_parameter(ccl::Scene* scene,
 
 	ccl::ShaderInput* input = cycles_node->input(cycles_name.c_str());
 
-	if (parameter_type == ShaderParameterType::ParameterType_Float)
-	{
+	if (parameter_type == ShaderParameterType::ParameterType_Float) {
 		float float_value = get_float_parameter_value(xsi_finall_parameter_shader.GetParameters(), xsi_finall_parameter.GetName(), eval_time);
 		input->set(float_value);
+	}
+}
+
+void sync_int_parameter(ccl::Scene* scene,
+	ccl::ShaderGraph* shader_graph,
+	ccl::ShaderNode* cycles_node,
+	XSI::ShaderParameter& xsi_parameter,
+	const std::string& cycles_name,
+	UpdateContext* update_context) {
+	// in fact do the same as for float, but if obtained type if float, then clamp it
+	// or use direct value
+	XSI::CTime eval_time = update_context->get_time();
+	XSI::ShaderParameter xsi_finall_parameter = get_source_parameter(xsi_parameter);
+	
+	bool is_connect = sync_shader_parameter_connection(scene, shader_graph, cycles_node, xsi_finall_parameter, cycles_name, update_context);
+
+	ShaderParameterType parameter_type = get_shader_parameter_type(xsi_finall_parameter);
+	XSI::Shader xsi_finall_parameter_shader = xsi_finall_parameter.GetParent();
+
+	ccl::ShaderInput* input = cycles_node->input(cycles_name.c_str());
+
+	// may be when obtain finall parameter we go thorw converter from float to int
+	if (parameter_type == ShaderParameterType::ParameterType_Float) {
+		float float_value = get_float_parameter_value(xsi_finall_parameter_shader.GetParameters(), xsi_finall_parameter.GetName(), eval_time);
+		int int_value = int(float_value);
+
+		// WARNING: for now only on parameter in Cycles can be integer: Thin Wall
+		input->set(int_value);
+	}
+	else if (parameter_type == ShaderParameterType::ParameterType_Integer) {
+		int int_value = get_int_parameter_value(xsi_finall_parameter_shader.GetParameters(), xsi_finall_parameter.GetName(), eval_time);
+		input->set(int_value);
+	}
+	else if (parameter_type == ShaderParameterType::ParameterType_Boolean) {
+		bool bool_value = get_bool_parameter_value(xsi_finall_parameter_shader.GetParameters(), xsi_finall_parameter.GetName(), eval_time);
+		input->set(bool_value ? 1 : 0);
 	}
 }
 

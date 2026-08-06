@@ -663,11 +663,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesCombineRGB.1.0", {
-			{"R", "R"},
-			{"G", "G"},
-			{"B", "B"},
+			// use CombineColor names
+			{"R", "Red"},
+			{"G", "Green"},
+			{"B", "Blue"},
 
-			{"outImage", "Image"}
+			{"outImage", "Color"}
 		}
 	},
 	{
@@ -681,11 +682,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesCombineHSV.1.0", {
-			{"H", "H"},
-			{"S", "S"},
-			{"V", "V"},
+			// use CombineColor names
+			{"H", "Red"},
+			{"S", "Green"},
+			{"V", "Blue"},
 
-			{"outColor", "Color"}
+			{"outImage", "Color"}
 		}
 	},
 	{
@@ -716,11 +718,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesSeparateRGB.1.0", {
-			{"Image", "Image"},
+			// use SeparateColor port names
+			{"Image", "Color"},
 
-			{"outR", "R"},
-			{"outG", "G"},
-			{"outB", "B"}
+			{"outR", "Red"},
+			{"outG", "Green"},
+			{"outB", "Blue"}
 		}
 	},
 	{
@@ -734,11 +737,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesSeparateHSV.1.0", {
+			// here also use SeparateColor
 			{"Color", "Color"},
 
-			{"outH", "H"},
-			{"outS", "S"},
-			{"outV", "V"}
+			{"outH", "Red"},
+			{"outS", "Green"},
+			{"outV", "Blue"}
 		}
 	},
 	{

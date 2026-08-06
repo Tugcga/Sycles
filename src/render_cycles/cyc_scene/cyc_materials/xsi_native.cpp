@@ -23,23 +23,22 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 	XSI::CTime eval_time = update_context->get_time();
 	if (shader_type == "sib_vector_to_color")
 	{
-		// TODO: make proper node
-		/* ccl::SeparateXYZNode* separate_node = shader_graph->create_node<ccl::SeparateXYZNode>();
-		ccl::CombineRGBNode* combine_node = shader_graph->create_node<ccl::CombineRGBNode>();
+		ccl::SeparateXYZNode* separate_node = shader_graph->create_node<ccl::SeparateXYZNode>();
+		ccl::CombineColorNode* combine_node = shader_graph->create_node<ccl::CombineColorNode>();
 
 		// use combine node as output node
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		update_context->add_to_nodes_map(xsi_shader_id, combine_node);
 		combine_node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
+		combine_node->set_color_type(ccl::NODE_COMBSEP_COLOR_RGB);
 
-		shader_graph->connect(separate_node->output("X"), combine_node->input("R"));
-		shader_graph->connect(separate_node->output("Y"), combine_node->input("G"));
-		shader_graph->connect(separate_node->output("Z"), combine_node->input("B"));
+		shader_graph->connect(separate_node->output("X"), combine_node->input("Red"));
+		shader_graph->connect(separate_node->output("Y"), combine_node->input("Green"));
+		shader_graph->connect(separate_node->output("Z"), combine_node->input("Blue"));
 
 		XSI::ShaderParameter input_param(xsi_shader.GetParameter("input"));
 		sync_float3_parameter(scene, shader_graph, separate_node, input_param, "Vector", update_context);
-		return combine_node;*/
-		return NULL;
+		return combine_node;
 	}
 	else if (shader_type == "sib_scalar_to_color")
 	{
@@ -103,6 +102,9 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		sync_float3_parameter(scene, shader_graph, node, input_param, "Color", update_context);
 
 		return node;
+	}
+	else if (shader_type == "sib_scalar_to_integer") {
+		return NULL;
 	}
 	else if (shader_type == "txt2d-image-explicit")
 	{

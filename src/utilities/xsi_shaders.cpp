@@ -207,6 +207,15 @@ XSI::ShaderParameter get_source_parameter(const XSI::ShaderParameter &parameter,
 						return return_output ? source_param : parameter;
 					}
 				}
+				else if (name_parts[0] == "Softimage") {
+					if (name_parts[1] == "sib_scalar_to_integer" || name_parts[1] == "sib_integerr_to_scalar") {
+						XSI::ShaderParameter p(source_node.GetParameter("input"));
+						return get_source_parameter(p, return_output);
+					}
+					else {
+						return return_output ? source_param : parameter;
+					}
+				}
 				else
 				{
 					// this is any shader node, so, our parameter connected to something
@@ -302,4 +311,12 @@ XSI::ImageClip2 get_clip_parameter_value(const XSI::CParameterRefArray& all_para
 	}
 
 	return XSI::ImageClip2();
+}
+
+// return true if parameter with the input name in the list has some connections
+bool is_parameter_connected(const XSI::CParameterRefArray& all_parameters, const XSI::CString &parameter_name) {
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
+
+	return param.GetFullName() != param_final.GetFullName();
 }

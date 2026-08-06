@@ -34,6 +34,12 @@ void sync_float_parameter(ccl::Scene* scene,
 	XSI::ShaderParameter& xsi_parameter,
 	const std::string& cycles_name,
 	UpdateContext* update_context);
+void sync_int_parameter(ccl::Scene* scene,
+	ccl::ShaderGraph* shader_graph,
+	ccl::ShaderNode* cycles_node,
+	XSI::ShaderParameter& xsi_parameter,
+	const std::string& cycles_name,
+	UpdateContext* update_context);
 
 // cycles shader nodes
 ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene, const XSI::Shader& xsi_shader, const XSI::CString& shader_type, const XSI::CParameterRefArray& xsi_parameters, ccl::ShaderGraph* shader_graph, UpdateContext* update_context);
