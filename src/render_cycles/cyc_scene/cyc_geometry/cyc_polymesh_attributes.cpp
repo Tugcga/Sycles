@@ -123,7 +123,7 @@ void sync_mesh_attribute_random_per_island(ccl::Scene* scene, ccl::Mesh* mesh, c
 class VertexAverageComparator
 {
 public:
-	VertexAverageComparator(const ccl::array<ccl::float3>& verts) : verts_(verts) { }
+	VertexAverageComparator(const ccl::vector<ccl::packed_float3>& verts) : verts_(verts) { }
 
 	bool operator()(const int& vert_idx_a, const int& vert_idx_b)
 	{
@@ -140,7 +140,7 @@ public:
 	}
 
 protected:
-	const ccl::array<ccl::float3>& verts_;
+	const ccl::vector<ccl::packed_float3>& verts_;
 };
 
 class EdgeMap
@@ -179,9 +179,7 @@ protected:
 
 void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t vertex_count, size_t nodes_count, const XSI::CVertexRefArray& vertices, const XSI::CFloatArray& node_normals, const XSI::PolygonMesh& xsi_polymesh)
 {
-	// TODO: make proper attribute
-
-	/*if (!mesh->need_attribute(scene, ccl::ATTR_STD_POINTINESS))
+	if (!mesh->need_attribute(scene, ccl::ATTR_STD_POINTINESS))
 	{
 		return;
 	}
@@ -201,7 +199,11 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, Subdivide
 		sorted_vert_indeices[vert_index] = vert_index;
 	}
 
-	VertexAverageComparator compare(mesh->get_verts());
+	// create copy of mesh vertex positions
+	const ccl::packed_float3* positions_data = mesh->get_position();
+	ccl::vector<ccl::packed_float3> mesh_positions(positions_data, positions_data + num_verts);
+	
+	VertexAverageComparator compare(mesh_positions);
 	sort(sorted_vert_indeices.begin(), sorted_vert_indeices.end(), compare);
 	// This array stores index of the original vertex for the given vertex
 	// index.
@@ -210,12 +212,12 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, Subdivide
 	for (size_t sorted_vert_index = 0; sorted_vert_index < num_verts; ++sorted_vert_index)
 	{
 		const size_t vert_index = sorted_vert_indeices[sorted_vert_index];
-		const ccl::float3& vert_co = mesh->get_verts()[vert_index];
+		const ccl::float3& vert_co = mesh_positions[vert_index];
 		bool found = false;
 		for (size_t other_sorted_vert_index = sorted_vert_index + 1; other_sorted_vert_index < num_verts; ++other_sorted_vert_index)
 		{
 			const size_t other_vert_index = sorted_vert_indeices[other_sorted_vert_index];
-			const ccl::float3& other_vert_co = mesh->get_verts()[other_vert_index];
+			const ccl::float3& other_vert_co = mesh_positions[other_vert_index];
 			// We are too far away now, we wouldn't have duplicate
 			if ((other_vert_co.x + other_vert_co.y + other_vert_co.z) - (vert_co.x + vert_co.y + vert_co.z) > 3 * FLT_EPSILON)
 			{
@@ -316,8 +318,8 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, Subdivide
 		}
 		visited_edges.insert(v0, v1);
 
-		ccl::float3 co0 = mesh->get_verts()[v0];
-		ccl::float3 co1 = mesh->get_verts()[v1];
+		ccl::float3 co0 = mesh_positions[v0];
+		ccl::float3 co1 = mesh_positions[v1];
 
 		ccl::float3 edge = normalize(co1 - co0);
 		edge_accum[v0] += edge;
@@ -348,7 +350,7 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, Subdivide
 	// STEP 3: Blur vertices to approximate 2 ring neighborhood. 
 	ccl::AttributeSet& attributes = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes : mesh->attributes;
 	ccl::Attribute* attr = attributes.add(ccl::ATTR_STD_POINTINESS);
-	float* data = attr->data_float();
+	float* data = attr->data_for_write<float>();
 	memcpy(data, &raw_data[0], sizeof(float) * raw_data.size());
 	memset(&counter[0], 0, sizeof(size_t) * counter.size());
 	edge_index = 0;
@@ -397,7 +399,10 @@ void sync_mesh_attribute_pointness(ccl::Scene* scene, ccl::Mesh* mesh, Subdivide
 	{
 		const size_t orig_index = vert_orig_index[vert_index];
 		data[vert_index] = data[orig_index];
-	}*/
+	}
+
+	mesh_positions.clear();
+	mesh_positions.shrink_to_fit();
 }
 
 void sync_mesh_uvs(ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t triangles_count, size_t nodes_count, const XSI::CRefArray &uv_refs, const XSI::CPolygonFaceRefArray& faces, const XSI::CLongArray& triangle_nodes)
