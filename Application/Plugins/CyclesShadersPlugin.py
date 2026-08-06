@@ -3643,6 +3643,12 @@ def CyclesShadersPlugin_CyclesRaycast_1_0_Define(in_ctxt):
     add_output_vector(shader_def, "HitPosition")
     add_output_float(shader_def, "HitNormal")
 
+    ppgLayout = shader_def.PPGLayout
+    ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddItem("only_local", "Only Local")
+    ppgLayout.AddItem("Length", "Length")
+    ppgLayout.EndGroup()
+
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "Raycast"
