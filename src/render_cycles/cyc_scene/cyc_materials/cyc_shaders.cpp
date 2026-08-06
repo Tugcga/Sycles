@@ -104,19 +104,16 @@ std::array<float, 2> get_min_and_max(const XSI::FCurve &c1, const XSI::FCurve &c
 	return to_return;
 }
 
-ccl::array<ccl::float3> three_curves_to_array(const XSI::FCurve& c1, const XSI::FCurve& c2, const XSI::FCurve& c3, float min, float max, int size)
+ccl::array<ccl::packed_float3> three_curves_to_array(const XSI::FCurve& c1, const XSI::FCurve& c2, const XSI::FCurve& c3, float min, float max, int size)
 {
-	ccl::array<ccl::float3> data;
+	ccl::array<ccl::packed_float3> data;
 	data.resize(size);
 	const float range = max - min;
 
 	for (int i = 0; i < size; i++)
 	{
 		float t = min + (float)i / (float)(size - 1) * range;
-
-		data[i][0] = c1.Eval(t);
-		data[i][1] = c2.Eval(t);
-		data[i][2] = c3.Eval(t);
+		data[i] = ccl::make_float3(c1.Eval(t), c2.Eval(t), c3.Eval(t));
 	}
 
 	return data;
@@ -902,14 +899,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::FCurve x_curve = get_fcurve_parameter_value(xsi_parameters, "xCurve", eval_time);
 		XSI::FCurve y_curve = get_fcurve_parameter_value(xsi_parameters, "yCurve", eval_time);
 		XSI::FCurve z_curve = get_fcurve_parameter_value(xsi_parameters, "zCurve", eval_time);
+		bool extrapolate = get_bool_parameter_value(xsi_parameters, "extrapolate", eval_time);
 
 		std::array<float, 2> min_max = get_min_and_max(x_curve, y_curve, z_curve);
 		node->set_min_x(min_max[0]);
 		node->set_max_x(min_max[1]);
-		ccl::array<ccl::float3> curves_array = three_curves_to_array(x_curve, y_curve, z_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
-		// TODO: curves_array should be array<packed_float3>
-		// and also need curves->set_extrapolate((mapping.flag & blender::CUMA_EXTEND_EXTRAPOLATE) != 0);
-		// node->set_curves(curves_array);
+		ccl::array<ccl::packed_float3> curves_array = three_curves_to_array(x_curve, y_curve, z_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
+		node->set_curves(curves_array);
+		node->set_extrapolate(extrapolate);
 
 		return node;
 	}
@@ -1233,14 +1230,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::FCurve r_curve = get_fcurve_parameter_value(xsi_parameters, "rCurve", eval_time);
 		XSI::FCurve g_curve = get_fcurve_parameter_value(xsi_parameters, "gCurve", eval_time);
 		XSI::FCurve b_curve = get_fcurve_parameter_value(xsi_parameters, "bCurve", eval_time);
+		bool extrapolate = get_bool_parameter_value(xsi_parameters, "extrapolate", eval_time);
 
 		std::array<float, 2> min_max = get_min_and_max(r_curve, g_curve, b_curve);
 		node->set_min_x(min_max[0]);
 		node->set_max_x(min_max[1]);
-		ccl::array<ccl::float3> curves = three_curves_to_array(r_curve, g_curve, b_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
-		// TODO: similary to curves
-		// another type and set_extrapolate
-		// node->set_curves(curves);
+		ccl::array<ccl::packed_float3> curves = three_curves_to_array(r_curve, g_curve, b_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
+		node->set_curves(curves);
+		node->set_extrapolate(extrapolate);
 
 		return node;
 	}
@@ -1250,13 +1247,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::FCurve curve = get_fcurve_parameter_value(xsi_parameters, "Curve", eval_time);
+		bool extrapolate = get_bool_parameter_value(xsi_parameters, "extrapolate", eval_time);
 
 		std::array<float, 2> min_max = get_min_and_max(curve, curve, curve);
 		node->set_min_x(min_max[0]);
 		node->set_max_x(min_max[1]);
-		ccl::array<ccl::float3> curves = three_curves_to_array(curve, curve, curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
-		// TODO: also here
-		// node->set_curves(curves);
+		ccl::array<ccl::packed_float3> curves = three_curves_to_array(curve, curve, curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
+		node->set_curves(curves);
+		node->set_extrapolate(extrapolate);
 
 		return node;	
 	}
@@ -1501,6 +1499,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::FCurve curve = get_fcurve_parameter_value(xsi_parameters, "Curve", eval_time);
+		bool extrapolate = get_bool_parameter_value(xsi_parameters, "extrapolate", eval_time);
+
 		float min = curve.GetKeyAtIndex(0).GetTime();
 		float max = curve.GetKeyAtIndex(curve.GetNumKeys() - 1).GetTime();
 		node->set_min_x(min);
@@ -1516,6 +1516,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			curve_mapping_curve[i] = curve.Eval(t);
 		}
 		node->set_curve(curve_mapping_curve);
+		node->set_extrapolate(extrapolate);
 
 		return node;
 	}

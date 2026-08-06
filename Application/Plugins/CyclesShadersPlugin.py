@@ -3327,6 +3327,7 @@ def CyclesShadersPlugin_CyclesVectorCurves_1_0_Define(in_ctxt):
     add_input_fcurve(no_port_pram_options(), params, "xCurve")
     add_input_fcurve(no_port_pram_options(), params, "yCurve")
     add_input_fcurve(no_port_pram_options(), params, "zCurve")
+    add_input_boolean(no_port_pram_options(), params, False, "extrapolate")
 
     # Output Parameter: out
     add_output_vector(shader_def, "Vector")
@@ -3334,6 +3335,7 @@ def CyclesShadersPlugin_CyclesVectorCurves_1_0_Define(in_ctxt):
     # next init ppg
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddItem("extrapolate", "Extrapolate")
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.AddItem("xCurve", "X Curve")
     ppgLayout.AddItem("yCurve", "Y Curve")
@@ -4633,6 +4635,7 @@ def CyclesShadersPlugin_CyclesRGBCurves_1_0_Define(in_ctxt):
     add_input_fcurve(no_port_pram_options(), params, "bCurve")
     add_input_float(standard_pram_options(), params, 1.0, "Fac", 0.0, 1.0)
     add_input_color(standard_pram_options(), params, 0.0, "Color")
+    add_input_boolean(no_port_pram_options(), params, False, "extrapolate")
 
     # Output Parameter: out
     add_output_color(shader_def, "Color")
@@ -4643,6 +4646,7 @@ def CyclesShadersPlugin_CyclesRGBCurves_1_0_Define(in_ctxt):
     ppgLayout.AddItem("rCurve", "R Curve")
     ppgLayout.AddItem("gCurve", "G Curve")
     ppgLayout.AddItem("bCurve", "B Curve")
+    ppgLayout.AddItem("extrapolate", "Extrapolate")
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
@@ -4673,6 +4677,7 @@ def CyclesShadersPlugin_CyclesColorCurves_1_0_Define(in_ctxt):
     add_input_fcurve(no_port_pram_options(), params, "Curve")
     add_input_float(standard_pram_options(), params, 1.0, "Fac", 0.0, 1.0)
     add_input_color(standard_pram_options(), params, 0.0, "Color")
+    add_input_boolean(no_port_pram_options(), params, False, "extrapolate")
 
     # Output Parameter: out
     add_output_color(shader_def, "Color")
@@ -4681,6 +4686,7 @@ def CyclesShadersPlugin_CyclesColorCurves_1_0_Define(in_ctxt):
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("Curve", "Curve")
+    ppgLayout.AddItem("extrapolate", "Extrapolate")
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
@@ -5552,6 +5558,7 @@ def CyclesShadersPlugin_CyclesFloatCurve_1_0_Define(in_ctxt):
     add_input_fcurve(no_port_pram_options(), params, "Curve")
     add_input_float(standard_pram_options(), params, 1.0, "Fac", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Value")
+    add_input_boolean(no_port_pram_options(), params, False, "extrapolate")
 
     # Output Parameter: out
     add_output_float(shader_def, "Value")
@@ -5560,6 +5567,7 @@ def CyclesShadersPlugin_CyclesFloatCurve_1_0_Define(in_ctxt):
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("Curve", "Curve")
+    ppgLayout.AddItem("extrapolate", "Extrapolate")
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.AddItem("Value", "Value")
     ppgLayout.EndGroup()
