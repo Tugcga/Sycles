@@ -23,18 +23,23 @@
 
 void sync_curve_motion_deform(ccl::Hair* curves, UpdateContext* update_context, const XSI::X3DObject& xsi_object, float curve_size, float sample_step, int curve_samples)
 {
-	// TODO: implement motion deform
-
-	/*size_t motion_steps = update_context->get_motion_steps();
+	size_t motion_steps = update_context->get_motion_steps();
 	curves->set_motion_steps(motion_steps);
 	curves->set_use_motion_blur(true);
 
-	size_t attribute_index = 0;
-	ccl::Attribute* attr_m_positions = curves->attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_curve_position"));
-	ccl::float4* motion_positions = attr_m_positions->data_float4();
+	ccl::Attribute* attr_position = curves->attributes.find(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_radius = curves->attributes.find(ccl::ATTR_STD_RADIUS);
+
+	attr_position->add_motion(curves);
+	attr_radius->add_motion(curves);
+
 	MotionSettingsPosition motion_position = update_context->get_motion_position();
 	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
+		ccl::packed_float3* position_ptr = attr_position->data_for_write<ccl::packed_float3>(mi + 1);
+		float* radius_ptr = attr_radius->data_for_write<float>(mi + 1);
+		size_t attribute_index = 0;
+
 		size_t time_motion_step = calc_time_motion_step(mi, motion_steps, motion_position);
 		
 		float time = update_context->get_motion_time(time_motion_step);
@@ -54,10 +59,17 @@ void sync_curve_motion_deform(ccl::Hair* curves, UpdateContext* update_context, 
 
 				time_curve.EvaluateNormalizedPosition((float)s * sample_step, position, tangent, normal, binormal);
 				ccl::float4 val = ccl::make_float4(position.GetX(), position.GetY(), position.GetZ(), curve_size);
-				motion_positions[attribute_index++] = val;
+				position_ptr[attribute_index] = ccl::make_float3(val.x, val.y, val.z);
+				radius_ptr[attribute_index] = val.w;
+
+				attribute_index++;
 			}
 		}
-	}*/
+	}
+
+	curves->tag_position_modified();
+	curves->tag_radius_modified();
+	curves->tag_motion_steps_modified();
 }
 
 void sync_curve_geom(ccl::Scene* scene, ccl::Hair* curve_geom, UpdateContext* update_context, const XSI::CNurbsCurveRefArray& xsi_curves, float curve_size, float sample_step, int curve_samples) {
@@ -65,18 +77,19 @@ void sync_curve_geom(ccl::Scene* scene, ccl::Hair* curve_geom, UpdateContext* up
 	
 	ULONG curves_count = xsi_curves.GetCount();
 
-	// curve_geom->reserve_curves(curves_count, curves_count * curve_samples);
 	curve_geom->resize_curves(curves_count, curves_count * curve_samples);
+	ccl::Attribute* attr_position = curve_geom->attributes.find(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_radius = curve_geom->attributes.find(ccl::ATTR_STD_RADIUS);
+	ccl::packed_float3* position_ptr = attr_position->data_for_write<ccl::packed_float3>();
+	float* radius_ptr = attr_radius->data_for_write<float>();
+	int* first_key_data = curve_geom->get_curve_first_key().data();
+	int* shader_data = curve_geom->get_curve_shader().data();
 
-	// ccl::Attribute* attr_intercept = NULL;
-	// ccl::Attribute* attr_random = NULL;
-	// ccl::Attribute* attr_length = NULL;
-	ccl::packed_normal* attr_normal = nullptr;
-	float* attr_intercept = nullptr;
-	float* attr_length = nullptr;
-	float* attr_random = nullptr;
+	ccl::Attribute* attr_intercept = NULL;
+	ccl::Attribute* attr_random = NULL;
+	ccl::Attribute* attr_length = NULL;
 
-	/*if (curve_geom->need_attribute(scene, ccl::ATTR_STD_CURVE_INTERCEPT)) {
+	if (curve_geom->need_attribute(scene, ccl::ATTR_STD_CURVE_INTERCEPT)) {
 		attr_intercept = curve_geom->attributes.add(ccl::ATTR_STD_CURVE_INTERCEPT);
 	}
 	if (curve_geom->need_attribute(scene, ccl::ATTR_STD_CURVE_RANDOM)) {
@@ -84,29 +97,11 @@ void sync_curve_geom(ccl::Scene* scene, ccl::Hair* curve_geom, UpdateContext* up
 	}
 	if (curve_geom->need_attribute(scene, ccl::ATTR_STD_CURVE_LENGTH)) {
 		attr_length = curve_geom->attributes.add(ccl::ATTR_STD_CURVE_LENGTH);
-	}*/
-	if (curve_geom->need_attribute(scene, ccl::ATTR_STD_VERTEX_NORMAL)) {
-		attr_normal = curve_geom->attributes.add(ccl::ATTR_STD_VERTEX_NORMAL)->data_for_write<ccl::packed_normal>();
 	}
-	if (curve_geom->need_attribute(scene, ccl::ATTR_STD_CURVE_INTERCEPT)) {
-		attr_intercept = curve_geom->attributes.add(ccl::ATTR_STD_CURVE_INTERCEPT)->data_for_write<float>();
-	}
-	if (curve_geom->need_attribute(scene, ccl::ATTR_STD_CURVE_LENGTH)) {
-		attr_length = curve_geom->attributes.add(ccl::ATTR_STD_CURVE_LENGTH)->data_for_write<float>();
-	}
-	if (curve_geom->need_attribute(scene, ccl::ATTR_STD_CURVE_RANDOM)) {
-		attr_random = curve_geom->attributes.add(ccl::ATTR_STD_CURVE_RANDOM)->data_for_write<float>();
-	}
-
-	int* curve_first_key = curve_geom->get_curve_first_key().data();
-	int* curve_shader = curve_geom->get_curve_shader().data();
-
-	ccl::packed_float3* curve_keys = curve_geom->get_position_for_write();
-	float* curve_radius = curve_geom->get_radius_for_write();
 
 	size_t num_keys = 0;
 	for (size_t i = 0; i < curves_count; i++) {
-		curve_first_key[i] = num_keys;
+		first_key_data[i] = num_keys;
 
 		XSI::NurbsCurve xsi_curve = xsi_curves.GetItem(i);
 
@@ -117,44 +112,43 @@ void sync_curve_geom(ccl::Scene* scene, ccl::Hair* curve_geom, UpdateContext* up
 			XSI::MATH::CVector3 binormal;
 
 			xsi_curve.EvaluateNormalizedPosition((float)s * sample_step, position, tangent, normal, binormal);
-			curve_keys[num_keys] = vector3_to_float3(position);
-			curve_radius[num_keys] = curve_size;
-			// curve_geom->add_curve_key(vector3_to_float3(position), curve_size);
+			position_ptr[num_keys] = vector3_to_float3(position);
+			radius_ptr[num_keys] = curve_size;
 
 			if (attr_intercept) {
-				// attr_intercept->add((float)s / (float)(curve_samples - 1));
-				attr_intercept[num_keys] = (float)s / (float)(curve_samples - 1);
-			}
-
-			if (attr_normal) {
-				attr_normal[num_keys] = ccl::packed_normal(ccl::make_float3(0.0f, 0.0f, 0.0f));
+				float* intercept_ptr = attr_intercept->data_for_write<float>();
+				intercept_ptr[num_keys] = (float)s / (float)(curve_samples - 1);
 			}
 
 			num_keys += 1;
 		}
 
 		if (attr_random != NULL) {
-			attr_random[i] = ccl::hash_uint2_to_float(i, 0);
+			float* randomt_ptr = attr_random->data_for_write<float>();
+			randomt_ptr[i] = ccl::hash_uint2_to_float(i, 0);
 		}
 		if (attr_length != NULL) {
 			double curve_length;
 			xsi_curve.GetLength(curve_length);
-			attr_length[i] = curve_length;
+			float* length_ptr = attr_length->data_for_write<float>();
+			length_ptr[i] = curve_length;
 		}
-		// curve_geom->add_curve(i * curve_samples, 0);
-		// TODO: check the correct shader index
-		curve_shader[i] = 0;
+		shader_data[i] = 0;
 	}
 
 	// Check that no std generated attribute
-	/*ccl::Attribute* attr_generated = curve_geom->attributes.add(ccl::ATTR_STD_GENERATED);
-	ccl::float3* generated = attr_generated->data_float3();
+	ccl::Attribute* attr_generated = curve_geom->attributes.add(ccl::ATTR_STD_GENERATED);
+	ccl::packed_float3* generated = attr_generated->data_for_write<ccl::packed_float3>();
 
 	for (size_t gen_i = 0; gen_i < curve_geom->num_curves(); gen_i++)
 	{
-		ccl::float3 co = curve_geom->get_curve_keys()[curve_geom->get_curve(gen_i).first_key];
+		ccl::float3 co = position_ptr[first_key_data[gen_i]];
 		generated[gen_i] = co;
-	}*/
+	}
+
+	curve_geom->tag_position_modified();
+	curve_geom->tag_radius_modified();
+	curve_geom->tag_curve_first_key_modified();
 }
 
 void sync_curve_geom_process(ccl::Scene* scene, ccl::Hair* curve_geom, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, const XSI::Property& curve_property, bool motion_deform) {
@@ -242,6 +236,7 @@ ccl::Hair* sync_curve_object(ccl::Scene* scene, ccl::Object* curve_object, Updat
 		used_shaders.push_back_slow(scene->shaders[0]);
 		curve_geom->set_used_shaders(used_shaders);
 	}
+	curve_geom->curve_shape = scene->params.hair_shape;
 
 	sync_curve_geom_process(scene, curve_geom, update_context, xsi_primitive, xsi_object, curve_property, motion_deform);
 
