@@ -56,7 +56,7 @@ XSI::CStatus update_points_property(ccl::Scene* scene, UpdateContext* update_con
 
 // cyc_volume
 bool is_pointcloud_volume(const XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
-void sync_volume_parameters(ccl::Volume* volume, XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
+void sync_volume_parameters(ccl::Volume* volume, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
 ccl::Volume* sync_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_volume(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_volume_property(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);

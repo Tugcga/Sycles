@@ -144,25 +144,27 @@ std::unordered_map<std::string, VolumeAttributeType> build_volume_attributes_map
 	return to_return;
 }
 
-void sync_volume_parameters(ccl::Volume* volume, XSI::X3DObject& xsi_object, const XSI::CTime &eval_time)
+void sync_volume_parameters(ccl::Volume* volume, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::CTime &eval_time)
 {
 	XSI::Property xsi_property = get_xsi_object_property(xsi_object, "CyclesVolume");
 	bool use_property = xsi_property.IsValid();
-	float clipping = 0.001f;
 	float step_size = 0.0f;
+	float velocity_scale = 1.0f;
 	int object_space = 0;
 
 	if (use_property)
 	{
 		XSI::CParameterRefArray xsi_params = xsi_property.GetParameters();
 
-		clipping = xsi_params.GetValue("volume_clipping");
-		step_size = xsi_params.GetValue("volume_step_size");
-		object_space = xsi_params.GetValue("volume_object_space");
+		velocity_scale = xsi_params.GetValue("volume_velocity_scale", eval_time);
+		step_size = xsi_params.GetValue("volume_step_size", eval_time);
+		object_space = xsi_params.GetValue("volume_object_space", eval_time);
 	}
 
-	// TODO: sync volume parameters
-	// volume->set_clipping(clipping);
+	const float motion_scale = update_context->get_need_motion() ? update_context->get_motion_shutter_time() : 0.0f;
+
+	velocity_scale *= motion_scale;
+
 	volume->set_step_size(step_size);
 	volume->set_object_space(object_space == 0);
 }
@@ -173,7 +175,7 @@ void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_
 		volume_geom->attributes.add(std_attribute) :
 		volume_geom->attributes.add(ccl::ustring(attribute_name), attribute_data_type == VolumeAttributeType::VolumeAttributeType_Float ? ccl::TypeFloat : (attribute_data_type == VolumeAttributeType::VolumeAttributeType_Vector ? ccl::TypeVector : ccl::TypeColor), ccl::ATTR_ELEMENT_VOXEL);
 
-	ICEVolumeLoader* ice_loader = new ICEVolumeLoader(attribute_data_type, xsi_primitive, attribute_name, eval_time);
+	ICEVDBLoader* ice_loader = new ICEVDBLoader(attribute_data_type, xsi_primitive, attribute_name, eval_time);
 
 	if (ice_loader->is_empty())
 	{
@@ -183,8 +185,7 @@ void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_
 	{
 		ccl::ImageParams volume_params;
 		volume_params.frame = eval_time.GetTime();
-		// TODO: set volum data in proper way
-		// attribute->data_voxel() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(ice_loader), volume_params, false);
+		attribute->data_voxel_for_write() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(ice_loader), volume_params, false);
 	}
 }
 
@@ -194,7 +195,7 @@ void sync_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, Updat
 
 	XSI::CTime eval_time = update_context->get_time();
 
-	sync_volume_parameters(volume_geom, xsi_object, eval_time);
+	sync_volume_parameters(volume_geom, update_context, xsi_object, eval_time);
 
 	// we should get all valid combinations of ICE attributes
 	// but exports only needed from this list
@@ -288,6 +289,7 @@ ccl::Volume* sync_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateCo
 	volume_geom->set_used_shaders(used_shaders);
 
 	sync_volume_geom_process(scene, volume_geom, update_context, xsi_primitive, xsi_object);
+	volume_geom->merge_grids(scene);
 
 	update_context->add_geometry_index(xsi_primitive_id, scene->geometry.size() - 1);
 
@@ -329,6 +331,7 @@ XSI::CStatus update_volume(ccl::Scene* scene, UpdateContext* update_context, XSI
 
 				sync_volume_geom_process(scene, volume_geom, update_context, xsi_prim, xsi_object);
 
+				volume_geom->merge_grids(scene);
 				volume_geom->tag_update(scene, true);
 			}
 			else
@@ -366,7 +369,7 @@ XSI::CStatus update_volume_property(ccl::Scene* scene, UpdateContext* update_con
 			if (geometry->geometry_type == ccl::Geometry::Type::VOLUME)
 			{
 				ccl::Volume* volume_geom = static_cast<ccl::Volume*>(geometry);
-				sync_volume_parameters(volume_geom, xsi_object, eval_time);
+				sync_volume_parameters(volume_geom, update_context, xsi_object, eval_time);
 			}
 			else
 			{

@@ -29,8 +29,7 @@ void add_vdb_to_volume(ccl::Scene* scene, ccl::Volume* volume_geom, const XSI::C
 	ccl::ImageParams volume_params;
 	volume_params.frame = frame;
 
-	// TODO: make properly add volume
-	// attr->data_voxel() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(vdb_loader), volume_params, false);
+	attr->data_voxel_for_write() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(vdb_loader), volume_params, false);
 }
 
 bool is_vector_type(openvdb::GridBase::ConstPtr grid)
@@ -53,7 +52,7 @@ void sync_vdb_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, U
 
 	XSI::CTime eval_time = update_context->get_time();
 
-	sync_volume_parameters(volume_geom, xsi_object, eval_time);
+	sync_volume_parameters(volume_geom, update_context, xsi_object, eval_time);
 	// read velocity scale
 	XSI::CustomPrimitive xsi_prim(xsi_object.GetActivePrimitive(eval_time));
 	XSI::CParameterRefArray& xsi_prim_params = xsi_prim.GetParameters();

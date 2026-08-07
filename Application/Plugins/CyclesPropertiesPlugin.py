@@ -419,7 +419,7 @@ def CyclesVolume_Define(in_ctxt):
     oProp = in_ctxt.Source
     oProp.AddParameter3("volume_object_space", c.siInt2, 0, 0, 1)
     oProp.AddParameter2("volume_step_size", c.siFloat, 0.0, 0.0, 100.0, 0.0, 1.0, 32768, 1)
-    oProp.AddParameter2("volume_clipping", c.siFloat, 0.001, 0.0, 1.0, 0.0, 0.01)
+    oProp.AddParameter2("volume_velocity_scale", c.siFloat, 1.0, 0.0, 1024.0, 0.25, 2.0, 32768, 1)
     return True
 
 
@@ -849,7 +849,7 @@ def cycles_volume_property_build_ui():
     oLayout.AddGroup("Volume Properties")
     oLayout.AddEnumControl("volume_object_space", volume_space_types, "Space")
     oLayout.AddItem("volume_step_size", "Step Size")
-    oLayout.AddItem("volume_clipping", "Clipping")
+    oLayout.AddItem("volume_velocity_scale", "Velocity Scale")
     oLayout.EndGroup()
     PPG.Refresh()
 
