@@ -170,9 +170,9 @@ void sync_strands_geom(ccl::Scene* scene,
 		attr_length = strands_geom->attributes.add(ccl::ATTR_STD_CURVE_LENGTH);
 	}
 	ccl::Attribute* attr_position = strands_geom->attributes.find(ccl::ATTR_STD_POSITION);
-	ccl::Attribute* attr_radiius = strands_geom->attributes.find(ccl::ATTR_STD_RADIUS);
+	ccl::Attribute* attr_radius = strands_geom->attributes.find(ccl::ATTR_STD_RADIUS);
 	ccl::packed_float3* position_ptr = attr_position->data_for_write<ccl::packed_float3>();
-	float* radius_ptr = attr_radiius->data_for_write<float>();
+	float* radius_ptr = attr_radius->data_for_write<float>();
 	int* first_key_data = strands_geom->get_curve_first_key().data();
 	int* shader_data = strands_geom->get_curve_shader().data();
 
@@ -353,6 +353,10 @@ void sync_strands_geom(ccl::Scene* scene,
 			}
 		}
 	}
+
+	strands_geom->tag_position_modified();
+	strands_geom->tag_radius_modified();
+	strands_geom->tag_curve_first_key_modified();
 }
 
 void sync_strands_deform(ccl::Hair* hair, 
@@ -492,6 +496,10 @@ void sync_strands_deform(ccl::Hair* hair,
 			}
 		}
 	}
+
+	hair->tag_position_modified();
+	hair->tag_radius_modified();
+	hair->tag_motion_steps_modified();
 }
 
 // in this function we actually create geometry

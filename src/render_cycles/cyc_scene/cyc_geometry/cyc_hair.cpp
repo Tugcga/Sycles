@@ -38,8 +38,7 @@ struct XsiHairWeightMap
 
 void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* update_context, const XSI::HairPrimitive &xsi_hair, bool use_motion_blur, ccl::vector<ccl::float4> &out_original_positions, LONG &out_num_keys)
 {
-	// TODO: make proper hair exports
-	/*XSI::CTime eval_time = update_context->get_time();
+	XSI::CTime eval_time = update_context->get_time();
 
 	LONG hairs_count = xsi_hair.GetParameterValue("TotalHairs", eval_time);
 	LONG strand_multiplicity = xsi_hair.GetParameterValue("StrandMult", eval_time);
@@ -119,9 +118,17 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 
 	hair_geom->resize_curves(num_curves, out_num_keys);
 
+	ccl::Attribute* attr_position = hair_geom->attributes.find(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_radius = hair_geom->attributes.find(ccl::ATTR_STD_RADIUS);
+	ccl::packed_float3* position_ptr = attr_position->data_for_write<ccl::packed_float3>();
+	float* radius_ptr = attr_radius->data_for_write<float>();
+	int* first_key_data = hair_geom->get_curve_first_key().data();
+	int* shader_data = hair_geom->get_curve_shader().data();
+
 	rha.Reset();
 	// set hair data
 	out_num_keys = 0;
+	size_t knot_counter = 0;
 	while (rha.Next())
 	{
 		XSI::CLongArray vertices_count_array;  // vertex count in each hair strand
@@ -140,7 +147,8 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 			float strand_length = 0.0f;
 			for (LONG j = 0; j < n_count; j++)
 			{
-				hair_geom->add_curve_key(ccl::make_float3(pos_vals[pos_k], pos_vals[pos_k + 1], pos_vals[pos_k + 2]), rad_vals[radius_k]);
+				position_ptr[knot_counter] = ccl::make_float3(pos_vals[pos_k], pos_vals[pos_k + 1], pos_vals[pos_k + 2]);
+				radius_ptr[knot_counter] = rad_vals[radius_k];
 				if (use_motion_blur)
 				{
 					out_original_positions[original_index] = ccl::make_float4(pos_vals[pos_k], pos_vals[pos_k + 1], pos_vals[pos_k + 2], rad_vals[radius_k]);
@@ -160,23 +168,29 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 				{
 					if (j == 0)
 					{
-						attr_intercept->add(0.0);
+						float* intercept_ptr = attr_intercept->data_for_write<float>();
+						intercept_ptr[knot_counter] = 0.0f;
 					}
 					else
 					{
-						attr_intercept->add((float)j / (float)(n_count - 1));
+						float* intercept_ptr = attr_intercept->data_for_write<float>();
+						intercept_ptr[knot_counter] = (float)j / (float)(n_count - 1);
 					}
 				}
+				knot_counter++;
 			}
 			if (attr_random != NULL)
 			{
-				attr_random->add(ccl::hash_uint2_to_float(i, 0));
+				float* randomt_ptr = attr_random->data_for_write<float>();
+				randomt_ptr[i] = ccl::hash_uint2_to_float(i, 0);
 			}
 			if (attr_length != NULL)
 			{
-				attr_length->add(strand_length);
+				float* length_ptr = attr_length->data_for_write<float>();
+				length_ptr[i] = strand_length;
 			}
-			hair_geom->add_curve(out_num_keys, 0);
+			first_key_data[i] = out_num_keys;
+			shader_data[i] = 0;
 			out_num_keys += n_count;
 		}
 
@@ -241,7 +255,7 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 		if (hair_geom->need_attribute(scene, attr_name))
 		{
 			ccl::Attribute* new_uv_attribute = hair_geom->attributes.add(attr_name, ccl::TypeFloat2, ccl::ATTR_ELEMENT_CURVE);
-			ccl::float2* attr_data = new_uv_attribute->data_float2();
+			ccl::float2* attr_data = new_uv_attribute->data_for_write<ccl::float2>();
 			for (size_t d_index = 0; d_index < uv_data[uv_set_index].data.size(); d_index++)
 			{
 				*attr_data = uv_data[uv_set_index].data[d_index];
@@ -253,7 +267,7 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 	if (hair_geom->need_attribute(scene, ccl::ATTR_STD_UV) && uv_data.size() > 0)
 	{
 		ccl::Attribute* attr_uv = hair_geom->attributes.add(ccl::ATTR_STD_UV, ccl::ustring("std_uv"));
-		ccl::float2* attr_data = attr_uv->data_float2();
+		ccl::float2* attr_data = attr_uv->data_for_write<ccl::float2>();
 		for (size_t d_index = 0; d_index < uv_data[0].data.size(); d_index++)
 		{
 			*attr_data = uv_data[0].data[d_index];
@@ -268,7 +282,7 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 		if (hair_geom->need_attribute(scene, attr_name))
 		{
 			ccl::Attribute* color_attr = hair_geom->attributes.add(attr_name, ccl::TypeRGBA, ccl::ATTR_ELEMENT_CURVE);
-			ccl::float4* attr_data = color_attr->data_float4();
+			ccl::float4* attr_data = color_attr->data_for_write<ccl::float4>();
 			for (size_t d_index = 0; d_index < color_data[color_index].data.size(); d_index++)
 			{
 				*attr_data = color_data[color_index].data[d_index];
@@ -284,7 +298,7 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 		if (hair_geom->need_attribute(scene, attr_name))
 		{
 			ccl::Attribute* weight_attr = hair_geom->attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_CURVE);
-			float* attr_data = weight_attr->data_float();
+			float* attr_data = weight_attr->data_for_write<float>();
 			for (size_t d_index = 0; d_index < weight_data[weight_index].data.size(); d_index++)
 			{
 				*attr_data = weight_data[weight_index].data[d_index];
@@ -295,11 +309,11 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 
 	// generate STD_GENERATED attribute
 	ccl::Attribute* attr_generated = hair_geom->attributes.add(ccl::ATTR_STD_GENERATED);
-	ccl::float3* generated = attr_generated->data_float3();
+	ccl::packed_float3* generated = attr_generated->data_for_write<ccl::packed_float3>();
 
 	for (size_t gen_i = 0; gen_i < hair_geom->num_curves(); gen_i++)
 	{
-		ccl::float3 co = hair_geom->get_curve_keys()[hair_geom->get_curve(gen_i).first_key];
+		ccl::float3 co = position_ptr[first_key_data[gen_i]];
 		generated[gen_i] = co;
 	}
 
@@ -326,22 +340,32 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 		weight_data[weight_index].data.shrink_to_fit();
 	}
 	weight_data.clear();
-	weight_data.shrink_to_fit();*/
+	weight_data.shrink_to_fit();
+
+	hair_geom->tag_position_modified();
+	hair_geom->tag_radius_modified();
+	hair_geom->tag_curve_first_key_modified();
 }
 
 void sync_hair_motion_deform(ccl::Hair* hair, UpdateContext* update_context, const XSI::X3DObject &xsi_object, LONG num_keys, const ccl::vector<ccl::float4> &original_positions)
 {
-	// TODO: make proper hair motios
-	/*size_t motion_steps = update_context->get_motion_steps();
+	size_t motion_steps = update_context->get_motion_steps();
 	hair->set_motion_steps(motion_steps);
 	hair->set_use_motion_blur(true);
 
-	size_t attribute_index = 0;
-	ccl::Attribute* attr_m_positions = hair->attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_strand_position"));
-	ccl::float4* motion_positions = attr_m_positions->data_float4();
+	ccl::Attribute* attr_position = hair->attributes.add(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_radius = hair->attributes.add(ccl::ATTR_STD_RADIUS);
+
+	attr_position->add_motion(hair);
+	attr_radius->add_motion(hair);
+	
 	MotionSettingsPosition motion_position = update_context->get_motion_position();
 	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
+		ccl::packed_float3* position_ptr = attr_position->data_for_write<ccl::packed_float3>(mi + 1);
+		float* radius_ptr = attr_radius->data_for_write<float>(mi + 1);
+		size_t attribute_index = 0;
+
 		size_t time_motion_step = calc_time_motion_step(mi, motion_steps, motion_position);
 
 		float time = update_context->get_motion_time(time_motion_step);
@@ -389,7 +413,9 @@ void sync_hair_motion_deform(ccl::Hair* hair, UpdateContext* update_context, con
 					for (LONG j = 0; j < time_n_count; j++)
 					{
 						ccl::float4 val = ccl::make_float4(time_positions[time_pos_key], time_positions[time_pos_key + 1], time_positions[time_pos_key + 2], time_radiuses[time_rad_key]);
-						motion_positions[attribute_index++] = val;
+						position_ptr[attribute_index] = ccl::make_float3(val.x, val.y, val.z);
+						radius_ptr[attribute_index] = val.w;
+						attribute_index++;
 						time_pos_key = time_pos_key + 3;
 						time_rad_key = time_rad_key + 1;
 					}
@@ -400,10 +426,18 @@ void sync_hair_motion_deform(ccl::Hair* hair, UpdateContext* update_context, con
 		{// invalid data, the number of keys is nonequal to original
 			for (size_t k_index = 0; k_index < original_positions.size(); k_index++)
 			{
-				motion_positions[attribute_index++] = original_positions[k_index];
+				ccl::float4 original = original_positions[k_index];
+
+				position_ptr[attribute_index] = ccl::make_float3(original.x, original.y, original.z);
+				radius_ptr[attribute_index] = original.w;
+				attribute_index++;
 			}
 		}
-	}*/
+	}
+
+	hair->tag_position_modified();
+	hair->tag_radius_modified();
+	hair->tag_motion_steps_modified();
 }
 
 void sync_hair_geom_process(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* update_context, const XSI::HairPrimitive &xsi_hair, XSI::X3DObject &xsi_object, bool motion_deform)
@@ -470,6 +504,7 @@ ccl::Hair* sync_hair_object(ccl::Scene* scene, ccl::Object* hair_object, UpdateC
 	ccl::array<ccl::Node*> used_shaders;
 	used_shaders.push_back_slow(scene->shaders[shader_index]);
 	hair_geom->set_used_shaders(used_shaders);
+	hair_geom->curve_shape = scene->params.hair_shape;
 
 	// sync hair
 	sync_hair_geom_process(scene, hair_geom, update_context, xsi_hair, xsi_object, motion_deform);
@@ -516,8 +551,7 @@ XSI::CStatus update_hair(ccl::Scene* scene, UpdateContext* update_context, XSI::
 
 				sync_hair_geom_process(scene, hair_geom, update_context, xsi_prim, xsi_object, motion_deform);
 
-				// bool rebuild = hair_geom->curve_keys_is_modified() || hair_geom->curve_radius_is_modified();
-				// TODO: should we already nee true?
+				bool rebuild = hair_geom->position_is_modified() || hair_geom->radius_is_modified();
 				hair_geom->tag_update(scene, true);
 			}
 			else
