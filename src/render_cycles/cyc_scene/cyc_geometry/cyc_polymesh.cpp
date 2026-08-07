@@ -156,15 +156,16 @@ void get_geo_accessor_normals(const XSI::CGeometryAccessor &in_geo_acc, LONG in_
 
 void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context, const XSI::X3DObject &xsi_object, SubdivideMode subdiv_mode, bool geo_use_angle, float geo_angle)
 {
-	// TODO: implement proper motion deform
-	/*
 	size_t motion_steps = update_context->get_motion_steps();
 	
 	// check we can add motion blur
 	// the number of vertices should be the same in all steps
 	bool meshes_correct = true;
 	size_t original_vertices = mesh->num_verts();
-
+	// again: 
+	// for non sibdivided mesh - the number of nodes
+	// for linear subdivided - also the number of nodes
+	// for catmul clark - the number of vertices
 	for (size_t i = 0; i < motion_steps; i++)
 	{
 		float time = update_context->get_motion_time(i);
@@ -184,16 +185,24 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 	{
 		mesh->set_motion_steps(motion_steps);
 
-		ccl::vector<ccl::float3> positions_buffer;
-		ccl::vector<ccl::float3> normals_buffer;
+		ccl::vector<ccl::packed_float3> positions_buffer;
+		ccl::vector<ccl::packed_normal> normals_buffer;
 		positions_buffer.resize(original_vertices);
 		normals_buffer.resize(original_vertices);
 
 		// create motion attributes
 		ccl::AttributeSet& attributes = subdiv_mode != SubdivideMode_None ? mesh->subd_attributes : mesh->attributes;
 
-		ccl::Attribute* attr_m_positions = attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_vertex_position"));
-		ccl::Attribute* attr_m_normals = attributes.add(ccl::ATTR_STD_MOTION_VERTEX_NORMAL, ccl::ustring("std_motion_vertex_normal"));
+		ccl::Attribute* attr_m_positions = attributes.find(ccl::ATTR_STD_POSITION);
+		ccl::Attribute* attr_m_normals = attributes.find(ccl::ATTR_STD_VERTEX_NORMAL);
+
+		if (!attr_m_positions || !attr_m_normals) {
+			log_warning("Mesh object " + XSI::CString(mesh->name.c_str()) + " has invalid positions or normals attributes. Disabling motion blur for it.");
+			return;
+		}
+
+		attr_m_positions->add_motion(mesh);
+		attr_m_normals->add_motion(mesh);
 
 		// the number of steps is equal to toatl steps - 1
 		// does not set the step for center
@@ -223,7 +232,7 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 				if (subdiv_mode == SubdivideMode_CatmulClark)
 				{
 					positions_buffer[vertex.GetIndex()] = position;
-					normals_buffer[vertex.GetIndex()] = normal;
+					normals_buffer[vertex.GetIndex()] = ccl::packed_normal(normal);
 				}
 				else
 				{
@@ -245,12 +254,11 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 				get_geo_accessor_normals(xsi_time_acc, nodes_count, node_normals);
 				for (size_t ni = 0; ni < original_vertices; ni++)
 				{
-					normals_buffer[ni] = ccl::make_float3(node_normals[3 * ni], node_normals[3 * ni + 1], node_normals[3 * ni + 2]);
+					normals_buffer[ni] = ccl::packed_normal(ccl::make_float3(node_normals[3 * ni], node_normals[3 * ni + 1], node_normals[3 * ni + 2]));
 				}
 			}
-
-			memcpy(attr_m_positions->data_float3() + mi * original_vertices, &positions_buffer[0], sizeof(float3) * original_vertices);
-			memcpy(attr_m_normals->data_float3() + mi * original_vertices, &normals_buffer[0], sizeof(float3)* original_vertices);
+			std::copy_n(positions_buffer.data(), attr_m_positions->size, attr_m_positions->data_for_write<ccl::packed_float3>(mi + 1));
+			std::copy_n(normals_buffer.data(), attr_m_normals->size, attr_m_normals->data_for_write<ccl::packed_normal>(mi + 1));
 		}
 
 		mesh->set_use_motion_blur(true);
@@ -266,7 +274,7 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 	else
 	{
 		mesh->set_use_motion_blur(false);
-	}*/
+	}
 }
 
 std::vector<LONG> build_node_to_vertex_map(const XSI::CGeometryAccessor& geometry, size_t nodes_count) {
@@ -363,7 +371,7 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 	ccl::packed_normal* normal_data = attr_n->data_for_write<ccl::packed_normal>();
 	for (size_t node_index = 0; node_index < nodes_count; node_index++)
 	{
-		*normal_data = ccl::make_float3(node_normals[3 * node_index], node_normals[3 * node_index + 1], node_normals[3 * node_index + 2]);
+		*normal_data = ccl::packed_normal(ccl::make_float3(node_normals[3 * node_index], node_normals[3 * node_index + 1], node_normals[3 * node_index + 2]));
 		normal_data++;
 	}
 
