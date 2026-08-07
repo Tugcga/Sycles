@@ -165,9 +165,10 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.EndGroup();
 
 	layout.AddGroup("Curves");
-	XSI::CValueArray curves_type_combo(4);
+	XSI::CValueArray curves_type_combo(6);
 	curves_type_combo[0] = "Rounded Ribbons"; curves_type_combo[1] = LONG(0);
 	curves_type_combo[2] = "3D Curves"; curves_type_combo[3] = LONG(1);
+	curves_type_combo[4] = "Linear 3D Curves"; curves_type_combo[5] = LONG(2);
 	layout.AddEnumControl("performance_curves_type", curves_type_combo, "Shape", XSI::siControlCombo);
 	layout.AddItem("performance_curves_subdivs", "Curve Subdivisions");
 	layout.EndGroup();
@@ -520,7 +521,7 @@ void set_curves(XSI::CustomProperty& prop)
 	int curve_mode = performance_curves_type.GetValue();
 
 	XSI::Parameter performance_curves_subdivs = prop_array.GetItem("performance_curves_subdivs");
-	performance_curves_subdivs.PutCapabilityFlag(block_mode, curve_mode == 1);
+	performance_curves_subdivs.PutCapabilityFlag(block_mode, curve_mode != 0);
 }
 
 void set_film_filter(XSI::CustomProperty& prop)

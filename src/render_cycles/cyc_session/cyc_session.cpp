@@ -251,7 +251,10 @@ ccl::SceneParams get_scene_params(RenderType render_type, const ccl::SessionPara
 		scene_params.use_bvh_spatial_split = render_parameters.GetValue("performance_acceleration_use_spatial_split", eval_time);
 		scene_params.use_bvh_compact_structure = render_parameters.GetValue("performance_acceleration_use_compact_bvh", eval_time);
 
-		scene_params.hair_shape = render_parameters.GetValue("performance_curves_type", eval_time) == 1 ? ccl::CurveShapeType::CURVE_THICK : ccl::CurveShapeType::CURVE_RIBBON;
+		int curves_type = render_parameters.GetValue("performance_curves_type", eval_time);
+		scene_params.hair_shape = 
+			curves_type == 0 ? ccl::CurveShapeType::CURVE_RIBBON : (
+			curves_type == 1 ? ccl::CurveShapeType::CURVE_THICK : ccl::CurveShapeType::CURVE_THICK_LINEAR);
 		scene_params.hair_subdivisions = render_parameters.GetValue("performance_curves_subdivs", eval_time);
 	}
 

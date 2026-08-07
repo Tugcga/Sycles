@@ -93,8 +93,7 @@ void sync_strands_geom(ccl::Scene* scene,
 	ccl::vector<size_t> &out_strand_lengths  // store here strand sizes (the length of strand position attribute), consider only non-zero strands
 )
 {
-	// TODO: implement starnds export
-	/*XSI::CTime eval_time = update_context->get_time();
+	XSI::CTime eval_time = update_context->get_time();
 	XSI::Geometry xsi_geometry = xsi_primitive.GetGeometry(eval_time);
 
 	// get strands data from ICE
@@ -151,7 +150,10 @@ void sync_strands_geom(ccl::Scene* scene,
 		}
 	}
 
-	strands_geom->reserve_curves(total_curves, total_keys);
+	strands_geom->resize_curves(total_curves, total_keys);
+	// this command resize two attributes ATTR_STD_POSITION and ATTR_STD_RADIUS
+	// to the size numkeys
+	// and also resize curve_first_key and curve_shader to the size numcurves
 	ccl::Attribute* attr_intercept = NULL;
 	ccl::Attribute* attr_random = NULL;
 	ccl::Attribute* attr_length = NULL;
@@ -167,7 +169,15 @@ void sync_strands_geom(ccl::Scene* scene,
 	{
 		attr_length = strands_geom->attributes.add(ccl::ATTR_STD_CURVE_LENGTH);
 	}
+	ccl::Attribute* attr_position = strands_geom->attributes.find(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_radiius = strands_geom->attributes.find(ccl::ATTR_STD_RADIUS);
+	ccl::packed_float3* position_ptr = attr_position->data_for_write<ccl::packed_float3>();
+	float* radius_ptr = attr_radiius->data_for_write<float>();
+	int* first_key_data = strands_geom->get_curve_first_key().data();
+	int* shader_data = strands_geom->get_curve_shader().data();
+
 	ULONG original_index = 0;
+	size_t knot_counter = 0;
 	
 	if (use_motion_blur)
 	{
@@ -204,7 +214,8 @@ void sync_strands_geom(ccl::Scene* scene,
 		// if points size aray is empty, use zero value
 		// if the point index outside of the array, use the last value of the array
 		float point_radius = calculate_strand_radius(point_index, size_data, size_data_length, 0, strand_knots_length + 1, one_strand_size_data, strand_sizes_length);
-		strands_geom->add_curve_key(vector3_to_float3(point_position), point_radius);
+		position_ptr[knot_counter] = vector3_to_float3(point_position);
+		radius_ptr[knot_counter] = point_radius;
 
 		// if we need motion blur, fill original positions array
 		if (use_motion_blur)
@@ -216,8 +227,10 @@ void sync_strands_geom(ccl::Scene* scene,
 		// start strand, so the intercept attribute is 0.0
 		if (attr_intercept)
 		{
-			attr_intercept->add(0.0);
+			float* intercept_ptr = attr_intercept->data_for_write<float>();
+			intercept_ptr[knot_counter] = 0.0f;
 		}
+		knot_counter++;
 
 		float strand_sparse_length = 0.0f;
 		float total_time = strand_knots_length + 1;
@@ -226,7 +239,8 @@ void sync_strands_geom(ccl::Scene* scene,
 			float radius = calculate_strand_radius(point_index, size_data, size_data_length, k_index + 1, strand_knots_length + 1, one_strand_size_data, strand_sizes_length);
 			
 			XSI::MATH::CVector3f knot_position = one_strand_data[k_index];
-			strands_geom->add_curve_key(vector3_to_float3(knot_position), radius);
+			position_ptr[knot_counter] = vector3_to_float3(knot_position);
+			radius_ptr[knot_counter] = radius;
 			if (k_index > 0)
 			{
 				XSI::MATH::CVector3f prev_knot_position = one_strand_data[k_index - 1];
@@ -245,27 +259,31 @@ void sync_strands_geom(ccl::Scene* scene,
 			if (attr_intercept)
 			{
 				float time = static_cast<float>(k_index + 1) / total_time;
-
-				attr_intercept->add(time);
+				float* intercept_ptr = attr_intercept->data_for_write<float>();
+				intercept_ptr[knot_counter] = time;
 			}
+			knot_counter++;
 		}
 		if (attr_random != NULL)
 		{
-			attr_random->add(ccl::hash_uint2_to_float(curve_index, 0));
+			float* randomt_ptr = attr_random->data_for_write<float>();
+			randomt_ptr[curve_index] = ccl::hash_uint2_to_float(curve_index, 0);
 		}
 		if (attr_length != NULL)
 		{
-			attr_length->add(strand_sparse_length);
+			float* length_ptr = attr_length->data_for_write<float>();
+			length_ptr[curve_index] = strand_sparse_length;
 		}
-		strands_geom->add_curve(first_key, 0);
+		first_key_data[curve_index] = first_key;
+		shader_data[curve_index] = 0;
 		first_key += strand_knots_length + 1;
 	}
 
 	ccl::Attribute* attr_generated = strands_geom->attributes.add(ccl::ATTR_STD_GENERATED);
-	ccl::float3* generated = attr_generated->data_float3();
+	ccl::packed_float3* generated = attr_generated->data_for_write<ccl::packed_float3>();
 	for (size_t i = 0; i < strands_geom->num_curves(); i++)
 	{
-		ccl::float3 co = strands_geom->get_curve_keys()[strands_geom->get_curve(i).first_key];
+		ccl::float3 co = position_ptr[first_key_data[i]];
 		generated[i] = co;
 	}
 
@@ -297,7 +315,7 @@ void sync_strands_geom(ccl::Scene* scene,
 
 					ccl::Attribute* cycles_attribute = strands_geom->attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_CURVE);
 
-					ccl::float3* cyc_attr_data = cycles_attribute->data_float3();
+					ccl::packed_float3* cyc_attr_data = cycles_attribute->data_for_write<ccl::packed_float3>();
 					for (size_t v_index = 0; v_index < total_curves; v_index++)
 					{
 						*cyc_attr_data = vector3_to_float3(attr_data[out_strand_points[v_index]]);
@@ -311,7 +329,7 @@ void sync_strands_geom(ccl::Scene* scene,
 
 					ccl::Attribute* cycles_attribute = strands_geom->attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_CURVE);
 
-					ccl::float4* cyc_attr_data = cycles_attribute->data_float4();
+					ccl::float4* cyc_attr_data = cycles_attribute->data_for_write<ccl::float4>();
 					for (size_t v_index = 0; v_index < total_curves; v_index++)
 					{
 						*cyc_attr_data = color4_to_float4(attr_data[out_strand_points[v_index]]);
@@ -325,7 +343,7 @@ void sync_strands_geom(ccl::Scene* scene,
 
 					ccl::Attribute* cycles_attribute = strands_geom->attributes.add(attr_name, ccl::TypeFloat, ccl::ATTR_ELEMENT_CURVE);
 
-					float* cyc_attr_data = cycles_attribute->data_float();
+					float* cyc_attr_data = cycles_attribute->data_for_write<float>();
 					for (size_t v_index = 0; v_index < total_curves; v_index++)
 					{
 						*cyc_attr_data = attr_data[out_strand_points[v_index]];
@@ -334,7 +352,7 @@ void sync_strands_geom(ccl::Scene* scene,
 				}
 			}
 		}
-	}*/
+	}
 }
 
 void sync_strands_deform(ccl::Hair* hair, 
@@ -344,18 +362,22 @@ void sync_strands_deform(ccl::Hair* hair,
 	const ccl::vector<size_t> &strand_points,
 	const ccl::vector<size_t>& strand_length)
 {
-	// TODO: implement strands motions
-	/*size_t motion_steps = update_context->get_motion_steps();
+	size_t motion_steps = update_context->get_motion_steps();
 	hair->set_motion_steps(motion_steps);
 	hair->set_use_motion_blur(true);
 
-	size_t attribute_index = 0;
-	ccl::Attribute* attr_m_positions = hair->attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_strand_position"));
-	ccl::float4* motion_positions = attr_m_positions->data_float4();
-	MotionSettingsPosition motion_position = update_context->get_motion_position();
+	ccl::Attribute* attr_positions = hair->attributes.find(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_radius = hair->attributes.find(ccl::ATTR_STD_RADIUS);
 
+	attr_positions->add_motion(hair);
+	attr_radius->add_motion(hair);
+
+	MotionSettingsPosition motion_position = update_context->get_motion_position();
 	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
+		ccl::packed_float3* position_ptr = attr_positions->data_for_write<ccl::packed_float3>(mi + 1);
+		float* radius_ptr = attr_radius->data_for_write<float>(mi + 1);
+
 		size_t time_motion_step = calc_time_motion_step(mi, motion_steps, motion_position);
 
 		float time = update_context->get_motion_time(time_motion_step);
@@ -366,6 +388,7 @@ void sync_strands_deform(ccl::Hair* hair,
 		XSI::ICEAttribute time_size = time_xsi_geometry.GetICEAttributeFromName("Size");
 		XSI::ICEAttribute time_strand_size = time_xsi_geometry.GetICEAttributeFromName("StrandSize");
 		bool use_strand_size = time_strand_size.IsDefined();
+		size_t knot_index = 0;
 		if (time_pos.GetElementCount() > 0 && time_strand.GetElementCount() > 0 && time_size.GetElementCount() > 0)
 		{// attributes exists, get the data
 			// prepare data buffers
@@ -421,13 +444,18 @@ void sync_strands_deform(ccl::Hair* hair,
 
 						XSI::MATH::CVector3f p = time_pos_data[point_index];
 						float point_radius = calculate_strand_radius(point_index, time_size_data, time_sizes_count, 0, time_strand_knots_count + 1, strand_sizes, strand_sizes_length);
-						motion_positions[attribute_index++] = ccl::make_float4(p.GetX(), p.GetY(), p.GetZ(), point_radius);
+						position_ptr[knot_index] = ccl::make_float3(p.GetX(), p.GetY(), p.GetZ());
+						radius_ptr[knot_index] = point_radius;
+						knot_index++;
 						// next keys for strand positions
 						for (ULONG k_index = 0; k_index < time_strand_knots_count; k_index++)
 						{
 							float s = calculate_strand_radius(point_index, time_size_data, time_sizes_count, k_index + 1, time_strand_knots_count + 1, strand_sizes, strand_sizes_length);
 							p = time_one_strand_positions[k_index];
-							motion_positions[attribute_index++] = ccl::make_float4(p.GetX(), p.GetY(), p.GetZ(), s);
+
+							position_ptr[knot_index] = ccl::make_float3(p.GetX(), p.GetY(), p.GetZ());
+							radius_ptr[knot_index] = s;
+							knot_index++;
 						}
 					}
 					else
@@ -444,7 +472,10 @@ void sync_strands_deform(ccl::Hair* hair,
 					// in this case we should copy strand positions from original positions (only for this strand)
 					for (size_t k = 0; k < strand_knots_count + 1; k++)
 					{
-						motion_positions[attribute_index++] = original_positions[original_positions_iterator + k];
+						ccl::float4 original_pos = original_positions[original_positions_iterator + k];
+						position_ptr[knot_index] = ccl::make_float3(original_pos.x, original_pos.y, original_pos.z);
+						radius_ptr[knot_index] = original_pos.w;
+						knot_index++;
 					}
 				}
 				original_positions_iterator += strand_knots_count + 1;
@@ -454,10 +485,13 @@ void sync_strands_deform(ccl::Hair* hair,
 		{// invald attribute at the time, set default positions
 			for (size_t k_index = 0; k_index < original_positions.size(); k_index++)
 			{
-				motion_positions[attribute_index++] = original_positions[k_index];
+				ccl::float4 original_pos = original_positions[k_index];
+				position_ptr[knot_index] = ccl::make_float3(original_pos.x, original_pos.y, original_pos.z);
+				radius_ptr[knot_index] = original_pos.w;
+				knot_index++;
 			}
 		}
-	}*/
+	}
 }
 
 // in this function we actually create geometry
@@ -523,6 +557,7 @@ ccl::Hair* sync_strands_object(ccl::Scene* scene, ccl::Object* object, UpdateCon
 	ccl::array<ccl::Node*> used_shaders;
 	used_shaders.push_back_slow(scene->shaders[shader_index]);
 	hair_geom->set_used_shaders(used_shaders);
+	hair_geom->curve_shape = scene->params.hair_shape;
 
 	sync_strands_geom_process(scene, hair_geom, update_context, xsi_primitive, xsi_object, motion_deform);
 
@@ -566,9 +601,8 @@ XSI::CStatus update_strands(ccl::Scene* scene, UpdateContext* update_context, XS
 
 				sync_strands_geom_process(scene, strands_geom, update_context, xsi_prim, xsi_object, motion_deform);
 
-				// bool rebuild = strands_geom->curve_keys_is_modified() || strands_geom->curve_radius_is_modified();
-				// TODO: need true?
-				strands_geom->tag_update(scene, true);
+				bool rebuild = strands_geom->position_is_modified() || strands_geom->radius_is_modified();
+				strands_geom->tag_update(scene, rebuild);
 			}
 			else
 			{
