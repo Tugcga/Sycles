@@ -24,19 +24,23 @@
 
 void sync_surface_motion_deform(ccl::Mesh* surface, UpdateContext* update_context, const XSI::X3DObject& xsi_object, float u_sample_step, int u_samples, float v_sample_step, int v_samples)
 {
-	// TODO: make proper surface motion deform
-	/*size_t motion_steps = update_context->get_motion_steps();
+	size_t motion_steps = update_context->get_motion_steps();
 	surface->set_motion_steps(motion_steps);
 	surface->set_use_motion_blur(true);
 
-	size_t attribute_index = 0;
-	ccl::Attribute* attr_m_positions = surface->attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_position"));
-	ccl::Attribute* attr_m_normals = surface->attributes.add(ccl::ATTR_STD_MOTION_VERTEX_NORMAL, ccl::ustring("std_motion_normal"));
-	ccl::float3* motion_positions = attr_m_positions->data_float3();
-	ccl::float3* motion_normals = attr_m_normals->data_float3();
+	ccl::Attribute* attr_positions = surface->attributes.add(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_normals = surface->attributes.add(ccl::ATTR_STD_VERTEX_NORMAL);
+
+	attr_positions->add_motion(surface);
+	attr_normals->add_motion(surface);
+
 	MotionSettingsPosition motion_position = update_context->get_motion_position();
 	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
+		ccl::packed_float3* position_ptr = attr_positions->data_for_write<ccl::packed_float3>(mi + 1);
+		ccl::packed_normal* normal_ptr = attr_normals->data_for_write<ccl::packed_normal>(mi + 1);
+		size_t attribute_index = 0;
+
 		size_t time_motion_step = calc_time_motion_step(mi, motion_steps, motion_position);
 
 		float time = update_context->get_motion_time(time_motion_step);
@@ -56,26 +60,35 @@ void sync_surface_motion_deform(ccl::Mesh* surface, UpdateContext* update_contex
 					XSI::MATH::CVector3 normal;
 
 					time_surface.EvaluateNormalizedPosition(u_sample_step * u, v_sample_step * v, position, u_tangent, v_tangent, normal);
-					motion_positions[attribute_index] = vector3_to_float3(position);
-					motion_normals[attribute_index] = vector3_to_float3(normal);
+					position_ptr[attribute_index] = vector3_to_float3(position);
+					normal_ptr[attribute_index] = ccl::packed_normal(vector3_to_float3(normal));
 
 					attribute_index++;
 				}
 			}
 		}
-	}*/
+	}
 }
 
 void sync_surface_geom(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update_context, const XSI::CNurbsSurfaceRefArray& xsi_surfaces, float u_sample_step, int u_samples, float v_sample_step, int v_samples) {
-	// TODO: make other surfaecs, obtain geometry from Softimage API
-	/*XSI::CTime eval_time = update_context->get_time();
+	XSI::CTime eval_time = update_context->get_time();
 
 	ULONG surfaces_count = xsi_surfaces.GetCount();
 	size_t vertex_count = surfaces_count * u_samples * v_samples;
-	mesh->reserve_mesh(
+	mesh->resize_mesh(
 		vertex_count, // each surface contains the same number of vertices
 		surfaces_count * (u_samples - 1) * (v_samples - 1) * 2  // and also the same number of polygons (triangles are x2)
 	);
+
+	ccl::Attribute* attr_position = mesh->attributes.add(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* normal_attr = mesh->attributes.add(ccl::ATTR_STD_VERTEX_NORMAL);
+
+	ccl::packed_float3* position_ptr = attr_position->data_for_write<ccl::packed_float3>();
+	ccl::packed_normal* normal_ptr = normal_attr->data_for_write<ccl::packed_normal>();
+
+	int* mesh_triangles = mesh->get_triangles().data();
+	bool* mesh_smooth = mesh->get_smooth().data();
+	int* mesh_shader = mesh->get_shader().data();
 
 	ccl::Attribute* island_attr = NULL;
 	if (mesh->need_attribute(scene, ccl::ATTR_STD_RANDOM_PER_ISLAND)) {
@@ -86,10 +99,8 @@ void sync_surface_geom(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update
 		uv_attr = mesh->attributes.add(ccl::ATTR_STD_UV);
 	}
 
-	ccl::Attribute* normal_attr = mesh->attributes.add(ccl::ATTR_STD_VERTEX_NORMAL);
-	
-	ccl::array<ccl::float3> mesh_vertices(vertex_count);
 	size_t vertex_iterator = 0;
+	size_t quad_iterator = 0;
 	for (size_t i = 0; i < surfaces_count; i++) {
 		XSI::NurbsSurface surface = xsi_surfaces.GetItem(i);
 
@@ -102,8 +113,8 @@ void sync_surface_geom(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update
 				XSI::MATH::CVector3 normal;
 
 				surface.EvaluateNormalizedPosition(u_sample_step * u, v_sample_step * v, position, u_tangent, v_tangent, normal);
-				normal_attr->add(vector3_to_float3(normal));
-				mesh_vertices[vertex_iterator] = vector3_to_float3(position);
+				normal_ptr[vertex_iterator] = ccl::packed_normal(vector3_to_float3(normal));
+				position_ptr[vertex_iterator] = vector3_to_float3(position);
 				vertex_iterator++;
 				// define polygon only if u and are not maximal values
 				if (u + 1 < u_samples && v + 1 < v_samples) {
@@ -119,36 +130,46 @@ void sync_surface_geom(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update
 					size_t v1 = u_samples * v + u + 1 + i * u_samples * v_samples;
 					size_t v2 = u_samples * (v + 1) + u + i * u_samples * v_samples;
 					size_t v3 = u_samples * (v + 1) + u + 1 + i * u_samples * v_samples;
-					mesh->add_triangle(v0, v1, v3, 0, true);
-					mesh->add_triangle(v0, v3, v2, 0, true);
+					mesh_triangles[6 * quad_iterator] = v0;
+					mesh_triangles[6 * quad_iterator + 1] = v1;
+					mesh_triangles[6 * quad_iterator + 2] = v3;
+					mesh_triangles[6 * quad_iterator + 3] = v0;
+					mesh_triangles[6 * quad_iterator + 4] = v3;
+					mesh_triangles[6 * quad_iterator + 5] = v2;
+
+					mesh_shader[2 * quad_iterator] = 0;
+					mesh_shader[2 * quad_iterator + 1] = 0;
+
+					mesh_smooth[2 * quad_iterator] = true;
+					mesh_smooth[2 * quad_iterator + 1] = true;
 
 					if (uv_attr != NULL) {
-						uv_attr->add(ccl::make_float2(u * u_sample_step, v * v_sample_step));
-						uv_attr->add(ccl::make_float2((u + 1) * u_sample_step, v * v_sample_step));
-						uv_attr->add(ccl::make_float2((u + 1) * u_sample_step, (v + 1) * v_sample_step));
+						ccl::float2* uv_ptr = uv_attr->data_for_write<ccl::float2>();
+						uv_ptr[quad_iterator * 6] = ccl::make_float2(u * u_sample_step, v * v_sample_step);
+						uv_ptr[quad_iterator * 6 + 1] = ccl::make_float2((u + 1) * u_sample_step, v * v_sample_step);
+						uv_ptr[quad_iterator * 6 + 2] = ccl::make_float2((u + 1) * u_sample_step, (v + 1) * v_sample_step);
 
-						uv_attr->add(ccl::make_float2(u * u_sample_step, v * v_sample_step));
-						uv_attr->add(ccl::make_float2((u + 1) * u_sample_step, (v + 1) * v_sample_step));
-						uv_attr->add(ccl::make_float2(u * u_sample_step, (v + 1) * v_sample_step));
+						uv_ptr[quad_iterator * 6 + 3] = ccl::make_float2(u * u_sample_step, v * v_sample_step);
+						uv_ptr[quad_iterator * 6 + 4] = ccl::make_float2((u + 1) * u_sample_step, (v + 1) * v_sample_step);
+						uv_ptr[quad_iterator * 6 + 5] = ccl::make_float2(u * u_sample_step, (v + 1) * v_sample_step);
 					}
 
 					if (island_attr != NULL) {
-						island_attr->add(ccl::hash_uint_to_float(i));
-						island_attr->add(ccl::hash_uint_to_float(i));
+						float* island_ptr = island_attr->data_for_write<float>();
+						float v = ccl::hash_uint_to_float(i);
+						island_ptr[quad_iterator * 2] = v;
+						island_ptr[quad_iterator * 2 + 1] = v;
 					}
+
+					quad_iterator++;
 				}
 			}
 		}
 	}
-	mesh->set_verts(mesh_vertices);
 
 	// generated attribute
 	ccl::Attribute* gen_attr = mesh->attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
-	std::memcpy(gen_attr->data_float3(), mesh->get_verts().data(), sizeof(ccl::float3) * mesh->get_verts().size());
-
-	if (uv_attr != NULL) {
-		mikk_compute_tangents(mesh, ccl::Attribute::standard_name(ccl::ATTR_STD_UV), true);
-	}*/
+	std::copy_n(mesh->get_position(), mesh->num_verts(), gen_attr->data_for_write<ccl::packed_float3>());
 }
 
 void sync_surface_geom_process(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, const XSI::Property& surface_property, bool motion_deform) {
