@@ -19,11 +19,29 @@
 
 void log_message(const XSI::CString &message, XSI::siSeverityType level)
 {
-	XSI::Application().LogMessage("[Cycles Render] " + message, level);
+	XSI::CStringArray message_parts = message.Split("\n");
+	LONG count = message_parts.GetCount();
+	for (size_t i = 0; i < count; i++) {
+		if (i == 0) {
+			XSI::Application().LogMessage("[Cycles Render] " + message_parts[i], level);
+		}
+		else {
+			XSI::Application().LogMessage(message_parts[i], level);
+		}
+	}
 }
 
 void log_warning(const XSI::CString& message) {
-	XSI::Application().LogMessage("[Cycles Warning] " + message, XSI::siSeverityType::siWarningMsg);
+	XSI::CStringArray message_parts = message.Split("\n");
+	LONG count = message_parts.GetCount();
+	for (size_t i = 0; i < count; i++) {
+		if (i == 0) {
+			XSI::Application().LogMessage("[Cycles Warning] " + message_parts[i], XSI::siSeverityType::siWarningMsg);
+		}
+		else {
+			XSI::Application().LogMessage(message_parts[i], XSI::siSeverityType::siWarningMsg);
+		}
+	}
 }
 
 XSI::CString to_string(const XSI::CFloatArray& array)
