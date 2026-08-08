@@ -17,9 +17,10 @@
 
 const float EPSILON = 0.0001f;
 
-ICEVDBLoader::ICEVDBLoader(VolumeAttributeType attribute_type, const XSI::Primitive& xsi_primitive, const std::string& attribute_name, const XSI::CTime& eval_time) : ccl::VDBImageLoader(attribute_name) {
+ICEVDBLoader::ICEVDBLoader(VolumeAttributeType attribute_type, const XSI::Primitive& xsi_primitive, const std::string& attribute_name, size_t update_generation, const XSI::CTime& eval_time) : ccl::VDBImageLoader(attribute_name) {
 	m_attribute_name = XSI::CString(attribute_name.c_str());
 	m_primitive_id = xsi_primitive.GetObjectID();
+	m_generation = update_generation;
 
 	XSI::Geometry xsi_geometry = xsi_primitive.GetGeometry(eval_time);
 	XSI::ICEAttribute xsi_attribute = xsi_geometry.GetICEAttributeFromName(m_attribute_name);
@@ -147,7 +148,7 @@ std::string ICEVDBLoader::name() const {
 
 bool ICEVDBLoader::equals(const ImageLoader& other) const {
 	const ICEVDBLoader& other_loader = (const ICEVDBLoader&)other;
-	return m_primitive_id == other_loader.m_primitive_id && m_attribute_name == other_loader.m_attribute_name;
+	return m_primitive_id == other_loader.m_primitive_id && m_attribute_name == other_loader.m_attribute_name && m_generation == other_loader.m_generation;
 }
 
 bool ICEVDBLoader::is_empty() {

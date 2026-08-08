@@ -169,13 +169,21 @@ void sync_volume_parameters(ccl::Volume* volume, UpdateContext* update_context, 
 	volume->set_object_space(object_space == 0);
 }
 
-void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_std_atribute, ccl::AttributeStandard std_attribute, const std::string &attribute_name, VolumeAttributeType attribute_data_type, const XSI::Primitive &xsi_primitive, const XSI::CTime &eval_time)
-{
+void sync_volume_attribute(ccl::Scene* scene, 
+	ccl::Volume* volume_geom, 
+	bool is_std_atribute, 
+	ccl::AttributeStandard std_attribute, 
+	const std::string &attribute_name, 
+	VolumeAttributeType attribute_data_type, 
+	const XSI::Primitive &xsi_primitive, 
+	size_t update_generation,
+	const XSI::CTime &eval_time) {
+
 	ccl::Attribute* attribute = is_std_atribute ? 
 		volume_geom->attributes.add(std_attribute) :
 		volume_geom->attributes.add(ccl::ustring(attribute_name), attribute_data_type == VolumeAttributeType::VolumeAttributeType_Float ? ccl::TypeFloat : (attribute_data_type == VolumeAttributeType::VolumeAttributeType_Vector ? ccl::TypeVector : ccl::TypeColor), ccl::ATTR_ELEMENT_VOXEL);
 
-	ICEVDBLoader* ice_loader = new ICEVDBLoader(attribute_data_type, xsi_primitive, attribute_name, eval_time);
+	ICEVDBLoader* ice_loader = new ICEVDBLoader(attribute_data_type, xsi_primitive, attribute_name, update_generation, eval_time);
 
 	if (ice_loader->is_empty())
 	{
@@ -194,6 +202,7 @@ void sync_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, Updat
 	volume_geom->name = combine_geometry_name(xsi_object, xsi_primitive).GetAsciiString();
 
 	XSI::CTime eval_time = update_context->get_time();
+	size_t update_generation = update_context->get_generation();
 
 	sync_volume_parameters(volume_geom, update_context, xsi_object, eval_time);
 
@@ -207,37 +216,37 @@ void sync_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, Updat
 	std::unordered_set<std::string> exported_names;
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_DENSITY) && volume_attributes_map.contains("density") && volume_attributes_map["density"] == VolumeAttributeType::VolumeAttributeType_Float)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_DENSITY, "density", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_DENSITY, "density", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("density");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_COLOR) && volume_attributes_map.contains("color") && volume_attributes_map["color"] == VolumeAttributeType::VolumeAttributeType_Color)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_COLOR, "color", VolumeAttributeType::VolumeAttributeType_Color, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_COLOR, "color", VolumeAttributeType::VolumeAttributeType_Color, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("color");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_FLAME) && volume_attributes_map.contains("flame") && volume_attributes_map["flame"] == VolumeAttributeType::VolumeAttributeType_Float)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_FLAME, "flame", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_FLAME, "flame", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("flame");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_HEAT) && volume_attributes_map.contains("heat") && volume_attributes_map["heat"] == VolumeAttributeType::VolumeAttributeType_Float)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_HEAT, "heat", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_HEAT, "heat", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("heat");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_TEMPERATURE) && volume_attributes_map.contains("temperature") && volume_attributes_map["temperature"] == VolumeAttributeType::VolumeAttributeType_Float)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_TEMPERATURE, "temperature", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_TEMPERATURE, "temperature", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("temperature");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_VELOCITY) && volume_attributes_map.contains("velocity") && volume_attributes_map["velocity"] == VolumeAttributeType::VolumeAttributeType_Vector)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_VELOCITY, "velocity", VolumeAttributeType::VolumeAttributeType_Vector, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_VELOCITY, "velocity", VolumeAttributeType::VolumeAttributeType_Vector, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("velocity");
 	}
 
@@ -246,7 +255,7 @@ void sync_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, Updat
 	{
 		if (!exported_names.contains(key) && volume_geom->need_attribute(scene, ccl::ustring(key.c_str())))
 		{
-			sync_volume_attribute(scene, volume_geom, false, ccl::AttributeStandard::ATTR_STD_NONE, key, val, xsi_primitive, eval_time);
+			sync_volume_attribute(scene, volume_geom, false, ccl::AttributeStandard::ATTR_STD_NONE, key, val, xsi_primitive, update_generation, eval_time);
 			exported_names.insert(key);
 		}
 	}

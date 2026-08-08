@@ -81,6 +81,8 @@ void UpdateContext::reset()
 
 	nodes_map.clear();
 	path_to_image.clear();
+
+	update_generation = 0;
 }
 
 void UpdateContext::set_is_update_light_linking(bool value)
@@ -1090,4 +1092,12 @@ void UpdateContext::clear_nodes_map() {
 
 std::map<std::string, XSI::Image>& UpdateContext::get_path_to_image() {
 	return path_to_image;
+}
+
+void UpdateContext::increase_generation() {
+	update_generation++;
+}
+
+size_t UpdateContext::get_generation() {
+	return update_generation;
 }

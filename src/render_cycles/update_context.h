@@ -189,6 +189,8 @@ public:
 	void clear_nodes_map();  // clear map from xsi_node to cycles node every time we start export the whole material
 
 	std::map<std::string, XSI::Image>& get_path_to_image();
+	void increase_generation();
+	size_t get_generation();
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -314,4 +316,12 @@ private:
 	// this map should be clear before start export material, it's not used between different render sessions
 
 	std::map<std::string, XSI::Image> path_to_image;  // store map from texture full path to Image object. Create and use when use texture cache is active
+
+	// increase this counter every time we call the render
+	// if we recreate the scene and reset update contex - reset it to zero
+	// in all other cases it will change
+	// make it before all updates
+	// in particular it will allow to catch the change of volume texture
+	size_t update_generation;
+
 };

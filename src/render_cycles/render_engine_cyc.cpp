@@ -433,6 +433,7 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 
 	update_context->get_sync_profiler()->reset();
 	update_context->try_activate_sync_profiler(render_type, m_render_parameters.GetValue("options_logging_log_sync_time", eval_time));
+	update_context->increase_generation();  // to track the number of using of the same update context
 
 	if (render_type == RenderType::RenderType_Rendermap)
 	{

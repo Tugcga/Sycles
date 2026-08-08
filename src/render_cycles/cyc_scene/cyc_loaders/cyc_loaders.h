@@ -18,7 +18,7 @@
 
 class ICEVDBLoader : public ccl::VDBImageLoader {
 public:
-	ICEVDBLoader(VolumeAttributeType attribute_type, const XSI::Primitive& xsi_primitive, const std::string& attribute_name, const XSI::CTime& eval_time);
+	ICEVDBLoader(VolumeAttributeType attribute_type, const XSI::Primitive& xsi_primitive, const std::string& attribute_name, size_t update_generation, const XSI::CTime& eval_time);
 	~ICEVDBLoader();
 
 	std::string name() const override;
@@ -28,6 +28,7 @@ public:
 	ULONG m_primitive_id;
 	XSI::CString m_attribute_name;
 	bool m_is_empty;
+	size_t m_generation;
 };
 
 class XSIVDBLoader : public ccl::VDBImageLoader
