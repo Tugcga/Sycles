@@ -57,6 +57,7 @@ int create_emission_checker(ccl::Scene* scene, float checker_scale);
 int sync_material(ccl::Scene* scene, const XSI::Material& xsi_material, UpdateContext* update_context);  // return shader index in the Cycles shaders array
 int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader, bool is_surface, UpdateContext* update_context);
 int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_texture, UpdateContext* update_context);
+void sync_object_materials(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRef& object_ref);
 void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context);
 XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_material, size_t shader_index, UpdateContext* update_context);
 XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, UpdateContext* update_context);

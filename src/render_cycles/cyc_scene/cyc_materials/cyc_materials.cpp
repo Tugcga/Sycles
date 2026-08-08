@@ -422,6 +422,21 @@ void sync_material_process(ccl::Scene* scene, UpdateContext* update_context, con
 	update_context->add_sync_profiler_time_finish(SyncType::Material, xsi_id);
 }
 
+void sync_object_materials(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRef& object_ref) {
+	XSI::siClassID object_class = object_ref.GetClassID();
+	if (object_class == XSI::siX3DObjectID || object_class == XSI::siLightID) {
+		XSI::X3DObject xsi_object(object_ref);
+		XSI::CRefArray materials = xsi_object.GetMaterials();
+		LONG materials_count = materials.GetCount();
+		for (size_t i = 0; i < materials_count; i++) {
+			XSI::Material xsi_material(materials[i]);
+			if (xsi_material.IsValid() && !update_context->is_material_exists(xsi_material.GetObjectID())) {
+				sync_material_process(scene, update_context, xsi_material, false);
+			}
+		}
+	}
+}
+
 void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context)
 {
 	XSI::Scene xsi_scene = XSI::Application().GetActiveProject().GetActiveScene();

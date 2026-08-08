@@ -739,7 +739,12 @@ void sync_xsi_pointcloud_volume(ccl::Scene* scene, UpdateContext* update_context
 
 void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRef &object_ref, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
 {
+	// at first get all required materials and export it
+	// and only then export actual object
+	sync_object_materials(scene, update_context, object_ref);
+
 	XSI::siClassID object_class = object_ref.GetClassID();
+
 	if (object_class == XSI::siLightID)
 	{// built-in light
 		XSI::X3DObject xsi_object(object_ref);
@@ -927,7 +932,8 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 	XSI::CTime eval_time = update_context->get_time();
 	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 
-	sync_scene_materials(scene, update_context);
+	// sync_scene_materials(scene, update_context);
+	update_context->clear_aovs();
 
 	sync_camera(scene, update_context);
 
