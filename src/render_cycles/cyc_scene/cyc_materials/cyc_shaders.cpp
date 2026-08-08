@@ -418,7 +418,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		}
 		
 		node->set_parametrization(principled_hair_parametrization(parameterization));
-		node->set_model(principled_hair_model(model));  // TODO: may be the method is named in another way
+		node->set_model(principled_hair_model(model));
 		
 		return node;
 	}

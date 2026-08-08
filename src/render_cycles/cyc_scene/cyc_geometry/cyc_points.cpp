@@ -56,6 +56,8 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 	ULONG num_points = position_data.GetCount();
 	ULONG size_count = size_data.GetCount();
 	points_geom->resize(num_points);
+	// this command define position and radius attributes
+	// and also resize shader field
 
 	float* random_data = NULL;
 	if (points_geom->need_attribute(scene, ccl::ATTR_STD_POINT_RANDOM)) {
@@ -65,6 +67,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 
 	ccl::packed_float3* attr_position_data = points_geom->get_position_for_write();
 	float* attr_radius_data = points_geom->get_radius_for_write();
+	int* shaders_ptr = points_geom->get_shader().data();
 
 	out_original_positions.resize(num_points);
 	for (size_t i = 0; i < num_points; i++)
@@ -72,7 +75,6 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 		XSI::MATH::CVector3f position = position_data[i];
 		float size = i < size_count ? size_data[i] : 0.0f;
 		ccl::float3 position_float3 = vector3_to_float3(position);
-		// points_geom->add_point(position_float3, size);
 		attr_position_data[i] = position_float3;
 		attr_radius_data[i] = size;
 
@@ -80,6 +82,7 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 		if (random_data != NULL) {
 			random_data[i] = ccl::hash_uint2_to_float(i, 0);
 		}
+		shaders_ptr[i] = 0;
 	}
 
 	XSI::CRefArray attributes = xsi_geometry.GetICEAttributes();
@@ -178,18 +181,24 @@ void sync_points_geom(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateCon
 
 void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_context, const XSI::X3DObject& xsi_object, const std::vector<ccl::float4> &original_positions)
 {
-	// TODO: make proper points deform
-	/*size_t motion_steps = update_context->get_motion_steps();
+	size_t motion_steps = update_context->get_motion_steps();
 	ULONG original_points_count = original_positions.size();
 	points_geom->set_motion_steps(motion_steps);
 	points_geom->set_use_motion_blur(true);
 
-	size_t attribute_index = 0;
-	ccl::Attribute* attr_m_positions = points_geom->attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_points_position"));
-	ccl::float4* motion_positions = attr_m_positions->data_float4();
+	ccl::Attribute* attr_m_positions = points_geom->attributes.find(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_m_radius = points_geom->attributes.find(ccl::ATTR_STD_RADIUS);
+
+	attr_m_positions->add_motion(points_geom);
+	attr_m_radius->add_motion(points_geom);
+
 	MotionSettingsPosition motion_position = update_context->get_motion_position();
 	for (size_t mi = 0; mi < motion_steps - 1; mi++)
 	{
+		ccl::packed_float3* position_ptr = attr_m_positions->data_for_write<ccl::packed_float3>(mi + 1);
+		float* radius_ptr = attr_m_radius->data_for_write<float>(mi + 1);
+		size_t attribute_index = 0;
+
 		size_t time_motion_step = calc_time_motion_step(mi, motion_steps, motion_position);
 
 		float time = update_context->get_motion_time(time_motion_step) + (mi == (motion_steps - 1) ? 0.0001 : 0.0);  // add small delta to the last time, because in some times it get wrong snap of the geometry
@@ -217,15 +226,22 @@ void sync_points_deform(ccl::PointCloud* points_geom, UpdateContext* update_cont
 		{
 			XSI::MATH::CVector3f position = position_data[point_index];
 			float size = size_data[point_index];
-			motion_positions[attribute_index++] = ccl::make_float4(position.GetX(), position.GetY(), position.GetZ(), size);
+			position_ptr[attribute_index] = ccl::make_float3(position.GetX(), position.GetY(), position.GetZ());
+			radius_ptr[attribute_index] = size;
+
+			attribute_index++;
 		}
 
 		// next other points
 		for (ULONG point_index = points_limit; point_index < original_points_count; point_index++)
 		{
-			motion_positions[attribute_index++] = original_positions[point_index];
+			ccl::float4 original = original_positions[point_index];
+			position_ptr[attribute_index] = ccl::make_float3(original.x, original.y, original.z);
+			radius_ptr[attribute_index] = original.w;
+
+			attribute_index++;
 		}
-	}*/
+	}
 }
 
 void sync_points_geom_process(ccl::Scene* scene, ccl::PointCloud* points_geom, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, bool motion_deform)

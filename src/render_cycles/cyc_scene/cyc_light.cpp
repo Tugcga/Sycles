@@ -433,6 +433,16 @@ void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, 
 
 	// TODO: remove it from settings
 	// bg_shader->set_heterogeneous_volume(render_parameters.GetValue("background_volume_homogeneous", eval_time));
+	// TODO: may be also define all parameters for all shaders, not only for bg shader
+	// it contains
+	/*shader->set_emission_sampling_method(get_emission_sampling(cmat));
+      shader->set_use_transparent_shadow(b_mat.blend_flag & blender::MA_BL_TRANSPARENT_SHADOW);
+      shader->set_use_bump_map_correction(get_boolean(cmat, "use_bump_map_correction"));
+      shader->set_volume_sampling_method(get_volume_sampling(cmat));
+      shader->set_volume_interpolation_method(get_volume_interpolation(cmat));
+      shader->set_volume_step_rate(get_float(cmat, "volume_step_rate"));
+      shader->set_displacement_method(get_displacement_method(b_mat));
+	*/
 	int background_volume_sampling = render_parameters.GetValue("background_volume_sampling", eval_time);
 	bg_shader->set_volume_sampling_method(background_volume_sampling == 2 ? ccl::VolumeSampling::VOLUME_SAMPLING_MULTIPLE_IMPORTANCE : (background_volume_sampling == 1 ? ccl::VolumeSampling::VOLUME_SAMPLING_EQUIANGULAR : ccl::VolumeSampling::VOLUME_SAMPLING_DISTANCE));
 	int background_volume_interpolation = render_parameters.GetValue("background_volume_interpolation", eval_time);
