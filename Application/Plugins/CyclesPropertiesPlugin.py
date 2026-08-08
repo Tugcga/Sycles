@@ -366,6 +366,7 @@ def setup_common_properties(prop):
     prop.AddParameter3("ray_visibility_transmission", c.siBool, 1)
     prop.AddParameter3("ray_visibility_volume_scatter", c.siBool, 1)
     prop.AddParameter3("ray_visibility_shadow", c.siBool, 1)
+    prop.AddParameter3("ray_visibility_raycast", c.siBool, 1)
 
     prop.AddParameter3("simplify_camera_cull", c.siBool, 1)
     prop.AddParameter3("simplify_distance_cull", c.siBool, 1)
@@ -380,7 +381,6 @@ def CyclesMesh_Define(in_ctxt):
     prop = in_ctxt.Source
     prop.AddParameter3("subdiv_type", c.siInt2, 0)
     prop.AddParameter2("subdiv_max_level", c.siInt2, 1, 0, 64, 0, 8, False, True)
-    # prop.AddParameter2("subdiv_dicing_rate", c.siFloat, 1.0, 0.1, 1024.0, 0.5, 16.0, False, True)
     prop.AddParameter3("subdiv_space", c.siInt2, 0)
     prop.AddParameter2("subdiv_pixel_size", c.siFloat, 1.0, 0.5, 1024.0, 0.5, 2.0, False, True)
     prop.AddParameter2("subdiv_edge_length", c.siFloat, 0.01, 0.001, 1024.0, 0.005, 0.05, False, True)
@@ -752,6 +752,7 @@ def build_common_property_ui(layout):
     layout.AddItem("ray_visibility_transmission", "Transmission")
     layout.AddItem("ray_visibility_volume_scatter", "Volume Scatter")
     layout.AddItem("ray_visibility_shadow", "Shadow")
+    layout.AddItem("ray_visibility_raycast", "Raycast")
     layout.EndGroup()
 
 

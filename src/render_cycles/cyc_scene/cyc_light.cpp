@@ -26,25 +26,15 @@
 #include "../../utilities/math.h"
 #include "../../render_base/type_enums.h"
 
-ccl::PathRayVisibility light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glossy, bool use_transmission, bool use_shadow, bool use_scatter, bool use_raycast) {
+ccl::PathRayVisibility light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glossy, bool use_transmission, bool use_scatter) {
 	ccl::PathRayVisibility visibility = ccl::PATH_RAY_VISIBILITY_NONE;
 	visibility |= use_camera ? ccl::PATH_RAY_VISIBILITY_CAMERA : ccl::PATH_RAY_VISIBILITY_NONE;
 	visibility |= use_diffuse ? ccl::PATH_RAY_VISIBILITY_DIFFUSE : ccl::PATH_RAY_VISIBILITY_NONE;
 	visibility |= use_glossy ? ccl::PATH_RAY_VISIBILITY_GLOSSY : ccl::PATH_RAY_VISIBILITY_NONE;
 	visibility |= use_transmission ? ccl::PATH_RAY_VISIBILITY_TRANSMIT : ccl::PATH_RAY_VISIBILITY_NONE;
-	visibility |= use_shadow ? ccl::PATH_RAY_VISIBILITY_SHADOW : ccl::PATH_RAY_VISIBILITY_NONE;
 	visibility |= use_scatter ? ccl::PATH_RAY_VISIBILITY_VOLUME_SCATTER : ccl::PATH_RAY_VISIBILITY_NONE;
-	visibility |= use_raycast ? ccl::PATH_RAY_VISIBILITY_RAYCAST : ccl::PATH_RAY_VISIBILITY_NONE;
 
 	return visibility;
-	/*ccl::uint flag = 0;
-	flag |= use_camera ? ccl::PATH_RAY_CAMERA : 0;
-	flag |= use_diffuse ? ccl::PATH_RAY_DIFFUSE : 0;
-	flag |= use_glossy ? ccl::PATH_RAY_GLOSSY : 0;
-	flag |= use_transmission ? ccl::PATH_RAY_TRANSMIT : 0;
-	flag |= use_scatter ? ccl::PATH_RAY_VOLUME_SCATTER : 0;
-
-	return flag;*/
 }
 
 ccl::Shader* build_xsi_light_shader(ccl::Scene* scene, const XSI::Light& xsi_light, UpdateContext* update_context)
@@ -287,7 +277,7 @@ void sync_xsi_light_object(ccl::Object* light_object, const XSI::Light& xsi_ligh
 	sync_xsi_light_tfm(light_object, xsi_light, eval_time);
 
 	bool xsi_visible = xsi_light.GetParameterValue("LightAreaVisible", eval_time);
-	light_object->set_visibility(light_visibility_flag(xsi_visible, true, true, true, true, true, true));
+	light_object->set_visibility(light_visibility_flag(xsi_visible, true, true, true, true));
 	// for xsi-light always mark it as shadow catcher
 	light_object->set_is_shadow_catcher(true);
 
@@ -426,28 +416,9 @@ void set_background_params(ccl::Background* background, ccl::Shader* bg_shader, 
 		render_parameters.GetValue("background_ray_visibility_diffuse", eval_time),
 		render_parameters.GetValue("background_ray_visibility_glossy", eval_time),
 		render_parameters.GetValue("background_ray_visibility_transmission", eval_time),
-		render_parameters.GetValue("background_ray_visibility_shadow", eval_time),
-		render_parameters.GetValue("background_ray_visibility_scatter", eval_time),
-		render_parameters.GetValue("background_ray_visibility_rayvast", eval_time)));
+		render_parameters.GetValue("background_ray_visibility_scatter", eval_time)));
 	background->set_lightgroup(ccl::ustring(lightgroup.GetAsciiString()));
-
-	// TODO: remove it from settings
-	// bg_shader->set_heterogeneous_volume(render_parameters.GetValue("background_volume_homogeneous", eval_time));
-	// TODO: may be also define all parameters for all shaders, not only for bg shader
-	// it contains
-	/*shader->set_emission_sampling_method(get_emission_sampling(cmat));
-      shader->set_use_transparent_shadow(b_mat.blend_flag & blender::MA_BL_TRANSPARENT_SHADOW);
-      shader->set_use_bump_map_correction(get_boolean(cmat, "use_bump_map_correction"));
-      shader->set_volume_sampling_method(get_volume_sampling(cmat));
-      shader->set_volume_interpolation_method(get_volume_interpolation(cmat));
-      shader->set_volume_step_rate(get_float(cmat, "volume_step_rate"));
-      shader->set_displacement_method(get_displacement_method(b_mat));
-	*/
-	int background_volume_sampling = render_parameters.GetValue("background_volume_sampling", eval_time);
-	bg_shader->set_volume_sampling_method(background_volume_sampling == 2 ? ccl::VolumeSampling::VOLUME_SAMPLING_MULTIPLE_IMPORTANCE : (background_volume_sampling == 1 ? ccl::VolumeSampling::VOLUME_SAMPLING_EQUIANGULAR : ccl::VolumeSampling::VOLUME_SAMPLING_DISTANCE));
-	int background_volume_interpolation = render_parameters.GetValue("background_volume_interpolation", eval_time);
-	bg_shader->set_volume_interpolation_method(background_volume_interpolation == 1 ? ccl::VolumeInterpolation::VOLUME_INTERPOLATION_CUBIC : ccl::VolumeInterpolation::VOLUME_INTERPOLATION_LINEAR);
-	bg_shader->set_volume_step_rate(render_parameters.GetValue("background_volume_step_rate", eval_time));
+	// all other shader parameters will be setup for all shaders array
 }
 
 void set_background_light_params(ccl::Scene* scene, ccl::BackgroundLight* light, ccl::Shader* bg_shader, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time)
@@ -456,11 +427,13 @@ void set_background_light_params(ccl::Scene* scene, ccl::BackgroundLight* light,
 	int background_surface_resolution = render_parameters.GetValue("background_surface_resolution", eval_time);
 	int background_surface_max_bounces = render_parameters.GetValue("background_surface_max_bounces", eval_time);
 	bool background_surface_shadow_caustics = render_parameters.GetValue("background_surface_shadow_caustics", eval_time);
-	light->set_map_resolution(background_surface_sampling_method == 1 ? background_surface_resolution : 0);
+	bool background_surface_cast_shadow = render_parameters.GetValue("background_surface_cast_shadow", eval_time);
+	light->set_use_mis(background_surface_sampling_method != 0);
+	light->set_map_resolution(background_surface_sampling_method == 2 ? background_surface_resolution : 0);
 	light->set_max_bounces(background_surface_max_bounces);
 	light->set_use_caustics(background_surface_shadow_caustics);
+	light->set_cast_shadow(background_surface_cast_shadow);
 
-	light->set_use_mis(true);
 	ccl::array<ccl::Node*> used_shaders;
 	used_shaders.push_back_slow(bg_shader);
 	light->set_used_shaders(used_shaders);
@@ -534,13 +507,9 @@ void sync_custom_light_object(ccl::Object* light_object, const XSI::X3DObject& x
 		xsi_parameters.GetValue("use_diffuse", eval_time),
 		xsi_parameters.GetValue("use_glossy", eval_time),
 		xsi_parameters.GetValue("use_transmission", eval_time),
-		xsi_parameters.GetValue("use_shadow", eval_time),
-		xsi_parameters.GetValue("use_scatter", eval_time),
-		xsi_parameters.GetValue("use_raycast", eval_time)));
+		xsi_parameters.GetValue("use_scatter", eval_time)));
 	light_object->set_is_shadow_catcher(xsi_parameters.GetValue("is_shadow_catcher", eval_time));
-	
 	light_object->set_random_id(ccl::hash_uint2(ccl::hash_string(xsi_name.GetAsciiString()), 0));
-
 	light_object->set_lightgroup(ccl::ustring(lightgroup.GetAsciiString()));
 	update_context->add_lightgroup(lightgroup);
 }

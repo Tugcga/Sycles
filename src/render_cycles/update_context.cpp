@@ -244,7 +244,7 @@ bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_
 		"film_motion_use", 
 		"paths_max_bounces", "paths_max_diffuse_bounces", "paths_max_glossy_bounces", "paths_max_transmission_bounces", "paths_max_volume_bounces", "paths_max_transparent_bounces",
 		"sampling_advanced_min_light_bounces", "sampling_advanced_min_transparent_bounces",
-		"performance_volume_step_rate", "performance_volume_max_steps",
+		"performance_volume_step_rate", "performance_volume_max_steps", "performance_volume_biased",
 		"paths_caustics_filter_glossy", "paths_caustics_reflective", "paths_caustics_refractive",
 		"sampling_advanced_seed", "sampling_advanced_animate_seed",
 		"paths_clamp_direct", "paths_clamp_indirect",
@@ -286,8 +286,7 @@ bool UpdateContext::is_change_render_parameters_background(const std::unordered_
 	std::vector<std::string> background_parameters = { 
 		"film_transparent", "film_transparent_glass", "film_transparent_roughness",
 		"background_ray_visibility_camera", "background_ray_visibility_diffuse", "background_ray_visibility_glossy", "background_ray_visibility_transmission", "background_ray_visibility_scatter",
-		"background_volume_sampling", "background_volume_interpolation", "background_volume_homogeneous", "background_volume_step_rate",
-		"background_surface_sampling_method", "background_surface_max_bounces", "background_surface_resolution", "background_surface_shadow_caustics",
+		"background_volume_sampling", "background_volume_interpolation", "background_surface_sampling_method", "background_surface_max_bounces", "background_surface_resolution", "background_surface_shadow_caustics", "background_surface_cast_shadow",
 		"background_lightgroup"
 	};
 	return is_set_contains_from_array(parameters, background_parameters);
@@ -296,7 +295,7 @@ bool UpdateContext::is_change_render_parameters_background(const std::unordered_
 bool UpdateContext::is_change_render_parameters_shaders(const std::unordered_set<std::string>& parameters)
 {
 	std::vector<std::string> background_parameters = {
-		"options_shaders_emission_sampling", "options_shaders_transparent_shadows", "options_displacement_method"
+		"options_shaders_emission_sampling", "options_shaders_transparent_shadows", "options_displacement_method", "options_shaders_bump_map_correction"
 	};
 	return is_set_contains_from_array(parameters, background_parameters);
 }

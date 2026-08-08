@@ -75,6 +75,7 @@ void sync_integrator(ccl::Session* session, UpdateContext* update_context, Bakin
 		integrator->set_min_bounce(render_parameters.GetValue("sampling_advanced_min_light_bounces", eval_time));
 		integrator->set_transparent_min_bounce(render_parameters.GetValue("sampling_advanced_min_transparent_bounces", eval_time));
 
+		integrator->set_volume_ray_marching(render_parameters.GetValue("performance_volume_biased", eval_time));
 		integrator->set_volume_step_rate(render_parameters.GetValue("performance_volume_step_rate", eval_time));
 		integrator->set_volume_max_steps(render_parameters.GetValue("performance_volume_max_steps", eval_time));
 

@@ -160,6 +160,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.EndGroup();
 
 	layout.AddGroup("Volumes");
+	layout.AddItem("performance_volume_biased", "Biased");
 	layout.AddItem("performance_volume_step_rate", "Step Rate");
 	layout.AddItem("performance_volume_max_steps", "Max Steps");
 	layout.EndGroup();
@@ -297,13 +298,15 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.EndGroup();
 
 	layout.AddGroup("Surface");
-	XSI::CValueArray back_sampling_method_combo(4);
-	back_sampling_method_combo[0] = "Auto"; back_sampling_method_combo[1] = 0;
-	back_sampling_method_combo[2] = "Manual"; back_sampling_method_combo[3] = 1;
+	XSI::CValueArray back_sampling_method_combo(6);
+	back_sampling_method_combo[0] = "None"; back_sampling_method_combo[1] = 0;
+	back_sampling_method_combo[2] = "Auto"; back_sampling_method_combo[3] = 1;
+	back_sampling_method_combo[4] = "Manual"; back_sampling_method_combo[5] = 2;
 	layout.AddEnumControl("background_surface_sampling_method", back_sampling_method_combo, "Sampling", XSI::siControlCombo);
 	layout.AddItem("background_surface_resolution", "Map Resolution");
 	layout.AddItem("background_surface_max_bounces", "Max Bounces");
 	layout.AddItem("background_surface_shadow_caustics", "Shadow Caustics");
+	layout.AddItem("background_surface_cast_shadow", "Cast Shadow");
 	layout.EndGroup();
 
 	layout.AddGroup("Volume");
@@ -316,8 +319,6 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	back_interpolation_combo[0] = "Linear"; back_interpolation_combo[1] = 0;
 	back_interpolation_combo[2] = "Cubic"; back_interpolation_combo[3] = 1;
 	layout.AddEnumControl("background_volume_interpolation", back_interpolation_combo, "Interpolation", XSI::siControlCombo);
-	layout.AddItem("background_volume_homogeneous", "Homogeneous");
-	layout.AddItem("background_volume_step_rate", "Step Size");
 	layout.EndGroup();
 
 	layout.AddGroup("Light Group");
@@ -325,6 +326,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.EndGroup();
 
 	layout.AddGroup("Ray Visibility");
+	layout.AddItem("background_ray_visibility_camera", "Camera");
 	layout.AddItem("background_ray_visibility_diffuse", "Diffuse");
 	layout.AddItem("background_ray_visibility_glossy", "Glossy");
 	layout.AddItem("background_ray_visibility_transmission", "Transmission");
@@ -378,6 +380,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	emission_sampling_combo[8] = "Front and Back"; emission_sampling_combo[9] = 4;
 	layout.AddEnumControl("options_shaders_emission_sampling", emission_sampling_combo, "Emission Sampling", XSI::siControlCombo);
 	layout.AddItem("options_shaders_transparent_shadows", "Transparent Shadows");
+	layout.AddItem("options_shaders_bump_map_correction", "Bump Map Correction");
 #ifdef WITH_OSL
 	XSI::CValueArray shader_system_combo(4);
 	shader_system_combo[0] = "SVM"; shader_system_combo[1] = 0;
@@ -615,6 +618,20 @@ void set_culling(XSI::CustomProperty& prop)
 	performance_simplify_cull_distance_margin.PutCapabilityFlag(block_mode, !is_distance);
 }
 
+void set_biased(XSI::CustomProperty& prop)
+{
+	XSI::CParameterRefArray prop_array = prop.GetParameters();
+
+	XSI::Parameter performance_volume_biased = prop_array.GetItem("performance_volume_biased");
+	bool is_biased = performance_volume_biased.GetValue();
+
+	XSI::Parameter performance_volume_step_rate = prop_array.GetItem("performance_volume_step_rate");
+	performance_volume_step_rate.PutCapabilityFlag(block_mode, !is_biased);
+
+	XSI::Parameter performance_volume_max_steps = prop_array.GetItem("performance_volume_max_steps");
+	performance_volume_max_steps.PutCapabilityFlag(block_mode, !is_biased);
+}
+
 void set_multilayer_exr(XSI::CustomProperty& prop)
 {
 	XSI::CParameterRefArray prop_array = prop.GetParameters();
@@ -644,17 +661,6 @@ void set_cryptomatte(XSI::CustomProperty& prop)
 
 	XSI::Parameter output_crypto_levels = prop_array.GetItem("output_crypto_levels");
 	output_crypto_levels.PutCapabilityFlag(block_mode, !is_object && !is_material && !is_asset);
-}
-
-void set_background_volume(XSI::CustomProperty& prop)
-{
-	XSI::CParameterRefArray prop_array = prop.GetParameters();
-
-	XSI::Parameter background_volume_homogeneous = prop_array.GetItem("background_volume_homogeneous");
-	bool is_homogeneous = background_volume_homogeneous.GetValue();
-
-	XSI::Parameter background_volume_step_rate = prop_array.GetItem("background_volume_step_rate");
-	background_volume_step_rate.PutCapabilityFlag(block_mode, is_homogeneous);
 }
 
 void set_background_surface(XSI::CustomProperty& prop)
@@ -750,9 +756,9 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		set_threads(cp_source);
 		set_memory(cp_source);
 		set_culling(cp_source);
+		set_biased(cp_source);
 		set_multilayer_exr(cp_source);
 		set_cryptomatte(cp_source);
-		set_background_volume(cp_source);
 		set_background_surface(cp_source);
 		set_denoising(cp_source);
 		set_colormanagement(cp_source);
@@ -815,6 +821,10 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		{
 			set_culling(prop);
 		}
+		else if (param_name == "performance_volume_biased")
+		{
+			set_biased(prop);
+		}
 		else if (param_name == "output_exr_combine_passes")
 		{
 			set_multilayer_exr(prop);
@@ -822,10 +832,6 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		else if (param_name == "output_crypto_object" || param_name == "output_crypto_material" || param_name == "output_crypto_asset")
 		{
 			set_cryptomatte(prop);
-		}
-		else if (param_name == "background_volume_homogeneous")
-		{
-			set_background_volume(prop);
 		}
 		else if (param_name == "background_surface_sampling_method")
 		{
@@ -964,6 +970,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("performance_acceleration_use_compact_bvh", XSI::CValue::siBool, caps, "", "", false, param);
 
 	// volumes
+	property.AddParameter("performance_volume_biased", XSI::CValue::siBool, caps, "", "", false, param);
 	property.AddParameter("performance_volume_step_rate", XSI::CValue::siFloat, caps, "", "", 1.0, 0.1, 10.0, 0.1, 10.0, param);
 	property.AddParameter("performance_volume_max_steps", XSI::CValue::siInt4, caps, "", "", 1024, 0, INT_MAX, 0, 2048, param);
 
@@ -1032,13 +1039,12 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	// volume
 	property.AddParameter("background_volume_sampling", XSI::CValue::siInt4, caps, "", "", 1, param);
 	property.AddParameter("background_volume_interpolation", XSI::CValue::siInt4, caps, "", "", 0, param);
-	property.AddParameter("background_volume_homogeneous", XSI::CValue::siBool, caps, "", "", false, param);
-	property.AddParameter("background_volume_step_rate", XSI::CValue::siFloat, caps, "", "", 1.0, 0.01, 100.0, 0.1, 10.0, param);
 	// surface
-	property.AddParameter("background_surface_sampling_method", XSI::CValue::siUInt1, caps, "", "", 0, param);
+	property.AddParameter("background_surface_sampling_method", XSI::CValue::siUInt1, caps, "", "", 1, param);
 	property.AddParameter("background_surface_max_bounces", XSI::CValue::siUInt2, caps, "", "", 1024, 0, 1024, 0, 1024, param);
 	property.AddParameter("background_surface_resolution", XSI::CValue::siInt4, caps, "", "", 1024, 4, 8191, 4, 2048, param);
 	property.AddParameter("background_surface_shadow_caustics", XSI::CValue::siBool, caps, "", "", false, param);
+	property.AddParameter("background_surface_cast_shadow", XSI::CValue::siBool, caps, "", "", true, param);
 	// lightgroup
 	property.AddParameter("background_lightgroup", XSI::CValue::siString, caps, "", "", "", param);
 
@@ -1050,6 +1056,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	// shaders
 	property.AddParameter("options_shaders_emission_sampling", XSI::CValue::siInt4, caps, "", "", 1, param);
 	property.AddParameter("options_shaders_transparent_shadows", XSI::CValue::siBool, caps, "", "", true, param);
+	property.AddParameter("options_shaders_bump_map_correction", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("options_shaders_system", XSI::CValue::siInt4, caps, "", "", 0, param);
 
 	// logging

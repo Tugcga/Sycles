@@ -52,6 +52,7 @@ void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& rend
 	int emission_sampling = render_type == RenderType_Shaderball ? 1 /*Auto*/ : (int)render_parameters.GetValue("options_shaders_emission_sampling", eval_time);
 	bool transparent_shadows = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_transparent_shadows", eval_time);
 	int disp_method = render_type == RenderType_Shaderball ? shaderball_displacement : (int)render_parameters.GetValue("options_displacement_method", eval_time);
+	bool bump_correction = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_bump_map_correction", eval_time);
 
 	for (size_t i = 0; i < scene->shaders.size(); i++)
 	{
@@ -62,6 +63,12 @@ void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& rend
 			(emission_sampling == 3 ? ccl::EmissionSampling::EMISSION_SAMPLING_BACK : ccl::EmissionSampling::EMISSION_SAMPLING_FRONT_BACK))));
 		shader->set_use_transparent_shadow(transparent_shadows);
 		shader->set_displacement_method(disp_method == 0 ? ccl::DisplacementMethod::DISPLACE_BUMP : (disp_method == 1 ? ccl::DisplacementMethod::DISPLACE_TRUE : ccl::DisplacementMethod::DISPLACE_BOTH));
+		shader->set_use_bump_map_correction(bump_correction);
+		int background_volume_sampling = render_parameters.GetValue("background_volume_sampling", eval_time);
+		shader->set_volume_sampling_method(background_volume_sampling == 2 ? ccl::VolumeSampling::VOLUME_SAMPLING_MULTIPLE_IMPORTANCE : (background_volume_sampling == 1 ? ccl::VolumeSampling::VOLUME_SAMPLING_EQUIANGULAR : ccl::VolumeSampling::VOLUME_SAMPLING_DISTANCE));
+		int background_volume_interpolation = render_parameters.GetValue("background_volume_interpolation", eval_time);
+		shader->set_volume_interpolation_method(background_volume_interpolation == 1 ? ccl::VolumeInterpolation::VOLUME_INTERPOLATION_CUBIC : ccl::VolumeInterpolation::VOLUME_INTERPOLATION_LINEAR);
+		shader->set_volume_step_rate(render_parameters.GetValue("performance_volume_step_rate", eval_time));
 
 		shader->tag_emission_sampling_method_modified();
 		shader->tag_use_transparent_shadow_modified();
