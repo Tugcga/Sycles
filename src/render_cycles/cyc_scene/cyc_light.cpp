@@ -231,7 +231,7 @@ void sync_xsi_light_geometry(ccl::Scene* scene, ccl::Light* light, ccl::LightTyp
 			if (xsi_area)
 			{
 				point_light->set_radius(xsi_size_x);
-				point_light->set_is_sphere(true);
+				point_light->set_is_sphere(true);  // always set true, in Blender this paramete defined by Soft Fallof, and there is no difference
 			}
 			else
 			{
