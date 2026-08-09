@@ -236,9 +236,8 @@ ccl::Hair* sync_curve_object(ccl::Scene* scene, ccl::Object* curve_object, Updat
 		used_shaders.push_back_slow(scene->shaders[0]);
 		curve_geom->set_used_shaders(used_shaders);
 	}
-	curve_geom->curve_shape = scene->params.hair_shape;
-
 	sync_curve_geom_process(scene, curve_geom, update_context, xsi_primitive, xsi_object, curve_property, motion_deform);
+	override_curve_shape(scene, curve_geom, "CyclesCurve", xsi_object, eval_time);
 
 	update_context->add_geometry_index(xsi_curve_id, scene->geometry.size() - 1);
 
@@ -282,6 +281,7 @@ XSI::CStatus update_curve(ccl::Scene* scene, UpdateContext* update_context, XSI:
 				curve_geom->clear(true);
 
 				sync_curve_geom_process(scene, curve_geom, update_context, xsi_prim, xsi_object, curve_prop, motion_deform);
+				override_curve_shape(scene, curve_geom, "CyclesCurve", xsi_object, eval_time);
 
 				curve_geom->tag_update(scene, true);
 			}

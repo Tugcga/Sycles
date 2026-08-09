@@ -4,6 +4,7 @@
 
 #include "scene/scene.h"
 #include "scene/object.h"
+#include "scene/hair.h"
 #include "util/hash.h"
 
 #include "../../../utilities/xsi_properties.h"
@@ -30,6 +31,31 @@ ccl::PathRayVisibility get_ray_visibility(const XSI::CParameterRefArray &propert
 		}
 	}
 	return visibility;
+}
+
+void override_curve_shape(ccl:: Scene* scene, ccl::Hair* hair, const XSI::CString &property_name, XSI::X3DObject& xsi_object, const XSI::CTime &eval_time) {
+	XSI::Property xsi_property = get_xsi_object_property(xsi_object, property_name);
+	if (xsi_property.IsValid()) {
+		XSI::CParameterRefArray xsi_params = xsi_property.GetParameters();
+		int curve_override = xsi_params.GetValue("curve_override", eval_time);
+		int curve_subdivisions = xsi_params.GetValue("curve_subdivisions", eval_time);
+
+		if (curve_override == 1) {
+			hair->curve_shape = ccl::CurveShapeType::CURVE_RIBBON;
+		}
+		else if (curve_override == 2) {
+			hair->curve_shape = ccl::CurveShapeType::CURVE_THICK;
+		}
+		else if (curve_override == 3) {
+			hair->curve_shape = ccl::CurveShapeType::CURVE_THICK_LINEAR;
+		}
+		else {
+			hair->curve_shape = scene->params.hair_shape;
+		}
+	}
+	else {
+		hair->curve_shape = scene->params.hair_shape;
+	}
 }
 
 void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject &xsi_object, XSI::CString &lightgroup, bool &out_motion_deform, const XSI::CString &property_name, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time, bool full_update)

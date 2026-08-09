@@ -11,6 +11,7 @@
 #include "scene/object.h"
 #include "scene/volume.h"
 #include "scene/pointcloud.h"
+#include "scene/hair.h"
 
 #include "../../update_context.h"
 #include "../../../render_base/type_enums.h"
@@ -18,6 +19,7 @@
 
 // cyc_geometry
 ccl::uint get_ray_visibility(const XSI::CParameterRefArray& property_params, const XSI::CTime& eval_time);
+void override_curve_shape(ccl::Scene* scene, ccl::Hair* hair, const XSI::CString& property_name, XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
 // common object parameters for hair and meshes
 void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject& xsi_object, XSI::CString& lightgroup, bool& out_motion_deform, const XSI::CString& property_name, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time, bool full_update = true);
 void sync_vdb_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject& xsi_object, XSI::CString& lightgroup, const XSI::CParameterRefArray& primitive_parameters, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time, bool full_update = true);

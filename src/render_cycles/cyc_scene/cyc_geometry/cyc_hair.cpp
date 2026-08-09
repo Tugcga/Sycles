@@ -504,10 +504,10 @@ ccl::Hair* sync_hair_object(ccl::Scene* scene, ccl::Object* hair_object, UpdateC
 	ccl::array<ccl::Node*> used_shaders;
 	used_shaders.push_back_slow(scene->shaders[shader_index]);
 	hair_geom->set_used_shaders(used_shaders);
-	hair_geom->curve_shape = scene->params.hair_shape;
 
 	// sync hair
 	sync_hair_geom_process(scene, hair_geom, update_context, xsi_hair, xsi_object, motion_deform);
+	override_curve_shape(scene, hair_geom, "CyclesHairs", xsi_object, eval_time);
 
 	// add to the update context
 	update_context->add_geometry_index(xsi_hair_id, scene->geometry.size() - 1);
@@ -550,6 +550,7 @@ XSI::CStatus update_hair(ccl::Scene* scene, UpdateContext* update_context, XSI::
 				hair_geom->clear(true);
 
 				sync_hair_geom_process(scene, hair_geom, update_context, xsi_prim, xsi_object, motion_deform);
+				override_curve_shape(scene, hair_geom, "CyclesHairs", xsi_object, eval_time);
 
 				bool rebuild = hair_geom->position_is_modified() || hair_geom->radius_is_modified();
 				hair_geom->tag_update(scene, true);

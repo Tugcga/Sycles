@@ -74,6 +74,14 @@ baking_view_enum = ["Above Surface", 0,
                     "Active Camera", 1]
 
 
+curve_type_enum = [
+    "Use Render Options", 0,
+    "Rounded Ribbons", 1,
+    "3D Curves", 2,
+    "Linear 3D Curves", 3
+]
+
+
 def XSILoadPlugin(in_reg):
     in_reg.Author = "Shekn Itrch"
     in_reg.Name = "CyclesPropertiesPlugin"
@@ -377,6 +385,10 @@ def setup_common_properties(prop):
     prop.AddParameter3("caustics_receive", c.siBool, False)
 
 
+def setup_curve_override_properties(prop):
+    prop.AddParameter3("curve_override", c.siInt2, 0, 0, 3)
+
+
 def CyclesMesh_Define(in_ctxt):
     prop = in_ctxt.Source
     prop.AddParameter3("subdiv_type", c.siInt2, 0)
@@ -393,6 +405,7 @@ def CyclesMesh_Define(in_ctxt):
 
 def CyclesHairs_Define(in_ctxt):
     prop = in_ctxt.Source
+    setup_curve_override_properties(prop)
     setup_common_properties(prop)
     return True
 
@@ -402,6 +415,7 @@ def CyclesCurve_Define(in_ctxt):
     prop.AddParameter2("curve_size", c.siFloat, 0.1, 0.0, 1024.0, 0.0, 1.0, False, True)
     prop.AddParameter2("curve_samples", c.siInt4, 128, 1, 2147483647, 1, 256, False, True)
     prop.AddParameter3("curve_material", c.siString, "")
+    setup_curve_override_properties(prop)
     setup_common_properties(prop)
     return True
 
@@ -427,6 +441,7 @@ def CyclesPointcloud_Define(in_ctxt):
     prop = in_ctxt.Source
     prop.AddParameter3("primitive_pc", c.siBool, False)
     prop.AddParameter3("use_pc_color", c.siBool, True)
+    setup_curve_override_properties(prop)
     setup_common_properties(prop)
 
     return True
@@ -756,6 +771,12 @@ def build_common_property_ui(layout):
     layout.EndGroup()
 
 
+def build_curve_override_ui(layout):
+    layout.AddGroup("Curve")
+    layout.AddEnumControl("curve_override", curve_type_enum, "Curve Shape")
+    layout.EndGroup()
+
+
 def mesh_property_build_ui():
     prop = PPG.Inspected(0)
     layout = PPG.PPGLayout
@@ -788,14 +809,33 @@ def CyclesMesh_subdiv_space_OnChanged():
     mesh_ui_update(prop)
 
 
+def hairs_ui_update(prop):
+    pass
+
+
 def cycles_hairs_property_build_ui():
+    prop = PPG.Inspected(0)
     layout = PPG.PPGLayout
     layout.Clear()
+    build_curve_override_ui(layout)
     build_common_property_ui(layout)
     PPG.Refresh()
 
+    hairs_ui_update(prop)
+
+
+def CyclesHairs_curve_override_OnChanged():
+    prop = PPG.Inspected(0)
+    hairs_ui_update(prop)
+    return
+
+
+def curve_ui_update(prop):
+    pass
+
 
 def cycles_curve_property_build_ui():
+    prop = PPG.Inspected(0)
     layout = PPG.PPGLayout
     layout.Clear()
 
@@ -823,8 +863,17 @@ def cycles_curve_property_build_ui():
     layout.AddEnumControl("curve_material", materials_enum, "Material")
     layout.EndGroup()
 
+    build_curve_override_ui(layout)
     build_common_property_ui(layout)
     PPG.Refresh()
+
+    curve_ui_update(prop)
+
+
+def CyclesCurve_curve_override_OnChanged():
+    prop = PPG.Inspected(0)
+    curve_ui_update(prop)
+    return
 
 
 def cycles_surface_property_build_ui():
@@ -872,10 +921,12 @@ def cycles_pointcloud_property_build_ui():
     layout.AddGroup("Particles")
     layout.AddItem("primitive_pc", "Native Cycles Pointcloud")
     layout.EndGroup()
+
     layout.AddGroup("Pointcloud")
     layout.AddItem("use_pc_color", "Override Pointcloud Color")
     layout.EndGroup()
 
+    build_curve_override_ui(layout)
     build_common_property_ui(layout)
     PPG.Refresh()
 
@@ -883,6 +934,12 @@ def cycles_pointcloud_property_build_ui():
 
 
 def CyclesPointcloud_primitive_pc_OnChanged():
+    prop = PPG.Inspected(0)
+    pointcloud_ui_update(prop)
+    return
+
+
+def CyclesPointcloud_curve_override_OnChanged():
     prop = PPG.Inspected(0)
     pointcloud_ui_update(prop)
     return
