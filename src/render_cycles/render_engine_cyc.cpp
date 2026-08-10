@@ -796,22 +796,26 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 					if (obj_class == XSI::siClassID::siX3DObjectID)
 					{
 						XSI::X3DObject xsi_obj(obj);
-						XSI::CString xsi_type = xsi_obj.GetType();
-						// use general update_scene function
-						if (xsi_type == "polymsh") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Mesh);
-						}
-						else if (xsi_type == "hair") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Hair);
-						}
-						else if (xsi_type == "pointcloud") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Pointcloud);
-						}
-						else if (xsi_type == "surfmsh") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Surface);
-						}
-						else if (xsi_type == "crvlist") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Curve);
+						XSI::CStatus is_reset = reset_positions(session->scene.get(), update_context, xsi_obj);
+
+						if (is_reset == XSI::CStatus::Fail) {
+							XSI::CString xsi_type = xsi_obj.GetType();
+							// use general update_scene function
+							if (xsi_type == "polymsh") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Mesh);
+							}
+							else if (xsi_type == "hair") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Hair);
+							}
+							else if (xsi_type == "pointcloud") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Pointcloud);
+							}
+							else if (xsi_type == "surfmsh") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Surface);
+							}
+							else if (xsi_type == "crvlist") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Curve);
+							}
 						}
 					}
 				}

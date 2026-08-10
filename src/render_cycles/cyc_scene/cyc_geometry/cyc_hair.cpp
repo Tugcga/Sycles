@@ -512,6 +512,10 @@ ccl::Hair* sync_hair_object(ccl::Scene* scene, ccl::Object* hair_object, UpdateC
 	// add to the update context
 	update_context->add_geometry_index(xsi_hair_id, scene->geometry.size() - 1);
 
+	if (scene->shaders[shader_index]->has_displacement) {
+		store_positions(hair_geom, update_context, xsi_object.GetObjectID());
+	}
+
 	return hair_geom;
 }
 

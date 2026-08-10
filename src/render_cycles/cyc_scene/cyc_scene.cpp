@@ -1072,3 +1072,59 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 
 	return XSI::CStatus::OK;
 }
+
+
+
+XSI::CStatus reset_positions(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object) {
+	ULONG xsi_id = xsi_object.GetObjectID();
+	XSI::CTime eval_time = update_context->get_time();
+	if (update_context->has_positions(xsi_id) && update_context->is_object_exists(xsi_id)) {
+		const ccl::array<ccl::packed_float3>* positions = update_context->get_positions(xsi_id);
+		if (positions) {
+			// next for different type of object we should extrac Cycles object in different ways
+			XSI::CString xsi_type = xsi_object.GetType();
+			if (xsi_type == "polymsh") {
+				XSI::Primitive xsi_primitive = xsi_object.GetActivePrimitive(eval_time);
+				ULONG xsi_polymesh_id = xsi_primitive.GetObjectID();
+				return reset_on_geometry(scene, update_context, xsi_polymesh_id, positions);
+			}
+			else if (xsi_type == "hair") {
+				XSI::HairPrimitive xsi_hair_prim(xsi_object.GetActivePrimitive(eval_time));
+				ULONG xsi_hair_id = xsi_hair_prim.GetObjectID();
+				return reset_on_geometry(scene, update_context, xsi_hair_id, positions);
+			}
+			else if (xsi_type == "pointcloud") {
+				PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
+				if (pointcloud_type == PointcloudType::PointcloudType_Strands) {
+					XSI::Primitive xsi_strands_prim(xsi_object.GetActivePrimitive(eval_time));
+					ULONG xsi_strands_id = xsi_strands_prim.GetObjectID();
+					return reset_on_geometry(scene, update_context, xsi_strands_id, positions);
+				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Points) {
+					XSI::Primitive xsi_points_prim(xsi_object.GetActivePrimitive(eval_time));
+					ULONG xsi_points_id = xsi_points_prim.GetObjectID();
+					return reset_on_geometry(scene, update_context, xsi_points_id, positions);
+				}
+			}
+			else if (xsi_type == "surfmsh") {
+				XSI::Primitive xsi_surface_prim(xsi_object.GetActivePrimitive(eval_time));
+				ULONG xsi_surface_id = xsi_surface_prim.GetObjectID();
+				return reset_on_geometry(scene, update_context, xsi_surface_id, positions);
+			}
+			else if (xsi_type == "crvlist") {
+				XSI::Primitive xsi_curve_prim(xsi_object.GetActivePrimitive(eval_time));
+				ULONG xsi_curve_id = xsi_curve_prim.GetObjectID();
+				return reset_on_geometry(scene, update_context, xsi_curve_id, positions);
+			}
+		}
+		else {
+			return XSI::CStatus::Fail;
+		}
+	} 
+	else {
+		// no stored positions, we can not reset it
+		return XSI::CStatus::Fail;
+	}
+
+	return XSI::CStatus::Fail;
+}

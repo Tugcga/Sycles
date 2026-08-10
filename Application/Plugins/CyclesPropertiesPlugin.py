@@ -908,8 +908,10 @@ def pointcloud_ui_update(prop):
     primitive_pc = prop.Parameters("primitive_pc").Value
     if primitive_pc:
         prop.Parameters("use_pc_color").ReadOnly = True
+        prop.Parameters("curve_override").ReadOnly = True
     else:
         prop.Parameters("use_pc_color").ReadOnly = False
+        prop.Parameters("curve_override").ReadOnly = False
 
 
 def cycles_pointcloud_property_build_ui():

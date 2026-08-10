@@ -338,7 +338,6 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 	// set mesh vertices
 	ccl::Attribute* attr_position = mesh->attributes.add(ccl::ATTR_STD_POSITION);
 	attr_position->resize(mesh_vertices.size());
-	ccl::packed_float3* verts = attr_position->data_for_write<ccl::packed_float3>();
 	std::copy_n(mesh_vertices.data(), mesh_vertices.size(), attr_position->data_for_write<ccl::packed_float3>());
 	mesh->tag_position_modified();
 
@@ -453,6 +452,7 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 		// assign mesh faces
 		size_t faces_count = xsi_faces.GetCount();
 		size_t corner_counter = 0;
+		size_t ptex_offset = 0;
 		for (size_t face_index = 0; face_index < faces_count; face_index++)
 		{
 			subd_start_corner[0] = corner_counter; subd_start_corner++;
@@ -462,7 +462,8 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 			size_t face_vertex_count = face_vertices.GetCount();
 
 			subd_num_corners[0] = face_vertex_count; subd_num_corners++;
-			subd_ptex_offset[0] = face_index; subd_ptex_offset++;
+			subd_ptex_offset[0] = ptex_offset; subd_ptex_offset++;
+			ptex_offset += (face_vertex_count == 4) ? 1 : face_vertex_count;
 			subd_shader[0] = xsi_polygon_material_indices[face_index]; subd_shader++;
 			subd_smooth[0] = true; subd_smooth++;
 			for (size_t v = 0; v < face_vertex_count; v++)
@@ -485,11 +486,13 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 		xsi_geo_acc.GetNodeIndices(node_indices);
 		get_geo_accessor_normals(xsi_geo_acc, nodes_count, node_normals);
 		LONG node_iterator = 0;
+		size_t ptex_offset = 0;
 		for (LONG i = 0; i < polygons_count; i++) {
 			LONG poly_size = polygon_sizes[i];
 			subd_start_corner[0] = node_iterator; subd_start_corner++;
 			subd_num_corners[0] = poly_size; subd_num_corners++;
-			subd_ptex_offset[0] = i; subd_ptex_offset++;
+			subd_ptex_offset[0] = ptex_offset; subd_ptex_offset++;
+			ptex_offset += (poly_size == 4) ? 1 : poly_size;
 			subd_shader[0] = xsi_polygon_material_indices[i]; subd_shader++;
 			subd_smooth[0] = false; subd_smooth++;
 			
@@ -661,6 +664,7 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	// set used shaders
 	ccl::array<ccl::Node*> used_shaders;
 	XSI::CRefArray xsi_geo_materials = xsi_geo_acc.GetMaterials();
+	bool has_displacement = false;
 	for (size_t i = 0; i < xsi_geo_materials.GetCount(); i++)
 	{
 		XSI::Material xsi_material = xsi_geo_materials[i];
@@ -670,8 +674,11 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 		{
 			shader_index = update_context->get_xsi_material_cycles_index(xsi_material_id);
 		}
-
-		used_shaders.push_back_slow(scene->shaders[shader_index]);
+		ccl::Shader* shader = scene->shaders[shader_index];
+		used_shaders.push_back_slow(shader);
+		if (shader->has_displacement) {
+			has_displacement = true;
+		}
 	}
 	mesh_geom->set_used_shaders(used_shaders);
 
@@ -716,6 +723,10 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	if (update_context->get_need_motion() && motion_deform)
 	{
 		sync_polymesh_motion_deform(mesh_geom, update_context, xsi_object, subdiv_mode, geo_use_angle, geo_angle);
+	}
+
+	if (has_displacement) {
+		store_positions(mesh_geom, update_context, xsi_object.GetObjectID());
 	}
 }
 

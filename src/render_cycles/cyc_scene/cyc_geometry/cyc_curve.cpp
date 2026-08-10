@@ -220,12 +220,15 @@ ccl::Hair* sync_curve_object(ccl::Scene* scene, ccl::Object* curve_object, Updat
 		}
 	}
 
+	bool has_displacement = false;
 	if (is_get && valid_material == XSI::CStatus::OK && update_context->is_material_exists(curve_mat_id)) {
 		size_t shader_index = update_context->get_xsi_material_cycles_index(curve_mat_id);
 
 		ccl::array<ccl::Node*> used_shaders;
 		used_shaders.push_back_slow(scene->shaders[shader_index]);
 		curve_geom->set_used_shaders(used_shaders);
+
+		has_displacement = scene->shaders[shader_index]->has_displacement;
 	}
 	else {
 		// fail to export missed material
@@ -240,6 +243,10 @@ ccl::Hair* sync_curve_object(ccl::Scene* scene, ccl::Object* curve_object, Updat
 	override_curve_shape(scene, curve_geom, "CyclesCurve", xsi_object, eval_time);
 
 	update_context->add_geometry_index(xsi_curve_id, scene->geometry.size() - 1);
+
+	if (has_displacement) {
+		store_positions(curve_geom, update_context, xsi_object.GetObjectID());
+	}
 
 	return curve_geom;
 }

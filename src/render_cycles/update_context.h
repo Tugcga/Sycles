@@ -191,6 +191,9 @@ public:
 	std::map<std::string, XSI::Image>& get_path_to_image();
 	void increase_generation();
 	size_t get_generation();
+	void copy_positions(ULONG xsi_id, const ccl::array<ccl::packed_float3>& positions);
+	bool has_positions(ULONG xsi_id);  // check that this object has stored positions
+	const ccl::array<ccl::packed_float3>* get_positions(ULONG xsi_id) const;
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -323,5 +326,10 @@ private:
 	// make it before all updates
 	// in particular it will allow to catch the change of volume texture
 	size_t update_generation;
+
+	std::unordered_map<ULONG, ccl::array<ccl::packed_float3>> object_to_vertices;  // store here original position of vertices (or points)
+	// key - object id (X3DObject, not primitive), value - positions
+	// use thiese arrays for restore original positions when we update displacement material
+	// store here vertices of objects, which assigned with displacement material (one of them)
 
 };

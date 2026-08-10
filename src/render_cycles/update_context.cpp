@@ -83,6 +83,8 @@ void UpdateContext::reset()
 	path_to_image.clear();
 
 	update_generation = 0;
+
+	object_to_vertices.clear();
 }
 
 void UpdateContext::set_is_update_light_linking(bool value)
@@ -1100,4 +1102,17 @@ void UpdateContext::increase_generation() {
 
 size_t UpdateContext::get_generation() {
 	return update_generation;
+}
+
+void UpdateContext::copy_positions(ULONG xsi_id, const ccl::array<ccl::packed_float3> &positions) {
+	object_to_vertices[xsi_id] = positions;
+}
+
+bool UpdateContext::has_positions(ULONG xsi_id) {
+	return object_to_vertices.contains(xsi_id);
+}
+
+const ccl::array<ccl::packed_float3>* UpdateContext::get_positions(ULONG xsi_id) const {
+	auto it = object_to_vertices.find(xsi_id);
+	return (it != object_to_vertices.end()) ? &it->second : nullptr;
 }

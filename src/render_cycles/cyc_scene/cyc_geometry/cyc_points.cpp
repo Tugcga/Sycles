@@ -307,6 +307,10 @@ ccl::PointCloud* sync_points_object(ccl::Scene* scene, ccl::Object* object, Upda
 
 	update_context->add_geometry_index(xsi_primitive_id, scene->geometry.size() - 1);
 
+	if (scene->shaders[shader_index]->has_displacement) {
+		store_positions(points_geom, update_context, xsi_object.GetObjectID());
+	}
+
 	return points_geom;
 }
 

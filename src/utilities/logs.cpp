@@ -487,6 +487,18 @@ XSI::CString to_string(const std::vector<XSI::CStringArray>& array) {
 	return to_return;
 }
 
+XSI::CString to_string(const XSI::MATH::CVector3Array& array) {
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.GetCount(); i++)
+	{
+		to_return += to_string(array[i]) + ((i == array.GetCount() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
 XSI::CString to_string_int2(const ccl::int2& value)
 {
 	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";

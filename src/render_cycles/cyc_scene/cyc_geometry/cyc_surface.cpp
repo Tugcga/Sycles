@@ -1,4 +1,4 @@
-﻿#include "scene/scene.h"
+#include "scene/scene.h"
 #include "scene/object.h"
 #include "scene/hair.h"
 #include "util/hash.h"
@@ -12,6 +12,9 @@
 #include <xsi_floatarray.h>
 #include <xsi_nurbssurfacemesh.h>
 #include <xsi_nurbssurface.h>
+#include <xsi_triangle.h>
+#include <xsi_point.h>
+#include <xsi_vector3.h>
 
 #include "../../update_context.h"
 #include "../../../utilities/xsi_properties.h"
@@ -237,6 +240,10 @@ ccl::Mesh* sync_surface_object(ccl::Scene* scene, ccl::Object* surface_object, U
 	sync_surface_geom_process(scene, mesh, update_context, xsi_primitive, xsi_object, surface_property, motion_deform);
 
 	update_context->add_geometry_index(xsi_surface_id, scene->geometry.size() - 1);
+
+	if (scene->shaders[shader_index]->has_displacement) {
+		store_positions(mesh, update_context, xsi_object.GetObjectID());
+	}
 
 	return mesh;
 }

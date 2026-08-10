@@ -27,6 +27,7 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object, const std::vector<XSI::MATH::CTransformation>& root_tfms = {});
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray& all_models_list);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+XSI::CStatus reset_positions(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object);
 
 // cyc_camera
 XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context);
