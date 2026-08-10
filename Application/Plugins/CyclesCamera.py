@@ -443,8 +443,11 @@ def build_camera_ui():
                         layout.AddItem(param_name[:start] + "z_" + param_name[start+2:], "Z")
                         layout.EndRow()
                         layout.EndGroup()
-        layout.AddButton("Reparse Parameters")
         layout.EndGroup()
+        item = layout.AddButton("Reparse Parameters")
+        item.SetAttribute(c.siUICX, 200)
+        item.SetAttribute(c.siUIWidthPercentage, 100)
+        item.SetAttribute(c.siUICY, 30)
 
     PPG.Refresh()
 
