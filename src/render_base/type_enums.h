@@ -41,7 +41,8 @@ enum UpdateType
 enum CameraType
 {
 	CameraType_General,
-	CameraType_Panoramic
+	CameraType_Panoramic,
+	CameraType_OSL
 };
 
 enum ShaderballType
