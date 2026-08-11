@@ -1,3 +1,5 @@
+﻿#include <tuple>
+
 #include "scene/scene.h"
 #include "scene/object.h"
 #include "scene/hair.h"
@@ -13,6 +15,7 @@
 #include <xsi_nurbssurfacemesh.h>
 #include <xsi_nurbssurface.h>
 #include <xsi_triangle.h>
+#include <xsi_trianglevertex.h>
 #include <xsi_point.h>
 #include <xsi_vector3.h>
 
@@ -25,7 +28,7 @@
 #include "cyc_geometry.h"
 #include "cyc_tangent_attribute.h"
 
-void sync_surface_motion_deform(ccl::Mesh* surface, UpdateContext* update_context, const XSI::X3DObject& xsi_object, float u_sample_step, int u_samples, float v_sample_step, int v_samples)
+void sync_surface_motion_deform_parametric(ccl::Mesh* surface, UpdateContext* update_context, const XSI::X3DObject& xsi_object, float u_sample_step, int u_samples, float v_sample_step, int v_samples)
 {
 	size_t motion_steps = update_context->get_motion_steps();
 	surface->set_motion_steps(motion_steps);
@@ -73,7 +76,7 @@ void sync_surface_motion_deform(ccl::Mesh* surface, UpdateContext* update_contex
 	}
 }
 
-void sync_surface_geom(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update_context, const XSI::CNurbsSurfaceRefArray& xsi_surfaces, float u_sample_step, int u_samples, float v_sample_step, int v_samples) {
+void sync_surface_geom_parametric(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update_context, const XSI::CNurbsSurfaceRefArray& xsi_surfaces, float u_sample_step, int u_samples, float v_sample_step, int v_samples) {
 	XSI::CTime eval_time = update_context->get_time();
 
 	ULONG surfaces_count = xsi_surfaces.GetCount();
@@ -175,30 +178,180 @@ void sync_surface_geom(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update
 	std::copy_n(mesh->get_position(), mesh->num_verts(), gen_attr->data_for_write<ccl::packed_float3>());
 }
 
+// construct map with required information about triangulation
+// return tuple with three arrays for position, normal and uv attributes
+std::tuple<std::vector<ccl::packed_float3>, std::vector<ccl::packed_normal>, std::vector<ccl::float2>> surface_to_triangulation(const XSI::NurbsSurfaceMesh& xsi_surface_geometry, bool fill_uvs) {
+	// at first we should define the number of vertices
+	size_t max_index = 0;
+	XSI::CTriangleRefArray triangles = xsi_surface_geometry.GetTriangles();
+	XSI::CLongArray indices = triangles.GetIndexArray();
+	for (size_t i = 0; i < indices.GetCount(); i++) {
+		LONG v = indices[i];
+		if (v > max_index) {
+			max_index = v;
+		}
+	}
+	size_t vertex_count = max_index + 1;
+	std::vector<ccl::packed_float3> positions(vertex_count);
+	std::vector<ccl::packed_normal> normals(vertex_count);
+	std::vector<ccl::float2> uvs(fill_uvs ? vertex_count : 0);
+	
+	LONG buffer_surface_index = 0;
+	double buffer_square_distance = 0.0;
+	double buffer_u = 0.0;
+	double buffer_v = 0.0;
+	XSI::MATH::CVector3 buffer_closed_position;
+
+	for (size_t t_index = 0; t_index < triangles.GetCount(); t_index++) {
+		XSI::Triangle triangle(triangles[t_index]);
+
+		XSI::CLongArray triangle_indices = triangle.GetIndexArray();
+		XSI::MATH::CVector3Array triangle_positions = triangle.GetPositionArray();
+		XSI::MATH::CVector3Array triangle_normals = triangle.GetPolygonNodeNormalArray();
+
+		for (size_t i = 0; i < triangle_indices.GetCount(); i++) {
+			LONG index = triangle_indices[i];
+			XSI::MATH::CVector3 position = triangle_positions[i];
+			XSI::MATH::CVector3 normal = triangle_normals[i];
+
+			positions[index] = ccl::packed_float3(vector3_to_float3(position));
+			normals[index] = ccl::packed_normal(vector3_to_float3(normal));
+
+			if (fill_uvs) {
+				xsi_surface_geometry.GetClosestSurfacePosition(position, buffer_surface_index, buffer_square_distance, buffer_u, buffer_v, buffer_closed_position);
+				uvs[index] = ccl::make_float2(buffer_u, buffer_v);
+			}
+		}
+	}
+	return std::make_tuple(positions, normals, uvs);
+}
+
+void sync_surface_motion_deform_approximation(ccl::Mesh* surface, UpdateContext* update_context, const XSI::X3DObject& xsi_object) {
+	size_t motion_steps = update_context->get_motion_steps();
+	surface->set_motion_steps(motion_steps);
+	surface->set_use_motion_blur(true);
+
+	ccl::Attribute* attr_positions = surface->attributes.add(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_normals = surface->attributes.add(ccl::ATTR_STD_VERTEX_NORMAL);
+
+	attr_positions->add_motion(surface);
+	attr_normals->add_motion(surface);
+
+	size_t positions_size = attr_positions->size;
+	size_t normals_size = attr_normals->size;
+
+	MotionSettingsPosition motion_position = update_context->get_motion_position();
+	for (size_t mi = 0; mi < motion_steps - 1; mi++)
+	{
+		ccl::packed_float3* position_ptr = attr_positions->data_for_write<ccl::packed_float3>(mi + 1);
+		ccl::packed_normal* normal_ptr = attr_normals->data_for_write<ccl::packed_normal>(mi + 1);
+
+		size_t time_motion_step = calc_time_motion_step(mi, motion_steps, motion_position);
+		float time = update_context->get_motion_time(time_motion_step);
+
+		XSI::Primitive time_primitive(xsi_object.GetActivePrimitive(time));
+		XSI::NurbsSurfaceMesh time_surface_geometry = time_primitive.GetGeometry(time);
+		auto [positions, normals, uvs] = surface_to_triangulation(time_surface_geometry, false);
+
+		if (positions.size() != positions_size || normals.size() != normals_size) {
+			log_warning("Surface " + xsi_object.GetName() + " has invalid number of vertices at frame " + XSI::CString(time) + ". Render can contains artifacts.");
+			if (positions.size() < positions_size) {
+				// we should extend the array
+				positions.resize(positions_size);
+			}
+			if (normals.size() < normals_size) {
+				normals.resize(normals_size);
+			}
+		}
+
+		std::copy_n(positions.data(), positions_size, position_ptr);
+		std::copy_n(normals.data(), normals_size, normal_ptr);
+	}
+}
+
+void sync_surface_geom_approximation(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update_context, const XSI::NurbsSurfaceMesh &xsi_surface_geometry) {
+	// before we start create the mesh, we should geather triangulation information
+	// vertex positions, normals, uvs, and also indices of each triangle
+	bool need_uv = mesh->need_attribute(scene, ccl::ATTR_STD_UV);
+	auto [positions, normals, uvs] = surface_to_triangulation(xsi_surface_geometry, need_uv);
+
+	XSI::CTriangleRefArray triangles = xsi_surface_geometry.GetTriangles();
+	size_t triangles_count = triangles.GetCount();
+	mesh->resize_mesh(positions.size(), triangles_count);
+
+	ccl::Attribute* attr_position = mesh->attributes.add(ccl::ATTR_STD_POSITION);
+	ccl::Attribute* attr_normal = mesh->attributes.add(ccl::ATTR_STD_VERTEX_NORMAL);
+
+	ccl::packed_float3* position_ptr = attr_position->data_for_write<ccl::packed_float3>();
+	std::copy_n(positions.data(), positions.size(), position_ptr);
+	ccl::packed_normal* normal_ptr = attr_normal->data_for_write<ccl::packed_normal>();
+	std::copy_n(normals.data(), normals.size(), normal_ptr);
+
+	// TODO: how to define island attribute?
+	// if the surface constans from different patches, how it's possible to obtina oatch index for each triangle
+	ccl::Attribute* attr_uv = NULL;
+	if (need_uv) {
+		attr_uv = mesh->attributes.add(ccl::ATTR_STD_UV);
+	}
+
+	int* mesh_triangles = mesh->get_triangles().data();
+	bool* mesh_smooth = mesh->get_smooth().data();
+	int* mesh_shader = mesh->get_shader().data();
+	for (size_t triangle_index = 0; triangle_index < triangles_count; triangle_index++) {
+		XSI::Triangle triangle(triangles[triangle_index]);
+		XSI::CLongArray triangle_indices = triangle.GetIndexArray();
+		mesh_triangles[3 * triangle_index] = triangle_indices[0];
+		mesh_triangles[3 * triangle_index + 1] = triangle_indices[1];
+		mesh_triangles[3 * triangle_index + 2] = triangle_indices[2];
+
+		mesh_smooth[triangle_index] = true;
+		mesh_shader[triangle_index] = 0;
+
+		if (need_uv && attr_uv) {
+			ccl::float2* uv_ptr = attr_uv->data_for_write<ccl::float2>();
+			uv_ptr[3 * triangle_index] = uvs[triangle_indices[0]];
+			uv_ptr[3 * triangle_index + 1] = uvs[triangle_indices[1]];
+			uv_ptr[3 * triangle_index + 2] = uvs[triangle_indices[2]];
+		}
+	}
+}
+
 void sync_surface_geom_process(ccl::Scene* scene, ccl::Mesh* mesh, UpdateContext* update_context, const XSI::Primitive& xsi_primitive, XSI::X3DObject& xsi_object, const XSI::Property& surface_property, bool motion_deform) {
 	mesh->name = combine_geometry_name(xsi_object, xsi_primitive).GetAsciiString();
 
-	LONG num_keys = 0;
 	bool use_motion_blur = update_context->get_need_motion() && motion_deform;
 
 	XSI::CTime eval_time = update_context->get_time();
 	XSI::NurbsSurfaceMesh xsi_surface_geometry = xsi_primitive.GetGeometry(eval_time);
-	XSI::CNurbsSurfaceRefArray xsi_surfaces = xsi_surface_geometry.GetSurfaces();
 
-	int u_samples = surface_property.GetParameterValue("surface_u_samples", eval_time);
-	int v_samples = surface_property.GetParameterValue("surface_v_samples", eval_time);
-	float u_sample_step = 1.0f / (float)u_samples; u_samples = std::max(u_samples, 1) + 1;
-	float v_sample_step = 1.0f / (float)v_samples; v_samples = std::max(v_samples, 1) + 1;
+	int trianglulation_type = surface_property.GetParameterValue("surface_triangulation_type", eval_time);
+	if (trianglulation_type == 0) {
+		// parametric mode
+		int u_samples = surface_property.GetParameterValue("surface_u_samples", eval_time);
+		int v_samples = surface_property.GetParameterValue("surface_v_samples", eval_time);
+		float u_sample_step = 1.0f / (float)u_samples; u_samples = std::max(u_samples, 1) + 1;
+		float v_sample_step = 1.0f / (float)v_samples; v_samples = std::max(v_samples, 1) + 1;
 
-	sync_surface_geom(scene, mesh, update_context, xsi_surfaces, u_sample_step, u_samples, v_sample_step, v_samples);
-	if (use_motion_blur)
-	{
-		sync_surface_motion_deform(mesh, update_context, xsi_object, u_sample_step, u_samples, v_sample_step, v_samples);
+		XSI::CNurbsSurfaceRefArray xsi_surfaces = xsi_surface_geometry.GetSurfaces();
+		sync_surface_geom_parametric(scene, mesh, update_context, xsi_surfaces, u_sample_step, u_samples, v_sample_step, v_samples);
+		if (use_motion_blur) {
+			sync_surface_motion_deform_parametric(mesh, update_context, xsi_object, u_sample_step, u_samples, v_sample_step, v_samples);
+		}
+		else {
+			mesh->set_use_motion_blur(false);
+		}
 	}
-	else
-	{
-		mesh->set_use_motion_blur(false);
+	else {
+		// geometry approximation mode
+		sync_surface_geom_approximation(scene, mesh, update_context, xsi_surface_geometry);
+		if (use_motion_blur) {
+			sync_surface_motion_deform_approximation(mesh, update_context, xsi_object);
+		}
+		else {
+			mesh->set_use_motion_blur(false);
+		}
 	}
+
 }
 
 ccl::Mesh* sync_surface_object(ccl::Scene* scene, ccl::Object* surface_object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::Property& surface_property)

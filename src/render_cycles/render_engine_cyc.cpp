@@ -660,7 +660,15 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType::UpdateType_Mesh)
 	{
-		is_update = update_polymesh(session->scene.get(), update_context, xsi_object);
+		// this called also when we change geometry approximation property
+		// so, for different geometry type call different update method
+		XSI::CString xsi_type = xsi_object.GetType();
+		if (xsi_type == "polymsh") {
+			is_update = update_polymesh(session->scene.get(), update_context, xsi_object);
+		}
+		else if (xsi_type == "surfmsh") {
+			is_update = update_surface(session->scene.get(), update_context, xsi_object);
+		}
 	}
 	else if (update_type == UpdateType::UpdateType_Pointcloud)
 	{

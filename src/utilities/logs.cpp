@@ -383,6 +383,19 @@ XSI::CString to_string(const ccl::vector<ccl::float3>& array)
 	return to_return;
 }
 
+XSI::CString to_string(const std::vector<ccl::float2>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
 XSI::CString to_string(const ccl::array<ccl::packed_float3>& array)
 {
 	XSI::CString to_return = "[";
@@ -506,6 +519,10 @@ XSI::CString to_string_int2(const ccl::int2& value)
 
 XSI::CString to_string_float3(const ccl::float3& value) {
 	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ", " + XSI::CString(value.z) + ")";
+}
+
+XSI::CString to_string_float2(const ccl::float2& value) {
+	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";
 }
 
 XSI::CString bitmask_to_string(uint64_t mask)

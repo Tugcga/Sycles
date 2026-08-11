@@ -33,6 +33,11 @@ subdiv_space_enum = [
     "Object", 1
 ]
 
+surface_trianglulation_enum = [
+    "Parametric", 0,
+    "Geometry Approximation", 1
+]
+
 
 volume_space_types = ["Object", 0, "World", 1]
 
@@ -424,6 +429,7 @@ def CyclesSurface_Define(in_ctxt):
     prop = in_ctxt.Source
     prop.AddParameter2("surface_u_samples", c.siInt4, 128, 1, 2147483647, 1, 256, False, True)
     prop.AddParameter2("surface_v_samples", c.siInt4, 128, 1, 2147483647, 1, 256, False, True)
+    prop.AddParameter3("surface_triangulation_type", c.siInt2, 0)
     setup_common_properties(prop)
     return True
 
@@ -882,12 +888,23 @@ def cycles_surface_property_build_ui():
 
     layout.AddTab("Geometry")
     layout.AddGroup("Properties")
+    layout.AddEnumControl("surface_triangulation_type", surface_trianglulation_enum, "Triangulation Type")
     layout.AddItem("surface_u_samples", "U Density")
     layout.AddItem("surface_v_samples", "V Density")
     layout.EndGroup()
 
     build_common_property_ui(layout)
     PPG.Refresh()
+
+
+def cycles_surface_property_update(prop):
+    surface_triangulation_type = prop.Parameters("surface_triangulation_type").Value
+    if surface_triangulation_type == 0:
+        prop.Parameters("surface_u_samples").ReadOnly = False
+        prop.Parameters("surface_v_samples").ReadOnly = False
+    elif surface_triangulation_type == 1:
+        prop.Parameters("surface_u_samples").ReadOnly = True
+        prop.Parameters("surface_v_samples").ReadOnly = True
 
 
 def cycles_volume_property_build_ui():
@@ -995,6 +1012,12 @@ def CyclesCurve_OnInit():
 
 def CyclesSurface_OnInit():
     cycles_surface_property_build_ui()
+    cycles_surface_property_update(PPG.Inspected(0))
+    return True
+
+
+def CyclesSurface_surface_triangulation_type_OnChanged():
+    cycles_surface_property_update(PPG.Inspected(0))
     return True
 
 
