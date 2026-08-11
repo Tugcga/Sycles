@@ -878,7 +878,7 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     add_input_float(no_port_pram_options(), params, 0.1, "RadiusZ", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.05, "SubsurfaceScale", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.4, "SubsurfaceIOR", 1.01, 3.8)
-    add_input_float(standard_pram_options(), params, 0.0, "SubsurfaceAnisotropy", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "SubsurfaceAnisotropy", -1.0, 1.0)
 
     add_input_string(no_port_pram_options(), params, "Multiscatter GGX", "Distribution")
     add_input_float(standard_pram_options(), params, 0.5, "SpecularIORLevel", 0.0, 1.0)
@@ -1858,7 +1858,7 @@ def CyclesShadersPlugin_CyclesSubsurfaceScattering_1_0_Define(in_ctxt):
     add_input_vector(standard_pram_options(), params, [0.1, 0.1, 0.1], "SSSRadius")
     add_input_float(standard_pram_options(), params, 1.4, "IOR", 1.01, 3.8)
     add_input_float(standard_pram_options(), params, 1.0, "Roughness", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", -1.0, 1.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
 
     # Output Parameter: out
