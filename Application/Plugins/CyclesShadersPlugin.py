@@ -386,6 +386,16 @@ bump_node_enum = [
     "DY", "dy"
 ]
 
+normalmap_convention_enum = [
+    "OpenGL", 0,
+    "DirectX", 1
+]
+
+normalmap_base_enum = [
+    "Original Base", 0,
+    "Displaced Base", 1
+]
+
 
 def XSILoadPlugin(in_reg):
     in_reg.Author = "Shekn Itrch"
@@ -3124,9 +3134,12 @@ def CyclesShadersPlugin_CyclesNormalMap_1_0_Define(in_ctxt):
     # Input Parameters
     params = shader_def.InputParamDefs
     add_input_string(no_port_pram_options(), params, "Tangent", "Space")
+    add_input_integer(no_port_pram_options(), params, 0, "convention")
+    add_input_integer(no_port_pram_options(), params, 1, "base")
     add_input_string(no_port_pram_options(), params, "", "Attribute")
     add_input_float(standard_pram_options(), params, 1.0, "Strength", 0.0, 1.0)
     add_input_color(standard_pram_options(), params, 0.0, "Color")
+
 
     # Output Parameter: out
     add_output_normal(shader_def, "Normal")
@@ -3135,6 +3148,8 @@ def CyclesShadersPlugin_CyclesNormalMap_1_0_Define(in_ctxt):
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddEnumControl("Space", noraml_map_space_enum, "Space")
+    ppgLayout.AddEnumControl("convention", normalmap_convention_enum, "Mode")
+    ppgLayout.AddEnumControl("base", normalmap_base_enum, "Base")
     # ppgLayout.AddItem("Attribute", "Attribute")  # not implemented
     ppgLayout.AddItem("Strength", "Strength")
     ppgLayout.AddItem("Color", "Color")

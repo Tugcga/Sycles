@@ -885,9 +885,13 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		XSI::CString space = get_string_parameter_value(xsi_parameters, "Space", eval_time);
 		XSI::CString attribute = get_string_parameter_value(xsi_parameters, "Attribute", eval_time);
+		int convention = get_int_parameter_value(xsi_parameters, "convention", eval_time);
+		int base = get_int_parameter_value(xsi_parameters, "base", eval_time);
 
 		node->set_space(get_normal_map_space(space));
 		node->set_attribute(OIIO::ustring(attribute.GetAsciiString()));
+		node->set_convention(convention == 0 ? ccl::NodeNormalMapConvention::NODE_NORMAL_MAP_CONVENTION_OPENGL : ccl::NodeNormalMapConvention::NODE_NORMAL_MAP_CONVENTION_DIRECTX);
+		node->set_base(base == 0 ? ccl::NodeNormalMapBase::NODE_NORMAL_MAP_BASE_ORIGINAL : ccl::NodeNormalMapBase::NODE_NORMAL_MAP_BASE_DISPLACED);
 
 		return node;
 	}
