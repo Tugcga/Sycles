@@ -461,6 +461,17 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	update_context->set_use_texture_cache(m_render_parameters.GetValue("performance_texture_cache", eval_time));
 	update_context->set_texture_limits(static_cast<TextureLimits>((int)m_render_parameters.GetValue("performance_texture_limits", eval_time)));
 
+	if (!is_recreate_session &&
+		(update_context->get_use_background_shadow() != m_render_parameters.GetValue("background_surface_cast_shadow", eval_time))) {
+		bool use_shadows = m_render_parameters.GetValue("background_surface_cast_shadow", eval_time);
+		if (use_shadows) {
+			// When we activate use shadows, then we should recreate the scene from scratch
+			// may be this is Cycles bug, but disaple shadows works in update, but enabling does not activate it in render
+			is_recreate_session = true;
+		}
+	}
+	update_context->set_use_backgound_shadow(m_render_parameters.GetValue("background_surface_cast_shadow", eval_time));
+
 	update_context->set_current_render_parameters(m_render_parameters);
 	update_context->set_image_size(image_full_size_width, image_full_size_height);
 	update_context->set_camera(camera);
@@ -505,8 +516,6 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 			is_recreate_session = true;
 		}
 	}
-
-	// update_context->get_temp_path();
 
 	// check is current session parameters coincide with the previous one
 	session_params = get_session_params(render_type, m_render_parameters, eval_time);

@@ -54,6 +54,7 @@ void UpdateContext::reset()
 	background_light_index = -1;
 	need_update_background = false;
 	use_background_light = false;
+	use_background_shadow = true;
 
 	use_denoising = false;
 
@@ -1115,4 +1116,12 @@ bool UpdateContext::has_positions(ULONG xsi_id) {
 const ccl::array<ccl::packed_float3>* UpdateContext::get_positions(ULONG xsi_id) const {
 	auto it = object_to_vertices.find(xsi_id);
 	return (it != object_to_vertices.end()) ? &it->second : nullptr;
+}
+
+void UpdateContext::set_use_backgound_shadow(bool value) {
+	use_background_shadow = value;
+}
+
+bool UpdateContext::get_use_background_shadow() {
+	return use_background_shadow;
 }

@@ -441,6 +441,7 @@ void set_background_light_params(ccl::Scene* scene, ccl::BackgroundLight* light,
 	light->tag_map_resolution_modified();
 	light->tag_max_bounces_modified();
 	light->tag_use_caustics_modified();
+	light->tag_cast_shadow_modified();
 
 	light->tag_update(scene);
 }

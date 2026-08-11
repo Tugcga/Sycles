@@ -195,6 +195,9 @@ public:
 	bool has_positions(ULONG xsi_id);  // check that this object has stored positions
 	const ccl::array<ccl::packed_float3>* get_positions(ULONG xsi_id) const;
 
+	void set_use_backgound_shadow(bool value);
+	bool get_use_background_shadow();
+
 private:
 	XSI::CParameterRefArray current_render_parameters;
 	// after each render prepare session we store here used render parameter values
@@ -254,6 +257,7 @@ private:
 	size_t background_shader_index;  // index in the Cycles array of shaders
 	ULONG background_xsi_material_id;  // material id from library, used for custom backround light source
 	int background_light_index;  // store here background light index in the Cycles array (we always create background light, from scene on manual), when no light is assigned, then -1
+	bool use_background_shadow;
 
 	// map from Softimage object id for Light (not for x3dobject) to index in the Cycles array of lights
 	// for custm light from x3dobject id to cycles index
