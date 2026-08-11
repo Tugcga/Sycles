@@ -140,6 +140,7 @@ ccl::PassType channel_to_pass_type(const XSI::CString &channel_name)
     else if (channel_name == "Cycles Shadow Catcher") { return ccl::PASS_SHADOW_CATCHER; }
     else if (channel_name == "Cycles Motion") { return ccl::PASS_MOTION; }
     else if (channel_name == "Cycles Mist") { return ccl::PASS_MIST; }
+    else if (channel_name == "Cycles Render Time") { return ccl::PASS_RENDER_TIME; }
     else if (channel_name == "Cycles Volume Direct") { return ccl::PASS_VOLUME_DIRECT; }
     else if (channel_name == "Cycles Volume Indirect") { return ccl::PASS_VOLUME_INDIRECT; }
     else if (channel_name == "Cycles Sample Count") { return ccl::PASS_SAMPLE_COUNT; }
@@ -172,6 +173,8 @@ XSI::CString pass_to_name(ccl::PassType pass_type)
         return "Depth";
     case ccl::PASS_MIST:
         return "Mist";
+    case ccl::PASS_RENDER_TIME:
+        return "Render Time";
     case ccl::PASS_POSITION:
         return "Position";
     case ccl::PASS_NORMAL:
