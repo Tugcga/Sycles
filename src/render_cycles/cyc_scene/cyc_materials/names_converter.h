@@ -508,7 +508,9 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"outDiffuseDepth", "Diffuse Depth"},
 			{"outGlossyDepth", "Glossy Depth"},
 			{"outTransparentDepth", "Transparent Depth"},
-			{"outTransmissionDepth", "Transmission Depth"}
+			{"outTransmissionDepth", "Transmission Depth"},
+
+			{"outPortalDepth", "Portal Depth"}
 		}
 	},
 	{

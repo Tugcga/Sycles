@@ -3526,6 +3526,7 @@ def CyclesShadersPlugin_CyclesLightPath_1_0_Define(in_ctxt):
     add_output_float(shader_def, "GlossyDepth")
     add_output_float(shader_def, "TransparentDepth")
     add_output_float(shader_def, "TransmissionDepth")
+    add_output_float(shader_def, "PortalDepth")
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
