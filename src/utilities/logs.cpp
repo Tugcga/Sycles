@@ -1,5 +1,6 @@
 #include "util/array.h"
 #include "util/types.h"
+#include "util/transform.h"
 
 #include <xsi_string.h>
 #include <xsi_application.h>
@@ -323,7 +324,7 @@ XSI::CString to_string(const XSI::MATH::CMatrix4& matrix)
 	{
 		for (ULONG j = 0; j < 4; j++)
 		{
-			to_return += XSI::CString(matrix.GetValue(i, j));
+			to_return += XSI::CString(matrix.GetValue(i, j)) + " ";
 		}
 		to_return += "\n";
 	}
@@ -523,6 +524,28 @@ XSI::CString to_string_float3(const ccl::float3& value) {
 
 XSI::CString to_string_float2(const ccl::float2& value) {
 	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";
+}
+
+XSI::CString to_string(const XSI::MATH::CTransformation& tfm) {
+	return "[" + XSI::CString(tfm.GetTranslation()) + "; " + XSI::CString(tfm.GetRotationXYZAngles()) + "; " + XSI::CString(tfm.GetScaling()) + "]";
+}
+
+XSI::CString to_string(const std::vector<XSI::MATH::CTransformation>& tfm_array) {
+	XSI::CString to_return = "";
+	for (size_t i = 0; i < tfm_array.size(); i++) {
+		to_return += to_string(tfm_array[i]) + (i == tfm_array.size() - 1 ? "" : ", ");
+	}
+
+	return to_return;
+}
+
+XSI::CString to_string(const ccl::Transform& tfm) {
+	XSI::CString to_return = "";
+	to_return += to_string_float4(tfm.x) + "\n";
+	to_return += to_string_float4(tfm.y) + "\n";
+	to_return += to_string_float4(tfm.z);
+
+	return to_return;
 }
 
 XSI::CString bitmask_to_string(uint64_t mask)

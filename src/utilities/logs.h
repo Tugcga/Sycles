@@ -1,6 +1,7 @@
 #pragma once
 #include "util/array.h"
 #include "util/types.h"
+#include "util/transform.h"
 
 #include <xsi_application.h>
 #include <xsi_string.h>
@@ -58,5 +59,8 @@ XSI::CString to_string(const XSI::MATH::CVector3Array& array);
 XSI::CString to_string_int2(const ccl::int2 &value);
 XSI::CString to_string_float3(const ccl::float3& value);
 XSI::CString to_string_float2(const ccl::float2& value);
+XSI::CString to_string(const XSI::MATH::CTransformation& tfm);
+XSI::CString to_string(const std::vector<XSI::MATH::CTransformation>& tfm_array);
+XSI::CString to_string(const ccl::Transform& tfm);
 
 XSI::CString bitmask_to_string(uint64_t mask);

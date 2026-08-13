@@ -271,6 +271,19 @@ ccl::float3 rotation_to_float3(const XSI::MATH::CRotationf& rotation)
 	return ccl::make_float3(x, y, z);
 }
 
+ccl::Transform xsi_tfm_co_cycles_tfm(const XSI::MATH::CTransformation& xsi_tfm) {
+	XSI::MATH::CVector3 xsi_scale = xsi_tfm.GetScaling();
+	XSI::MATH::CVector3 xsi_rotation = xsi_tfm.GetRotationXYZAngles();
+	XSI::MATH::CVector3 xsi_translation = xsi_tfm.GetTranslation();
+	ccl::Transform scale = ccl::transform_scale(vector3_to_float3(xsi_scale));
+	ccl::Transform rotation = ccl::transform_euler(vector3_to_float3(xsi_rotation));
+	ccl::Transform translation = ccl::transform_translate(vector3_to_float3(xsi_translation));
+
+	ccl::Transform combine = translation * rotation * scale;
+
+	return combine;
+}
+
 float get_minimum(float v1, float v2, float v3)
 {
 	float to_return = v1;
