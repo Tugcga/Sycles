@@ -3,6 +3,10 @@
 #include <vector>
 
 std::vector<std::string> mx_to_cyc_attributes = {
+    std::string("geom:random_per_island"),
+    std::string("geom:pointiness"),
+    std::string("geom:is_curve"),
+    std::string("geom:is_point"),
     std::string("particle:angular_velocity"),
     std::string("particle:velocity"),
     std::string("particle:size"),
