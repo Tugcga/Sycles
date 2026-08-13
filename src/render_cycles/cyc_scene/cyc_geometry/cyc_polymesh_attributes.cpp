@@ -412,15 +412,26 @@ void sync_mesh_uvs(ccl::Mesh* mesh, SubdivideMode subdiv_mode, size_t triangles_
 	// but in linear subdivided mesh vertices are nodes
 	// in Catmul-Clark subdivided mesh vertices are geometry vertices
 	LONG uv_count = uv_refs.GetCount();
+	if (uv_count == 0) {
+		return;
+	}
+
+	/*WARNIMG: it's a question - if there are no uv coordinates, should be create default one with zero values, or not?
+	* 
+	if (uv_count == 0) {
+		ccl::array<ccl::float2> zeors(one_uv_length);
+		std::copy_n(zeors.data(), one_uv_length, default_uv);
+	}
+	*/
+
 	ULONG one_uv_length = subdiv_mode != SubdivideMode_None ? nodes_count : (triangles_count * 3);
 
-	ccl::ustring uv_name = ccl::ustring("std_uv");
 	ccl::Attribute* uv_attr;
 	if (subdiv_mode != SubdivideMode_None) {
-		uv_attr = mesh->subd_attributes.add(ccl::ATTR_STD_UV, uv_name);
+		uv_attr = mesh->subd_attributes.add(ccl::ATTR_STD_UV);
 	}
 	else {
-		uv_attr = mesh->attributes.add(ccl::ATTR_STD_UV, uv_name);
+		uv_attr = mesh->attributes.add(ccl::ATTR_STD_UV);
 	}
 	uv_attr->resize(one_uv_length);
 	uv_attr->flags |= ccl::ATTR_SUBDIVIDE_SMOOTH_FVAR;

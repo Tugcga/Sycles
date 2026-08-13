@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <regex>
 
 #include "util/array.h"
 #include "OpenImageIO/ustring.h"
@@ -473,4 +474,34 @@ XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::
 XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::CString &name)
 {
 	return combine_names(xsi_object.GetFullName(), name);
+}
+
+XSI::CString replace_letter(const XSI::CString& input, char from, char to) {
+	std::string to_return(input.GetAsciiString());
+	for (size_t i = 0; i < to_return.size(); i++) {
+		if (to_return[i] == from) {
+			to_return[i] = to;
+		}
+	}
+
+	return XSI::CString(to_return.c_str());
+}
+
+// Deepseek 2026-08-13
+std::vector<std::string> extract_string_literals(const std::string& shader_code) {
+	std::vector<std::string> result;
+
+	std::regex string_literal(R"("([^"\\]|\\.)*")");
+	std::smatch match;
+	std::string::const_iterator start = shader_code.cbegin();
+
+	while (std::regex_search(start, shader_code.cend(), match, string_literal)) {
+		std::string literal = match[0].str();
+		if (literal.size() >= 2) {
+			result.push_back(literal.substr(1, literal.size() - 2));
+		}
+		start = match[0].second;
+	}
+
+	return result;
 }

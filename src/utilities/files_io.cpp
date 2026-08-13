@@ -342,3 +342,30 @@ XSI::CString sync_image_file(const XSI::CString& file_path, int image_frames, in
 
 	return file_path;
 }
+
+std::string search_file(const std::string &root, const std::string& target) {
+	if (!std::filesystem::exists(root) || !std::filesystem::is_directory(root)) {
+		return "";
+	}
+
+	for (const auto& entry : std::filesystem::recursive_directory_iterator(root, std::filesystem::directory_options::skip_permission_denied)) {
+		if (std::filesystem::is_regular_file(entry.path()) && entry.path().filename().string() == target) {
+			return entry.path().string();
+		}
+	}
+
+	return "";
+}
+
+void write_text_file(const std::string& text, const std::string& file_path) {
+	std::ofstream file;
+	file.open(file_path);
+	file << text;
+	file.close();
+}
+
+void remove_file(const std::string& full_path) {
+	if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path)) {
+		std::filesystem::remove(full_path);
+	}
+}

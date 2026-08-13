@@ -7,6 +7,10 @@
 
 #include "scene/shader_nodes.h"
 
+#include "MaterialXCore/Node.h"
+#include "MaterialXGenOsl/OslShaderGenerator.h"
+#include "MaterialXGenShader/GenContext.h"
+
 #include <unordered_map>
 #include <map>
 #include <unordered_set>
@@ -198,6 +202,18 @@ public:
 	void set_use_backgound_shadow(bool value);
 	bool get_use_background_shadow();
 
+	XSI::CString materialx_library;  // store absolute path to library folder and folder with elementary nodes
+	XSI::CString materialx_nodes;
+	void clear_mx_nodes();
+	void add_mx_node(ULONG xsi_id, MaterialX::NodePtr mx_node);
+	bool has_mx_node(ULONG xsi_id);
+	MaterialX::NodePtr get_mx_node(ULONG xsi_id);
+	std::tuple<std::string, std::vector<std::tuple<std::string, std::string>>, std::vector<std::tuple<std::string, std::string>>> get_mx_data(const std::string& full_name);
+	MaterialX::ShaderGeneratorPtr get_osl_generator();
+	void try_init_materialx_path();
+	void try_init_osl_generator();
+	MaterialX::DocumentPtr get_std_lib();
+
 private:
 	XSI::CParameterRefArray current_render_parameters;
 	// after each render prepare session we store here used render parameter values
@@ -336,4 +352,17 @@ private:
 	// use thiese arrays for restore original positions when we update displacement material
 	// store here vertices of objects, which assigned with displacement material (one of them)
 
+	// for each elementary Softimage node store here corresponding mx-node
+	// this map required only when export one mx-material, so, clear it befor the start
+	std::unordered_map<ULONG, MaterialX::NodePtr> id_to_mxnode;
+
+	// store here data for different mx names
+	// fiil it duiring export process, does not clear between sessions
+	// only when destroy the context
+	// the key - is the raw node name (ND_fractal3d_color4)
+	// value - required data
+	std::unordered_map<std::string, std::tuple<std::string, std::vector<std::tuple<std::string, std::string>>, std::vector<std::tuple<std::string, std::string>>>> mx_filename_to_data;
+	MaterialX::ShaderGeneratorPtr osl_context;
+	MaterialX::DocumentPtr std_lib;
+	bool is_osl_context_init;
 };

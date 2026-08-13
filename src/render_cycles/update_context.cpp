@@ -4,6 +4,13 @@
 #include <xsi_projectitem.h>
 #include <xsi_texture.h>
 #include <xsi_application.h>
+#include <xsi_plugin.h>
+#include <xsi_utils.h>
+
+#include "MaterialXCore/Document.h"
+#include "MaterialXFormat/XmlIo.h"
+#include "MaterialXFormat/Util.h"
+#include "MaterialXGenShader/DefaultColorManagementSystem.h"
 
 #include "update_context.h"
 #include "../utilities/logs.h"
@@ -15,11 +22,14 @@ UpdateContext::UpdateContext()
 {
 	sync_profiler = new ProfilerContext();
 	reset();
+	mx_filename_to_data.clear();
+	is_osl_context_init = false;
 }
 
 UpdateContext::~UpdateContext()
 {
 	reset();
+	mx_filename_to_data.clear();
 	delete sync_profiler;
 }
 
@@ -86,6 +96,9 @@ void UpdateContext::reset()
 	update_generation = 0;
 
 	object_to_vertices.clear();
+	id_to_mxnode.clear();
+	// TODO: remove it
+	mx_filename_to_data.clear();
 }
 
 void UpdateContext::set_is_update_light_linking(bool value)
@@ -1124,4 +1137,163 @@ void UpdateContext::set_use_backgound_shadow(bool value) {
 
 bool UpdateContext::get_use_background_shadow() {
 	return use_background_shadow;
+}
+
+void UpdateContext::clear_mx_nodes() {
+	id_to_mxnode.clear();
+}
+
+void UpdateContext::add_mx_node(ULONG xsi_id, MaterialX::NodePtr mx_node) {
+	id_to_mxnode[xsi_id] = mx_node;
+}
+
+bool UpdateContext::has_mx_node(ULONG xsi_id) {
+	return id_to_mxnode.contains(xsi_id);
+}
+
+MaterialX::NodePtr UpdateContext::get_mx_node(ULONG xsi_id) {
+	return id_to_mxnode[xsi_id];
+}
+
+void UpdateContext::try_init_materialx_path() {
+	if (materialx_library.Length() == 0 || materialx_nodes.Length() == 0) {
+		XSI::CRefArray all_plugins = XSI::Application().GetPlugins();
+		for (size_t i = 0; i < all_plugins.GetCount(); i++) {
+			XSI::Plugin plugin(all_plugins[i]);
+			XSI::CString plugin_path = plugin.GetFilename();
+
+			if (plugin_path.ReverseFindString("MaterialXSIPlugin.dll") < UINT_MAX) {
+				// this is our path
+				ULONG last_slash = plugin_path.ReverseFindString(XSI::CUtils::Slash());
+				materialx_library = plugin_path.GetSubString(0, last_slash);  // without slash
+
+				last_slash = materialx_library.ReverseFindString(XSI::CUtils::Slash());
+				XSI::CString parent_plugin_folder = materialx_library.GetSubString(0, last_slash);
+				materialx_nodes = XSI::CUtils::BuildPath(parent_plugin_folder, "material_x", "libraries");
+				break;
+			}
+		}
+	}
+}
+
+// by this method we should return data for material x node
+// input is the name of the shader node inside Softimage, with all required postfix for different types
+// output - tuple, contains:
+// - node name (simple without any types)
+// - array of inputs
+// - array of outputs
+// for each item in arrays it store the tuple (port name, port type)
+std::tuple<std::string, std::vector<std::tuple<std::string, std::string>>, std::vector<std::tuple<std::string, std::string>>> UpdateContext::get_mx_data(const std::string& full_name) {
+	if (mx_filename_to_data.contains(full_name)) {
+		return mx_filename_to_data[full_name];
+	}
+
+	// try to find the file
+	// at first, find materialx path
+	try_init_materialx_path();
+
+	if (materialx_library.Length() == 0 || materialx_nodes.Length() == 0) {
+		// fail to find the path, return empty output
+		std::vector<std::tuple<std::string, std::string>> a;
+		std::vector<std::tuple<std::string, std::string>> b;
+		return std::make_tuple("", a, b);
+	}
+
+	std::string mx_path = search_file(materialx_nodes.GetAsciiString(), full_name + ".mtlx");
+	if (mx_path.size() > 0) {
+		MaterialX::DocumentPtr doc = MaterialX::createDocument();
+		MaterialX::readFromXmlFile(doc, mx_path);
+
+		MaterialX::NodeDefPtr mx_def = doc->getNodeDef(full_name);
+
+		std::vector<std::tuple<std::string, std::string>> inputs_data;
+		std::vector<MaterialX::InputPtr> mx_inputs = mx_def->getInputs();
+		for (size_t j = 0; j < mx_inputs.size(); j++) {
+			MaterialX::InputPtr input = mx_inputs[j];
+			std::string input_name = input->getName();
+			std::string input_type = input->getType();
+			inputs_data.push_back({ input_name, input_type });
+		}
+		std::vector<std::tuple<std::string, std::string>> outputs_data;
+		std::vector<MaterialX::OutputPtr> mx_outputs = mx_def->getOutputs();
+		for (size_t j = 0; j < mx_outputs.size(); j++) {
+			MaterialX::OutputPtr output = mx_outputs[j];
+			std::string output_name = output->getName();
+			std::string output_type = output->getType();
+			outputs_data.push_back({ output_name, output_type });
+		}
+		std::string node_name = mx_def->getNodeString();
+
+		mx_filename_to_data[full_name] = {node_name, inputs_data, outputs_data };
+
+		return mx_filename_to_data[full_name];
+	}
+
+	std::vector<std::tuple<std::string, std::string>> a;
+	std::vector<std::tuple<std::string, std::string>> b;
+	return std::make_tuple("", a, b);
+}
+
+void UpdateContext::try_init_osl_generator() {
+	if (!is_osl_context_init) {
+		std_lib = MaterialX::createDocument();
+		osl_context = MaterialX::OslShaderGenerator::create();
+		MaterialX::GenContext gen_context(osl_context);
+
+		std::string target = gen_context.getShaderGenerator().getTarget();
+		MaterialX::FileSearchPath search_path = std::string(materialx_library.GetAsciiString());
+
+		gen_context.registerSourceCodeSearchPath(search_path);
+		gen_context.registerSourceCodeSearchPath(MaterialX::FileSearchPath(std::string(search_path.asString() + "\\libraries")));
+
+		MaterialX::DefaultColorManagementSystemPtr cms = MaterialX::DefaultColorManagementSystem::create(target);
+		MaterialX::FilePathVec library_folders;
+		library_folders.push_back("libraries");
+
+		bool load_std = false;
+		try {
+			MaterialX::StringSet loaded = MaterialX::loadLibraries(library_folders, search_path, std_lib);
+
+			if (loaded.empty()) {
+				log_warning(XSI::CString(("Init OSL MaterialX generator. Could not find standard data libraries on the given search path: " + search_path.asString()).c_str()));
+			}
+			else{
+				load_std = true;
+			}
+		}
+		catch (std::exception& e) {
+			log_warning(XSI::CString(("Failed to load standard data libraries: " + std::string(e.what())).c_str()));
+		}
+
+		cms->loadLibrary(std_lib);
+		gen_context.getShaderGenerator().setColorManagementSystem(cms);
+
+		MaterialX::UnitSystemPtr unit_system = MaterialX::UnitSystem::create(target);
+		unit_system->loadLibrary(std_lib);
+		gen_context.getShaderGenerator().setUnitSystem(unit_system);
+		gen_context.getOptions().targetDistanceUnit = "meter";
+
+		gen_context.getOptions().targetColorSpaceOverride = "lin_rec709";
+		gen_context.getOptions().fileTextureVerticalFlip = true;
+		gen_context.getOptions().hwShadowMap = true;
+		gen_context.getOptions().hwTransparency = true;
+		gen_context.getOptions().hwAmbientOcclusion = true;
+		gen_context.getOptions().hwImplicitBitangents = false;
+		gen_context.getOptions().hwSpecularEnvironmentMethod = MaterialX::SPECULAR_ENVIRONMENT_FIS;
+		gen_context.getOptions().hwTransmissionRenderMethod = MaterialX::TRANSMISSION_REFRACTION;
+		gen_context.getOptions().hwDirectionalAlbedoMethod = MaterialX::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_ANALYTIC;
+
+		is_osl_context_init = true;
+	}
+}
+
+MaterialX::ShaderGeneratorPtr UpdateContext::get_osl_generator() {
+	try_init_materialx_path();
+	try_init_osl_generator();
+
+	return osl_context;
+}
+
+MaterialX::DocumentPtr UpdateContext::get_std_lib() {
+	return std_lib;
 }

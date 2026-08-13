@@ -26,7 +26,6 @@
 #include "../../../utilities/strings.h"
 #include "../cyc_scene.h"
 #include "cyc_geometry.h"
-#include "cyc_tangent_attribute.h"
 
 void sync_surface_motion_deform_parametric(ccl::Mesh* surface, UpdateContext* update_context, const XSI::X3DObject& xsi_object, float u_sample_step, int u_samples, float v_sample_step, int v_samples)
 {

@@ -71,6 +71,7 @@ enum ShadernodeType
 	ShadernodeType_OSL,
 	ShadernodeType_NativeXSI,
 	ShadernodeType_GLTF,
+	ShadernodeType_MaterialX,
 	ShadernodeType_Unknown
 };
 

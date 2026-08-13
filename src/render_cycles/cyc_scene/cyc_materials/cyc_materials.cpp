@@ -17,6 +17,7 @@
 #include "../../../utilities/xsi_shaders.h"
 #include "../../../utilities/math.h"
 #include "cyc_materials.h"
+#include "cyc_materialx.h"
 #include "names_converter.h"
 
 int create_default_shader(ccl::Scene* scene)
@@ -253,64 +254,110 @@ ccl::ShaderNode* sync_material_port(ccl::Scene* scene,
 	}
 }
 
+//  return true if there is valid MaterialX node, conencted to material port of the root material
+XSI::Shader has_materialx(const XSI::Material& xsi_material, bool& out_correct) {
+	XSI::CParameterRefArray xsi_material_parameters = xsi_material.GetParameters();
+	XSI::ShaderParameter root_material = xsi_material_parameters.GetItem("material");
+	XSI::ShaderParameter root_material_connection = get_source_parameter(root_material, true);
+	
+	XSI::Shader first_node(root_material_connection.GetParent());
+	if (!first_node.IsValid()) {
+		out_correct = false;
+		return first_node;
+	}
+
+	XSI::CString node_type;
+	ShadernodeType type = get_shadernode_type(first_node, node_type);
+	if (type == ShadernodeType::ShadernodeType_MaterialX) {
+		if (node_type == "surfacematerial" || node_type == "lama_surface") {
+			out_correct = true;
+		}
+		else {
+			out_correct = false;
+		}
+		
+		return first_node;
+	}
+	else {
+		out_correct = false;
+		return first_node;
+	}
+}
+
 void material_to_graph(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const XSI::Material& xsi_material, UpdateContext* update_context)
 {
-	// start export new material, so, we should clear map from xsi nodes id to cycles nodes
-	update_context->clear_nodes_map();
-
-	XSI::CString xsi_node_surface_port_name = "";
-	XSI::Shader xsi_shader_surface;
-	XSI::CParameterRefArray xsi_material_parameters = xsi_material.GetParameters();
-	ccl::ShaderNode* surface_node = sync_material_port(scene, shader_graph, xsi_node_surface_port_name, xsi_shader_surface, xsi_material_parameters.GetItem("surface"), update_context);
-	
-	XSI::CString xsi_node_volume_port_name = "";
-	XSI::Shader xsi_shader_volume;
-	ccl::ShaderNode* volume_node = sync_material_port(scene, shader_graph, xsi_node_volume_port_name, xsi_shader_volume, xsi_material_parameters.GetItem("volume"), update_context);
-
-	XSI::CString xsi_node_displace_port_name = "";
-	XSI::Shader xsi_shader_displacement;
-	ccl::ShaderNode* displacement_node = sync_material_port(scene, shader_graph, xsi_node_displace_port_name, xsi_shader_displacement, xsi_material_parameters.GetItem("normal"), update_context);
-
-	bool is_empty_surface = true;
-	XSI::CTime eval_time = update_context->get_time();
-	if (surface_node != NULL && xsi_node_surface_port_name.Length() > 0 && xsi_shader_surface.IsValid())
-	{
-		bool is_connect = make_nodes_connection(shader_graph, surface_node, shader_graph->output(), xsi_shader_surface, xsi_node_surface_port_name, "Surface", eval_time);
-		if (is_connect)
-		{
-			is_empty_surface = false;
+	bool is_correct = false;
+	XSI::Shader material_node = has_materialx(xsi_material, is_correct);
+	bool make_materialx = false;
+	if (is_correct) {
+		// material_node is a valid root materialX node, so we can try to export it as osl
+		// but first we should check that osl is enabled
+		if (scene->params.shadingsystem == ccl::ShadingSystem::SHADINGSYSTEM_OSL) {
+			make_materialx = sync_materialx_material(scene, shader_graph, update_context, material_node);
+		}
+		else {
+			log_warning("It looks like the material " + xsi_material.GetName() + " has MaterialX nodes, but the shading system is SVM. Ignore it.");
 		}
 	}
 
-	bool is_empty_volume = true;
-	if (volume_node != NULL && xsi_node_volume_port_name.Length() > 0 && xsi_shader_volume.IsValid())
-	{
-		bool is_connect = make_nodes_connection(shader_graph, volume_node, shader_graph->output(), xsi_shader_volume, xsi_node_volume_port_name, "Volume", eval_time);
-		if (is_connect)
+	if (!make_materialx) {
+		// start export new material, so, we should clear map from xsi nodes id to cycles nodes
+		update_context->clear_nodes_map();
+
+		XSI::CString xsi_node_surface_port_name = "";
+		XSI::Shader xsi_shader_surface;
+		XSI::CParameterRefArray xsi_material_parameters = xsi_material.GetParameters();
+		ccl::ShaderNode* surface_node = sync_material_port(scene, shader_graph, xsi_node_surface_port_name, xsi_shader_surface, xsi_material_parameters.GetItem("surface"), update_context);
+
+		XSI::CString xsi_node_volume_port_name = "";
+		XSI::Shader xsi_shader_volume;
+		ccl::ShaderNode* volume_node = sync_material_port(scene, shader_graph, xsi_node_volume_port_name, xsi_shader_volume, xsi_material_parameters.GetItem("volume"), update_context);
+
+		XSI::CString xsi_node_displace_port_name = "";
+		XSI::Shader xsi_shader_displacement;
+		ccl::ShaderNode* displacement_node = sync_material_port(scene, shader_graph, xsi_node_displace_port_name, xsi_shader_displacement, xsi_material_parameters.GetItem("normal"), update_context);
+
+		bool is_empty_surface = true;
+		XSI::CTime eval_time = update_context->get_time();
+		if (surface_node != NULL && xsi_node_surface_port_name.Length() > 0 && xsi_shader_surface.IsValid())
 		{
-			is_empty_volume = false;
+			bool is_connect = make_nodes_connection(shader_graph, surface_node, shader_graph->output(), xsi_shader_surface, xsi_node_surface_port_name, "Surface", eval_time);
+			if (is_connect)
+			{
+				is_empty_surface = false;
+			}
 		}
-	}
 
-	bool is_empty_displacement = true;
-	if (displacement_node != NULL && xsi_node_displace_port_name.Length() > 0 && xsi_shader_displacement.IsValid())
-	{
-		bool is_connect = make_nodes_connection(shader_graph, displacement_node, shader_graph->output(), xsi_shader_displacement, xsi_node_displace_port_name, "Displacement", eval_time);
-		if (is_connect)
+		bool is_empty_volume = true;
+		if (volume_node != NULL && xsi_node_volume_port_name.Length() > 0 && xsi_shader_volume.IsValid())
 		{
-			is_empty_displacement = false;
+			bool is_connect = make_nodes_connection(shader_graph, volume_node, shader_graph->output(), xsi_shader_volume, xsi_node_volume_port_name, "Volume", eval_time);
+			if (is_connect)
+			{
+				is_empty_volume = false;
+			}
 		}
-	}
 
-	if (is_empty_surface && is_empty_volume)
-	{
-		// surface is empty (or invalid), create transparent node
-		ccl::TransparentBsdfNode* transparent = shader_graph->create_node<ccl::TransparentBsdfNode>();
-		transparent->set_color(ccl::make_float3(0.0, 0.0, 0.0));
+		bool is_empty_displacement = true;
+		if (displacement_node != NULL && xsi_node_displace_port_name.Length() > 0 && xsi_shader_displacement.IsValid())
+		{
+			bool is_connect = make_nodes_connection(shader_graph, displacement_node, shader_graph->output(), xsi_shader_displacement, xsi_node_displace_port_name, "Displacement", eval_time);
+			if (is_connect)
+			{
+				is_empty_displacement = false;
+			}
+		}
 
-		// connect to surface output
-		ccl::ShaderNode* out = shader_graph->output();
-		shader_graph->connect(transparent->output("BSDF"), out->input("Surface"));
+		if (is_empty_surface && is_empty_volume)
+		{
+			// surface is empty (or invalid), create transparent node
+			ccl::TransparentBsdfNode* transparent = shader_graph->create_node<ccl::TransparentBsdfNode>();
+			transparent->set_color(ccl::make_float3(0.0, 0.0, 0.0));
+
+			// connect to surface output
+			ccl::ShaderNode* out = shader_graph->output();
+			shader_graph->connect(transparent->output("BSDF"), out->input("Surface"));
+		}
 	}
 }
 

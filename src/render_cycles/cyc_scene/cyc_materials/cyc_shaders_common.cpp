@@ -58,6 +58,11 @@ ShadernodeType get_shadernode_type(const XSI::Shader &xsi_shader, XSI::CString &
 			out_type = prog_id.GetSubString(pos[0] + 1, pos[1] - pos[0] - 1);
 			return ShadernodeType_GLTF;
 		}
+		else if (app_name == "MaterialXSIParser") {
+			// return without ND_ prefix
+			out_type = prog_id.GetSubString(pos[0] + 4, pos[1] - pos[0] - 4);
+			return ShadernodeType_MaterialX;
+		}
 		else
 		{
 			return ShadernodeType_Unknown;

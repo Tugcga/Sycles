@@ -18,3 +18,6 @@ std::vector<float> load_image(const XSI::CString& file_path, ULONG& out_width, U
 bool is_ext_ldr(std::string ext);
 bool is_output_extension_supported(const XSI::CString &extension);
 XSI::CString sync_image_file(const XSI::CString& file_path, int image_frames, int start_frame, int offset, bool cyclic, const XSI::CTime& eval_time);
+std::string search_file(const std::string& root, const std::string& target);
+void write_text_file(const std::string& text, const std::string& file_path);
+void remove_file(const std::string &full_path);
