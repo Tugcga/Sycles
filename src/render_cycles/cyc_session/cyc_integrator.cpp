@@ -25,21 +25,6 @@ ccl::DenoiseParams get_denoise_params(const XSI::CParameterRefArray &render_para
 
 	denoising.quality = ccl::DENOISER_QUALITY_BALANCED;
 
-	// TODO: may be remove this function, because we does not need denoising params
-	/*denoising.use_pass_albedo = false;
-	denoising.use_pass_normal = false;
-
-	int denoise_channels = render_parameters.GetValue("denoise_channels", eval_time);
-	if (denoise_channels == 1)
-	{
-		denoising.use_pass_albedo = true;
-	}
-	else if (denoise_channels == 2)
-	{
-		denoising.use_pass_albedo = true;
-		denoising.use_pass_normal = true;
-	}*/
-
 	return denoising;
 }
 

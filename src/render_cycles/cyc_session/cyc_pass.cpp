@@ -107,7 +107,6 @@ ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name, cc
 
 int get_pass_components(ccl::PassType pass_type, bool is_lightgroup)
 {
-    // TODO: pass_components does not require is_lightgroup parameter
 	ccl::PassInfo pass_info = ccl::Pass::get_info(pass_type);
 	return pass_info.num_components;
 }

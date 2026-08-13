@@ -6,4 +6,4 @@
 
 #include "../../update_context.h"
 
-bool sync_materialx_material(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, UpdateContext* update_context, const XSI::Shader& root_node);
+bool sync_materialx_material(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, UpdateContext* update_context, const XSI::Shader& root_node, const XSI::CString& material_name);

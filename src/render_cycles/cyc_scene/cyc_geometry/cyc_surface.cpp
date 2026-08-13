@@ -287,7 +287,7 @@ void sync_surface_geom_approximation(ccl::Scene* scene, ccl::Mesh* mesh, UpdateC
 	std::copy_n(normals.data(), normals.size(), normal_ptr);
 
 	// TODO: how to define island attribute?
-	// if the surface constans from different patches, how it's possible to obtina oatch index for each triangle
+	// if the surface constans from different patches, how it's possible to obtain each index for each triangle
 	ccl::Attribute* attr_uv = NULL;
 	if (need_uv) {
 		attr_uv = mesh->attributes.add(ccl::ATTR_STD_UV);

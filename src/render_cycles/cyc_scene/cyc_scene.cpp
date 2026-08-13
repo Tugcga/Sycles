@@ -932,14 +932,11 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 	XSI::CTime eval_time = update_context->get_time();
 	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 
-	// sync_scene_materials(scene, update_context);
 	update_context->clear_aovs();
 
 	sync_camera(scene, update_context);
 
 	if (isolation_list.GetCount() > 0) {
-		// TODO: in isolation view export only required materials (for isolated objects and for lights)
-		// render isolation view
 		// we should use all objects from isolation list and all light objects (build-in and custom) from all objects list
 		size_t isolation_objects_count = isolation_list.GetCount();
 

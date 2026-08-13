@@ -403,7 +403,7 @@ void add_attributes_to_node(ccl::OSLNode* node, const std::string & shader_code)
 }
 
 // return true if all exported correcly, false, if we should fallback to general material export
-bool sync_materialx_material(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, UpdateContext* update_context, const XSI::Shader& root_node) {
+bool sync_materialx_material(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, UpdateContext* update_context, const XSI::Shader& root_node, const XSI::CString& material_name) {
 	// we should create MateriaX doc
 	// then convert it to osl
 	// and create osl node in the graph
@@ -430,8 +430,8 @@ bool sync_materialx_material(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, 
 		MaterialX::ShaderPtr shader = createShader(element->getNamePath(), gen_context, element);
 		const std::string& shader_code = shader->getSourceCode(MaterialX::Stage::PIXEL);
 		XSI::CString cache_path = create_texture_cache_path();
-		std::string osl_file_path = cache_path.GetAsciiString() + element->getName() + ".osl";
-		std::string oso_file_path = cache_path.GetAsciiString() + element->getName() + ".oso";
+		std::string osl_file_path = (cache_path + material_name).GetAsciiString() + std::string(".osl");
+		std::string oso_file_path = (cache_path + material_name).GetAsciiString() + std::string(".oso");
 		write_text_file(shader_code, osl_file_path);
 
 		// and also try to delete oso-file, because the Cycles use it and does not update when osl is changed

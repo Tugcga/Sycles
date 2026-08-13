@@ -102,8 +102,6 @@ void UpdateContext::reset()
 
 	object_to_vertices.clear();
 	id_to_mxnode.clear();
-	// TODO: remove it
-	mx_filename_to_data.clear();
 }
 
 void UpdateContext::set_is_update_light_linking(bool value)
