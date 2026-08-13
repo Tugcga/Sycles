@@ -163,6 +163,9 @@ void read_config_ini()
 		const char* devices_str = ini.GetValue("Render", "devices", "16");
 		render.devices = std::stoi(devices_str, nullptr);
 
+		const char* clear_cache_str = ini.GetValue("Render", "clear_cache", "0");
+		render.clear_cache = std::stoi(clear_cache_str, nullptr) > 0;
+
 		ConfigSeries series;
 		const char* save_intermediate_str = ini.GetValue("SeriesRendering", "save_intermediate", "0");
 		const float save_intermediate_float = strtof(save_intermediate_str, nullptr);

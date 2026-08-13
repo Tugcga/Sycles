@@ -116,6 +116,7 @@ SICALLBACK CyclesRenderer_Init(XSI::CRef &in_ctxt)
 
 	// read input config from ini file and store it in the global static variable
 	read_config_ini();
+	render->config_init();
 
 	// and also read ocio config from external file
 	read_ocio_config();

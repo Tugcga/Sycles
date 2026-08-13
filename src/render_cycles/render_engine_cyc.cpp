@@ -62,12 +62,14 @@ void RenderEngineCyc::path_init(const XSI::CString& plugin_path)
 {
 	XSI::CString folder_path = XSI::CUtils::BuildPath(plugin_path, "..", "..");
 	ccl::path_init(folder_path.GetAsciiString());
+}
 
+void RenderEngineCyc::config_init() {
 	// here we also can setup series rendering
 	InputConfig input_config = get_input_config();
-	if (input_config.is_init)
-	{
+	if (input_config.is_init) {
 		series_context->setup(input_config.series);
+		update_context->set_clear_cache_on_close(input_config.render.clear_cache);
 	}
 
 	// init openvdb

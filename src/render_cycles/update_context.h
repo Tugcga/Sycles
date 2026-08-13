@@ -213,6 +213,7 @@ public:
 	void try_init_materialx_path();
 	void try_init_osl_generator();
 	MaterialX::DocumentPtr get_std_lib();
+	void set_clear_cache_on_close(bool value);
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -365,4 +366,6 @@ private:
 	MaterialX::ShaderGeneratorPtr osl_context;
 	MaterialX::DocumentPtr std_lib;
 	bool is_osl_context_init;
+
+	bool clear_cache_on_close;
 };

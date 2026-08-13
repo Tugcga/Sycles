@@ -45,6 +45,7 @@ public:
 	void read_render_tile(const ccl::OutputDriver::Tile& tile);
 
 	void path_init(const XSI::CString &plugin_path);
+	void config_init();
 	void pre_bake();
 
 private:

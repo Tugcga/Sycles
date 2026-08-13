@@ -24,10 +24,15 @@ UpdateContext::UpdateContext()
 	reset();
 	mx_filename_to_data.clear();
 	is_osl_context_init = false;
+	clear_cache_on_close = false;
 }
 
 UpdateContext::~UpdateContext()
 {
+	if (clear_cache_on_close) {
+		XSI::CString cache_path = create_texture_cache_path();
+		remove_temp_path(cache_path);
+	}
 	reset();
 	mx_filename_to_data.clear();
 	delete sync_profiler;
@@ -1296,4 +1301,8 @@ MaterialX::ShaderGeneratorPtr UpdateContext::get_osl_generator() {
 
 MaterialX::DocumentPtr UpdateContext::get_std_lib() {
 	return std_lib;
+}
+
+void UpdateContext::set_clear_cache_on_close(bool value) {
+	clear_cache_on_close = value;
 }
