@@ -102,6 +102,7 @@ void UpdateContext::reset()
 
 	object_to_vertices.clear();
 	id_to_mxnode.clear();
+	mx_images.clear();
 }
 
 void UpdateContext::set_is_update_light_linking(bool value)
@@ -1303,4 +1304,12 @@ MaterialX::DocumentPtr UpdateContext::get_std_lib() {
 
 void UpdateContext::set_clear_cache_on_close(bool value) {
 	clear_cache_on_close = value;
+}
+
+void UpdateContext::add_mx_image(const std::string& file_path, ccl::ImageParams params) {
+	mx_images[file_path] = params;
+}
+
+std::map<std::string, ccl::ImageParams> UpdateContext::get_mx_images() {
+	return mx_images;
 }

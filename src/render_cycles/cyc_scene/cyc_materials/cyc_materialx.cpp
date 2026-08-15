@@ -1,6 +1,7 @@
 #include <xsi_fcurve.h>
 
 #include "scene/osl.h"
+#include "kernel/osl/services.h"
 
 #include "cyc_materialx.h"
 #include "cyc_materialx_attributes.h"
@@ -107,7 +108,85 @@ size_t get_shader_outputs_count(UpdateContext *update_context, const XSI::Shader
 	return to_return;
 }
 
-bool add_input_value_to_node(UpdateContext* update_context, MaterialX::NodePtr& node, const XSI::ShaderParameter& xsi_parameter, const XSI::siShaderParameterDataType xsi_type) {
+ccl::InterpolationType string_to_interpolation(const XSI::CString &type_str) {
+	if (type_str == "closest") {
+		return ccl::InterpolationType::INTERPOLATION_CLOSEST;
+	}
+	else if (type_str == "linear") {
+		return ccl::InterpolationType::INTERPOLATION_LINEAR;
+	}
+	else {  // cubic
+		return ccl::InterpolationType::INTERPOLATION_CUBIC;
+	}
+}
+
+ccl::ExtensionType string_to_extension(const XSI::CString &type_str) {
+	if (type_str == "constant") {
+		return ccl::ExtensionType::EXTENSION_EXTEND;
+	}
+	else if (type_str == "clamp") {
+		return ccl::ExtensionType::EXTENSION_CLIP;
+	}
+	else if (type_str == "mirror") {
+		return ccl::ExtensionType::EXTENSION_MIRROR;
+	}
+	else {  // periodic
+		return ccl::ExtensionType::EXTENSION_REPEAT;
+	}
+}
+
+ccl::ImageParams image_parameters(const XSI::Shader & xsi_node, const XSI::CTime &eval_time) {
+	ccl::ImageParams params;
+	params.animated = false;
+	params.interpolation = ccl::InterpolationType::INTERPOLATION_CUBIC;
+	params.extension = ccl::ExtensionType::EXTENSION_REPEAT;
+	params.alpha_type = ccl::ImageAlphaType::IMAGE_ALPHA_AUTO;
+	params.colorspace = ccl::u_colorspace_scene_linear_srgb; // ccl::u_colorspace_data;
+
+	if (!xsi_node.IsValid()) {
+		return params;
+	}
+
+	XSI::CParameterRefArray all_parameters = xsi_node.GetParameters();
+
+	// try find several typical parameters
+	// if found - define image property
+	XSI::CValue filtertype = xsi_node.GetParameterValue("filtertype");  // "closest,linear,cubic"
+	if (!filtertype.IsEmpty() && filtertype.m_t == XSI::siString) {
+		XSI::CString filtertype_value = get_string_parameter_value(all_parameters, "filtertype", eval_time);
+		params.interpolation = string_to_interpolation(filtertype_value);
+	}
+
+	// all other image nodes
+	XSI::CValue uaddressmode = xsi_node.GetParameterValue("uaddressmode");
+	XSI::CValue vaddressmode = xsi_node.GetParameterValue("vaddressmode");
+	if (!uaddressmode.IsEmpty() && !vaddressmode.IsEmpty() && uaddressmode.m_t == XSI::siString && vaddressmode.m_t == XSI::siString) {
+		XSI::CString uaddressmode_str = get_string_parameter_value(all_parameters, "uaddressmode", eval_time);
+		XSI::CString vaddressmode_str = get_string_parameter_value(all_parameters, "vaddressmode", eval_time);
+		if (uaddressmode_str != vaddressmode_str) {
+			log_warning("MaterialX node " + xsi_node.GetFullName() + " constains as uaddressmode and vaddressmode properties, but it has different values. Cycles supports only one value for both directions, use U-axis.");
+		}
+		params.extension = string_to_extension(uaddressmode_str);
+	}
+
+	if (uaddressmode.IsEmpty() || vaddressmode.IsEmpty()) {
+		// ND_UsdUVTexture, ND_UsdUVTexture_23 use
+		XSI::CValue wrap_s = xsi_node.GetParameterValue("wrapS");
+		XSI::CValue wrap_t = xsi_node.GetParameterValue("wrapT");
+		if (!wrap_s.IsEmpty() && !wrap_t.IsEmpty() && wrap_s.m_t == XSI::siString && wrap_t.m_t == XSI::siString) {
+			XSI::CString uwrap_s_str = get_string_parameter_value(all_parameters, "wrapS", eval_time);
+			XSI::CString wrap_t_str = get_string_parameter_value(all_parameters, "wrapT", eval_time);
+			if (uwrap_s_str != wrap_t_str) {
+				log_warning("MaterialX node " + xsi_node.GetFullName() + " constains as wrapS and wrapT properties, but it has different values. Cycles supports only one value for both directions, use U-axis.");
+			}
+			params.extension = string_to_extension(uwrap_s_str);
+		}
+	}
+
+	return params;
+}
+
+bool add_input_value_to_node(ccl::Scene* scene, UpdateContext* update_context, MaterialX::NodePtr& node, const XSI::ShaderParameter& xsi_parameter, const XSI::siShaderParameterDataType xsi_type) {
 	std::string type_string = parameter_type_to_string(xsi_parameter, update_context);
 	std::string name = xsi_parameter.GetName().GetAsciiString();
 
@@ -258,6 +337,8 @@ bool add_input_value_to_node(UpdateContext* update_context, MaterialX::NodePtr& 
 
 					input->setValueString(xsi_image_path.GetAsciiString());
 					input->setColorSpace(colorspace_to_string(color_profile));
+
+					update_context->add_mx_image(xsi_image_path.GetAsciiString(), image_parameters(xsi_parameter.GetParent(), update_context->get_time()));
 				}
 			}
 			else {
@@ -298,9 +379,9 @@ bool is_input_connected(const XSI::Shader& node, const XSI::ShaderParameter& par
 	}
 }
 
-MaterialX::NodePtr shader_to_node(UpdateContext* update_context, MaterialX::DocumentPtr mx_doc, const XSI::Shader& xsi_node);
+MaterialX::NodePtr shader_to_node(ccl::Scene* scene, UpdateContext* update_context, MaterialX::DocumentPtr mx_doc, const XSI::Shader& xsi_node);
 
-void propagate_connection(UpdateContext* update_context, const XSI::ShaderParameter& xsi_parameter, MaterialX::DocumentPtr& mx_doc, MaterialX::InputPtr mx_input) {
+void propagate_connection(ccl::Scene* scene, UpdateContext* update_context, const XSI::ShaderParameter& xsi_parameter, MaterialX::DocumentPtr& mx_doc, MaterialX::InputPtr mx_input) {
 	XSI::Shader parameter_parent = xsi_parameter.GetParent();
 	
 	if (parameter_parent.IsValid() && is_input_connected(parameter_parent, xsi_parameter)) {
@@ -309,7 +390,7 @@ void propagate_connection(UpdateContext* update_context, const XSI::ShaderParame
 		if (input_source.IsValid()) {
 			XSI::Shader source_shader = input_source.GetParent();
 			if (!is_shader_compound(source_shader)) {
-				MaterialX::NodePtr source_node = shader_to_node(update_context, mx_doc, source_shader);  // <--- here is recursion
+				MaterialX::NodePtr source_node = shader_to_node(scene, update_context, mx_doc, source_shader);  // <--- here is recursion
 				// it can return null, if the node is unknown
 				if (source_node) {
 					mx_input->setConnectedNode(source_node);
@@ -327,7 +408,7 @@ void propagate_connection(UpdateContext* update_context, const XSI::ShaderParame
 	}
 }
 
-MaterialX::NodePtr shader_to_node(UpdateContext* update_context, MaterialX::DocumentPtr mx_doc, const XSI::Shader &xsi_node) {
+MaterialX::NodePtr shader_to_node(ccl::Scene* scene, UpdateContext* update_context, MaterialX::DocumentPtr mx_doc, const XSI::Shader &xsi_node) {
 	bool is_new = false;
 	XSI::CString node_type;
 	ShadernodeType type = get_shadernode_type(xsi_node, node_type);
@@ -359,7 +440,7 @@ MaterialX::NodePtr shader_to_node(UpdateContext* update_context, MaterialX::Docu
 				std::string parameter_name = param.GetName().GetAsciiString();
 
 				if (is_input) {
-					bool is_add = add_input_value_to_node(update_context, mx_node, param, xsi_type);
+					bool is_add = add_input_value_to_node(scene, update_context, mx_node, param, xsi_type);
 					if (!is_add) {
 						std::string parameter_type = parameter_type_to_string(param, update_context);
 						// non-empty paramter connected to something, then add the input port
@@ -371,7 +452,7 @@ MaterialX::NodePtr shader_to_node(UpdateContext* update_context, MaterialX::Docu
 					}
 
 					if (is_add) {
-						propagate_connection(update_context, param, mx_doc, mx_node->getInput(parameter_name));
+						propagate_connection(scene, update_context, param, mx_doc, mx_node->getInput(parameter_name));
 					}
 				}
 			}
@@ -410,7 +491,7 @@ bool sync_materialx_material(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, 
 	MaterialX::DocumentPtr mx_doc = MaterialX::createDocument();
 	update_context->clear_mx_nodes();
 
-	MaterialX::NodePtr mx_root_node = shader_to_node(update_context, mx_doc, root_node);
+	MaterialX::NodePtr mx_root_node = shader_to_node(scene, update_context, mx_doc, root_node);
 	if (mx_root_node == nullptr) {
 		return false;
 	}
@@ -443,6 +524,21 @@ bool sync_materialx_material(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, 
 			// for simplicity we save osl-code into file and pass this file to the manager
 			ccl::OSLNode* node = ccl::OSLShaderManager::osl_node(shader_graph, scene, osl_file_path, "", "");
 
+			// register all textures in all devices for osl rendering
+			for (auto const& [image_path, image_params] : update_context->get_mx_images()) {
+				ccl::ImageHandle handle = scene->image_manager->add_image(image_path, image_params);
+				ccl::OSLManager::foreach_osl_device(scene->device, [&](ccl::Device* sub, ccl::OSLGlobals*) {
+					if (auto* ss = scene->osl_manager->get_shading_system(sub)) {
+						auto* services = static_cast<ccl::OSLRenderServices*>(ss->renderer());
+						ccl::OSLUStringHash image_hash = ccl::OSLUStringHash(image_path);
+						if (services->textures.find(image_hash) == services->textures.end()) {
+							services->textures.erase(image_hash);
+						}
+						services->textures.insert(image_hash, ccl::OSLTextureHandle(handle));
+					}
+				});
+			}
+			
 			// next we should extract all required attributes
 			add_attributes_to_node(node, shader_code);
 

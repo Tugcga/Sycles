@@ -6,6 +6,7 @@
 #include <xsi_light.h>
 
 #include "scene/shader_nodes.h"
+#include "scene/image.h"
 
 #include "MaterialXCore/Node.h"
 #include "MaterialXGenOsl/OslShaderGenerator.h"
@@ -214,6 +215,8 @@ public:
 	void try_init_osl_generator();
 	MaterialX::DocumentPtr get_std_lib();
 	void set_clear_cache_on_close(bool value);
+	void add_mx_image(const std::string &file_path, ccl::ImageParams params);
+	std::map<std::string, ccl::ImageParams> get_mx_images();
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -366,6 +369,9 @@ private:
 	MaterialX::ShaderGeneratorPtr osl_context;
 	MaterialX::DocumentPtr std_lib;
 	bool is_osl_context_init;
+	// store here parameters of all images, when we export mx-material for compiling it to osl
+	// it needed proper define image parameters in the osl render service
+	std::map<std::string, ccl::ImageParams> mx_images;
 
 	bool clear_cache_on_close;
 };
