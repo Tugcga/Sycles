@@ -129,6 +129,7 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 	// set hair data
 	out_num_keys = 0;
 	size_t knot_counter = 0;
+	size_t strands_counter = 0;
 	while (rha.Next())
 	{
 		XSI::CLongArray vertices_count_array;  // vertex count in each hair strand
@@ -182,16 +183,17 @@ void sync_hair_geom(ccl::Scene* scene, ccl::Hair* hair_geom, UpdateContext* upda
 			if (attr_random != NULL)
 			{
 				float* randomt_ptr = attr_random->data_for_write<float>();
-				randomt_ptr[i] = ccl::hash_uint2_to_float(i, 0);
+				randomt_ptr[strands_counter] = ccl::hash_uint2_to_float(i, 0);
 			}
 			if (attr_length != NULL)
 			{
 				float* length_ptr = attr_length->data_for_write<float>();
-				length_ptr[i] = strand_length;
+				length_ptr[strands_counter] = strand_length;
 			}
-			first_key_data[i] = out_num_keys;
-			shader_data[i] = 0;
+			first_key_data[strands_counter] = out_num_keys;
+			shader_data[strands_counter] = 0;
 			out_num_keys += n_count;
+			strands_counter += 1;
 		}
 
 		// uvs

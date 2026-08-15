@@ -253,7 +253,7 @@ bool add_input_value_to_node(UpdateContext* update_context, MaterialX::NodePtr& 
 				XSI::ImageClip2 image_clip(image_source);
 
 				if (image_clip.IsValid()) {
-					XSI::CString xsi_image_path = image_clip.GetFileName();
+					XSI::CString xsi_image_path = replace_symbols(image_clip.GetFileName(), "\\", "/");
 					XSI::CValue color_profile = image_clip.GetParameterValue("RenderColorProfile");
 
 					input->setValueString(xsi_image_path.GetAsciiString());

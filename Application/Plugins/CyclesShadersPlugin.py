@@ -5573,7 +5573,7 @@ def CyclesShadersPlugin_CyclesFloatCurve_1_0_Define(in_ctxt):
     params = shader_def.InputParamDefs
     add_input_fcurve(no_port_pram_options(), params, "Curve")
     add_input_float(standard_pram_options(), params, 1.0, "Fac", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Value")
+    add_input_float(standard_pram_options(), params, 0.0, "Value", 0.0, 1.0)
     add_input_boolean(no_port_pram_options(), params, False, "extrapolate")
 
     # Output Parameter: out

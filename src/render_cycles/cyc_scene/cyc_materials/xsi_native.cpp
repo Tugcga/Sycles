@@ -302,20 +302,20 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		random_clamp->set_max(0.9999f);
 		shader_graph->connect(hair_info->output("Random"), random_clamp->input("Value"));
 
-		ccl::MixNode* finall_mix = shader_graph->create_node<ccl::MixNode>();
-		finall_mix->set_mix_type(ccl::NodeMix::NODE_MIX_BLEND);
+		ccl::MixColorNode* finall_mix = shader_graph->create_node<ccl::MixColorNode>();
+		finall_mix->set_blend_type(ccl::NodeMix::NODE_MIX_BLEND);
 
 		// connect finall mix to hair node
-		shader_graph->connect(finall_mix->output("Color"), hair_node->input("Color"));
+		shader_graph->connect(finall_mix->output("Result"), hair_node->input("Color"));
 
 		// for this finall mix node we should connect input root color, mixed tips colors and coefficient
-		sync_float3_parameter(scene, shader_graph, finall_mix, diffuse_root_parameter, "Color1", update_context);
+		sync_float3_parameter(scene, shader_graph, finall_mix, diffuse_root_parameter, "A", update_context);
 
 		// for tips colors
-		ccl::MixNode* tips_mix = shader_graph->create_node<ccl::MixNode>();
-		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_a_parameter, "Color1", update_context);
-		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_b_parameter, "Color2", update_context);
-		shader_graph->connect(tips_mix->output("Color"), finall_mix->input("Color2"));
+		ccl::MixColorNode* tips_mix = shader_graph->create_node<ccl::MixColorNode>();
+		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_a_parameter, "A", update_context);
+		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_b_parameter, "B", update_context);
+		shader_graph->connect(tips_mix->output("Result"), finall_mix->input("B"));
 
 		// calculate coefficient for tips mix
 		ccl::ClampNode* balance_clamp = shader_graph->create_node<ccl::ClampNode>();
@@ -345,7 +345,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		shader_graph->connect(balance_power_01->output("Value"), balance_subtract_02->input("Value2"));
 
 		// this is the coefficient for tips mix
-		shader_graph->connect(balance_subtract_02->output("Value"), tips_mix->input("Fac"));
+		shader_graph->connect(balance_subtract_02->output("Value"), tips_mix->input("Factor"));
 
 		// and next we need finall mix coefficient
 		// connect input parameters: center and range
@@ -404,7 +404,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		shader_graph->connect(less->output("Value"), multiplication->input("Value2"));
 
 		// set finall mix color factor
-		shader_graph->connect(multiplication->output("Value"), finall_mix->input("Fac"));
+		shader_graph->connect(multiplication->output("Value"), finall_mix->input("Factor"));
 
 		return hair_node;
 	}

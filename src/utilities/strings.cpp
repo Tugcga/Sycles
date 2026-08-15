@@ -223,6 +223,37 @@ bool is_number(const XSI::CString &str)
 	return true;
 }
 
+std::string change_tile_to_udim(const std::string& image_path) {
+	size_t last_slash = image_path.find_last_of("/\\");
+	std::string directory, filename;
+	if (last_slash != std::string::npos) {
+		directory = image_path.substr(0, last_slash + 1);
+		filename = image_path.substr(last_slash + 1);
+	}
+
+	if (directory.size() == 0 || filename.size() == 0) {
+		return image_path;
+	}
+
+	size_t last_dot = filename.find_last_of('.');
+	std::string base, ext;
+	if (last_dot != std::string::npos) {
+		base = filename.substr(0, last_dot);
+		ext = filename.substr(last_dot);
+	}
+
+	if (base.size() < 4 || ext.size() == 0) {
+		return image_path;
+	}
+
+	const std::string suffix = "1001";
+	if (base.length() >= suffix.length() && base.compare(base.length() - suffix.length(), suffix.length(), suffix) == 0) {
+		base.replace(base.length() - suffix.length(), suffix.length(), "<UDIM>");
+	}
+
+	return directory + base + ext;
+}
+
 std::string build_source_image_path(const XSI::CString &path, const XSI::CString &source_type, bool is_cyclic, int sequence_start, int sequence_frames, int sequence_offset, const XSI::CTime &eval_time, bool allow_tile, bool &change_to_udims)
 {
 	sequence_frames = std::max(1, sequence_frames);

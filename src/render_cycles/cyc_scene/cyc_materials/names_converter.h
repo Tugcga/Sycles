@@ -615,10 +615,11 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{// MixNode in Blender
 		"CyclesShadersPlugin.CyclesMixRGB.1.0", {
-			{"Fac", "Fac"},
-			{"Color1", "Color1"},
-			{"Color2", "Color2"},
-			{"outColor", "Color"}
+			// use MixColor ports
+			{"Fac", "Factor"},
+			{"Color1", "A"},
+			{"Color2", "B"},
+			{"outColor", "Result"}
 		}
 	},
 	// next four nodes are combined into one node in Blender

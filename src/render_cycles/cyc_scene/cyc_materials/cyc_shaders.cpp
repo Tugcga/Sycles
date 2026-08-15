@@ -501,6 +501,9 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 			std::map<int, XSI::CString> tile_to_path_map = sync_image_tiles(file_path);
 			ccl::array<int> tiles = exctract_tiles(tile_to_path_map);
+			if (image_source == "tiled" && tiles.size() > 0) {
+				file_path = change_tile_to_udim(file_path.GetAsciiString()).c_str();
+			}
 
 			node->set_projection(projection == "flat" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT : (projection == "box" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_BOX : (projection == "sphere" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_SPHERE : (projection == "tube" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_TUBE : ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT))));
 			node->set_projection_blend(projection_blend);
@@ -1211,13 +1214,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	}
 	else if (shader_type == "MixRGB")
 	{
-		ccl::MixNode* node = shader_graph->create_node<ccl::MixNode>();
+		// Use MixColor node, MixNode is depricated in Blender
+		ccl::MixColorNode* node = shader_graph->create_node<ccl::MixColorNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
 
-		node->set_mix_type(get_mix_type(type));
+		node->set_blend_type(get_mix_type(type));
 		node->set_use_clamp(use_clamp);
 
 		return node;

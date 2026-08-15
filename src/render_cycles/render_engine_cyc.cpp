@@ -1132,9 +1132,6 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 		}
 	}
 
-	// remove temp directory (if it exists)
-	// remove_temp_path(temp_path);
-
 	// clear output context object
 	output_context->reset();
 

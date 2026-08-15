@@ -427,7 +427,8 @@ void set_background_light_params(ccl::Scene* scene, ccl::BackgroundLight* light,
 	int background_surface_resolution = render_parameters.GetValue("background_surface_resolution", eval_time);
 	int background_surface_max_bounces = render_parameters.GetValue("background_surface_max_bounces", eval_time);
 	bool background_surface_shadow_caustics = render_parameters.GetValue("background_surface_shadow_caustics", eval_time);
-	bool background_surface_cast_shadow = render_parameters.GetValue("background_surface_cast_shadow", eval_time);
+	XSI::CValue background_surface_cast_shadow_value = render_parameters.GetValue("background_surface_cast_shadow", eval_time);
+	bool background_surface_cast_shadow = background_surface_cast_shadow_value.IsEmpty() ? true : (bool)background_surface_cast_shadow_value;
 	light->set_use_mis(background_surface_sampling_method != 0);
 	light->set_map_resolution(background_surface_sampling_method == 2 ? background_surface_resolution : 0);
 	light->set_max_bounces(background_surface_max_bounces);

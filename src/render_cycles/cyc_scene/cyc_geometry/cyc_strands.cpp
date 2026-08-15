@@ -315,7 +315,7 @@ void sync_strands_geom(ccl::Scene* scene,
 
 					ccl::Attribute* cycles_attribute = strands_geom->attributes.add(attr_name, ccl::TypeVector, ccl::ATTR_ELEMENT_CURVE);
 
-					ccl::packed_float3* cyc_attr_data = cycles_attribute->data_for_write<ccl::packed_float3>();
+					ccl::float3* cyc_attr_data = cycles_attribute->data_for_write<ccl::float3>();
 					for (size_t v_index = 0; v_index < total_curves; v_index++)
 					{
 						*cyc_attr_data = vector3_to_float3(attr_data[out_strand_points[v_index]]);
@@ -327,7 +327,7 @@ void sync_strands_geom(ccl::Scene* scene,
 					XSI::CICEAttributeDataArrayColor4f attr_data;
 					xsi_attribute.GetDataArray(attr_data);
 
-					ccl::Attribute* cycles_attribute = strands_geom->attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_CURVE);
+					ccl::Attribute* cycles_attribute = strands_geom->attributes.add(attr_name, ccl::TypeRGBA, ccl::ATTR_ELEMENT_CURVE);
 
 					ccl::float4* cyc_attr_data = cycles_attribute->data_for_write<ccl::float4>();
 					for (size_t v_index = 0; v_index < total_curves; v_index++)

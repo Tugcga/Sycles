@@ -575,7 +575,7 @@ void sync_ice_attributes(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::Geometry
 					XSI::CICEAttributeDataArrayColor4f attr_data;
 					xsi_attribute.GetDataArray(attr_data);
 
-					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeColor, ccl::ATTR_ELEMENT_VERTEX);
+					ccl::Attribute* cycles_attribute = (subdiv_mode != SubdivideMode_None) ? mesh->subd_attributes.add(attr_name, ccl::TypeRGBA, ccl::ATTR_ELEMENT_VERTEX) : mesh->attributes.add(attr_name, ccl::TypeRGBA, ccl::ATTR_ELEMENT_VERTEX);
 					cycles_attribute->resize(subdiv_mode != SubdivideMode_CatmulClark ? nodes_count : vertex_count);
 					ccl::float4* cyc_attr_data = cycles_attribute->data_for_write<ccl::float4>();
 
