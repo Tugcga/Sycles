@@ -1193,8 +1193,8 @@ def CyclesShadersPlugin_CyclesGlassBSDF_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.AddItem("Roughness", "Roughness")
     ppgLayout.AddItem("IOR", "IOR")
-    ppg_layout.AddItem("ThinFilmThickness", "Thin Film Thickness")
-    ppg_layout.AddItem("ThinFilmIOR", "Thin Film IOR")
+    ppgLayout.AddItem("ThinFilmThickness", "Thin Film Thickness")
+    ppgLayout.AddItem("ThinFilmIOR", "Thin Film IOR")
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
