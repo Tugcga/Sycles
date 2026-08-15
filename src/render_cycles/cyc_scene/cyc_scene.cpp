@@ -252,6 +252,8 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 	for (size_t i = 0; i < children.GetCount(); i++)
 	{
 		XSI::X3DObject xsi_object(children[i]);
+		sync_object_materials(scene, update_context, xsi_object);
+
 		ULONG xsi_id = xsi_object.GetObjectID();
 		XSI::CString xsi_object_type = xsi_object.GetType();
 
