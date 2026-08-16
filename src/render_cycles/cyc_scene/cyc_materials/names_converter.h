@@ -1025,7 +1025,7 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"Softimage.sib_vector_to_color.1.0", {
-			{"out", "Image"}  // output node is CombineRGB
+			{"out", "Color"}  // output node is CombineColor
 		}
 	},
 			{
