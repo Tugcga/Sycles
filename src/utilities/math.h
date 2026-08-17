@@ -57,3 +57,5 @@ ccl::array<int> exctract_tiles(const std::map<int, XSI::CString>& tile_to_path_m
 std::vector<float> flip_pixels(float* input, ULONG width, ULONG height, ULONG channels);
 int powi(int base, unsigned int exp);
 size_t calc_time_motion_step(size_t mi, size_t motion_steps, MotionSettingsPosition motion_position);
+int to_int(const char* str, int default_value);
+float to_float(const char* str, float default_value);

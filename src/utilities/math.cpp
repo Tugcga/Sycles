@@ -2,6 +2,7 @@
 #include <vector>
 #include <random>
 #include <map>
+#include <charconv>
 
 #include <xsi_application.h>
 #include <xsi_time.h>
@@ -409,4 +410,30 @@ size_t calc_time_motion_step(size_t mi, size_t motion_steps, MotionSettingsPosit
 	}
 
 	return time_motion_step;
+}
+
+int to_int(const char* str, int default_value) {
+	if (!str || !*str) { 
+		return default_value; 
+	}
+	int value;
+	auto [ptr, ec] = std::from_chars(str, str + std::strlen(str), value);
+	if (ec == std::errc()) { 
+		return value; 
+	}
+
+	return default_value;
+}
+
+float to_float(const char* str, float default_value) {
+	if (!str || !*str) { 
+		return default_value; 
+	}
+	char* endptr = nullptr;
+	errno = 0;
+	float value = strtof(str, &endptr);
+	if (errno == ERANGE || endptr == str) { 
+		return default_value;
+	}
+	return value;
 }
