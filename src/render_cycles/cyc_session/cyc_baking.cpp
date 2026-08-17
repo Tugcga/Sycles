@@ -508,7 +508,7 @@ static void store_bake_pixel(BakeDataZSpan* handle, int x, int y, float u, float
 
 	const int width = bd->bk_image->width;
 	const size_t offset = bd->bk_image->offset;
-	const int i = offset + y * width + x;
+	const int i = (int)offset + y * width + x;
 
 	pixel = &bd->pixel_array[i];
 	pixel->seed = rand();
@@ -583,7 +583,7 @@ void populate_bake_data(ccl::Mesh* mesh, size_t uv_map_index, BakingContext* bak
 
 		for (size_t i = 0; i < triangles_count; i++)
 		{
-			bd.primitive_id = i;
+			bd.primitive_id = (int)i;
 			float vec[3][2];
 
 			ccl::Mesh::Triangle triangle = mesh->get_triangle(i);

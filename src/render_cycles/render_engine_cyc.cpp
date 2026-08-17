@@ -321,7 +321,7 @@ void RenderEngineCyc::pre_bake()
 		{
 			XSI::CParameterRefArray prop_params = bake_prop.GetParameters();
 			// there is a baking custom property
-			image_full_size_width = powi(2, 5 + (int)(prop_params.GetValue("texture_size", eval_time)));
+			image_full_size_width = powi(2, 5 + std::max(0, std::min(10, (int)(prop_params.GetValue("texture_size", eval_time)))));
 			image_full_size_height = image_full_size_width;
 			image_size_width = image_full_size_width;
 			image_size_height = image_full_size_width;

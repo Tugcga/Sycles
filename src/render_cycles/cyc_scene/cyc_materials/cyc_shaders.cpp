@@ -45,16 +45,6 @@ void common_routine(ccl::Scene* scene,
 
 	XSI::CTime eval_time = update_context->get_time();
 
-	// does not setup these node bump properies
-	// it's not clear how it actually works
-	if (false && xsi_parameters.GetItem("bump").IsValid() && xsi_parameters.GetItem("filter_width").IsValid()) {
-		XSI::CString bump_mode = get_string_parameter_value(xsi_parameters, "bump", eval_time);
-		float filter_width = get_float_parameter_value(xsi_parameters, "filter_width", eval_time);
-
-		node->bump_filter_width = filter_width;
-		node->bump = get_shader_bump(bump_mode);
-	}
-
 	// iterate over all parameters
 	for (ULONG i = 0; i < xsi_parameters.GetCount(); i++)
 	{

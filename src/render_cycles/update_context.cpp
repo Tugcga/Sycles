@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <xsi_model.h>
 #include <xsi_material.h>
 #include <xsi_shader.h>
@@ -396,7 +398,7 @@ void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters,
 		motion_type = known_type;
 	}
 	
-	int film_motion_steps = render_parameters.GetValue("film_motion_steps", eval_time);
+	int film_motion_steps = std::max(1, (int)render_parameters.GetValue("film_motion_steps", eval_time));
 	int film_motion_position = render_parameters.GetValue("film_motion_position", eval_time);
 	int film_motion_rolling_type = render_parameters.GetValue("film_motion_rolling_type", eval_time);
 

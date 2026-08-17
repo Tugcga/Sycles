@@ -188,8 +188,8 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 		layout.AddGroup("Parameters");
 		// displays
-		XSI::CValueArray cm_displays_combo(ocio_config.displays_count * 2);
-		for (size_t display_index = 0; display_index < ocio_config.displays_count; display_index++)
+		XSI::CValueArray cm_displays_combo((LONG)(ocio_config.displays_count * 2));
+		for (LONG display_index = 0; display_index < (LONG)ocio_config.displays_count; display_index++)
 		{
 			cm_displays_combo[display_index * 2] = ocio_config.displays[display_index].name;
 			cm_displays_combo[display_index * 2 + 1] = LONG(display_index);
@@ -199,15 +199,15 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 		int cm_display_index = cm_display_index_parameter.GetValue();
 		if (cm_display_index < 0 || cm_display_index >= ocio_config.displays_count)
 		{
-			cm_display_index = ocio_config.default_display;
+			cm_display_index = (int)ocio_config.default_display;
 		}
 		cm_display_index = std::min(cm_display_index, (int)ocio_config.displays_count - 1);
 		cm_display_index_parameter.PutValue(cm_display_index);
 
 		// views
 		size_t display_views_count = ocio_config.displays[cm_display_index].views_count;
-		XSI::CValueArray cm_views_combo(display_views_count * 2);
-		for (size_t view_index = 0; view_index < display_views_count; view_index++)
+		XSI::CValueArray cm_views_combo((LONG)(display_views_count * 2));
+		for (LONG view_index = 0; view_index < display_views_count; view_index++)
 		{
 			cm_views_combo[view_index * 2] = ocio_config.displays[cm_display_index].views[view_index];
 			cm_views_combo[view_index * 2 + 1] = LONG(view_index);
@@ -222,14 +222,14 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 		if (cm_view_index >= display_views_count)
 		{
-			cm_view_index = display_views_count - 1;
+			cm_view_index = (int)display_views_count - 1;
 		}
 		cm_view_index_parameter.PutValue(cm_view_index);
 
 		// looks
-		XSI::CValueArray cm_looks_combo(2 + ocio_config.looks_count * 2);
+		XSI::CValueArray cm_looks_combo(2 + (LONG)(ocio_config.looks_count * 2));
 		cm_looks_combo[0] = "None"; cm_looks_combo[1] = LONG(0);  // set None at start, actual look index will be-1 with this value
-		for (size_t look_index = 0; look_index < ocio_config.looks_count; look_index++)
+		for (LONG look_index = 0; look_index < (LONG)ocio_config.looks_count; look_index++)
 		{
 			cm_looks_combo[2 + 2 * look_index] = ocio_config.looks[look_index];
 			cm_looks_combo[2 + 2 * look_index + 1] = LONG(look_index + 1);
@@ -349,7 +349,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 		layout.AddGroup("Denoise");
 		XSI::CValueArray denoise_mode_enum(is_optix ? (is_oidn ? 6 : 4) : (is_oidn ? 4 : 2));
 		denoise_mode_enum[0] = "Disable"; denoise_mode_enum[1] = 0;
-		size_t mode_index = 1;
+		LONG mode_index = 1;
 		if (is_oidn)
 		{
 			denoise_mode_enum[2 * mode_index] = "OpenImageDenoise"; denoise_mode_enum[2 * mode_index + 1] = 1;

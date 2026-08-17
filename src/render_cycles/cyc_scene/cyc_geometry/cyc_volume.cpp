@@ -41,6 +41,9 @@ bool is_pointcloud_volume(const XSI::X3DObject &xsi_object, const XSI::CTime &ev
 	{
 		XSI::ICEAttribute xsi_attribute = attributes.GetItem(i);
 		XSI::CString xsi_name = xsi_attribute.GetName();
+		if (xsi_name.Length() < 5) {
+			return false;
+		}
 		// try to find _size name
 		XSI::CString name_end = xsi_name.GetSubString(xsi_name.Length() - 5, 5);
 		if (name_end == XSI::CString("_size"))
@@ -108,30 +111,32 @@ std::unordered_map<std::string, VolumeAttributeType> build_volume_attributes_map
 	{
 		XSI::ICEAttribute xsi_attribute = attributes.GetItem(i);
 		XSI::CString xsi_name = xsi_attribute.GetName();
-		XSI::CString name_end = xsi_name.GetSubString(xsi_name.Length() - 5, 5);
-		if (name_end == XSI::CString("_size"))
-		{
-			if (xsi_attribute.GetContextType() == XSI::siICENodeContextSingleton && xsi_attribute.GetStructureType() == XSI::siICENodeStructureSingle && xsi_attribute.GetDataType() == XSI::siICENodeDataVector3)
+		if (xsi_name.Length() >= 5) {
+			XSI::CString name_end = xsi_name.GetSubString(xsi_name.Length() - 5, 5);
+			if (name_end == XSI::CString("_size"))
 			{
-				XSI::CString name_start = xsi_name.GetSubString(0, xsi_name.Length() - 5);
-				if (name_start.Length() > 0)
+				if (xsi_attribute.GetContextType() == XSI::siICENodeContextSingleton && xsi_attribute.GetStructureType() == XSI::siICENodeStructureSingle && xsi_attribute.GetDataType() == XSI::siICENodeDataVector3)
 				{
-					XSI::ICEAttribute main_attribute = xsi_geometry.GetICEAttributeFromName(name_start);
-					if (main_attribute.IsValid())
+					XSI::CString name_start = xsi_name.GetSubString(0, xsi_name.Length() - 5);
+					if (name_start.Length() > 0)
 					{
-						XSI::siICENodeContextType attr_context = main_attribute.GetContextType();
-						XSI::siICENodeStructureType attr_structure = main_attribute.GetStructureType();
-						XSI::siICENodeDataType attr_data = main_attribute.GetDataType();
-
-						if (attr_context == XSI::siICENodeContextSingleton && attr_structure == XSI::siICENodeStructureArray && (attr_data == XSI::siICENodeDataFloat || attr_data == XSI::siICENodeDataVector3 || attr_data == XSI::siICENodeDataColor4))
+						XSI::ICEAttribute main_attribute = xsi_geometry.GetICEAttributeFromName(name_start);
+						if (main_attribute.IsValid())
 						{
-							XSI::ICEAttribute min_attribute = xsi_geometry.GetICEAttributeFromName(name_start + "_min");
-							if (min_attribute.IsValid() && min_attribute.GetContextType() == XSI::siICENodeContextSingleton && min_attribute.GetStructureType() == XSI::siICENodeStructureSingle && min_attribute.GetDataType() == XSI::siICENodeDataVector3)
+							XSI::siICENodeContextType attr_context = main_attribute.GetContextType();
+							XSI::siICENodeStructureType attr_structure = main_attribute.GetStructureType();
+							XSI::siICENodeDataType attr_data = main_attribute.GetDataType();
+
+							if (attr_context == XSI::siICENodeContextSingleton && attr_structure == XSI::siICENodeStructureArray && (attr_data == XSI::siICENodeDataFloat || attr_data == XSI::siICENodeDataVector3 || attr_data == XSI::siICENodeDataColor4))
 							{
-								XSI::ICEAttribute max_attribute = xsi_geometry.GetICEAttributeFromName(name_start + "_max");
-								if (max_attribute.IsValid() && max_attribute.GetContextType() == XSI::siICENodeContextSingleton && max_attribute.GetStructureType() == XSI::siICENodeStructureSingle && max_attribute.GetDataType() == XSI::siICENodeDataVector3)
+								XSI::ICEAttribute min_attribute = xsi_geometry.GetICEAttributeFromName(name_start + "_min");
+								if (min_attribute.IsValid() && min_attribute.GetContextType() == XSI::siICENodeContextSingleton && min_attribute.GetStructureType() == XSI::siICENodeStructureSingle && min_attribute.GetDataType() == XSI::siICENodeDataVector3)
 								{
-									to_return[std::string(name_start.GetAsciiString())] = attr_data == XSI::siICENodeDataColor4 ? VolumeAttributeType::VolumeAttributeType_Color : (attr_data == XSI::siICENodeDataVector3 ? VolumeAttributeType::VolumeAttributeType_Vector : VolumeAttributeType::VolumeAttributeType_Float);
+									XSI::ICEAttribute max_attribute = xsi_geometry.GetICEAttributeFromName(name_start + "_max");
+									if (max_attribute.IsValid() && max_attribute.GetContextType() == XSI::siICENodeContextSingleton && max_attribute.GetStructureType() == XSI::siICENodeStructureSingle && max_attribute.GetDataType() == XSI::siICENodeDataVector3)
+									{
+										to_return[std::string(name_start.GetAsciiString())] = attr_data == XSI::siICENodeDataColor4 ? VolumeAttributeType::VolumeAttributeType_Color : (attr_data == XSI::siICENodeDataVector3 ? VolumeAttributeType::VolumeAttributeType_Vector : VolumeAttributeType::VolumeAttributeType_Float);
+									}
 								}
 							}
 						}

@@ -33,12 +33,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.dll</TargetExt>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
-    <ClangTidyChecks>clang-analyzer-*,bugprone-*</ClangTidyChecks>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <ClangTidyChecks>modernize-*, readability-*, performance-*</ClangTidyChecks>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..\dst\cycles\include;..\dst\extern\cuew\include;..\dst\extern\hipew\include;..\dst\extern\atomic;..\dst\extern\embree\include;..\dst\extern\alembic\include;..\dst\extern\osl\include;..\dst\extern\OpenImageIO\include;..\dst\extern\tbb\include;..\dst\extern\imath\include\Imath;..\dst\extern\imath\include;..\dst\extern\openvdb\include;..\dst\extern\opencolorio\include;..\dst\extern\openexr\include;..\dst\extern\oidn_1_4_3\include;..\dst\extern\optix_8_0\include;..\dst\extern\cuda_12\include;..\dst\extern\boost\include;..\dst\extern\materialx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WITH_OSL;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;_CONSOLE;_LIB;_ALLOW_KEYWORD_MACROS;_WIN32_WINNT=0x603;WITH_TBB_MALLOC;__MMX__;__SSE__;__SSE2__;__SSE3__;__SSE4_1__;__SSE4_2__;__LITTLE_ENDIAN__;WITH_ASSERT_ABORT;WITH_KERNEL_SSE42;WITH_KERNEL_AVX2;CCL_NAMESPACE_BEGIN=namespace ccl {;CCL_NAMESPACE_END=};WITH_CUDA;WITH_CUDA_DYNLOAD;WITH_HIP;WITH_HIP_DYNLOAD;WITH_OPTIX;WITH_ALEMBIC;WITH_OPENVDB;NOMINMAX;_USE_MATH_DEFINES;TBB_SUPPRESS_DEPRECATED_MESSAGES=1;WITH_OPENVDB_BLOSC;WITH_NANOVDB;WITH_OPENSUBDIV;WITH_PATH_GUIDING;PATH_GUIDING_LEVEL=5;WITH_SYSTEM_PUGIXML;WITH_EMBREE;EMBREE_MAJOR_VERSION=4</PreprocessorDefinitions>
@@ -52,9 +53,10 @@
       <RuntimeTypeInfo />
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
-      <DisableSpecificWarnings>4018;4146;4065;4127;4181;4200;4244;4267;4305;4800;4828;4996;4661;4848;4834;5033</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4018;4146;4065;4127;4181;4200;4305;4800;4828;4996;4661;4848;4834;5033;4267</DisableSpecificWarnings>
       <UseFullPaths>false</UseFullPaths>
       <TreatSpecificWarningsAsErrors>4013;4133;4431;4033</TreatSpecificWarningsAsErrors>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
     </ClCompile>
     <Link>
       <OutputFile>..\Application\Plugins\bin\nt-x86-64\SyclesPlugin.dll</OutputFile>

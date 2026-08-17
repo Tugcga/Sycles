@@ -193,6 +193,10 @@ XSI::ShaderParameter get_source_parameter(const XSI::ShaderParameter &parameter,
 			{
 				// may be the source node is passthrough node, then go deeper
 				XSI::CStringArray name_parts = source_prog_id.Split(".");
+				if (name_parts.GetCount() <= 1) {
+					return return_output ? source_param : parameter;
+				}
+
 				if (name_parts[0] == "SIUtilityShaders")
 				{
 					if (name_parts[1].ReverseFindString("Passthrough") < UINT_MAX)

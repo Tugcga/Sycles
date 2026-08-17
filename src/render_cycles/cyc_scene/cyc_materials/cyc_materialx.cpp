@@ -44,7 +44,12 @@ std::string parameter_type_to_string(const XSI::ShaderParameter& xsi_parameter, 
 	if (xsi_node.IsValid()) {
 		XSI::CString xsi_shader_prog_id = xsi_node.GetProgID();
 
-		std::tuple<std::string, std::vector<std::tuple<std::string, std::string>>, std::vector<std::tuple<std::string, std::string>>> node_data = update_context->get_mx_data(xsi_shader_prog_id.Split(".")[1].GetAsciiString());
+		XSI::CStringArray parts = xsi_shader_prog_id.Split(".");
+		if (parts.GetCount() <= 1) {
+			return "";
+		}
+
+		std::tuple<std::string, std::vector<std::tuple<std::string, std::string>>, std::vector<std::tuple<std::string, std::string>>> node_data = update_context->get_mx_data(parts[1].GetAsciiString());
 
 		std::string param_name = xsi_parameter.GetName().GetAsciiString();
 		XSI::ShaderParamDef xsi_def = xsi_parameter.GetDefinition();

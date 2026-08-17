@@ -86,10 +86,11 @@ const XSI::CString OSLPARAM_VECTOR = "vector_";
 
 class XSICameraParamQuery : public ccl::OSLCameraParamQuery {
 public:
-	XSICameraParamQuery(XSI::Property xsi_prop) : camera_prop(xsi_prop) {}
+	XSICameraParamQuery(XSI::Property xsi_prop) : camera_prop(xsi_prop) {
+		all_params = camera_prop.GetParameters();
+	}
 
 	bool get_float(ccl::ustring name, ccl::vector<float>& data) override {
-		XSI::CParameterRefArray all_params = camera_prop.GetParameters();
 		LONG count = all_params.GetCount();
 		for (size_t i = 0; i < count; i++) {
 			XSI::Parameter param(all_params[i]);
@@ -184,6 +185,7 @@ public:
 	}
 private:
 	XSI::Property camera_prop;
+	XSI::CParameterRefArray all_params;
 };
 
 XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
