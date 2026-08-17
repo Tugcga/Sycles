@@ -1113,6 +1113,11 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 
 	//log render time
 	if (render_type != RenderType_Shaderball && make_render && render_time > 0.00001) {
+		XSI::CString error_message = session->progress.get_error_message().c_str();
+		if (error_message.Length() > 0) {
+			log_message(error_message, XSI::siErrorMsg);
+		}
+
 		if (update_context->get_is_log_rendertime()) {
 			log_message("Render time: " + XSI::CString(render_time) + " seconds");
 		}

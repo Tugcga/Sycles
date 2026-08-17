@@ -89,9 +89,9 @@ uint8_t linear_to_srgb_int8(float v)
 	}
 	if (v <= 0.0031308f)
 	{
-		return  (unsigned char)((12.92f * v * 255.0f) + 0.5f);
+		return  (uint8_t)((12.92f * v * 255.0f) + 0.5f);
 	}
-	return (unsigned char)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 255.0f + 0.5f);
+	return (uint8_t)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 255.0f + 0.5f);
 }
 
 uint16_t linear_to_srgb_int16(float v)
@@ -106,9 +106,9 @@ uint16_t linear_to_srgb_int16(float v)
 	}
 	if (v <= 0.0031308f)
 	{
-		return  (unsigned char)((12.92f * v * 65535.0f) + 0.5f);
+		return  (uint16_t)((12.92f * v * 65535.0f) + 0.5f);
 	}
-	return (unsigned char)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 65535.0f + 0.5f);
+	return (uint16_t)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 65535.0f + 0.5f);
 }
 
 float srgb_to_linear(float value)
@@ -139,7 +139,7 @@ uint16_t linear_clamp_int16(float v)
 	{
 		return 65535;
 	}
-	return (uint8_t)(v * 65535.0);
+	return (uint16_t)(v * 65535.0);
 }
 
 bool equal_floats(float a, float b)

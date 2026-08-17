@@ -558,7 +558,7 @@ void populate_bake_data(ccl::Mesh* mesh, size_t uv_map_index, BakingContext* bak
 	}
 	zbuf_alloc_span(bd.zspan, image_width, image_height);
 
-	ccl::float2* fdata;
+	ccl::float2* fdata = nullptr;
 	ccl::list<ccl::Attribute>::iterator attr_i = mesh->attributes.attributes.begin();
 	size_t i = 0;
 	while (attr_i != mesh->attributes.attributes.end())
@@ -567,34 +567,35 @@ void populate_bake_data(ccl::Mesh* mesh, size_t uv_map_index, BakingContext* bak
 		{
 			if (i == uv_map_index)
 			{
-				// fdata = attr_i->data_float2();
-				// TODO: check baking, we change uv attribute
 				fdata = attr_i->data_for_write<ccl::float2>();
+				break;
 			}
 			i++;
 		}
 		++attr_i;
 	}
 
-	size_t triangles_count = mesh->num_triangles();
+	if (fdata) {
+		size_t triangles_count = mesh->num_triangles();
 
-	for (size_t i = 0; i < triangles_count; i++)
-	{
-		bd.primitive_id = i;
-		float vec[3][2];
-
-		ccl::Mesh::Triangle triangle = mesh->get_triangle(i);
-		for (size_t j = 0; j < 3; j++)
+		for (size_t i = 0; i < triangles_count; i++)
 		{
-			ccl::float2 uv = fdata[i * 3 + j];
-			vec[j][0] = uv[0] * (float)bd.bk_image->width - (0.5f + 0.001f);
-			vec[j][1] = uv[1] * (float)bd.bk_image->height - (0.5f + 0.002f);
+			bd.primitive_id = i;
+			float vec[3][2];
+
+			ccl::Mesh::Triangle triangle = mesh->get_triangle(i);
+			for (size_t j = 0; j < 3; j++)
+			{
+				ccl::float2 uv = fdata[i * 3 + j];
+				vec[j][0] = uv[0] * (float)bd.bk_image->width - (0.5f + 0.001f);
+				vec[j][1] = uv[1] * (float)bd.bk_image->height - (0.5f + 0.002f);
+			}
+
+			bake_differentials(&bd, vec[0], vec[1], vec[2]);
+			zspan_scanconvert(bd.zspan, &bd, vec[0], vec[1], vec[2], store_bake_pixel);
 		}
-
-		bake_differentials(&bd, vec[0], vec[1], vec[2]);
-		zspan_scanconvert(bd.zspan, &bd, vec[0], vec[1], vec[2], store_bake_pixel);
 	}
-
+	
 	BakePixel* bp = bd.pixel_array;
 	for (size_t y = 0; y < image_height; y++)
 	{
@@ -610,10 +611,10 @@ void populate_bake_data(ccl::Mesh* mesh, size_t uv_map_index, BakingContext* bak
 	delete bd.zspan;
 }
 
-size_t get_uv_attribute_index(ccl::Mesh* mesh, const ccl::ustring &uv_name)
+int get_uv_attribute_index(ccl::Mesh* mesh, const ccl::ustring &uv_name)
 {
 	ccl::AttributeSet& attr_set = mesh->attributes;
-	size_t index = 0;
+	int index = 0;
 	for(const ccl::Attribute & attr : attr_set.attributes)
 	{
 		if (attr.std == ccl::ATTR_STD_UV)
@@ -626,7 +627,7 @@ size_t get_uv_attribute_index(ccl::Mesh* mesh, const ccl::ustring &uv_name)
 		}
 	}
 
-	return 0;
+	return -1;
 }
 
 // this function called after scene is synced
@@ -674,10 +675,11 @@ void sync_baking(ccl::Scene* scene, UpdateContext* update_context, BakingContext
 
 		ccl::Mesh* mesh = (ccl::Mesh*)object->get_geometry();
 		baking_context->setup(bake_width, bake_height);
-		size_t uv_index = get_uv_attribute_index(mesh, ccl::ustring(baking_uv_name.GetAsciiString()));
-
-		populate_bake_data(mesh, uv_index, baking_context);
-		scene->bake_manager->set_baking(scene, true);
-		scene->bake_manager->set_use_camera(baking_context->get_use_camera());
+		int uv_index = get_uv_attribute_index(mesh, ccl::ustring(baking_uv_name.GetAsciiString()));
+		if (uv_index >= 0) {
+			populate_bake_data(mesh, (size_t)uv_index, baking_context);
+			scene->bake_manager->set_baking(scene, true);
+			scene->bake_manager->set_use_camera(baking_context->get_use_camera());
+		}
 	}
 }

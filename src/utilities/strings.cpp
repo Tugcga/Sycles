@@ -266,20 +266,17 @@ std::string build_source_image_path(const XSI::CString &path, const XSI::CString
 		if (allow_tile)
 		{
 			// find the first appearence of the 1001 from the right side, and change it to <UDIM>
-			size_t i = path.Length() - 4;
-			while (i >= 0)
-			{
-				if (path.GetSubString(i, 4) == XSI::CString("1001"))
-				{
-					change_to_udims = true;
-					return std::string((path.GetSubString(0, i) + "<UDIM>" + path.GetSubString(i + 4)).GetAsciiString());
-				}
-				else
-				{
-					i = i - 1;
-				}
+			std::string path_str = path.GetAsciiString();
+			size_t last_slash = path_str.find_last_of("/\\");
+			size_t filename_start = (last_slash == std::string::npos) ? 0 : last_slash + 1;
+			std::string filename = path_str.substr(filename_start);
+
+			size_t pos = filename.rfind("1001");
+			if (pos != std::string::npos) {
+				path_str.replace(filename_start + pos, 4, "<UDIM>");
 			}
-			return path.GetAsciiString();
+			
+			return path_str;
 		}
 		else
 		{
