@@ -461,7 +461,11 @@ inline std::string parse_file_name(const std::string& in_filename, int frame)
 XSI::CString vdbprimitive_inputs_to_path(const XSI::CParameterRefArray& params, const XSI::CTime& eval_time)
 {
 	XSI::CString full_path = XSI::CUtils::ResolveTokenString(XSI::CString(params.GetValue("folder", eval_time)), eval_time, false);
-	if (full_path[full_path.Length() - 1] != '//')
+	if (full_path.Length() == 0) {
+		return full_path;
+	}
+
+	if (full_path[full_path.Length() - 1] != '\\')
 	{
 		full_path += XSI::CUtils::Slash();
 	}
@@ -529,6 +533,30 @@ std::vector<std::string> extract_string_literals(const std::string& shader_code)
 			result.push_back(literal.substr(1, literal.size() - 2));
 		}
 		start = match[0].second;
+	}
+
+	return result;
+}
+
+std::string sanitize_string(const std::string& input, const std::string& default_str) {
+	if (input.empty()) { 
+		return default_str; 
+	}
+
+	std::string result;
+	result.reserve(input.size());
+
+	for (unsigned char ch : input) {
+		if (std::isalnum(ch)) {
+			result.push_back(static_cast<char>(ch));
+		}
+		else {
+			result.push_back('_');
+		}
+	}
+
+	if (result.empty()) {
+		return default_str;
 	}
 
 	return result;

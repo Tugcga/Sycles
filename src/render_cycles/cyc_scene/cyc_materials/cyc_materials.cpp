@@ -293,7 +293,7 @@ void material_to_graph(ccl::Scene* scene, ccl::ShaderGraph* shader_graph, const 
 		// material_node is a valid root materialX node, so we can try to export it as osl
 		// but first we should check that osl is enabled
 		if (scene->params.shadingsystem == ccl::ShadingSystem::SHADINGSYSTEM_OSL) {
-			XSI::CString store_name = xsi_material.GetLibrary().GetName() + "_" + replace_letter(replace_letter(replace_letter(replace_letter(xsi_material.GetUniqueName(), '<', '_'), '>', '_'), ',', '_'), ' ', '_');
+			XSI::CString store_name = sanitize_string(xsi_material.GetUniqueName().GetAsciiString()).c_str();
 			make_materialx = sync_materialx_material(scene, shader_graph, update_context, material_node, store_name);
 		}
 		else {

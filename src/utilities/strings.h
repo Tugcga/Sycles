@@ -51,3 +51,4 @@ XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::
 
 XSI::CString replace_letter(const XSI::CString& input, char from, char to);
 std::vector<std::string> extract_string_literals(const std::string& shader_code);
+std::string sanitize_string(const std::string& input, const std::string& default_str = "file");

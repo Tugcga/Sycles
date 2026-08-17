@@ -4,10 +4,10 @@ std::string convert_port_name(const std::string& node_name, const std::string& p
 {
 	if (shader_names_map.contains(node_name))
 	{
-		std::unordered_map<std::string, std::string> node_map = shader_names_map[node_name];
+		const std::unordered_map<std::string, std::string>& node_map = shader_names_map.at(node_name);
 		if (node_map.contains(port_name))
 		{
-			return node_map[port_name];
+			return node_map.at(port_name);
 		}
 		else
 		{

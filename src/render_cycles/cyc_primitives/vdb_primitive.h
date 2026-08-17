@@ -165,7 +165,7 @@ struct VDBPrimitivesDataContainer
 		}
 	}
 
-	VDBData get(XSI::CustomPrimitive& in_prim)
+	VDBData* get(XSI::CustomPrimitive& in_prim)
 	{
 		ULONG prim_id = in_prim.GetObjectID();
 		XSI::CParameterRefArray& params = in_prim.GetParameters();
@@ -180,25 +180,23 @@ struct VDBPrimitivesDataContainer
 			id.obj_name = in_prim.GetName();
 			if (find_index_by_path(id, index))
 			{
-				return vdb_datas[index];
+				return &vdb_datas[index];
 			}
 			else
 			{//the primitive is new, try to add it
 				VDBData data;
 				data.init(file_path);
-				if (data.is_valid)
-				{
-					vdb_ids.push_back(id);
-					vdb_datas.push_back(data);
+				if (!data.is_valid) {
+					return nullptr;
 				}
-				return data;
+				vdb_ids.push_back(id);
+				vdb_datas.push_back(std::move(data));
+				return &vdb_datas.back();
 			}
 		}
 		else
 		{
-			VDBData data;
-			data.is_valid = false;
-			return data;
+			return nullptr;
 		}
 	}
 
@@ -258,4 +256,4 @@ struct VDBPrimitivesDataContainer
 	std::vector<VDBData> vdb_datas;
 };
 
-VDBData get_vdb_data(XSI::CustomPrimitive& in_prim);
+VDBData* get_vdb_data(XSI::CustomPrimitive& in_prim);

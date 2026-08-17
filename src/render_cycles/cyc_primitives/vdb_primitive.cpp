@@ -191,14 +191,14 @@ void build_vdb_ui(XSI::PPGLayout& layout, XSI::CustomPrimitive& in_prim)
 
 	layout.AddItem("force_load_grids", "Load All Grids");
 
-	VDBData data = vdb_cache.get(in_prim);
+	VDBData* data = vdb_cache.get(in_prim);
 
-	if (data.is_valid)
+	if (data && data->is_valid)
 	{
 		XSI::CValueArray grids_combobox;
-		for (ULONG i = 0; i < data.grids_count; i++)
+		for (ULONG i = 0; i < data->grids_count; i++)
 		{
-			grids_combobox.Add(data.grid_names[i]);
+			grids_combobox.Add(data->grid_names[i]);
 			grids_combobox.Add(i);
 		}
 
@@ -210,9 +210,9 @@ void build_vdb_ui(XSI::PPGLayout& layout, XSI::CustomPrimitive& in_prim)
 		{
 			index = 0;
 		}
-		if (index >= data.grids_count)
+		if (index >= data->grids_count)
 		{
-			index = data.grids_count - 1;
+			index = data->grids_count - 1;
 		}
 
 		in_prim.PutParameterValue("grid_index", (LONG)index);
@@ -220,7 +220,7 @@ void build_vdb_ui(XSI::PPGLayout& layout, XSI::CustomPrimitive& in_prim)
 		layout.EndGroup();
 		// set static text
 		layout.AddGroup("Statistics");
-		std::vector<XSI::CString> text_content = data.get_description(index);
+		std::vector<XSI::CString> text_content = data->get_description(index);
 		for (ULONG i = 0; i < text_content.size(); i++)
 		{
 			layout.AddStaticText(text_content[i]);
@@ -323,19 +323,21 @@ SICALLBACK VDBPrimitive_BoundingBox(const XSI::CRef& in_ref)
 	}
 
 	XSI::CParameterRefArray& params = in_prim.GetParameters();
-	VDBData data = vdb_cache.get(in_prim);
-	if (data.is_valid)
+	VDBData* data = vdb_cache.get(in_prim);
+	if (data && data->is_valid)
 	{
 		int grid_index = params.GetValue("grid_index");
-		if (grid_index >= 0 && grid_index < data.grids_count)
+		if (grid_index >= 0 && grid_index < data->grids_count)
 		{
-			double* bb = data.get_bb(grid_index);
+			double* bb = data->get_bb(grid_index);
 			in_ctxt.PutAttribute("LowerBoundX", bb[0]);
 			in_ctxt.PutAttribute("LowerBoundY", bb[1]);
 			in_ctxt.PutAttribute("LowerBoundZ", bb[2]);
 			in_ctxt.PutAttribute("UpperBoundX", bb[3]);
 			in_ctxt.PutAttribute("UpperBoundY", bb[4]);
 			in_ctxt.PutAttribute("UpperBoundZ", bb[5]);
+
+			delete bb;
 		}
 	}
 	else
@@ -361,11 +363,11 @@ SICALLBACK VDBPrimitive_Draw(const XSI::CRef& in_ref)
 	}
 
 	XSI::CParameterRefArray& params = in_prim.GetParameters();
-	VDBData data = vdb_cache.get(in_prim);
+	VDBData* data = vdb_cache.get(in_prim);
 	int grid_index = params.GetValue("grid_index");
-	if (grid_index >= 0 && grid_index < data.grids_count)
+	if (grid_index >= 0 && data && grid_index < data->grids_count)
 	{
-		double* bb = data.get_bb(grid_index);
+		double* bb = data->get_bb(grid_index);
 		double boxMinPt[3];
 		double boxMaxPt[3];
 
@@ -376,6 +378,8 @@ SICALLBACK VDBPrimitive_Draw(const XSI::CRef& in_ref)
 		boxMaxPt[0] = bb[3];
 		boxMaxPt[1] = bb[4];
 		boxMaxPt[2] = bb[5];
+
+		delete bb;
 
 		GLdouble l_Verts[8][3];
 
@@ -436,7 +440,7 @@ SICALLBACK VDBPrimitive_Draw(const XSI::CRef& in_ref)
 
 		if (params.GetValue("visual"))
 		{
-			openvdb::GridBase::Ptr grid = data.grids[grid_index];
+			openvdb::GridBase::Ptr grid = data->grids[grid_index];
 			ULONG voxels_count = grid->activeVoxelCount();
 			// next for different data types
 			if (grid->isType<openvdb::FloatGrid>())
@@ -549,7 +553,7 @@ SICALLBACK VDBPrimitive_Draw(const XSI::CRef& in_ref)
 	return XSI::CStatus::OK;
 }
 
-VDBData get_vdb_data(XSI::CustomPrimitive& in_prim)
+VDBData* get_vdb_data(XSI::CustomPrimitive& in_prim)
 {
 	return vdb_cache.get(in_prim);
 }
