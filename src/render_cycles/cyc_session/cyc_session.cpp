@@ -88,7 +88,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 #ifdef WITH_OSL
 		// osl can be activated only if either cpu or optix gpu is activated
 		session_params.shadingsystem = use_osl ? 
-			(use_cpu || use_optix_gpu ? ccl::SHADINGSYSTEM_OSL : ccl::SHADINGSYSTEM_SVM) :
+			(use_cpu /* || use_optix_gpu*/ ? ccl::SHADINGSYSTEM_OSL : ccl::SHADINGSYSTEM_SVM) :
 			ccl::SHADINGSYSTEM_SVM;
 #else
 		session_params.shadingsystem = ccl::SHADINGSYSTEM_SVM;
@@ -124,7 +124,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 			}
 		}
 
-		bool use_osl_device = false;  // for now osl can be rendered by cou and optix
+		bool use_osl_device = false;  // for now osl can be rendered by cpu only
 		size_t selected_count = selected_indices.size();
 		if (selected_count <= 1)
 		{
@@ -137,8 +137,8 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 				session_params.device = available_devices[selected_indices[0]];
 			}
 
-			if (session_params.device.type == ccl::DeviceType::DEVICE_CPU ||
-				session_params.device.type == ccl::DeviceType::DEVICE_OPTIX)
+			if (session_params.device.type == ccl::DeviceType::DEVICE_CPU 
+				/* || session_params.device.type == ccl::DeviceType::DEVICE_OPTIX*/)
 			{
 				use_osl_device = true;
 			}
@@ -213,7 +213,8 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 
 		if (client_want_osl && !use_osl_device)
 		{
-			log_warning(XSI::CString("OSL shading system supports only single CPU or single OPTIX rendering. Switched to SVM shading system."));
+			// log_warning(XSI::CString("OSL shading system supports only single CPU or single OPTIX rendering. Switched to SVM shading system."));
+			log_warning(XSI::CString("OSL shading system supports only single CPU rendering. Switched to SVM shading system."));
 		}
 
 		session_params.use_profiling = false;

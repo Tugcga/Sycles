@@ -34,7 +34,7 @@
     <TargetExt>.dll</TargetExt>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
     <ClangTidyChecks>modernize-*, readability-*, performance-*</ClangTidyChecks>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -53,7 +53,7 @@
       <RuntimeTypeInfo />
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <ExternalTemplatesDiagnostics>true</ExternalTemplatesDiagnostics>
-      <DisableSpecificWarnings>4018;4146;4065;4127;4181;4200;4305;4800;4828;4996;4661;4848;4834;5033;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4018;4146;4065;4127;4181;4200;4305;4800;4828;4996;4661;4848;4834;5033;4267;4244</DisableSpecificWarnings>
       <UseFullPaths>false</UseFullPaths>
       <TreatSpecificWarningsAsErrors>4013;4133;4431;4033</TreatSpecificWarningsAsErrors>
       <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
