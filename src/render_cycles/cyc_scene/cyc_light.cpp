@@ -286,6 +286,40 @@ void sync_xsi_light_object(ccl::Object* light_object, const XSI::Light& xsi_ligh
 	light_object->tag_random_id_modified();
 }
 
+ccl::Light* create_light_of_type(ccl::Scene* scene, ccl::LightType light_type) {
+	ccl::Light* light = NULL;
+	if (light_type == ccl::LightType::LIGHT_POINT) {
+		light = scene->create_light_node<ccl::PointLight>();
+	}
+	else if (light_type == ccl::LightType::LIGHT_SPOT) {
+		light = scene->create_light_node<ccl::SpotLight>();
+	}
+	else if (light_type == ccl::LightType::LIGHT_SUN) {
+		light = scene->create_light_node<ccl::SunLight>();
+	}
+	else if (light_type == ccl::LightType::LIGHT_AREA) {
+		light = scene->create_light_node<ccl::AreaLight>();
+	}
+
+	return light;
+}
+
+ccl::Light* create_light_of_custom_type(ccl::Scene* scene, CustomLightType light_type) {
+	if (light_type == CustomLightType::CustomLightType_Point) {
+		return create_light_of_type(scene, ccl::LightType::LIGHT_POINT);
+	}
+	else if (light_type == CustomLightType::CustomLightType_Spot) {
+		return create_light_of_type(scene, ccl::LightType::LIGHT_SPOT);
+	}
+	else if (light_type == CustomLightType::CustomLightType_Sun) {
+		return create_light_of_type(scene, ccl::LightType::LIGHT_SUN);
+	}
+	else if (light_type == CustomLightType::CustomLightType_Area) {
+		return create_light_of_type(scene, ccl::LightType::LIGHT_AREA);
+	}
+	return NULL;
+}
+
 void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContext* update_context)
 {
 	update_context->add_sync_profiler_time_start(SyncType::Light, xsi_light.GetObjectID(), xsi_light.GetFullName());
@@ -298,19 +332,8 @@ void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContex
 
 	// create Cycles light
 	ccl::LightType light_type = recognise_light_type(xsi_light, eval_time);
-	ccl::Light* light = NULL;
-	if (light_type == ccl::LIGHT_POINT) {
-		light = scene->create_light_node<ccl::PointLight>();
-	}
-	else if (light_type == ccl::LIGHT_SPOT) {
-		light = scene->create_light_node<ccl::SpotLight>();
-	}
-	else if (light_type == ccl::LIGHT_SUN) {
-		light = scene->create_light_node<ccl::SunLight>();
-	}
-	else if (light_type == ccl::LIGHT_AREA) {
-		light = scene->create_light_node<ccl::AreaLight>();
-	}
+	ccl::Light* light = create_light_of_type(scene, light_type);
+	
 	if (light != NULL) {
 		light_object->set_geometry(light);
 
@@ -536,30 +559,19 @@ void sync_custom_light(ccl::Scene* scene, const XSI::X3DObject & xsi_object, Upd
 				ccl::Object* light_object = scene->create_node<ccl::Object>();
 				update_context->add_light_index(xsi_object.GetObjectID(), scene->objects.size() - 1);
 
-				ccl::Light* light = NULL;
-				if (light_type == CustomLightType_Point) {
-					light = scene->create_light_node<ccl::PointLight>();
-				}
-				else if (light_type == CustomLightType_Spot) {
-					light = scene->create_light_node<ccl::SpotLight>();
-				}
-				else if (light_type == CustomLightType_Sun) {
-					light = scene->create_light_node<ccl::SunLight>();
-				}
-				else if (light_type == CustomLightType_Area) {
-					light = scene->create_light_node<ccl::AreaLight>();
-				}
+				ccl::Light* light = create_light_of_custom_type(scene, light_type);
+				if (light) {
+					light_object->set_geometry(light);
+					ccl::Shader* shader = scene->shaders[shader_index];
+					ccl::array<ccl::Node*> used_shaders;
+					used_shaders.push_back_slow(shader);
+					light->set_used_shaders(used_shaders);
 
-				light_object->set_geometry(light);
-				ccl::Shader* shader = scene->shaders[shader_index];
-				ccl::array<ccl::Node*> used_shaders;
-				used_shaders.push_back_slow(shader);
-				light->set_used_shaders(used_shaders);
-
-				XSI::CParameterRefArray xsi_parameters = xsi_object.GetParameters();
-				sync_custom_light_geometry(light, light_type, xsi_parameters, eval_time);
-				sync_custom_light_object(light_object, xsi_object, update_context);
-				light->set_use_caustics(xsi_parameters.GetValue("shadow_caustics", eval_time));
+					XSI::CParameterRefArray xsi_parameters = xsi_object.GetParameters();
+					sync_custom_light_geometry(light, light_type, xsi_parameters, eval_time);
+					sync_custom_light_object(light_object, xsi_object, update_context);
+					light->set_use_caustics(xsi_parameters.GetValue("shadow_caustics", eval_time));
+				}
 			}
 		}
 	}
@@ -660,18 +672,31 @@ XSI::CStatus update_xsi_light(ccl::Scene* scene, UpdateContext* update_context, 
 		for (size_t i = 0; i < light_indexes.size(); i++)
 		{
 			size_t light_index = light_indexes[i];
+			ccl::LightType light_type = recognise_light_type(xsi_light, eval_time);
 			ccl::Object* light_object = scene->objects[light_index];
 			ccl::Geometry* object_geometry = light_object->get_geometry();
+			ccl::Light* object_light = static_cast<ccl::Light*>(object_geometry);
+			if (object_light->get_light_type() != light_type) {
+				
+				object_light = create_light_of_type(scene, light_type);
+				if (!object_light) {
+					return XSI::CStatus::Abort;
+				}
+				else {
+					object_geometry = static_cast<ccl::Geometry*>(object_light);
+				}
+				light_object->set_geometry(object_light);
+			}
+
 			if (object_geometry->geometry_type == ccl::Geometry::POINT_LIGHT || 
 				object_geometry->geometry_type == ccl::Geometry::SPOT_LIGHT || 
 				object_geometry->geometry_type == ccl::Geometry::SUN_LIGHT || 
 				object_geometry->geometry_type == ccl::Geometry::AREA_LIGHT) {
-				ccl::Light* light = static_cast<ccl::Light*>(object_geometry);
-				ccl::LightType light_type = recognise_light_type(xsi_light, eval_time);
-				sync_xsi_light_geometry(scene, light, light_type, build_xsi_light_shader(scene, xsi_light, update_context), xsi_light, eval_time);
+				
+				sync_xsi_light_geometry(scene, object_light, light_type, build_xsi_light_shader(scene, xsi_light, update_context), xsi_light, eval_time);
 				sync_xsi_light_object(light_object, xsi_light, update_context);
 				
-				light->tag_update(scene);
+				object_light->tag_update(scene);
 				light_object->tag_update(scene);
 			}
 			else {
