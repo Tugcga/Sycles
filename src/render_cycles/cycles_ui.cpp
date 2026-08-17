@@ -715,12 +715,16 @@ void set_colormanagement(XSI::CustomProperty& prop)
 	cm_gamma.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
 
 	OCIOConfig ocio_config = get_ocio_config();
-	int display_index = cm_display_index.GetValue();
-	OCIODisplay ocio_display = ocio_config.displays[display_index];
-	int views_count = ocio_display.views_count;
-	if ((int)cm_view_index.GetValue() >= views_count)
-	{
-		cm_view_index.PutValue(views_count - 1);
+	if (ocio_config.is_init) {
+		int display_index = cm_display_index.GetValue();
+		if (display_index < ocio_config.displays.size()) {
+			OCIODisplay ocio_display = ocio_config.displays[display_index];
+			int views_count = (int)ocio_display.views_count;
+			if ((int)cm_view_index.GetValue() >= views_count)
+			{
+				cm_view_index.PutValue(views_count - 1);
+			}
+		}
 	}
 }
 
@@ -986,7 +990,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("performance_simplify_cull_distance_margin", XSI::CValue::siFloat, caps, "", "", 50.0, 0.0, FLT_MAX, 0.0, 100.0, param);
 
 	// color management tab
-	OCIOConfig ocio_config = get_ocio_config();
+	// OCIOConfig ocio_config = get_ocio_config();
 	property.AddParameter("cm_apply_to_ldr", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("cm_mode", XSI::CValue::siInt4, caps, "", "", 0, param);
 	property.AddParameter("cm_display_index", XSI::CValue::siInt4, caps, "", "", 0, param);  // <-- default device index
