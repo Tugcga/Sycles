@@ -58,6 +58,9 @@ void BakingContext::setup(ULONG in_width, ULONG in_height)
 	height = in_height;
 	size_t pixles_count = in_width * in_height;
 
+	delete buffer_primitive_id;
+	delete buffer_differencial;
+	delete buffer_seed;
 	buffer_primitive_id = new ImageBuffer(width, height, 3);
 	buffer_differencial = new ImageBuffer(width, height, 4);
 	buffer_seed = new ImageBuffer(width, height, 1);
