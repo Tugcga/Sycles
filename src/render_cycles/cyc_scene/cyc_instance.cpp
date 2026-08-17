@@ -65,6 +65,11 @@ XSI::MATH::CTransformation calc_finall_instance_tfm(XSI::CString& master_object_
 		XSI::X3DObject xsi_master_root(xsi_master_root_item);
 		XSI::X3DObject xsi_master_object(xsi_master_object_item);
 
+		if (!xsi_master_root.IsValid() || !xsi_master_object.IsValid()) {
+			log_warning("Invalid pair of instance master root and object with ids " + XSI::CString(master_id) + " " + XSI::CString(object_id) + ". Ignore it.");
+			continue;
+		}
+
 		if (i == 0)
 		{
 			master_object_type = xsi_master_object.GetType();  // actual object at the end of the array
@@ -170,6 +175,9 @@ XSI::CStatus update_instance_transform(ccl::Scene* scene, UpdateContext *update_
 				ULONG host_id = nested_to_host_instances_ids[i];
 				XSI::ProjectItem host_item = XSI::Application().GetObjectFromID(host_id);
 				XSI::Model host_model(host_item);
+				if (!host_model.IsValid()) {
+					return XSI::CStatus::Abort;
+				}
 				XSI::KinematicState host_kine = host_model.GetKinematics().GetGlobal();
 
 				if (update_context->is_light_from_instance_data_contains_id(host_id))
@@ -227,6 +235,9 @@ XSI::CStatus update_instance_transform_from_master_object(ccl::Scene* scene, Upd
 
 			XSI::ProjectItem xsi_instance_item = XSI::Application().GetObjectFromID(xsi_instance_id);
 			XSI::Model xsi_instance_model(xsi_instance_item);
+			if (!xsi_instance_model.IsValid()) {
+				return XSI::CStatus::Abort;
+			}
 			XSI::KinematicState xsi_instance_kine = xsi_instance_model.GetKinematics().GetGlobal();
 			
 			update_instance_light_transform(scene, update_context, xsi_instance_id, xsi_instance_kine, eval_time);

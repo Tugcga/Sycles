@@ -650,6 +650,10 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 				bool is_branch_selected = shape.IsBranchSelected();  // if true, then we should export the whole hierarchy, if false - then only the root object
 				ULONG shape_ref_id = shape.GetReferenceID();
 				XSI::X3DObject master_root = (XSI::X3DObject)XSI::Application().GetObjectFromID(shape_ref_id);
+				if (!master_root.IsValid()) {
+					log_warning("Invalid master object with id " + XSI::CString(shape_ref_id) + " for the instance.");
+					continue;
+				}
 
 				// now we are ready to create instance of the root object
 				XSI::CRefArray children = get_instance_children(master_root, is_branch_selected);
