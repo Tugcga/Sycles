@@ -97,9 +97,9 @@ std::array<float, 2> get_min_and_max(const XSI::FCurve &c1, const XSI::FCurve &c
 	float min1 = c1.GetKeyAtIndex(0).GetTime();
 	float max1 = c1.GetKeyAtIndex(c1.GetNumKeys() - 1).GetTime();
 	float min2 = c2.GetKeyAtIndex(0).GetTime();
-	float max2 = c1.GetKeyAtIndex(c1.GetNumKeys() - 1).GetTime();
+	float max2 = c2.GetKeyAtIndex(c2.GetNumKeys() - 1).GetTime();
 	float min3 = c3.GetKeyAtIndex(0).GetTime();
-	float max3 = c1.GetKeyAtIndex(c1.GetNumKeys() - 1).GetTime();
+	float max3 = c3.GetKeyAtIndex(c3.GetNumKeys() - 1).GetTime();
 
 	to_return[0] = get_minimum(min1, min2, min3);
 	to_return[1] = get_maximum(max1, max2, max3);
@@ -124,6 +124,11 @@ ccl::array<ccl::packed_float3> three_curves_to_array(const XSI::FCurve& c1, cons
 
 void form_ramp(std::vector<GradientPoint>& gradient, int size, ccl::array<ccl::packed_float3>& colors, ccl::array<float>& alphas)
 {
+	if (gradient.size() == 0) {
+		// nothing to do, output colors and alphas are empty
+		return;
+	}
+
 	ccl::array<int> order_indexes;
 	order_indexes.resize(gradient.size());
 	order_indexes[0] = 0;

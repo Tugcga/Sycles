@@ -38,8 +38,8 @@ void write_output_ppm(size_t width, size_t height, size_t components, const std:
 		for (int i = 0; i < width; ++i)
 		{
 			float r = 256 * clamp_float(output_pixels[(j * width + i) * components], 0.0, 0.99);
-			float g = 256 * clamp_float(output_pixels[(j * width + i) * components + 1], 0.0, 0.99);
-			float b = 256 * clamp_float(output_pixels[(j * width + i) * components + 2], 0.0, 0.99);
+			float g = components >= 2 ? 256 * clamp_float(output_pixels[(j * width + i) * components + 1], 0.0, 0.99) : r;
+			float b = components >=3 ? 256 * clamp_float(output_pixels[(j * width + i) * components + 2], 0.0, 0.99) : r;
 
 			file << static_cast<int>(r) << ' '
 				 << static_cast<int>(g) << ' '
@@ -64,11 +64,12 @@ void write_output_pfm(size_t width, size_t height, size_t components, const std:
 		{
 			for (int w = 0; w < width; ++w)
 			{
-				for (int c = 0; c < 3; ++c)
-				{
-					const float x = pixels[(h * width + w) * components + c];
-					file.write((char*)&x, sizeof(float));
-				}
+				const float x = pixels[(h * width + w) * components];
+				const float y = components >= 2 ? pixels[(h * width + w) * components + 1] : x;
+				const float z = components >= 3 ? pixels[(h * width + w) * components + 2] : x;
+				file.write((char*)&x, sizeof(float));
+				file.write((char*)&y, sizeof(float));
+				file.write((char*)&z, sizeof(float));
 			}
 		}
 	}
@@ -290,9 +291,9 @@ void write_multilayer_exr(size_t width, size_t height, OutputContext* output_con
 				header.channels().insert("Labels.A", Imf::Channel(Imf::FLOAT));
 
 				output_context->extract_lables_channel(0, &r_pixels[0], true);
-				output_context->extract_lables_channel(0, &g_pixels[0], true);
-				output_context->extract_lables_channel(0, &b_pixels[0], true);
-				output_context->extract_lables_channel(0, &a_pixels[0], true);
+				output_context->extract_lables_channel(1, &g_pixels[0], true);
+				output_context->extract_lables_channel(2, &b_pixels[0], true);
+				output_context->extract_lables_channel(3, &a_pixels[0], true);
 
 				frame_buffer.insert("Labels.R", Imf::Slice(Imf::FLOAT, (char*)&r_pixels[0], sizeof(float), sizeof(float) * width));
 				frame_buffer.insert("Labels.G", Imf::Slice(Imf::FLOAT, (char*)&g_pixels[0], sizeof(float), sizeof(float) * width));

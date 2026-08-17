@@ -1206,9 +1206,33 @@ std::tuple<std::string, std::vector<std::tuple<std::string, std::string>>, std::
 	std::string mx_path = search_file(materialx_nodes.GetAsciiString(), full_name + ".mtlx");
 	if (mx_path.size() > 0) {
 		MaterialX::DocumentPtr doc = MaterialX::createDocument();
-		MaterialX::readFromXmlFile(doc, mx_path);
+		bool valid_doc = false;
+		try {
+			MaterialX::readFromXmlFile(doc, mx_path);
+			valid_doc = true;
+		}
+		catch (const MaterialX::ExceptionParseError& error) {
+			log_warning(" materialX parse error: " + XSI::CString(error.what()));
+			valid_doc = false;
+		}
+		catch (const MaterialX::ExceptionFileMissing& error) {
+			log_warning("MaterialX file missing error: " + XSI::CString(error.what()));
+			valid_doc = false;
+		}
+		
+		if (!valid_doc) {
+			std::vector<std::tuple<std::string, std::string>> a;
+			std::vector<std::tuple<std::string, std::string>> b;
+			return std::make_tuple("", a, b);
+		}
 
 		MaterialX::NodeDefPtr mx_def = doc->getNodeDef(full_name);
+
+		if (!mx_def) {
+			std::vector<std::tuple<std::string, std::string>> a;
+			std::vector<std::tuple<std::string, std::string>> b;
+			return std::make_tuple("", a, b);
+		}
 
 		std::vector<std::tuple<std::string, std::string>> inputs_data;
 		std::vector<MaterialX::InputPtr> mx_inputs = mx_def->getInputs();
