@@ -42,7 +42,7 @@ bool is_pointcloud_volume(const XSI::X3DObject &xsi_object, const XSI::CTime &ev
 		XSI::ICEAttribute xsi_attribute = attributes.GetItem(i);
 		XSI::CString xsi_name = xsi_attribute.GetName();
 		if (xsi_name.Length() < 5) {
-			return false;
+			continue;
 		}
 		// try to find _size name
 		XSI::CString name_end = xsi_name.GetSubString(xsi_name.Length() - 5, 5);
