@@ -36,6 +36,14 @@ projection_enum = [
     "Tube", "tube"
 ]
 
+alphas_enum = [
+    "Auto", "auto",
+    "Streight", "unassociated",
+    "Premultiply", "associated",
+    "Channel Packed", "channel_packed",
+    "None", "ignore"
+]
+
 env_projection_enum = [
     "Equirectangular", "equirectangular",
     "Mirror Ball", "mirrorball"
@@ -44,7 +52,8 @@ env_projection_enum = [
 sky_type_enum = [
     "Preetham", "preetham",
     "Hosek/Wilkil", "hosekwilkil",
-    "Nishita", "nishita"
+    "Single Scattering", "single_scattering",
+    "Multiple Scattering", "multiple_scattering"
 ]
 
 gradient_type_enum = [
@@ -377,6 +386,16 @@ bump_node_enum = [
     "DY", "dy"
 ]
 
+normalmap_convention_enum = [
+    "OpenGL", 0,
+    "DirectX", 1
+]
+
+normalmap_base_enum = [
+    "Original Base", 0,
+    "Displaced Base", 1
+]
+
 
 def XSILoadPlugin(in_reg):
     in_reg.Author = "Shekn Itrch"
@@ -452,6 +471,8 @@ def XSILoadPlugin(in_reg):
     in_reg.RegisterShader("CyclesWireframe", 1, 0)
     in_reg.RegisterShader("CyclesVolumeInfo", 1, 0)
     in_reg.RegisterShader("CyclesPointInfo", 1, 0)
+    in_reg.RegisterShader("CyclesRaycast", 1, 0)
+    in_reg.RegisterShader("CyclesSceneTime", 1, 0)
     # Color
     in_reg.RegisterShader("CyclesLightFalloff", 1, 0)
     in_reg.RegisterShader("CyclesInvert", 1, 0)
@@ -741,6 +762,8 @@ def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_Define(in_ctxt):
     add_input_float(standard_pram_options(), params, 0.5, "Roughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.0, "Rotation", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "ThinFilmThickness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.33, "ThinFilmIOR", 1.0, 4.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
     add_input_normal(standard_pram_options(), params, 0.0, "Tangent")
 
@@ -771,6 +794,10 @@ def CyclesShadersPlugin_CyclesMetallicBSDF_1_0_Define(in_ctxt):
     ppg_layout.AddItem("Roughness", "Roughness")
     ppg_layout.AddItem("Anisotropy", "Anisotropy")
     ppg_layout.AddItem("Rotation", "Rotation")
+    ppg_layout.EndGroup()
+    ppg_layout.AddGroup("This Film")
+    ppg_layout.AddItem("ThinFilmThickness", "Thickness")
+    ppg_layout.AddItem("ThinFilmIOR", "IOR")
     ppg_layout.EndGroup()
 
     ppg_layout.Language = "Python"
@@ -835,6 +862,11 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     add_input_float(standard_pram_options(), params, 0.0, "DiffuseRoughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.45, "IOR", 0.0, 4.0)
     add_input_float(standard_pram_options(), params, 1.0, "Alpha", 0.0, 1.0)
+    
+    # this parameter for connections, does not show on UI
+    add_input_integer(standard_pram_options(), params, 0, "ThinWall", 0, 1)
+    # this show on PPG, does not used for conenctions
+    add_input_boolean(no_port_pram_options(), params, False, "thin_wall_bool")
 
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
 
@@ -846,7 +878,7 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     add_input_float(no_port_pram_options(), params, 0.1, "RadiusZ", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 0.05, "SubsurfaceScale", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.4, "SubsurfaceIOR", 1.01, 3.8)
-    add_input_float(standard_pram_options(), params, 0.0, "SubsurfaceAnisotropy", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "SubsurfaceAnisotropy", -1.0, 1.0)
 
     add_input_string(no_port_pram_options(), params, "Multiscatter GGX", "Distribution")
     add_input_float(standard_pram_options(), params, 0.5, "SpecularIORLevel", 0.0, 1.0)
@@ -883,6 +915,8 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
     ppg_layout.AddItem("Metallic", "Metallic")
     ppg_layout.AddItem("Roughness", "Roughness")
     ppg_layout.AddItem("IOR", "IOR")
+    ppg_layout.AddItem("Alpha", "Alpha")
+    ppg_layout.AddItem("thin_wall_bool", "Thin Wall")
     ppg_layout.EndGroup()
 
     ppg_layout.AddTab("Diffuse")
@@ -943,7 +977,7 @@ def CyclesShadersPlugin_CyclesPrincipledBSDF_1_0_Define(in_ctxt):
 
     ppg_layout.AddTab("Thin Film")
     ppg_layout.AddGroup("Thin Film Parameters")
-    ppg_layout.AddColor("ThinFilmThickness", "Thickness")
+    ppg_layout.AddItem("ThinFilmThickness", "Thickness")
     ppg_layout.AddItem("ThinFilmIOR", "IOR")
     ppg_layout.EndGroup()
 
@@ -1145,6 +1179,8 @@ def CyclesShadersPlugin_CyclesGlassBSDF_1_0_Define(in_ctxt):
     add_input_color(standard_pram_options(), params, 0.8, "Color")
     add_input_float(standard_pram_options(), params, 0.0, "Roughness", 0.0, 1.0)
     add_input_float(standard_pram_options(), params, 1.45, "IOR", 1.0, 2.0)
+    add_input_float(standard_pram_options(), params, 0.0, "ThinFilmThickness", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 1.33, "ThinFilmIOR", 1.0, 4.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
 
     # Output Parameter: out
@@ -1157,7 +1193,8 @@ def CyclesShadersPlugin_CyclesGlassBSDF_1_0_Define(in_ctxt):
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.AddItem("Roughness", "Roughness")
     ppgLayout.AddItem("IOR", "IOR")
-    ppgLayout.EndGroup()
+    ppgLayout.AddItem("ThinFilmThickness", "Thin Film Thickness")
+    ppgLayout.AddItem("ThinFilmIOR", "Thin Film IOR")
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -1821,7 +1858,7 @@ def CyclesShadersPlugin_CyclesSubsurfaceScattering_1_0_Define(in_ctxt):
     add_input_vector(standard_pram_options(), params, [0.1, 0.1, 0.1], "SSSRadius")
     add_input_float(standard_pram_options(), params, 1.4, "IOR", 1.01, 3.8)
     add_input_float(standard_pram_options(), params, 1.0, "Roughness", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", 0.0, 1.0)
+    add_input_float(standard_pram_options(), params, 0.0, "Anisotropy", -1.0, 1.0)
     add_input_normal(standard_pram_options(), params, 0.0, "Normal")
 
     # Output Parameter: out
@@ -1897,7 +1934,9 @@ def CyclesShadersPlugin_CyclesImageTexture_1_0_Define(in_ctxt):
     add_input_float(no_port_pram_options(), params, 0.0, "ProjectionBlend", 0.0, 1.0)
     add_input_string(no_port_pram_options(), params, "Repeat", "Extension")
     add_input_vector(standard_pram_options(), params, 0.0, "Vector")
+    # this parameters stay here, but disable in ui
     add_input_boolean(no_port_pram_options(), params, True, "premultiply_alpha")
+    add_input_string(no_port_pram_options(), params, "auto", "alpha_type")
     # parameters for image sequences
     add_input_string(no_port_pram_options(), params, "single_image", "ImageSource")
     add_input_integer(no_port_pram_options(), params, 100, "ImageFrames", 0, 200)
@@ -1919,7 +1958,8 @@ def CyclesShadersPlugin_CyclesImageTexture_1_0_Define(in_ctxt):
     ppg_layout.AddEnumControl("Projection", projection_enum, "Projection")
     ppg_layout.AddItem("ProjectionBlend", "Blend")
     ppg_layout.AddEnumControl("Extension", extension_enum, "Extension")
-    ppg_layout.AddItem("premultiply_alpha", "Premultiply Alpha")
+    # ppg_layout.AddItem("premultiply_alpha", "Premultiply Alpha")
+    ppg_layout.AddEnumControl("alpha_type", alphas_enum, "Alpha")
     ppg_layout.EndGroup()
 
     ppg_layout.AddGroup("Source")
@@ -1995,6 +2035,7 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
     add_input_string(no_port_pram_options(), params, "equirectangular", "Projection")
     add_input_vector(standard_pram_options(), params, 0.0, "Vector")
     add_input_boolean(no_port_pram_options(), params, True, "premultiply_alpha")
+    add_input_string(no_port_pram_options(), params, "auto", "alpha_type")
     # parameters for image sequences
     add_input_string(no_port_pram_options(), params, "single_image", "ImageSource")
     add_input_integer(no_port_pram_options(), params, 100, "ImageFrames", 0, 200)
@@ -2013,7 +2054,7 @@ def CyclesShadersPlugin_CyclesEnvironmentTexture_1_0_Define(in_ctxt):
     ppg_layout.AddEnumControl("ColorSpace", color_space_enum, "Color Space")
     ppg_layout.AddEnumControl("Interpolation", interpolation_enum, "Interpolation")
     ppg_layout.AddEnumControl("Projection", env_projection_enum, "Projection")
-    ppg_layout.AddItem("premultiply_alpha", "Premultiply Alpha")
+    ppg_layout.AddEnumControl("alpha_type", alphas_enum, "Alpha")
     ppg_layout.EndGroup()
     ppg_layout.AddGroup("Source")
     ppg_layout.AddEnumControl("ImageSource", environment_image_mode_enum, "Image Source")
@@ -2070,7 +2111,7 @@ def CyclesShadersPlugin_CyclesSkyTexture_1_0_Define(in_ctxt):
 
     # Input Parameters
     params = shader_def.InputParamDefs
-    add_input_string(no_port_pram_options(), params, "nishita", "Type")
+    add_input_string(no_port_pram_options(), params, "multiple_scattering", "Type")
     add_input_float(no_port_pram_options(), params, 0, "SunDirectionX")
     add_input_float(no_port_pram_options(), params, 0, "SunDirectionY")
     add_input_float(no_port_pram_options(), params, 1, "SunDirectionZ")
@@ -2109,7 +2150,7 @@ def CyclesShadersPlugin_CyclesSkyTexture_1_0_Define(in_ctxt):
     ppg_layout.AddItem("GroundAlbedo", "Ground Albedo")
     ppg_layout.EndGroup()
 
-    ppg_layout.AddGroup("Nishita")
+    ppg_layout.AddGroup("Scattering")
     ppg_layout.AddItem("SunDisc", "Sun Disc")
     ppg_layout.AddItem("SunSize", "Sun Size")
     ppg_layout.AddItem("SunIntensity", "Sun Intensity")
@@ -2117,7 +2158,7 @@ def CyclesShadersPlugin_CyclesSkyTexture_1_0_Define(in_ctxt):
     ppg_layout.AddItem("SunRotation", "Sun Rotation")
     ppg_layout.AddItem("Altitude", "Altitude")
     ppg_layout.AddItem("Air", "Air")
-    ppg_layout.AddItem("Dust", "Dust")
+    ppg_layout.AddItem("Dust", "Aerosols")
     ppg_layout.AddItem("Ozone", "Ozone")
     ppg_layout.EndGroup()
 
@@ -3093,9 +3134,12 @@ def CyclesShadersPlugin_CyclesNormalMap_1_0_Define(in_ctxt):
     # Input Parameters
     params = shader_def.InputParamDefs
     add_input_string(no_port_pram_options(), params, "Tangent", "Space")
+    add_input_integer(no_port_pram_options(), params, 0, "convention")
+    add_input_integer(no_port_pram_options(), params, 1, "base")
     add_input_string(no_port_pram_options(), params, "", "Attribute")
     add_input_float(standard_pram_options(), params, 1.0, "Strength", 0.0, 1.0)
     add_input_color(standard_pram_options(), params, 0.0, "Color")
+
 
     # Output Parameter: out
     add_output_normal(shader_def, "Normal")
@@ -3104,6 +3148,8 @@ def CyclesShadersPlugin_CyclesNormalMap_1_0_Define(in_ctxt):
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddEnumControl("Space", noraml_map_space_enum, "Space")
+    ppgLayout.AddEnumControl("convention", normalmap_convention_enum, "Mode")
+    ppgLayout.AddEnumControl("base", normalmap_base_enum, "Base")
     # ppgLayout.AddItem("Attribute", "Attribute")  # not implemented
     ppgLayout.AddItem("Strength", "Strength")
     ppgLayout.AddItem("Color", "Color")
@@ -3296,6 +3342,7 @@ def CyclesShadersPlugin_CyclesVectorCurves_1_0_Define(in_ctxt):
     add_input_fcurve(no_port_pram_options(), params, "xCurve")
     add_input_fcurve(no_port_pram_options(), params, "yCurve")
     add_input_fcurve(no_port_pram_options(), params, "zCurve")
+    add_input_boolean(no_port_pram_options(), params, False, "extrapolate")
 
     # Output Parameter: out
     add_output_vector(shader_def, "Vector")
@@ -3303,6 +3350,7 @@ def CyclesShadersPlugin_CyclesVectorCurves_1_0_Define(in_ctxt):
     # next init ppg
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddItem("extrapolate", "Extrapolate")
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.AddItem("xCurve", "X Curve")
     ppgLayout.AddItem("yCurve", "Y Curve")
@@ -3493,6 +3541,7 @@ def CyclesShadersPlugin_CyclesLightPath_1_0_Define(in_ctxt):
     add_output_float(shader_def, "GlossyDepth")
     add_output_float(shader_def, "TransparentDepth")
     add_output_float(shader_def, "TransmissionDepth")
+    add_output_float(shader_def, "PortalDepth")
 
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
@@ -3582,6 +3631,71 @@ def CyclesShadersPlugin_CyclesPointInfo_1_0_Define(in_ctxt):
     # Renderer definition
     renderer_def = shader_def.AddRendererDef("Cycles")
     renderer_def.SymbolName = "PointInfo"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesRaycast_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Input")
+    in_ctxt.SetAttribute("DisplayName", "cycRaycast")
+    return True
+
+
+def CyclesShadersPlugin_CyclesRaycast_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+    add_input_boolean(no_port_pram_options(), params, False, "only_local")
+    add_input_vector(standard_pram_options(), params, 0.0, "Position")
+    add_input_vector(standard_pram_options(), params, 0.0, "Direction")
+    add_input_float(standard_pram_options(), params, 1.0, "Length", 0.0, 1.0)
+
+    # Output Parameter: out
+    add_output_float(shader_def, "IsHit")
+    add_output_float(shader_def, "SelfHit")
+    add_output_float(shader_def, "HitDistance")
+    add_output_vector(shader_def, "HitPosition")
+    add_output_float(shader_def, "HitNormal")
+
+    ppgLayout = shader_def.PPGLayout
+    ppgLayout.AddGroup("Parameters")
+    ppgLayout.AddItem("only_local", "Only Local")
+    ppgLayout.AddItem("Length", "Length")
+    ppgLayout.EndGroup()
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "Raycast"
+
+    return True
+
+
+# --------------------------------------------------------------------
+# --------------------------------------------------------------------
+def CyclesShadersPlugin_CyclesSceneTime_1_0_DefineInfo(in_ctxt):
+    in_ctxt.SetAttribute("Category", "Cycles/Input")
+    in_ctxt.SetAttribute("DisplayName", "cycSceneTime")
+    return True
+
+
+def CyclesShadersPlugin_CyclesSceneTime_1_0_Define(in_ctxt):
+    shader_def = in_ctxt.GetAttribute("Definition")
+    shader_def.AddShaderFamily(c.siShaderFamilyTexture)
+
+    # Input Parameters
+    params = shader_def.InputParamDefs
+
+    # Output Parameter: out
+    add_output_float(shader_def, "Seconds")
+    add_output_float(shader_def, "Frame")
+
+    # Renderer definition
+    renderer_def = shader_def.AddRendererDef("Cycles")
+    renderer_def.SymbolName = "SceneTime"
 
     return True
 
@@ -4537,6 +4651,7 @@ def CyclesShadersPlugin_CyclesRGBCurves_1_0_Define(in_ctxt):
     add_input_fcurve(no_port_pram_options(), params, "bCurve")
     add_input_float(standard_pram_options(), params, 1.0, "Fac", 0.0, 1.0)
     add_input_color(standard_pram_options(), params, 0.0, "Color")
+    add_input_boolean(no_port_pram_options(), params, False, "extrapolate")
 
     # Output Parameter: out
     add_output_color(shader_def, "Color")
@@ -4547,6 +4662,7 @@ def CyclesShadersPlugin_CyclesRGBCurves_1_0_Define(in_ctxt):
     ppgLayout.AddItem("rCurve", "R Curve")
     ppgLayout.AddItem("gCurve", "G Curve")
     ppgLayout.AddItem("bCurve", "B Curve")
+    ppgLayout.AddItem("extrapolate", "Extrapolate")
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
@@ -4577,6 +4693,7 @@ def CyclesShadersPlugin_CyclesColorCurves_1_0_Define(in_ctxt):
     add_input_fcurve(no_port_pram_options(), params, "Curve")
     add_input_float(standard_pram_options(), params, 1.0, "Fac", 0.0, 1.0)
     add_input_color(standard_pram_options(), params, 0.0, "Color")
+    add_input_boolean(no_port_pram_options(), params, False, "extrapolate")
 
     # Output Parameter: out
     add_output_color(shader_def, "Color")
@@ -4585,6 +4702,7 @@ def CyclesShadersPlugin_CyclesColorCurves_1_0_Define(in_ctxt):
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("Curve", "Curve")
+    ppgLayout.AddItem("extrapolate", "Extrapolate")
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.AddItem("Color", "Color")
     ppgLayout.EndGroup()
@@ -5455,7 +5573,8 @@ def CyclesShadersPlugin_CyclesFloatCurve_1_0_Define(in_ctxt):
     params = shader_def.InputParamDefs
     add_input_fcurve(no_port_pram_options(), params, "Curve")
     add_input_float(standard_pram_options(), params, 1.0, "Fac", 0.0, 1.0)
-    add_input_float(standard_pram_options(), params, 0.0, "Value")
+    add_input_float(standard_pram_options(), params, 0.0, "Value", 0.0, 1.0)
+    add_input_boolean(no_port_pram_options(), params, False, "extrapolate")
 
     # Output Parameter: out
     add_output_float(shader_def, "Value")
@@ -5464,6 +5583,7 @@ def CyclesShadersPlugin_CyclesFloatCurve_1_0_Define(in_ctxt):
     ppgLayout = shader_def.PPGLayout
     ppgLayout.AddGroup("Parameters")
     ppgLayout.AddItem("Curve", "Curve")
+    ppgLayout.AddItem("extrapolate", "Extrapolate")
     ppgLayout.AddItem("Fac", "Fac")
     ppgLayout.AddItem("Value", "Value")
     ppgLayout.EndGroup()

@@ -24,7 +24,6 @@
 #include "../../update_context.h"
 #include "cyc_geometry.h"
 #include "cyc_polymesh_attributes.h"
-#include "cyc_tangent_attribute.h"
 #include "../cyc_scene.h"
 #include "../../../utilities/xsi_properties.h"
 #include "../../../utilities/logs.h"
@@ -48,11 +47,22 @@ ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices,
 	{
 		num_triangles += face_sizes[i] - 2;
 	}
-	mesh->reserve_mesh(vertex_coordinates.size(), num_triangles);
-	mesh->set_verts(vertex_coordinates);
+	mesh->resize_mesh(vertex_coordinates.size(), num_triangles);
+	ccl::Attribute* attr_position = mesh->attributes.add(ccl::ATTR_STD_POSITION);
+	attr_position->resize(vertex_coordinates.size());
+	ccl::packed_float3* verts = attr_position->data_for_write<ccl::packed_float3>();
+	for (size_t i = 0; i < vertex_coordinates.size(); i++) {
+		verts[i] = vertex_coordinates[i];
+	}
 
 	// create triangles
 	int index_offset = 0;
+
+	int* data_triangles = mesh->get_triangles().data();
+	bool* data_smooth = mesh->get_smooth().data();
+	int* data_shader = mesh->get_shader().data();
+
+	size_t counter = 0;
 
 	for (size_t i = 0; i < faces_count; i++)  // iterate over polygons
 	{
@@ -61,7 +71,13 @@ ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices,
 			int v0 = face_indexes[index_offset];
 			int v1 = face_indexes[index_offset + j + 1];
 			int v2 = face_indexes[index_offset + j + 2];
-			mesh->add_triangle(v0, v1, v2, 0, smooth);
+			data_triangles[3 * counter] = v0;
+			data_triangles[3 * counter + 1] = v1;
+			data_triangles[3 * counter + 2] = v2;
+			data_smooth[counter] = smooth;
+			data_shader[counter] = 0;
+
+			counter += 1;
 		}
 
 		index_offset += face_sizes[i];
@@ -145,8 +161,11 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 	// check we can add motion blur
 	// the number of vertices should be the same in all steps
 	bool meshes_correct = true;
-	size_t original_vertices = mesh->get_verts().size();
-
+	size_t original_vertices = mesh->num_verts();
+	// again: 
+	// for non sibdivided mesh - the number of nodes
+	// for linear subdivided - also the number of nodes
+	// for catmul clark - the number of vertices
 	for (size_t i = 0; i < motion_steps; i++)
 	{
 		float time = update_context->get_motion_time(i);
@@ -166,16 +185,24 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 	{
 		mesh->set_motion_steps(motion_steps);
 
-		ccl::vector<ccl::float3> positions_buffer;
-		ccl::vector<ccl::float3> normals_buffer;
+		ccl::vector<ccl::packed_float3> positions_buffer;
+		ccl::vector<ccl::packed_normal> normals_buffer;
 		positions_buffer.resize(original_vertices);
 		normals_buffer.resize(original_vertices);
 
 		// create motion attributes
 		ccl::AttributeSet& attributes = subdiv_mode != SubdivideMode_None ? mesh->subd_attributes : mesh->attributes;
 
-		ccl::Attribute* attr_m_positions = attributes.add(ccl::ATTR_STD_MOTION_VERTEX_POSITION, ccl::ustring("std_motion_vertex_position"));
-		ccl::Attribute* attr_m_normals = attributes.add(ccl::ATTR_STD_MOTION_VERTEX_NORMAL, ccl::ustring("std_motion_vertex_normal"));
+		ccl::Attribute* attr_m_positions = attributes.find(ccl::ATTR_STD_POSITION);
+		ccl::Attribute* attr_m_normals = attributes.find(ccl::ATTR_STD_VERTEX_NORMAL);
+
+		if (!attr_m_positions || !attr_m_normals) {
+			log_warning("Mesh object " + XSI::CString(mesh->name.c_str()) + " has invalid positions or normals attributes. Disabling motion blur for it.");
+			return;
+		}
+
+		attr_m_positions->add_motion(mesh);
+		attr_m_normals->add_motion(mesh);
 
 		// the number of steps is equal to toatl steps - 1
 		// does not set the step for center
@@ -205,7 +232,7 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 				if (subdiv_mode == SubdivideMode_CatmulClark)
 				{
 					positions_buffer[vertex.GetIndex()] = position;
-					normals_buffer[vertex.GetIndex()] = normal;
+					normals_buffer[vertex.GetIndex()] = ccl::packed_normal(normal);
 				}
 				else
 				{
@@ -227,12 +254,11 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 				get_geo_accessor_normals(xsi_time_acc, nodes_count, node_normals);
 				for (size_t ni = 0; ni < original_vertices; ni++)
 				{
-					normals_buffer[ni] = ccl::make_float3(node_normals[3 * ni], node_normals[3 * ni + 1], node_normals[3 * ni + 2]);
+					normals_buffer[ni] = ccl::packed_normal(ccl::make_float3(node_normals[3 * ni], node_normals[3 * ni + 1], node_normals[3 * ni + 2]));
 				}
 			}
-
-			memcpy(attr_m_positions->data_float3() + mi * original_vertices, &positions_buffer[0], sizeof(float3) * original_vertices);
-			memcpy(attr_m_normals->data_float3() + mi * original_vertices, &normals_buffer[0], sizeof(float3)* original_vertices);
+			std::copy_n(positions_buffer.data(), attr_m_positions->size, attr_m_positions->data_for_write<ccl::packed_float3>(mi + 1));
+			std::copy_n(normals_buffer.data(), attr_m_normals->size, attr_m_normals->data_for_write<ccl::packed_normal>(mi + 1));
 		}
 
 		mesh->set_use_motion_blur(true);
@@ -249,6 +275,28 @@ void sync_polymesh_motion_deform(ccl::Mesh* mesh, UpdateContext* update_context,
 	{
 		mesh->set_use_motion_blur(false);
 	}
+}
+
+std::vector<LONG> build_node_to_vertex_map(const XSI::CGeometryAccessor& geometry, size_t nodes_count) {
+	XSI::CLongArray triangle_nodes;
+	XSI::CLongArray triangle_vertices;
+	geometry.GetTriangleNodeIndices(triangle_nodes);
+	geometry.GetTriangleVertexIndices(triangle_vertices);
+
+	LONG triangles_count = geometry.GetTriangleCount();
+	LONG tri_indices_count = triangles_count * 3;
+
+	std::vector<LONG> xsi_node_to_vertex(nodes_count, 0);
+	LONG samples_count = triangle_nodes.GetCount();
+
+	LONG* raw_tri_nodes = (LONG*)triangle_nodes.GetArray();
+	LONG* raw_tri_verts = (LONG*)triangle_vertices.GetArray();
+
+	for (LONG i = 0; i < samples_count; i++) {
+		xsi_node_to_vertex[raw_tri_nodes[i]] = raw_tri_verts[i];
+	}
+
+	return xsi_node_to_vertex;
 }
 
 void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor &xsi_geo_acc, const XSI::PolygonMesh &xsi_polymesh)
@@ -275,48 +323,41 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 
 	// use simple array as map
 	// index - node index, value - corresponding vertex index
-	std::vector<LONG> xsi_node_to_vertex(nodes_count);
-	XSI::CVertexRefArray xsi_vertices = xsi_polymesh.GetVertices();
-	for (LONG i = 0; i < vertex_count; i++)
-	{
-		XSI::Vertex v = xsi_vertices[i];
-		LONG v_index = v.GetIndex();
-		XSI::CPolygonNodeRefArray v_nodes = v.GetNodes();
-		LONG v_nodes_count = v_nodes.GetCount();
-		for (LONG j = 0; j < v_nodes_count; j++)
-		{
-			XSI::PolygonNode v_node = v_nodes[j];
-			LONG node_index = v_node.GetIndex();
-			xsi_node_to_vertex[node_index] = v_index;
-		}
-	}
+	std::vector<LONG> xsi_node_to_vertex = build_node_to_vertex_map(xsi_geo_acc, nodes_count);
 
 	// for triagle mesh vertices are xsi nodes
-	mesh->reserve_mesh(nodes_count, triangles_count);
+	mesh->resize_mesh(nodes_count, triangles_count);
 
 	// form vertices array
-	ccl::array<ccl::float3> mesh_vertices(nodes_count);
-	for (LONG i = 0; i < nodes_count; i++)
-	{
+	ccl::array<ccl::packed_float3> mesh_vertices(nodes_count);
+	for (LONG i = 0; i < nodes_count; i++) {
 		LONG v_index = xsi_node_to_vertex[i];
 		mesh_vertices[i] = ccl::make_float3(vertex_positions[3*v_index], vertex_positions[3 * v_index + 1], vertex_positions[3 * v_index + 2]);
 	}
 
 	// set mesh vertices
-	mesh->set_verts(mesh_vertices);
+	ccl::Attribute* attr_position = mesh->attributes.add(ccl::ATTR_STD_POSITION);
+	attr_position->resize(mesh_vertices.size());
+	std::copy_n(mesh_vertices.data(), mesh_vertices.size(), attr_position->data_for_write<ccl::packed_float3>());
+	mesh->tag_position_modified();
 
 	// next triangles
-	for (size_t i = 0; i < triangles_count; i++)
-	{
-		// get triangle nodes
+	int* mesh_triangles = mesh->get_triangles().data();
+	bool* mesh_smooth = mesh->get_smooth().data();
+	int* mesh_shader = mesh->get_shader().data();
+	for (size_t i = 0; i < triangles_count; i++) {
 		LONG n0 = triangle_nodes[3 * i];
 		LONG n1 = triangle_nodes[3 * i + 1];
 		LONG n2 = triangle_nodes[3 * i + 2];
 
 		LONG material_index = polygon_materials[triangle_polygons[i]];
 
-		// add triangle
-		mesh->add_triangle(n0, n1, n2, material_index, true);
+		mesh_triangles[3 * i] = n0;
+		mesh_triangles[3 * i + 1] = n1;
+		mesh_triangles[3 * i + 2] = n2;
+
+		mesh_smooth[i] = true;
+		mesh_shader[i] = material_index;
 	}
 
 	// normals
@@ -326,37 +367,36 @@ void sync_triangle_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometry
 
 	ccl::AttributeSet& attributes = mesh->attributes;
 	ccl::Attribute* attr_n = attributes.add(ccl::ATTR_STD_VERTEX_NORMAL, ccl::ustring("std_normal"));
-	ccl::float3* normal_data = attr_n->data_float3();
+	ccl::packed_normal* normal_data = attr_n->data_for_write<ccl::packed_normal>();
 	for (size_t node_index = 0; node_index < nodes_count; node_index++)
 	{
-		*normal_data = ccl::make_float3(node_normals[3 * node_index], node_normals[3 * node_index + 1], node_normals[3 * node_index + 2]);
+		*normal_data = ccl::packed_normal(ccl::make_float3(node_normals[3 * node_index], node_normals[3 * node_index + 1], node_normals[3 * node_index + 2]));
 		normal_data++;
 	}
 
 	// generated attribute
 	ccl::Attribute* gen_attr = attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
-	std::memcpy(gen_attr->data_float3(), mesh->get_verts().data(), sizeof(ccl::float3) * mesh->get_verts().size());
+	std::copy_n(mesh->get_position(), mesh->num_verts(), gen_attr->data_for_write<ccl::packed_float3>());
 
 	// use common method for export attrbutes
 	XSI::CPolygonFaceRefArray faces;
 	sync_mesh_attribute_vertex_color(scene, mesh, attributes, xsi_geo_acc, SubdivideMode_None, triangle_nodes, faces);
 	sync_mesh_attribute_random_per_island(scene, mesh, attributes, SubdivideMode_None, nodes_count, triangles_count, triangle_nodes, xsi_polymesh, faces);
-	sync_mesh_attribute_pointness(scene, mesh, SubdivideMode_None, vertex_count, nodes_count, xsi_vertices, node_normals, xsi_polymesh);
+	if (mesh->need_attribute(scene, ccl::ATTR_STD_POINTINESS)) {
+		// use slow vertices structs
+		XSI::CVertexRefArray xsi_vertices = xsi_polymesh.GetVertices();
+		sync_mesh_attribute_pointness(scene, mesh, SubdivideMode_None, vertex_count, nodes_count, xsi_vertices, node_normals, xsi_polymesh);
+	}
 	
 	// uvs
 	XSI::CRefArray uv_refs = xsi_geo_acc.GetUVs();
 	// export first uv as default uv attribute
 	sync_mesh_uvs(mesh, SubdivideMode_None, triangles_count, nodes_count, uv_refs, faces, triangle_nodes);
-	// export tangent for each uv
-	for (size_t i = 0; i < uv_refs.GetCount(); i++)
-	{
-		XSI::ClusterProperty uv_prop(uv_refs[i]);
-		mikk_compute_tangents(mesh, uv_prop.GetName().GetAsciiString(), true);
-	}
+	// we does no need to create custom tangents, because Cycles make it himself
 	sync_ice_attributes(scene, mesh, xsi_polymesh, SubdivideMode_None, vertex_count, nodes_count, xsi_node_to_vertex);
 }
 
-void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor& xsi_geo_acc, const XSI::PolygonMesh& xsi_polymesh, SubdivideMode subdiv_mode, ULONG subdiv_level, float subdiv_dicing_rate, const XSI::MATH::CMatrix4 &xsi_matrix)
+void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometryAccessor& xsi_geo_acc, const XSI::PolygonMesh& xsi_polymesh, SubdivideMode subdiv_mode, ULONG subdiv_level, SubdivideSpace subdiv_space, float subdiv_size, const XSI::MATH::CMatrix4& xsi_matrix)
 {
 	XSI::CLongArray xsi_polygon_material_indices;
 	xsi_geo_acc.GetPolygonMaterialIndices(xsi_polygon_material_indices);
@@ -372,67 +412,66 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 	xsi_geo_acc.GetPolygonVerticesCount(polygon_sizes);
 	XSI::CLongArray node_indices;
 	XSI::CFloatArray node_normals;  // define array here, but fill it later, if we need this
-	std::vector<LONG> xsi_node_to_vertex(nodes_count);
-	// we need node indices for linear subdivision
-	// in linear subdivision case case we should use each node as individual mesh vertex
-	if (subdiv_mode == SubdivideMode_Linear) {
-		xsi_geo_acc.GetNodeIndices(node_indices);
-		// we also need the map from node index to vertex index
-		// because we obtain from geometry vertex positiosn, but required node positions
-		for (LONG i = 0; i < vertex_count; i++)
-		{
-			XSI::Vertex v = xsi_vertices[i];
-			LONG v_index = v.GetIndex();
-			XSI::CPolygonNodeRefArray v_nodes = v.GetNodes();
-			LONG v_nodes_count = v_nodes.GetCount();
-			for (LONG j = 0; j < v_nodes_count; j++)
-			{
-				XSI::PolygonNode v_node = v_nodes[j];
-				LONG node_index = v_node.GetIndex();
-				xsi_node_to_vertex[node_index] = v_index;
-			}
-		}
-	}
+	std::vector<LONG> xsi_node_to_vertex = build_node_to_vertex_map(xsi_geo_acc, nodes_count);
+	
 	size_t polygons_count = polygon_sizes.GetCount();
 
-	mesh->reserve_mesh(subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count, 0);
+	// it define the size of attributes.ATTR_STD_POSITION to be the first argument
+	mesh->resize_mesh(subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count, 0);
 	int num_corners = 0;
-	for (size_t i = 0; i < polygon_sizes.GetCount(); i++)
-	{
+	for (size_t i = 0; i < polygon_sizes.GetCount(); i++) {
 		num_corners += polygon_sizes[i];
 	}
-	mesh->reserve_subd_faces(polygons_count, num_corners);
+	mesh->resize_subd_faces(polygons_count, num_corners);
 
-	ccl::array<ccl::float3> mesh_vertices(subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count);
-	ccl::array<ccl::float3> mesh_normals(subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count);
+	ccl::array<ccl::packed_float3> mesh_vertices(subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count);
+	ccl::array<ccl::packed_normal> mesh_normals(subdiv_mode == SubdivideMode_CatmulClark ? vertex_count : nodes_count);
+
+	// these arrays have the length polygons_count
+	int* subd_start_corner = mesh->get_subd_start_corner().data();
+	int* subd_num_corners = mesh->get_subd_num_corners().data();
+	int* subd_ptex_offset = mesh->get_subd_ptex_offset().data();
+	int* subd_shader = mesh->get_subd_shader().data();
+	bool* subd_smooth = mesh->get_subd_smooth().data();
+
+	// and this array - num_corners
+	int* subd_face_corners = mesh->get_subd_face_corners().data();
+
 	if (subdiv_mode == SubdivideMode_CatmulClark) {
 		// for Catmul-Clark subdivision we use mesh vertices
-		for (size_t v_index = 0; v_index < vertex_count; v_index++)
-		{
+		for (size_t v_index = 0; v_index < vertex_count; v_index++) {
 			XSI::Vertex vertex = xsi_vertices[v_index];
 			XSI::MATH::CVector3 vertex_position = vertex.GetPosition();
 			ccl::float3 position = ccl::make_float3(vertex_position.GetX(), vertex_position.GetY(), vertex_position.GetZ());
 			bool is_valid = true;
 			XSI::MATH::CVector3 normal = vertex.GetNormal(is_valid);
 			mesh_vertices[v_index] = position;
-			mesh_normals[v_index] = vector3_to_float3(normal);
+			mesh_normals[v_index] = ccl::packed_normal(vector3_to_float3(normal));
 		}
 
 		// assign mesh faces
-		ccl::vector<int> vi;
 		size_t faces_count = xsi_faces.GetCount();
+		size_t corner_counter = 0;
+		size_t ptex_offset = 0;
 		for (size_t face_index = 0; face_index < faces_count; face_index++)
 		{
+			subd_start_corner[0] = corner_counter; subd_start_corner++;
+			
 			XSI::PolygonFace face(xsi_faces[face_index]);
 			XSI::CVertexRefArray face_vertices = face.GetVertices();
 			size_t face_vertex_count = face_vertices.GetCount();
-			vi.resize(face_vertex_count);
+
+			subd_num_corners[0] = face_vertex_count; subd_num_corners++;
+			subd_ptex_offset[0] = ptex_offset; subd_ptex_offset++;
+			ptex_offset += (face_vertex_count == 4) ? 1 : face_vertex_count;
+			subd_shader[0] = xsi_polygon_material_indices[face_index]; subd_shader++;
+			subd_smooth[0] = true; subd_smooth++;
 			for (size_t v = 0; v < face_vertex_count; v++)
 			{
 				XSI::Vertex vert(face_vertices[v]);
-				vi[v] = vert.GetIndex();
+				subd_face_corners[0] = vert.GetIndex(); subd_face_corners++;
+				corner_counter++;
 			}
-			mesh->add_subd_face(&vi[0], face_vertex_count, xsi_polygon_material_indices[face_index], true);
 		}
 	} 
 	else {
@@ -444,37 +483,41 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 			mesh_vertices[i] = ccl::make_float3(vertex_positions[3 * v_index], vertex_positions[3 * v_index + 1], vertex_positions[3 * v_index + 2]);
 		}
 		xsi_geo_acc.GetNodeNormals(node_normals);
-
-		std::vector<int> face_corners;
+		xsi_geo_acc.GetNodeIndices(node_indices);
+		get_geo_accessor_normals(xsi_geo_acc, nodes_count, node_normals);
 		LONG node_iterator = 0;
+		size_t ptex_offset = 0;
 		for (LONG i = 0; i < polygons_count; i++) {
 			LONG poly_size = polygon_sizes[i];
+			subd_start_corner[0] = node_iterator; subd_start_corner++;
+			subd_num_corners[0] = poly_size; subd_num_corners++;
+			subd_ptex_offset[0] = ptex_offset; subd_ptex_offset++;
+			ptex_offset += (poly_size == 4) ? 1 : poly_size;
+			subd_shader[0] = xsi_polygon_material_indices[i]; subd_shader++;
+			subd_smooth[0] = false; subd_smooth++;
+			
 			for (LONG j = 0; j < poly_size; j++) {
 				LONG node_index = node_indices[node_iterator];
 				// define node normal
-				mesh_normals[node_iterator] = ccl::make_float3(node_normals[3 * node_index], node_normals[3 * node_index + 1], node_normals[3 * node_index + 2]);
-
-				// write polygon corner index
-				face_corners.push_back(node_index);
-
+				mesh_normals[node_iterator] = ccl::packed_normal(ccl::make_float3(node_normals[3 * node_index], node_normals[3 * node_index + 1], node_normals[3 * node_index + 2]));
+				subd_face_corners[0] = node_index; subd_face_corners++;
 				node_iterator++;
 			}
-			face_corners.clear();
-
-			// add face to the mesh
-			mesh->add_subd_face(&face_corners[0], poly_size, xsi_polygon_material_indices[i], false);
 		}
 	}
+	ccl::AttributeSet& attributes = mesh->subd_attributes;
+
 	// set vertex positions
-	mesh->set_verts(mesh_vertices);
+	ccl::Attribute* subd_attr_pos = attributes.add(ccl::ATTR_STD_POSITION);
+	subd_attr_pos->resize(mesh_vertices.size());
+	std::copy_n(mesh_vertices.data(), mesh_vertices.size(), subd_attr_pos->data_for_write<ccl::packed_float3>());
 
 	// normals
-	ccl::AttributeSet& attributes = mesh->subd_attributes;
-	ccl::Attribute* attr_n = attributes.add(ccl::ATTR_STD_VERTEX_NORMAL, ccl::ustring("std_normal"));
-	std::memcpy(attr_n->data_float3(), mesh_normals.data(), sizeof(ccl::float3) * mesh_normals.size());
+	ccl::Attribute* subd_attr_n = attributes.add(ccl::ATTR_STD_VERTEX_NORMAL, ccl::ustring("std_normal"));
+	std::copy_n(mesh_normals.data(), mesh_normals.size(), subd_attr_n->data_for_write<ccl::packed_normal>());
 
-	ccl::Attribute* gen_attr = attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
-	std::memcpy(gen_attr->data_float3(), mesh->get_verts().data(), sizeof(ccl::float3) * mesh->get_verts().size());
+	ccl::Attribute* gen_subd_attr = attributes.add(ccl::ATTR_STD_GENERATED, ccl::ustring("std_generated"));
+	std::copy_n(&mesh_vertices[0], mesh->num_verts(), gen_subd_attr->data_for_write<ccl::packed_float3>());
 
 	if (subdiv_mode == SubdivideMode_CatmulClark) {
 		// creases
@@ -546,26 +589,27 @@ void sync_subdivide_mesh(ccl::Scene* scene, ccl::Mesh* mesh, const XSI::CGeometr
 	XSI::CRefArray uv_refs = xsi_geo_acc.GetUVs();
 	// export first uv as default uv attribute
 	sync_mesh_uvs(mesh, subdiv_mode, triangles_count, nodes_count, uv_refs, xsi_faces, triangle_nodes);
-	// export tangent for each uv
-	for (size_t i = 0; i < uv_refs.GetCount(); i++)
-	{
-		XSI::ClusterProperty uv_prop(uv_refs[i]);
-		mikk_compute_tangents(mesh, uv_prop.GetName().GetAsciiString(), true);
-	}
-
 	sync_ice_attributes(scene, mesh, xsi_polymesh, subdiv_mode, vertex_count, nodes_count, xsi_node_to_vertex);
 	
 	// set subdivision
-	mesh->set_subd_dicing_rate(subdiv_dicing_rate);
+	if (subdiv_space == SubdivideSpace::SubdivideMode_Pixel) {
+		// pixels
+		mesh->set_subd_dicing_rate(subdiv_size);
+		mesh->set_subd_adaptive_space(ccl::Mesh::SUBDIVISION_ADAPTIVE_SPACE_PIXEL);
+	}
+	else { //SubdivideSpace::SubdivideMode_Object
+		// object, edge size
+		mesh->set_subd_dicing_rate(subdiv_size);
+		mesh->set_subd_adaptive_space(ccl::Mesh::SUBDIVISION_ADAPTIVE_SPACE_OBJECT);
+	}
+	
+	mesh->set_subdivision_type(subdiv_mode == SubdivideMode_Linear ? ccl::Mesh::SUBDIVISION_LINEAR : ccl::Mesh::SUBDIVISION_CATMULL_CLARK);
 	mesh->set_subd_max_level(subdiv_level);
 	ccl::Transform tfm = xsi_matrix_to_transform(xsi_matrix);
 	mesh->set_subd_objecttoworld(tfm);
-
-	// without open subdiv the mode always is Linear
-	mesh->set_subdivision_type(subdiv_mode == SubdivideMode_Linear ? ccl::Mesh::SUBDIVISION_LINEAR : ccl::Mesh::SUBDIVISION_CATMULL_CLARK);
 }
 
-void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, SubdivideMode &io_mode, float &io_dicing_rate, int &io_smooth_boundary, int &io_smooth_uv, const XSI::CTime &eval_time)
+void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, SubdivideMode &io_mode, SubdivideSpace &io_space, float &io_pixel_size, float &io_edge_length, int &io_smooth_boundary, int &io_smooth_uv, const XSI::CTime &eval_time)
 {
 	XSI::Property xsi_property = get_xsi_object_property(xsi_object, "CyclesMesh");
 	bool use_property = xsi_property.IsValid();
@@ -574,14 +618,13 @@ void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, Subdiv
 		XSI::CParameterRefArray xsi_params = xsi_property.GetParameters();
 
 		int level = xsi_params.GetValue("subdiv_max_level", eval_time);
-		float dicing_rate = xsi_params.GetValue("subdiv_dicing_rate", eval_time);
 		int mode = xsi_params.GetValue("subdiv_type", eval_time);
+		int space = xsi_params.GetValue("subdiv_space", eval_time);
 
-		if (mode != 0)
-		{
-			io_dicing_rate = dicing_rate;
+		if (mode != 0) {
 			io_level = level;
 			io_mode = mode == 1 ? SubdivideMode_Linear : SubdivideMode_CatmulClark;
+			io_space = space == 0 ? SubdivideSpace::SubdivideMode_Pixel : SubdivideSpace::SubdivideMode_Object;
 
 			if (io_level <= 0)
 			{
@@ -591,6 +634,8 @@ void sync_mesh_subdiv_property(XSI::X3DObject& xsi_object, int &io_level, Subdiv
 
 		io_smooth_boundary = xsi_params.GetValue("subdiv_boundary_smooth", eval_time);
 		io_smooth_uv = xsi_params.GetValue("subdiv_uv_smooth", eval_time);
+		io_pixel_size = xsi_params.GetValue("subdiv_pixel_size", eval_time);
+		io_edge_length = xsi_params.GetValue("subdiv_edge_length", eval_time);
 	}
 }
 
@@ -619,6 +664,7 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	// set used shaders
 	ccl::array<ccl::Node*> used_shaders;
 	XSI::CRefArray xsi_geo_materials = xsi_geo_acc.GetMaterials();
+	bool has_displacement = false;
 	for (size_t i = 0; i < xsi_geo_materials.GetCount(); i++)
 	{
 		XSI::Material xsi_material = xsi_geo_materials[i];
@@ -628,19 +674,29 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 		{
 			shader_index = update_context->get_xsi_material_cycles_index(xsi_material_id);
 		}
-
-		used_shaders.push_back_slow(scene->shaders[shader_index]);
+		ccl::Shader* shader = scene->shaders[shader_index];
+		used_shaders.push_back_slow(shader);
+		if (shader->has_displacement) {
+			has_displacement = true;
+		}
 	}
 	mesh_geom->set_used_shaders(used_shaders);
 
-	float subdiv_dicing_rate = 1.0f;
+	float subdiv_pixel_size = 1.0f;
+	float subdiv_edge_size = 0.01f;
 	SubdivideMode subdiv_mode = geo_subdivs == 0 ? SubdivideMode_None : SubdivideMode_CatmulClark;
+	SubdivideSpace subdiv_space = SubdivideSpace::SubdivideMode_Pixel;
 	int subdiv_boundary_smooth = 0;  // make it synchronised with default values in mesh properties
 	int subdiv_uv_smooth = 4;
-	sync_mesh_subdiv_property(xsi_object, geo_subdivs, subdiv_mode, subdiv_dicing_rate, subdiv_boundary_smooth, subdiv_uv_smooth, eval_time);
+	sync_mesh_subdiv_property(xsi_object, geo_subdivs, subdiv_mode, subdiv_space, subdiv_pixel_size, subdiv_edge_size, subdiv_boundary_smooth, subdiv_uv_smooth, eval_time);
 
 	geo_subdivs = std::max(0, geo_subdivs);
-	subdiv_dicing_rate = std::max(0.1f, subdiv_dicing_rate);
+	if (subdiv_space == SubdivideSpace::SubdivideMode_Pixel) {
+		subdiv_pixel_size = std::max(0.5f, subdiv_pixel_size);
+	}
+	if (subdiv_space == SubdivideSpace::SubdivideMode_Object) {
+		subdiv_edge_size = std::max(0.001f, subdiv_edge_size);
+	}
 
 	if (subdiv_mode == SubdivideMode_None)
 	{// non subdivided mesh
@@ -649,7 +705,7 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	}
 	else
 	{// create subdivide mesh
-		sync_subdivide_mesh(scene, mesh_geom, xsi_geo_acc, xsi_polymesh, subdiv_mode, geo_subdivs, subdiv_dicing_rate, xsi_object.GetKinematics().GetGlobal().GetTransform(eval_time).GetMatrix4());
+		sync_subdivide_mesh(scene, mesh_geom, xsi_geo_acc, xsi_polymesh, subdiv_mode, geo_subdivs, subdiv_space, subdiv_space == SubdivideSpace::SubdivideMode_Pixel ? subdiv_pixel_size : subdiv_edge_size, xsi_object.GetKinematics().GetGlobal().GetTransform(eval_time).GetMatrix4());
 		mesh_geom->set_subdivision_boundary_interpolation(
 			subdiv_boundary_smooth == 0 ? ccl::Mesh::SUBDIVISION_BOUNDARY_EDGE_AND_CORNER : 
 										  ccl::Mesh::SUBDIVISION_BOUNDARY_EDGE_ONLY);
@@ -667,6 +723,10 @@ void sync_polymesh_process(ccl::Scene* scene, ccl::Mesh* mesh_geom, UpdateContex
 	if (update_context->get_need_motion() && motion_deform)
 	{
 		sync_polymesh_motion_deform(mesh_geom, update_context, xsi_object, subdiv_mode, geo_use_angle, geo_angle);
+	}
+
+	if (has_displacement) {
+		store_positions(mesh_geom, update_context, xsi_object.GetObjectID());
 	}
 }
 

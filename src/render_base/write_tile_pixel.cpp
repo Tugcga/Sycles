@@ -49,7 +49,7 @@ void write_int16_pixel(void* ptr, size_t index, const std::vector<float>& in_pix
 	}
 	else if (components == 1)
 	{
-		uint8_t v = float_to_int16(in_pixels[components * index], is_srgb);
+		uint16_t v = float_to_int16(in_pixels[components * index], is_srgb);
 		pixel[0] = v;
 		pixel[1] = v;
 		pixel[2] = v;

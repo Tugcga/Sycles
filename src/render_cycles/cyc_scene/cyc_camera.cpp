@@ -75,6 +75,119 @@ void sync_camera_motion(ccl::Scene* scene, UpdateContext* update_context, float 
 	}
 }
 
+// WARNING: these values should be synced with CyclesCamera.py
+const XSI::CString OSLPARAM_PATTERN = "oslparam_";
+const XSI::CString OSLPARAM_NUMBER = "number_";
+const XSI::CString OSLPARAM_VECTOR = "vector_";
+/*on Pyton side we parse input osl and extract required input parameters
+* for each parameter we create custom property parameter with special prefix OSLPARAM_PATTERN + OSLPARAM_NUMBER + name for scalar value (int, float, string)
+* and OSLPARAM_PATTERN + OSLPARAM_VECTOR + x_, y_, z_ + name for vector parameter (or color, point, normal), so, three parameters for each name
+*/
+
+class XSICameraParamQuery : public ccl::OSLCameraParamQuery {
+public:
+	XSICameraParamQuery(XSI::Property xsi_prop) : camera_prop(xsi_prop) {
+		all_params = camera_prop.GetParameters();
+	}
+
+	bool get_float(ccl::ustring name, ccl::vector<float>& data) override {
+		LONG count = all_params.GetCount();
+		for (size_t i = 0; i < count; i++) {
+			XSI::Parameter param(all_params[i]);
+			if (!param.IsValid()) {
+				continue;
+			}
+			XSI::CString param_name_raw = param.GetName();
+			if (param_name_raw.GetSubString(0, OSLPARAM_PATTERN.Length()) != OSLPARAM_PATTERN) {
+				continue;
+			}
+
+			if (param_name_raw.GetSubString(OSLPARAM_PATTERN.Length(), OSLPARAM_NUMBER.Length()) == OSLPARAM_NUMBER &&
+				param_name_raw.GetSubString(OSLPARAM_PATTERN.Length() + OSLPARAM_NUMBER.Length()) == XSI::CString(name.c_str())) {
+				float value = param.GetValue();
+				data.push_back(value);
+				return true;
+			}
+
+			if (param_name_raw.GetSubString(OSLPARAM_PATTERN.Length(), OSLPARAM_VECTOR.Length()) == OSLPARAM_VECTOR &&
+				param_name_raw.GetSubString(OSLPARAM_PATTERN.Length() + OSLPARAM_NUMBER.Length() + 2) == XSI::CString(name.c_str())) {
+				float value = param.GetValue();
+				data.push_back(value);
+			}
+		}
+
+		if (data.size() > 0) {
+			return true;
+		}
+
+		log_warning("OSL camera require missing float parameter " + XSI::CString(name.c_str()));
+		return false;
+	}
+
+	bool get_int(ccl::ustring name, ccl::vector<int>& data) override {
+		XSI::CParameterRefArray all_params = camera_prop.GetParameters();
+		LONG count = all_params.GetCount();
+		for (size_t i = 0; i < count; i++) {
+			XSI::Parameter param(all_params[i]);
+			if (!param.IsValid()) {
+				continue;
+			}
+			XSI::CString param_name_raw = param.GetName();
+			if (param_name_raw.GetSubString(0, OSLPARAM_PATTERN.Length()) != OSLPARAM_PATTERN) {
+				continue;
+			}
+
+			if (param_name_raw.GetSubString(OSLPARAM_PATTERN.Length(), OSLPARAM_NUMBER.Length()) == OSLPARAM_NUMBER &&
+				param_name_raw.GetSubString(OSLPARAM_PATTERN.Length() + OSLPARAM_NUMBER.Length()) == XSI::CString(name.c_str())) {
+				int value = param.GetValue();
+				data.push_back(value);
+				return true;
+			}
+
+			if (param_name_raw.GetSubString(OSLPARAM_PATTERN.Length(), OSLPARAM_VECTOR.Length()) == OSLPARAM_VECTOR &&
+				param_name_raw.GetSubString(OSLPARAM_PATTERN.Length() + OSLPARAM_NUMBER.Length() + 2) == XSI::CString(name.c_str())) {
+				int value = param.GetValue();
+				data.push_back(value);
+			}
+		}
+
+		if (data.size() > 0) {
+			return true;
+		}
+
+		log_warning("OSL camera require missing int parameter " + XSI::CString(name.c_str()));
+		return false;
+	}
+
+	bool get_string(ccl::ustring name, ccl::string& data) override {
+		XSI::CParameterRefArray all_params = camera_prop.GetParameters();
+		LONG count = all_params.GetCount();
+		for (size_t i = 0; i < count; i++) {
+			XSI::Parameter param(all_params[i]);
+			if (!param.IsValid()) {
+				continue;
+			}
+			XSI::CString param_name_raw = param.GetName();
+			if (param_name_raw.GetSubString(0, OSLPARAM_PATTERN.Length()) != OSLPARAM_PATTERN) {
+				continue;
+			}
+
+			if (param_name_raw.GetSubString(OSLPARAM_PATTERN.Length(), OSLPARAM_NUMBER.Length()) == OSLPARAM_NUMBER &&
+				param_name_raw.GetSubString(OSLPARAM_PATTERN.Length() + OSLPARAM_NUMBER.Length()) == XSI::CString(name.c_str())) {
+				XSI::CString value = param.GetValue();
+				data = value.GetAsciiString();
+				return true;
+			}
+		}
+
+		log_warning("OSL camera require missing string parameter " + XSI::CString(name.c_str()));
+		return false;
+	}
+private:
+	XSI::Property camera_prop;
+	XSI::CParameterRefArray all_params;
+};
+
 XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 {
 	XSI::Camera xsi_camera = update_context->get_camera();
@@ -102,14 +215,28 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 	CameraType camera_type = CameraType_General;
 	if (is_camera_extension)
 	{
-		int camera_typ_value = camera_property.GetParameterValue("camera_type", eval_time);
-		camera_type = camera_typ_value == 0 ? CameraType_General : CameraType_Panoramic;
+		int camera_type_value = camera_property.GetParameterValue("camera_type", eval_time);
+		camera_type = 
+			camera_type_value == 0 ? CameraType_General : (
+			camera_type_value == 1 ? CameraType_Panoramic : CameraType_OSL);
+	}
+
+	// camera type
+	if (camera_type == CameraType_General) {
+		camera->set_camera_type(is_ortho ? ccl::CAMERA_ORTHOGRAPHIC : ccl::CAMERA_PERSPECTIVE);
+	}
+	else if (camera_type == CameraType_Panoramic) {
+		camera->set_camera_type(ccl::CAMERA_PANORAMA);
+	}
+	else {
+		camera->set_camera_type(ccl::CAMERA_CUSTOM);
 	}
 
 	if (camera_type == CameraType_General)
 	{
+		camera->clear_osl_camera(scene);
 		// check is camera orthographic
-		if (is_ortho)
+		if (is_ortho && camera_type == CameraType_General)
 		{// orthographic
 			float ortho_aspect = float(xsi_camera.GetParameterValue("orthoheight", eval_time)) * camera_aspect / 2.0f;
 			camera->viewplane.left = -1.0f * ortho_aspect;
@@ -153,8 +280,9 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 			}
 		}
 	}
-	else
+	else if (camera_type == CameraType_Panoramic)
 	{// setup panoramic camera
+		camera->clear_osl_camera(scene);
 		ccl::BoundBox2D cam_box;
 		camera->viewplane = cam_box;
 		int panorama_type = camera_property.GetParameterValue("panorama_type", eval_time);
@@ -174,6 +302,21 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 		camera->set_fisheye_polynomial_k2(DEG2RADF((float)camera_property.GetParameterValue("polynomial_k2", eval_time)));
 		camera->set_fisheye_polynomial_k3(DEG2RADF((float)camera_property.GetParameterValue("polynomial_k3", eval_time)));
 		camera->set_fisheye_polynomial_k4(DEG2RADF((float)camera_property.GetParameterValue("polynomial_k4", eval_time)));
+
+		// NOTE: sensor size required only for PANORAMA_FISHEYE_EQUISOLID an PANORAMA_FISHEYE_LENS_POLYNOMIAL panorama modes
+		// in other cases it ignored
+		float sensor_size = camera_property.GetParameterValue("sensor_size", eval_time);
+		camera->set_sensorwidth(sensor_size);
+		camera->set_sensorheight(sensor_size / camera_aspect);
+	} else if (camera_type == CameraType_OSL) {
+		camera->compute_auto_viewplane();
+
+		float sensor_size = camera_property.GetParameterValue("sensor_size", eval_time);
+		camera->set_sensorwidth(sensor_size);
+		camera->set_sensorheight(sensor_size / camera_aspect);
+
+		XSICameraParamQuery params(camera_property);
+		camera->set_osl_camera(scene, params, ccl::string((XSI::CString(camera_property.GetParameterValue("osl_path"))).GetAsciiString()), "", "");
 	}
 	
 	float fov_rad = DEG2RADF(fov_grad);
@@ -185,16 +328,6 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 	{
 		camera->set_nearclip(near_clip);
 		camera->set_farclip(far_clip);
-	}
-
-	// camera type
-	if (camera_type == CameraType_General)
-	{
-		camera->set_camera_type(is_ortho ? ccl::CAMERA_ORTHOGRAPHIC : ccl::CAMERA_PERSPECTIVE);
-	}
-	else
-	{
-		camera->set_camera_type(ccl::CAMERA_PANORAMA);
 	}
 
 	// dof
@@ -209,9 +342,6 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 		camera->set_aperturesize(camera_property.GetParameterValue("aperture_size", eval_time));
 		camera->set_blades((int)camera_property.GetParameterValue("blades", eval_time));
 		camera->set_bladesrotation(DEG2RADF((float)camera_property.GetParameterValue("blades_rotation", eval_time)));
-
-		camera->set_sensorwidth(camera_property.GetParameterValue("sensor_width", eval_time));
-		camera->set_sensorheight(camera_property.GetParameterValue("sensor_height", eval_time));
 	}
 
 	// transforms
@@ -226,6 +356,7 @@ XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context)
 
 	sync_camera_motion(scene, update_context, fov_prev_rad, fov_next_rad);
 
+	camera->tag_modified();
 	camera->tag_full_width_modified();
 	camera->tag_full_height_modified();
 	camera->tag_matrix_modified();

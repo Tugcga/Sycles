@@ -207,6 +207,9 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Normal", "Normal"},
 			{"Tangent", "Tangent"},
 
+			{"ThinFilmThickness", "Thin Film Thickness"},
+			{"ThinFilmIOR", "Thin Film IOR"},
+
 			{"outBSDF", "BSDF"}
 		}
 	},
@@ -228,6 +231,9 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Normal", "Normal"},
 			{"Roughness", "Roughness"},
 			{"IOR", "IOR"},
+
+			{"ThinFilmThickness", "Thin Film Thickness"},
+			{"ThinFilmIOR", "Thin Film IOR"},
 
 			{"outBSDF", "BSDF"}
 		}
@@ -277,6 +283,7 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"Roughness", "Roughness"},
 			{"IOR", "IOR"},
 			{"Alpha", "Alpha"},
+			{"ThinWall", "Thin Wall"},
 			{"DiffuseRoughness", "Diffuse Roughness"},
 
 			{"Normal", "Normal"},
@@ -501,7 +508,9 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 			{"outDiffuseDepth", "Diffuse Depth"},
 			{"outGlossyDepth", "Glossy Depth"},
 			{"outTransparentDepth", "Transparent Depth"},
-			{"outTransmissionDepth", "Transmission Depth"}
+			{"outTransmissionDepth", "Transmission Depth"},
+
+			{"outPortalDepth", "Portal Depth"}
 		}
 	},
 	{
@@ -606,10 +615,11 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{// MixNode in Blender
 		"CyclesShadersPlugin.CyclesMixRGB.1.0", {
-			{"Fac", "Fac"},
-			{"Color1", "Color1"},
-			{"Color2", "Color2"},
-			{"outColor", "Color"}
+			// use MixColor ports
+			{"Fac", "Factor"},
+			{"Color1", "A"},
+			{"Color2", "B"},
+			{"outColor", "Result"}
 		}
 	},
 	// next four nodes are combined into one node in Blender
@@ -656,11 +666,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesCombineRGB.1.0", {
-			{"R", "R"},
-			{"G", "G"},
-			{"B", "B"},
+			// use CombineColor names
+			{"R", "Red"},
+			{"G", "Green"},
+			{"B", "Blue"},
 
-			{"outImage", "Image"}
+			{"outImage", "Color"}
 		}
 	},
 	{
@@ -674,11 +685,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesCombineHSV.1.0", {
-			{"H", "H"},
-			{"S", "S"},
-			{"V", "V"},
+			// use CombineColor names
+			{"H", "Red"},
+			{"S", "Green"},
+			{"V", "Blue"},
 
-			{"outColor", "Color"}
+			{"outImage", "Color"}
 		}
 	},
 	{
@@ -709,11 +721,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesSeparateRGB.1.0", {
-			{"Image", "Image"},
+			// use SeparateColor port names
+			{"Image", "Color"},
 
-			{"outR", "R"},
-			{"outG", "G"},
-			{"outB", "B"}
+			{"outR", "Red"},
+			{"outG", "Green"},
+			{"outB", "Blue"}
 		}
 	},
 	{
@@ -727,11 +740,12 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 	},
 	{
 		"CyclesShadersPlugin.CyclesSeparateHSV.1.0", {
+			// here also use SeparateColor
 			{"Color", "Color"},
 
-			{"outH", "H"},
-			{"outS", "S"},
-			{"outV", "V"}
+			{"outH", "Red"},
+			{"outS", "Green"},
+			{"outV", "Blue"}
 		}
 	},
 	{
@@ -986,13 +1000,32 @@ static std::unordered_map<std::string, std::unordered_map<std::string, std::stri
 		}
 	},
 	{
+		"CyclesShadersPlugin.CyclesRaycast.1.0", {
+			{"Position", "Position"},
+			{"Direction", "Direction"},
+			{"Length", "Length"},
+
+			{"outIsHit", "Is Hit"},
+			{"outSelfHit", "Self Hit"},
+			{"outHitDistance", "Hit Distance"},
+			{"outHitPosition", "Hit Position"},
+			{"outHitNormal", "Hit Normal"}
+		}
+	},
+	{
+		"CyclesShadersPlugin.CyclesSceneTime.1.0", {
+			{"outSeconds", "Seconds"},
+			{"outFrame", "Frame"}
+		}
+	},
+	{
 		"Softimage.sib_scalar_to_color.1.0", {
 			{"out", "Color"}  // replace by RGBRampNode
 		}
 	},
 	{
 		"Softimage.sib_vector_to_color.1.0", {
-			{"out", "Image"}  // output node is CombineRGB
+			{"out", "Color"}  // output node is CombineColor
 		}
 	},
 			{

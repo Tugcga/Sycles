@@ -39,7 +39,8 @@ void sync_transform(ccl::Object* object, UpdateContext* update_context, const XS
 
 void sync_transforms(ccl::Object* object, const std::vector<XSI::MATH::CTransformation> &xsi_tfms_array, size_t main_motion_step)
 {
-	ccl::Transform tfm = xsi_matrix_to_transform(xsi_tfms_array[main_motion_step].GetMatrix4());
+	// ccl::Transform tfm = xsi_matrix_to_transform(xsi_tfms_array[main_motion_step].GetMatrix4());
+	ccl::Transform tfm = xsi_tfm_co_cycles_tfm(xsi_tfms_array[main_motion_step]);
 	
 	if (xsi_tfms_array.size() > 1)
 	{// motion transfroms
@@ -47,9 +48,9 @@ void sync_transforms(ccl::Object* object, const std::vector<XSI::MATH::CTransfor
 		ccl::array<ccl::Transform> motion_tfms;
 		motion_tfms.resize(motion_steps, ccl::transform_empty());
 
-		for (size_t i = 0; i < motion_steps; i++)
-		{
-			ccl::Transform time_tfm = xsi_matrix_to_transform(xsi_tfms_array[i].GetMatrix4());
+		for (size_t i = 0; i < motion_steps; i++) {
+			// ccl::Transform time_tfm = xsi_matrix_to_transform(xsi_tfms_array[i].GetMatrix4());
+			ccl::Transform time_tfm = xsi_tfm_co_cycles_tfm(xsi_tfms_array[i]);
 			motion_tfms[i] = time_tfm;
 		}
 

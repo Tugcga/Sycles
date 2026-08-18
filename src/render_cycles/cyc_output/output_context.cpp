@@ -261,6 +261,7 @@ void OutputContext::set_labels_buffer(LabelsContext* labels_context)
 	if (labels_context->is_labels())
 	{
 		is_labels = true;
+		delete labels_buffer;
 		labels_buffer = new ImageBuffer(image_width, image_height, 4);
 
 		build_labels_buffer(labels_buffer, labels_context->get_string(), image_width, image_height,
@@ -402,6 +403,9 @@ void OutputContext::set_output_passes(
 	output_pass_bits.clear();
 
 	output_ignore.clear();
+	for (size_t i = 0; i < output_buffers.size(); i++) {
+		delete output_buffers[i];
+	}
 	output_buffers.clear();
 
 	crypto_keys.clear();

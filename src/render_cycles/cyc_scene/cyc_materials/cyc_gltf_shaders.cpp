@@ -74,22 +74,22 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 		shader_graph->connect(occlusion_separator->output("Red"), occlusion_combiner->input("Blue"));
 
 		// use occlusion combiner output (Color port) as input to the color multiplicator
-		ccl::MixNode* occlusion_mix = shader_graph->create_node<ccl::MixNode>();
-		shader_graph->connect(occlusion_combiner->output("Color"), occlusion_mix->input("Color2"));
-		occlusion_mix->set_mix_type(ccl::NodeMix::NODE_MIX_MUL);
+		ccl::MixColorNode* occlusion_mix = shader_graph->create_node<ccl::MixColorNode>();
+		shader_graph->connect(occlusion_combiner->output("Color"), occlusion_mix->input("B"));
+		occlusion_mix->set_blend_type(ccl::NodeMix::NODE_MIX_MUL);
 		occlusion_mix->set_fac(xsi_occlusion_strength);
 
-		ccl::MixNode* base_mix = shader_graph->create_node<ccl::MixNode>();
+		ccl::MixColorNode* base_mix = shader_graph->create_node<ccl::MixColorNode>();
 
 		XSI::ShaderParameter xsi_base_texture = xsi_gltf_params.GetItem("baseColorTexture");
-		sync_float3_parameter(scene, shader_graph, base_mix, xsi_base_texture, "Color1", update_context);
-		base_mix->set_color1(ccl::make_float3(1.0f, 1.0f, 1.0f));
-		base_mix->set_color2(color4_to_float3(xsi_base_color));
-		base_mix->set_mix_type(ccl::NodeMix::NODE_MIX_MUL);
+		sync_float3_parameter(scene, shader_graph, base_mix, xsi_base_texture, "A", update_context);
+		base_mix->set_a(ccl::make_float3(1.0f, 1.0f, 1.0f));
+		base_mix->set_b(color4_to_float3(xsi_base_color));
+		base_mix->set_blend_type(ccl::NodeMix::NODE_MIX_MUL);
 		base_mix->set_fac(1.0f);
 
-		shader_graph->connect(base_mix->output("Color"), occlusion_mix->input("Color1"));
-		shader_graph->connect(occlusion_mix->output("Color"), bsdf_node->input("Base Color"));
+		shader_graph->connect(base_mix->output("Result"), occlusion_mix->input("A"));
+		shader_graph->connect(occlusion_mix->output("Result"), bsdf_node->input("Base Color"));
 
 		// metallic is b-channel of the map
 		// roughness is g-channel of the map
@@ -111,17 +111,17 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 		shader_graph->connect(roughness_mix->output("Value"), bsdf_node->input("Roughness"));
 
 		// emission
-		ccl::MixNode* emission_mix = shader_graph->create_node<ccl::MixNode>();
+		ccl::MixColorNode* emission_mix = shader_graph->create_node<ccl::MixColorNode>();
 
 		XSI::ShaderParameter xsi_emissive_texture = xsi_gltf_params.GetItem("emissiveTexture");
-		sync_float3_parameter(scene, shader_graph, emission_mix, xsi_emissive_texture, "Color1", update_context);
-		emission_mix->set_color1(ccl::make_float3(1.0f, 1.0f, 1.0f));
-		emission_mix->set_color2(color4_to_float3(xsi_emissive_color));
-		emission_mix->set_mix_type(ccl::NodeMix::NODE_MIX_MUL);
+		sync_float3_parameter(scene, shader_graph, emission_mix, xsi_emissive_texture, "A", update_context);
+		emission_mix->set_a(ccl::make_float3(1.0f, 1.0f, 1.0f));
+		emission_mix->set_b(color4_to_float3(xsi_emissive_color));
+		emission_mix->set_blend_type(ccl::NodeMix::NODE_MIX_MUL);
 		emission_mix->set_fac(1.0f);
 		bsdf_node->set_emission_strength(1.0f);
 
-		shader_graph->connect(emission_mix->output("Color"), bsdf_node->input("Emission Color"));
+		shader_graph->connect(emission_mix->output("Result"), bsdf_node->input("Emission Color"));
 
 		// normals
 		// check is normal map is connected
@@ -148,24 +148,14 @@ ccl::ShaderNode* sync_gltf_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gr
 					// manualy export image node
 					ccl::ImageTextureNode* image_node = shader_graph->create_node<ccl::ImageTextureNode>();
 
-					XSIImageLoader* image_node_loader = new XSIImageLoader(
-						normal_clip, 
-						ccl::u_colorspace_raw, 
-						0, 
-						"", 
-						update_context->get_use_texture_cache(),
-						update_context->get_path_to_image(),
-						update_context->get_texture_limits(),
-						update_context->get_time());
-					image_node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_node_loader), image_node->image_params());
-
-					image_node->set_colorspace(ccl::u_colorspace_raw);
+					image_node->set_colorspace(ccl::u_colorspace_data);
 					image_node->set_projection(ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT);
 					image_node->set_projection_blend(0.0);
 					image_node->set_interpolation(ccl::InterpolationType::INTERPOLATION_SMART);
 					image_node->set_extension(ccl::ExtensionType::EXTENSION_REPEAT);
 					image_node->set_alpha_type(ccl::ImageAlphaType::IMAGE_ALPHA_AUTO);
 					image_node->set_animated(false);
+					image_node->set_filename(ccl::ustring(normal_clip.GetFileName().GetAsciiString()));
 
 					// connect
 					shader_graph->connect(image_node->output("Color"), normal_node->input("Color"));

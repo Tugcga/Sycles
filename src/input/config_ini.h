@@ -20,6 +20,7 @@ struct ConfigShaderball
 struct ConfigRender
 {
 	ULONG devices;
+	bool clear_cache;
 };
 
 struct ConfigSeries

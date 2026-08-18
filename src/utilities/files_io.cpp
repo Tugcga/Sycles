@@ -18,37 +18,29 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+void check_and_create_directory(const std::string& path_str) {
+	if (!std::filesystem::is_directory(path_str) || !std::filesystem::exists(path_str)) {
+		std::filesystem::create_directories(path_str);
+	}
+}
+
+void check_and_create_directory(const XSI::CString& path) {
+	std::string path_str = path.GetAsciiString();
+
+	check_and_create_directory(path_str);
+}
+
 bool create_dir(const std::string& file_path)
 {
 	const size_t lastSlash = file_path.find_last_of("/\\");
 	std::string folder_path = file_path.substr(0, lastSlash);
+
 	std::string file_name = file_path.substr(lastSlash + 1, file_path.length());
 	if (file_name.length() > 0 && file_name[0] == ':')//unsupported file start
 	{
 		return false;
 	}
-	while (CreateDirectory(folder_path.c_str(), NULL) == FALSE)
-	{
-		if (ERROR_ALREADY_EXISTS == GetLastError())
-		{
-			return true;
-		}
-		TCHAR sTemp[MAX_PATH];
-		int k = folder_path.length();
-		strcpy(sTemp, folder_path.c_str());
-
-		while (CreateDirectory(sTemp, NULL) != TRUE)
-		{
-			while (sTemp[--k] != '\\')
-			{
-				if (k <= 1)
-				{
-					return false;
-				}
-				sTemp[k] = NULL;
-			}
-		}
-	}
+	check_and_create_directory(folder_path);
 	return true;
 }
 
@@ -61,14 +53,15 @@ XSI::CString create_temp_path()
 	XSI::CString temp_path = get_project_path() + "\\sycles_cache\\" + XSI::CString(uuid_str);
 	RpcStringFreeA((RPC_CSTR*)&uuid_str);
 
-	std::string temp_path_str = temp_path.GetAsciiString();
-
-	if (!std::filesystem::is_directory(temp_path_str) || !std::filesystem::exists(temp_path_str))
-	{
-		std::filesystem::create_directories(temp_path_str);
-	}
+	check_and_create_directory(temp_path);
 
 	return temp_path;
+}
+
+XSI::CString create_texture_cache_path() {
+	XSI::CString texture_path = get_project_path() + "\\sycles_cache\\";
+	check_and_create_directory(texture_path);
+	return texture_path;
 }
 
 void remove_temp_path(const XSI::CString &temp_path)
@@ -332,4 +325,31 @@ XSI::CString sync_image_file(const XSI::CString& file_path, int image_frames, in
 	}
 
 	return file_path;
+}
+
+std::string search_file(const std::string &root, const std::string& target) {
+	if (!std::filesystem::exists(root) || !std::filesystem::is_directory(root)) {
+		return "";
+	}
+
+	for (const auto& entry : std::filesystem::recursive_directory_iterator(root, std::filesystem::directory_options::skip_permission_denied)) {
+		if (std::filesystem::is_regular_file(entry.path()) && entry.path().filename().string() == target) {
+			return entry.path().string();
+		}
+	}
+
+	return "";
+}
+
+void write_text_file(const std::string& text, const std::string& file_path) {
+	std::ofstream file;
+	file.open(file_path);
+	file << text;
+	file.close();
+}
+
+void remove_file(const std::string& full_path) {
+	if (std::filesystem::exists(full_path) && std::filesystem::is_regular_file(full_path)) {
+		std::filesystem::remove(full_path);
+	}
 }

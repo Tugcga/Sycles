@@ -7,19 +7,22 @@ void add_symbol(ImageBuffer* buffer, size_t bottom_row, const float* array, size
 {
 	size_t channels = buffer->get_channels();
 	float* buffer_pixels = buffer->get_pixels_pointer();
-	size_t label_point_iterator = 0;
 	for (size_t y = 4 + bottom_row; y < height + 4 + bottom_row; y++)
 	{
 		for (size_t x = 4 + shift; x < 4 + shift + width; x++)
 		{
-			size_t p = buffer->get_pixel_index(x, y);
-			size_t label_p = (height - y + 4 + bottom_row - 1) * width + x - 4 - shift;
-			for (size_t c = 0; c < channels; c++)
-			{
-				float v = buffer_pixels[p * channels + c];  // curent value of the pixel channel
-				buffer_pixels[p * channels + c] = (color[c] * array[label_p]) * (1 - v) + v;
+			if (buffer->is_valid_pixel_index(x, y)) {
+				size_t p = buffer->get_pixel_index(x, y);
+				size_t label_p = (height - y + 4 + bottom_row - 1) * width + x - 4 - shift;
+				for (size_t c = 0; c < channels; c++)
+				{
+					size_t pixel_pos = p * channels + c;
+					if (pixel_pos < buffer->get_buffer_size()) {  // get_buffer_size return actual pixels array size
+						float v = buffer_pixels[pixel_pos];  // curent value of the pixel channel
+						buffer_pixels[pixel_pos] = (color[c] * array[label_p]) * (1 - v) + v;
+					}
+				}
 			}
-			label_point_iterator++;
 		}
 	}
 }
@@ -38,11 +41,15 @@ void build_labels_buffer(ImageBuffer* buffer,
 	{
 		for (size_t x = 0; x < image_width; x++)
 		{
-			size_t p = buffer->get_pixel_index(x, y);
-			buffer_pixels[p * 4] = back_r;
-			buffer_pixels[p * 4 + 1] = back_g;
-			buffer_pixels[p * 4 + 2] = back_b;
-			buffer_pixels[p * 4 + 3] = back_a;
+			if (buffer->is_valid_pixel_index(x, y)) {
+				size_t p = buffer->get_pixel_index(x, y);
+				if (4 * p + 3 < buffer->get_buffer_size()) {
+					buffer_pixels[p * 4] = back_r;
+					buffer_pixels[p * 4 + 1] = back_g;
+					buffer_pixels[p * 4 + 2] = back_b;
+					buffer_pixels[p * 4 + 3] = back_a;
+				}
+			}
 		}
 	}
 

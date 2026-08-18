@@ -10,6 +10,7 @@
 #include "config_ocio.h"
 #include "../utilities/SimpleIni.h"
 #include "../utilities/logs.h"
+#include "../utilities/math.h"
 
 XSI::CString plugin_path;
 void set_plugin_path(const XSI::CString &input_plugin_path)
@@ -116,69 +117,103 @@ void read_config_ini()
 	const SI_Error rc = ini.LoadFile(config_file_path.GetAsciiString());
 	if (rc < 0)
 	{
+		log_warning("Fail to load config.ini from the path " + config_file_path);
 		input_config.is_init = false;
 	}
 	else
 	{
 		ConfigShaderball shaderball;
 		const char* render_samples_str = ini.GetValue("Shaderball", "samples", "32");
-		shaderball.samples = std::stoi(render_samples_str, nullptr);
+		shaderball.samples = to_int(render_samples_str, 32);
+		if (shaderball.samples <= 0) {
+			shaderball.samples = 32;
+		}
 
 		const char* max_bounces_str = ini.GetValue("Shaderball", "max_bounces", "6");
-		shaderball.max_bounces = std::stoi(max_bounces_str, nullptr);
+		shaderball.max_bounces = to_int(max_bounces_str, 6);
+		if (shaderball.max_bounces <= 0) {
+			shaderball.max_bounces = 6;
+		}
 
 		const char* diffuse_bounces_str = ini.GetValue("Shaderball", "diffuse_bounces", "2");
-		shaderball.diffuse_bounces = std::stoi(diffuse_bounces_str, nullptr);
+		shaderball.diffuse_bounces = to_int(diffuse_bounces_str, 2);
+		if (shaderball.diffuse_bounces <= 0) {
+			shaderball.diffuse_bounces = 2;
+		}
 
 		const char* glossy_bouncess_str = ini.GetValue("Shaderball", "glossy_bounces", "2");
-		shaderball.glossy_bounces = std::stoi(glossy_bouncess_str, nullptr);
+		shaderball.glossy_bounces = to_int(glossy_bouncess_str, 2);
+		if (shaderball.glossy_bounces <= 0) {
+			shaderball.glossy_bounces = 2;
+		}
 
 		const char* transmission_bounces_str = ini.GetValue("Shaderball", "transmission_bounces", "2");
-		shaderball.transmission_bounces = std::stoi(transmission_bounces_str, nullptr);
+		shaderball.transmission_bounces = to_int(transmission_bounces_str, 2);
+		if (shaderball.transmission_bounces <= 0) {
+			shaderball.transmission_bounces = 2;
+		}
 
 		const char* transparent_bounces_str = ini.GetValue("Shaderball", "transparent_bounces", "2");
-		shaderball.transparent_bounces = std::stoi(transparent_bounces_str, nullptr);
+		shaderball.transparent_bounces = to_int(transparent_bounces_str, 2);
+		if (shaderball.transparent_bounces <= 0) {
+			shaderball.transparent_bounces = 2;
+		}
 
 		const char* volume_bounces_str = ini.GetValue("Shaderball", "volume_bounces", "2");
-		shaderball.volume_bounces = std::stoi(volume_bounces_str, nullptr);
+		shaderball.volume_bounces = to_int(volume_bounces_str, 2);
+		if (shaderball.volume_bounces <= 0) {
+			shaderball.volume_bounces = 2;
+		}
 
 		const char* use_osl_str = ini.GetValue("Shaderball", "use_osl", "1");
-		const float use_osl_float = strtof(use_osl_str, nullptr);
+		const float use_osl_float = to_float(use_osl_str, 1.0f);
 		shaderball.use_osl = use_osl_float >= 0.5;
 
 		const char* clamp_direct_str = ini.GetValue("Shaderball", "clamp_direct", "1.0");
-		shaderball.clamp_direct = strtof(clamp_direct_str, nullptr);
+		shaderball.clamp_direct = to_float(clamp_direct_str, 1.0f);
+		if (shaderball.clamp_direct < 0.0f) {
+			shaderball.clamp_direct = 1.0f;
+		}
 
 		const char* clamp_indirect_str = ini.GetValue("Shaderball", "clamp_indirect", "1.0");
-		shaderball.clamp_indirect = strtof(clamp_indirect_str, nullptr);
+		shaderball.clamp_indirect = to_float(clamp_indirect_str, 1.0f);
+		if (shaderball.clamp_indirect < 0.0f) {
+			shaderball.clamp_indirect = 1.0f;
+		}
 
 		const char* displacement_method_str = ini.GetValue("Shaderball", "displacement_method", "2");
-		shaderball.displacement_method = std::max(0, std::min(2, std::stoi(displacement_method_str, nullptr)));
+		shaderball.displacement_method = std::max(0, std::min(2, to_int(displacement_method_str, 2)));
 
-		const char* use_gpu_str = ini.GetValue("Shaderball", "use_gpu", "0");  // by default gpu is off, ise only cpu for material previes
-		const float use_gpu_float = strtof(use_gpu_str, nullptr);
-		shaderball.use_gpu = use_gpu_float >= 0.5;
+		const char* use_gpu_str = ini.GetValue("Shaderball", "use_gpu", "0");  // by default gpu is off, use only cpu for material previews
+		const float use_gpu_float = to_float(use_gpu_str, 0.0f);
+		shaderball.use_gpu = use_gpu_float >= 0.5f;
 
 		ConfigRender render;
 		const char* devices_str = ini.GetValue("Render", "devices", "16");
-		render.devices = std::stoi(devices_str, nullptr);
+		render.devices = to_int(devices_str, 16);
+		if (render.devices <= 0) {
+			render.devices = 1;
+		}
+
+		const char* clear_cache_str = ini.GetValue("Render", "clear_cache", "0");
+		render.clear_cache = to_int(clear_cache_str, 0) > 0;
 
 		ConfigSeries series;
 		const char* save_intermediate_str = ini.GetValue("SeriesRendering", "save_intermediate", "0");
-		const float save_intermediate_float = strtof(save_intermediate_str, nullptr);
-		series.save_intermediate = save_intermediate_float >= 0.5;
+		const float save_intermediate_float = to_float(save_intermediate_str, 0.0f);
+		series.save_intermediate = save_intermediate_float >= 0.5f;
 
 		const char* save_albedo_str = ini.GetValue("SeriesRendering", "save_albedo", "1");
-		const float save_albedo_float = strtof(save_albedo_str, nullptr);
-		series.save_albedo = save_albedo_float >= 0.5;
+		const float save_albedo_float = to_float(save_albedo_str, 1.0f);
+		series.save_albedo = save_albedo_float >= 0.5f;
 
 		const char* save_normal_str = ini.GetValue("SeriesRendering", "save_normal", "1");
-		const float save_normal_float = strtof(save_normal_str, nullptr);
-		series.save_normal = save_normal_float >= 0.5;
+		const float save_normal_float = to_float(save_normal_str, 1.0f);
+		series.save_normal = save_normal_float >= 0.5f;
 
 		const char* save_beauty_str = ini.GetValue("SeriesRendering", "save_beauty", "1");
-		const float save_beauty_float = strtof(save_beauty_str, nullptr);
-		series.save_beauty = save_beauty_float >= 0.5;
+		const float save_beauty_float = to_float(save_beauty_str, 1.0f);
+		series.save_beauty = save_beauty_float >= 0.5f;
 
 		const char* albedo_prefix_str = ini.GetValue("SeriesRendering", "albedo_prefix", "alb");
 		series.albedo_prefix = XSI::CString(albedo_prefix_str);
@@ -190,7 +225,10 @@ void read_config_ini()
 		series.beauty_prefix = XSI::CString(beauty_prefix_str);
 
 		const char* sampling_step_str = ini.GetValue("SeriesRendering", "sampling_step", "128");
-		series.sampling_step = std::stoi(sampling_step_str, nullptr);
+		series.sampling_step = to_int(sampling_step_str, 128);
+		if (series.sampling_step <= 0) {
+			series.sampling_step = 128;
+		}
 
 		const char* sampling_start_separator_str = ini.GetValue("SeriesRendering", "sampling_start_separator", ".");
 		series.sampling_start_separator = XSI::CString(sampling_start_separator_str);
@@ -199,7 +237,10 @@ void read_config_ini()
 		series.sampling_middle_separator = XSI::CString(sampling_middle_separator_str);
 
 		const char* sampling_size_str = ini.GetValue("SeriesRendering", "sampling_size", "8");
-		series.sampling_size = std::stoi(sampling_size_str, nullptr);
+		series.sampling_size = to_int(sampling_size_str, 8);
+		if (series.sampling_size <= 0) {
+			series.sampling_size = 8;
+		}
 
 		const char* sampling_postfix_str = ini.GetValue("SeriesRendering", "sampling_postfix", "spp");
 		series.sampling_postfix = XSI::CString(sampling_postfix_str);

@@ -27,12 +27,13 @@ void sync_instance_model(ccl::Scene* scene, UpdateContext* update_context, const
 void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object, const std::vector<XSI::MATH::CTransformation>& root_tfms = {});
 void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRefArray& isolation_list, const XSI::CRefArray& lights_list, const XSI::CRefArray& all_x3dobjects_list, const XSI::CRefArray& all_models_list);
 XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
+XSI::CStatus reset_positions(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject &xsi_object);
 
 // cyc_camera
 XSI::CStatus sync_camera(ccl::Scene* scene, UpdateContext* update_context);
 
 // cyc_light
-ccl::uint light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glossy, bool use_transmission, bool use_scatter);
+ccl::PathRayVisibility light_visibility_flag(bool use_camera, bool use_diffuse, bool use_glossy, bool use_transmission, bool use_scatter);
 void sync_light_tfm(ccl::Object* light_object, const XSI::MATH::CMatrix4& xsi_tfm_matrix);
 XSI::MATH::CTransformation tweak_xsi_light_transform(const XSI::MATH::CTransformation& xsi_tfm, const XSI::Light& xsi_light, const XSI::CTime& eval_time);
 void sync_xsi_light(ccl::Scene* scene, const XSI::Light &xsi_light, UpdateContext* update_context);
@@ -57,6 +58,7 @@ int create_emission_checker(ccl::Scene* scene, float checker_scale);
 int sync_material(ccl::Scene* scene, const XSI::Material& xsi_material, UpdateContext* update_context);  // return shader index in the Cycles shaders array
 int sync_shaderball_shadernode(ccl::Scene* scene, const XSI::Shader& xsi_shader, bool is_surface, UpdateContext* update_context);
 int sync_shaderball_texturenode(ccl::Scene* scene, const XSI::Texture& xsi_texture, UpdateContext* update_context);
+void sync_object_materials(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRef& object_ref);
 void sync_scene_materials(ccl::Scene* scene, UpdateContext* update_context);
 XSI::CStatus update_material(ccl::Scene* scene, const XSI::Material& xsi_material, size_t shader_index, UpdateContext* update_context);
 XSI::CStatus update_shaderball_shadernode(ccl::Scene* scene, ULONG xsi_id, ShaderballType shaderball_type, size_t shader_index, UpdateContext* update_context);

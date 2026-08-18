@@ -41,6 +41,9 @@ bool is_pointcloud_volume(const XSI::X3DObject &xsi_object, const XSI::CTime &ev
 	{
 		XSI::ICEAttribute xsi_attribute = attributes.GetItem(i);
 		XSI::CString xsi_name = xsi_attribute.GetName();
+		if (xsi_name.Length() < 5) {
+			continue;
+		}
 		// try to find _size name
 		XSI::CString name_end = xsi_name.GetSubString(xsi_name.Length() - 5, 5);
 		if (name_end == XSI::CString("_size"))
@@ -108,30 +111,32 @@ std::unordered_map<std::string, VolumeAttributeType> build_volume_attributes_map
 	{
 		XSI::ICEAttribute xsi_attribute = attributes.GetItem(i);
 		XSI::CString xsi_name = xsi_attribute.GetName();
-		XSI::CString name_end = xsi_name.GetSubString(xsi_name.Length() - 5, 5);
-		if (name_end == XSI::CString("_size"))
-		{
-			if (xsi_attribute.GetContextType() == XSI::siICENodeContextSingleton && xsi_attribute.GetStructureType() == XSI::siICENodeStructureSingle && xsi_attribute.GetDataType() == XSI::siICENodeDataVector3)
+		if (xsi_name.Length() >= 5) {
+			XSI::CString name_end = xsi_name.GetSubString(xsi_name.Length() - 5, 5);
+			if (name_end == XSI::CString("_size"))
 			{
-				XSI::CString name_start = xsi_name.GetSubString(0, xsi_name.Length() - 5);
-				if (name_start.Length() > 0)
+				if (xsi_attribute.GetContextType() == XSI::siICENodeContextSingleton && xsi_attribute.GetStructureType() == XSI::siICENodeStructureSingle && xsi_attribute.GetDataType() == XSI::siICENodeDataVector3)
 				{
-					XSI::ICEAttribute main_attribute = xsi_geometry.GetICEAttributeFromName(name_start);
-					if (main_attribute.IsValid())
+					XSI::CString name_start = xsi_name.GetSubString(0, xsi_name.Length() - 5);
+					if (name_start.Length() > 0)
 					{
-						XSI::siICENodeContextType attr_context = main_attribute.GetContextType();
-						XSI::siICENodeStructureType attr_structure = main_attribute.GetStructureType();
-						XSI::siICENodeDataType attr_data = main_attribute.GetDataType();
-
-						if (attr_context == XSI::siICENodeContextSingleton && attr_structure == XSI::siICENodeStructureArray && (attr_data == XSI::siICENodeDataFloat || attr_data == XSI::siICENodeDataVector3 || attr_data == XSI::siICENodeDataColor4))
+						XSI::ICEAttribute main_attribute = xsi_geometry.GetICEAttributeFromName(name_start);
+						if (main_attribute.IsValid())
 						{
-							XSI::ICEAttribute min_attribute = xsi_geometry.GetICEAttributeFromName(name_start + "_min");
-							if (min_attribute.IsValid() && min_attribute.GetContextType() == XSI::siICENodeContextSingleton && min_attribute.GetStructureType() == XSI::siICENodeStructureSingle && min_attribute.GetDataType() == XSI::siICENodeDataVector3)
+							XSI::siICENodeContextType attr_context = main_attribute.GetContextType();
+							XSI::siICENodeStructureType attr_structure = main_attribute.GetStructureType();
+							XSI::siICENodeDataType attr_data = main_attribute.GetDataType();
+
+							if (attr_context == XSI::siICENodeContextSingleton && attr_structure == XSI::siICENodeStructureArray && (attr_data == XSI::siICENodeDataFloat || attr_data == XSI::siICENodeDataVector3 || attr_data == XSI::siICENodeDataColor4))
 							{
-								XSI::ICEAttribute max_attribute = xsi_geometry.GetICEAttributeFromName(name_start + "_max");
-								if (max_attribute.IsValid() && max_attribute.GetContextType() == XSI::siICENodeContextSingleton && max_attribute.GetStructureType() == XSI::siICENodeStructureSingle && max_attribute.GetDataType() == XSI::siICENodeDataVector3)
+								XSI::ICEAttribute min_attribute = xsi_geometry.GetICEAttributeFromName(name_start + "_min");
+								if (min_attribute.IsValid() && min_attribute.GetContextType() == XSI::siICENodeContextSingleton && min_attribute.GetStructureType() == XSI::siICENodeStructureSingle && min_attribute.GetDataType() == XSI::siICENodeDataVector3)
 								{
-									to_return[std::string(name_start.GetAsciiString())] = attr_data == XSI::siICENodeDataColor4 ? VolumeAttributeType::VolumeAttributeType_Color : (attr_data == XSI::siICENodeDataVector3 ? VolumeAttributeType::VolumeAttributeType_Vector : VolumeAttributeType::VolumeAttributeType_Float);
+									XSI::ICEAttribute max_attribute = xsi_geometry.GetICEAttributeFromName(name_start + "_max");
+									if (max_attribute.IsValid() && max_attribute.GetContextType() == XSI::siICENodeContextSingleton && max_attribute.GetStructureType() == XSI::siICENodeStructureSingle && max_attribute.GetDataType() == XSI::siICENodeDataVector3)
+									{
+										to_return[std::string(name_start.GetAsciiString())] = attr_data == XSI::siICENodeDataColor4 ? VolumeAttributeType::VolumeAttributeType_Color : (attr_data == XSI::siICENodeDataVector3 ? VolumeAttributeType::VolumeAttributeType_Vector : VolumeAttributeType::VolumeAttributeType_Float);
+									}
 								}
 							}
 						}
@@ -144,35 +149,46 @@ std::unordered_map<std::string, VolumeAttributeType> build_volume_attributes_map
 	return to_return;
 }
 
-void sync_volume_parameters(ccl::Volume* volume, XSI::X3DObject& xsi_object, const XSI::CTime &eval_time)
+void sync_volume_parameters(ccl::Volume* volume, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::CTime &eval_time)
 {
 	XSI::Property xsi_property = get_xsi_object_property(xsi_object, "CyclesVolume");
 	bool use_property = xsi_property.IsValid();
-	float clipping = 0.001f;
 	float step_size = 0.0f;
+	float velocity_scale = 1.0f;
 	int object_space = 0;
 
 	if (use_property)
 	{
 		XSI::CParameterRefArray xsi_params = xsi_property.GetParameters();
 
-		clipping = xsi_params.GetValue("volume_clipping");
-		step_size = xsi_params.GetValue("volume_step_size");
-		object_space = xsi_params.GetValue("volume_object_space");
+		velocity_scale = xsi_params.GetValue("volume_velocity_scale", eval_time);
+		step_size = xsi_params.GetValue("volume_step_size", eval_time);
+		object_space = xsi_params.GetValue("volume_object_space", eval_time);
 	}
 
-	volume->set_clipping(clipping);
+	const float motion_scale = update_context->get_need_motion() ? update_context->get_motion_shutter_time() : 0.0f;
+
+	velocity_scale *= motion_scale;
+
 	volume->set_step_size(step_size);
 	volume->set_object_space(object_space == 0);
 }
 
-void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_std_atribute, ccl::AttributeStandard std_attribute, const std::string &attribute_name, VolumeAttributeType attribute_data_type, const XSI::Primitive &xsi_primitive, const XSI::CTime &eval_time)
-{
+void sync_volume_attribute(ccl::Scene* scene, 
+	ccl::Volume* volume_geom, 
+	bool is_std_atribute, 
+	ccl::AttributeStandard std_attribute, 
+	const std::string &attribute_name, 
+	VolumeAttributeType attribute_data_type, 
+	const XSI::Primitive &xsi_primitive, 
+	size_t update_generation,
+	const XSI::CTime &eval_time) {
+
 	ccl::Attribute* attribute = is_std_atribute ? 
 		volume_geom->attributes.add(std_attribute) :
-		volume_geom->attributes.add(ccl::ustring(attribute_name), attribute_data_type == VolumeAttributeType::VolumeAttributeType_Float ? ccl::TypeFloat : (attribute_data_type == VolumeAttributeType::VolumeAttributeType_Vector ? ccl::TypeVector : ccl::TypeColor), ccl::ATTR_ELEMENT_VOXEL);
+		volume_geom->attributes.add(ccl::ustring(attribute_name), attribute_data_type == VolumeAttributeType::VolumeAttributeType_Float ? ccl::TypeFloat : (attribute_data_type == VolumeAttributeType::VolumeAttributeType_Vector ? ccl::TypeVector : ccl::TypeRGBA), ccl::ATTR_ELEMENT_VOXEL);
 
-	ICEVolumeLoader* ice_loader = new ICEVolumeLoader(attribute_data_type, xsi_primitive, attribute_name, eval_time);
+	ICEVDBLoader* ice_loader = new ICEVDBLoader(attribute_data_type, xsi_primitive, attribute_name, update_generation, eval_time);
 
 	if (ice_loader->is_empty())
 	{
@@ -182,7 +198,7 @@ void sync_volume_attribute(ccl::Scene* scene, ccl::Volume* volume_geom, bool is_
 	{
 		ccl::ImageParams volume_params;
 		volume_params.frame = eval_time.GetTime();
-		attribute->data_voxel() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(ice_loader), volume_params, false);
+		attribute->data_voxel_for_write() = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(ice_loader), volume_params, false);
 	}
 }
 
@@ -191,8 +207,9 @@ void sync_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, Updat
 	volume_geom->name = combine_geometry_name(xsi_object, xsi_primitive).GetAsciiString();
 
 	XSI::CTime eval_time = update_context->get_time();
+	size_t update_generation = update_context->get_generation();
 
-	sync_volume_parameters(volume_geom, xsi_object, eval_time);
+	sync_volume_parameters(volume_geom, update_context, xsi_object, eval_time);
 
 	// we should get all valid combinations of ICE attributes
 	// but exports only needed from this list
@@ -204,37 +221,37 @@ void sync_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, Updat
 	std::unordered_set<std::string> exported_names;
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_DENSITY) && volume_attributes_map.contains("density") && volume_attributes_map["density"] == VolumeAttributeType::VolumeAttributeType_Float)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_DENSITY, "density", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_DENSITY, "density", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("density");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_COLOR) && volume_attributes_map.contains("color") && volume_attributes_map["color"] == VolumeAttributeType::VolumeAttributeType_Color)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_COLOR, "color", VolumeAttributeType::VolumeAttributeType_Color, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_COLOR, "color", VolumeAttributeType::VolumeAttributeType_Color, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("color");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_FLAME) && volume_attributes_map.contains("flame") && volume_attributes_map["flame"] == VolumeAttributeType::VolumeAttributeType_Float)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_FLAME, "flame", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_FLAME, "flame", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("flame");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_HEAT) && volume_attributes_map.contains("heat") && volume_attributes_map["heat"] == VolumeAttributeType::VolumeAttributeType_Float)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_HEAT, "heat", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_HEAT, "heat", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("heat");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_TEMPERATURE) && volume_attributes_map.contains("temperature") && volume_attributes_map["temperature"] == VolumeAttributeType::VolumeAttributeType_Float)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_TEMPERATURE, "temperature", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_TEMPERATURE, "temperature", VolumeAttributeType::VolumeAttributeType_Float, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("temperature");
 	}
 
 	if (volume_geom->need_attribute(scene, ccl::AttributeStandard::ATTR_STD_VOLUME_VELOCITY) && volume_attributes_map.contains("velocity") && volume_attributes_map["velocity"] == VolumeAttributeType::VolumeAttributeType_Vector)
 	{
-		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_VELOCITY, "velocity", VolumeAttributeType::VolumeAttributeType_Vector, xsi_primitive, eval_time);
+		sync_volume_attribute(scene, volume_geom, true, ccl::AttributeStandard::ATTR_STD_VOLUME_VELOCITY, "velocity", VolumeAttributeType::VolumeAttributeType_Vector, xsi_primitive, update_generation, eval_time);
 		exported_names.insert("velocity");
 	}
 
@@ -243,7 +260,7 @@ void sync_volume_geom_process(ccl::Scene* scene, ccl::Volume* volume_geom, Updat
 	{
 		if (!exported_names.contains(key) && volume_geom->need_attribute(scene, ccl::ustring(key.c_str())))
 		{
-			sync_volume_attribute(scene, volume_geom, false, ccl::AttributeStandard::ATTR_STD_NONE, key, val, xsi_primitive, eval_time);
+			sync_volume_attribute(scene, volume_geom, false, ccl::AttributeStandard::ATTR_STD_NONE, key, val, xsi_primitive, update_generation, eval_time);
 			exported_names.insert(key);
 		}
 	}
@@ -286,6 +303,7 @@ ccl::Volume* sync_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateCo
 	volume_geom->set_used_shaders(used_shaders);
 
 	sync_volume_geom_process(scene, volume_geom, update_context, xsi_primitive, xsi_object);
+	volume_geom->merge_grids(scene);
 
 	update_context->add_geometry_index(xsi_primitive_id, scene->geometry.size() - 1);
 
@@ -327,6 +345,7 @@ XSI::CStatus update_volume(ccl::Scene* scene, UpdateContext* update_context, XSI
 
 				sync_volume_geom_process(scene, volume_geom, update_context, xsi_prim, xsi_object);
 
+				volume_geom->merge_grids(scene);
 				volume_geom->tag_update(scene, true);
 			}
 			else
@@ -364,7 +383,7 @@ XSI::CStatus update_volume_property(ccl::Scene* scene, UpdateContext* update_con
 			if (geometry->geometry_type == ccl::Geometry::Type::VOLUME)
 			{
 				ccl::Volume* volume_geom = static_cast<ccl::Volume*>(geometry);
-				sync_volume_parameters(volume_geom, xsi_object, eval_time);
+				sync_volume_parameters(volume_geom, update_context, xsi_object, eval_time);
 			}
 			else
 			{

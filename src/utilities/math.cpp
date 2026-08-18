@@ -2,6 +2,7 @@
 #include <vector>
 #include <random>
 #include <map>
+#include <charconv>
 
 #include <xsi_application.h>
 #include <xsi_time.h>
@@ -89,9 +90,9 @@ uint8_t linear_to_srgb_int8(float v)
 	}
 	if (v <= 0.0031308f)
 	{
-		return  (unsigned char)((12.92f * v * 255.0f) + 0.5f);
+		return  (uint8_t)((12.92f * v * 255.0f) + 0.5f);
 	}
-	return (unsigned char)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 255.0f + 0.5f);
+	return (uint8_t)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 255.0f + 0.5f);
 }
 
 uint16_t linear_to_srgb_int16(float v)
@@ -106,9 +107,9 @@ uint16_t linear_to_srgb_int16(float v)
 	}
 	if (v <= 0.0031308f)
 	{
-		return  (unsigned char)((12.92f * v * 65535.0f) + 0.5f);
+		return  (uint16_t)((12.92f * v * 65535.0f) + 0.5f);
 	}
-	return (unsigned char)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 65535.0f + 0.5f);
+	return (uint16_t)(((1.055f * pow(v, 1.0f / 2.4f)) - 0.055f) * 65535.0f + 0.5f);
 }
 
 float srgb_to_linear(float value)
@@ -139,7 +140,7 @@ uint16_t linear_clamp_int16(float v)
 	{
 		return 65535;
 	}
-	return (uint8_t)(v * 65535.0);
+	return (uint16_t)(v * 65535.0);
 }
 
 bool equal_floats(float a, float b)
@@ -271,6 +272,19 @@ ccl::float3 rotation_to_float3(const XSI::MATH::CRotationf& rotation)
 	return ccl::make_float3(x, y, z);
 }
 
+ccl::Transform xsi_tfm_co_cycles_tfm(const XSI::MATH::CTransformation& xsi_tfm) {
+	XSI::MATH::CVector3 xsi_scale = xsi_tfm.GetScaling();
+	XSI::MATH::CVector3 xsi_rotation = xsi_tfm.GetRotationXYZAngles();
+	XSI::MATH::CVector3 xsi_translation = xsi_tfm.GetTranslation();
+	ccl::Transform scale = ccl::transform_scale(vector3_to_float3(xsi_scale));
+	ccl::Transform rotation = ccl::transform_euler(vector3_to_float3(xsi_rotation));
+	ccl::Transform translation = ccl::transform_translate(vector3_to_float3(xsi_translation));
+
+	ccl::Transform combine = translation * rotation * scale;
+
+	return combine;
+}
+
 float get_minimum(float v1, float v2, float v3)
 {
 	float to_return = v1;
@@ -396,4 +410,30 @@ size_t calc_time_motion_step(size_t mi, size_t motion_steps, MotionSettingsPosit
 	}
 
 	return time_motion_step;
+}
+
+int to_int(const char* str, int default_value) {
+	if (!str || !*str) { 
+		return default_value; 
+	}
+	int value;
+	auto [ptr, ec] = std::from_chars(str, str + std::strlen(str), value);
+	if (ec == std::errc()) { 
+		return value; 
+	}
+
+	return default_value;
+}
+
+float to_float(const char* str, float default_value) {
+	if (!str || !*str) { 
+		return default_value; 
+	}
+	char* endptr = nullptr;
+	errno = 0;
+	float value = strtof(str, &endptr);
+	if (errno == ERANGE || endptr == str) { 
+		return default_value;
+	}
+	return value;
 }

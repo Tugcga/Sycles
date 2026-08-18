@@ -1,0 +1,40 @@
+#pragma once
+#include <string>
+#include <vector>
+
+std::vector<std::string> mx_to_cyc_attributes = {
+    std::string("geom:random_per_island"),
+    std::string("geom:pointiness"),
+    std::string("geom:is_curve"),
+    std::string("geom:is_point"),
+    std::string("particle:angular_velocity"),
+    std::string("particle:velocity"),
+    std::string("particle:size"),
+    std::string("particle:location"),
+    std::string("particle:lifetime"),
+    std::string("particle:age"),
+    std::string("particle:index"),
+    std::string("material:index"),
+    std::string("object:location"),
+    std::string("object:index"),
+    std::string("object:random"),
+    std::string("path:ray_length"),
+    std::string("geom:point_random"),
+    std::string("geom:point_position"),
+    std::string("geom:point_radius"),
+    std::string("geom:is_point"),
+    std::string("geom:curve_tangent_normal"),
+    std::string("geom:curve_length"),
+    std::string("geom:curve_thickness"),
+    std::string("geom:curve_intercept"),
+    std::string("geom:is_curve"),
+    std::string("geom:is_smooth"),
+    std::string("geom:name"),
+    std::string("geom:polyvertices"),
+    std::string("geom:numpolyvertices"),
+    std::string("geom:trianglevertices"),
+    std::string("geom:undisplaced"),
+    std::string("geom:tangent"),
+    std::string("geom:uv"),
+    std::string("geom:generated")
+};

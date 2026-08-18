@@ -11,6 +11,8 @@
 #include "scene/object.h"
 #include "scene/volume.h"
 #include "scene/pointcloud.h"
+#include "scene/hair.h"
+#include "scene/geometry.h"
 
 #include "../../update_context.h"
 #include "../../../render_base/type_enums.h"
@@ -18,9 +20,12 @@
 
 // cyc_geometry
 ccl::uint get_ray_visibility(const XSI::CParameterRefArray& property_params, const XSI::CTime& eval_time);
+void override_curve_shape(ccl::Scene* scene, ccl::Hair* hair, const XSI::CString& property_name, XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
 // common object parameters for hair and meshes
 void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject& xsi_object, XSI::CString& lightgroup, bool& out_motion_deform, const XSI::CString& property_name, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time, bool full_update = true);
 void sync_vdb_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject& xsi_object, XSI::CString& lightgroup, const XSI::CParameterRefArray& primitive_parameters, const XSI::CParameterRefArray& render_parameters, const XSI::CTime& eval_time, bool full_update = true);
+void store_positions(ccl::Geometry* geometry, UpdateContext* update_context, ULONG xsi_id);
+XSI::CStatus reset_on_geometry(ccl::Scene* scene, UpdateContext* update_context, ULONG xsi_id, const ccl::array<ccl::packed_float3>* positions);
 
 // cyc_polymesh
 ccl::Mesh* build_primitive(ccl::Scene* scene, int vertex_count, float* vertices, int faces_count, int* face_sizes, int* face_indexes, bool smooth = false);
@@ -56,13 +61,13 @@ XSI::CStatus update_points_property(ccl::Scene* scene, UpdateContext* update_con
 
 // cyc_volume
 bool is_pointcloud_volume(const XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
-void sync_volume_parameters(ccl::Volume* volume, XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
+void sync_volume_parameters(ccl::Volume* volume, UpdateContext* update_context, XSI::X3DObject& xsi_object, const XSI::CTime& eval_time);
 ccl::Volume* sync_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_volume(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 XSI::CStatus update_volume_property(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
 // cyc_vdb_volume
-ccl::Volume* sync_vdb_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object, const VDBData& vdb_data);
+ccl::Volume* sync_vdb_volume_object(ccl::Scene* scene, ccl::Object* object, UpdateContext* update_context, XSI::X3DObject& xsi_object, VDBData* vdb_data);
 XSI::CStatus update_vdb(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object);
 
 // cyc_curve

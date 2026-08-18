@@ -62,12 +62,14 @@ void RenderEngineCyc::path_init(const XSI::CString& plugin_path)
 {
 	XSI::CString folder_path = XSI::CUtils::BuildPath(plugin_path, "..", "..");
 	ccl::path_init(folder_path.GetAsciiString());
+}
 
+void RenderEngineCyc::config_init() {
 	// here we also can setup series rendering
 	InputConfig input_config = get_input_config();
-	if (input_config.is_init)
-	{
+	if (input_config.is_init) {
 		series_context->setup(input_config.series);
+		update_context->set_clear_cache_on_close(input_config.render.clear_cache);
 	}
 
 	// init openvdb
@@ -319,7 +321,7 @@ void RenderEngineCyc::pre_bake()
 		{
 			XSI::CParameterRefArray prop_params = bake_prop.GetParameters();
 			// there is a baking custom property
-			image_full_size_width = powi(2, 5 + (int)(prop_params.GetValue("texture_size", eval_time)));
+			image_full_size_width = powi(2, 5 + std::max(0, std::min(10, (int)(prop_params.GetValue("texture_size", eval_time)))));
 			image_full_size_height = image_full_size_width;
 			image_size_width = image_full_size_width;
 			image_size_height = image_full_size_width;
@@ -433,6 +435,7 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 
 	update_context->get_sync_profiler()->reset();
 	update_context->try_activate_sync_profiler(render_type, m_render_parameters.GetValue("options_logging_log_sync_time", eval_time));
+	update_context->increase_generation();  // to track the number of using of the same update context
 
 	if (render_type == RenderType::RenderType_Rendermap)
 	{
@@ -459,6 +462,17 @@ XSI::CStatus RenderEngineCyc::pre_scene_process()
 	}
 	update_context->set_use_texture_cache(m_render_parameters.GetValue("performance_texture_cache", eval_time));
 	update_context->set_texture_limits(static_cast<TextureLimits>((int)m_render_parameters.GetValue("performance_texture_limits", eval_time)));
+
+	if (!is_recreate_session &&
+		(update_context->get_use_background_shadow() != m_render_parameters.GetValue("background_surface_cast_shadow", eval_time))) {
+		bool use_shadows = m_render_parameters.GetValue("background_surface_cast_shadow", eval_time);
+		if (use_shadows) {
+			// When we activate use shadows, then we should recreate the scene from scratch
+			// may be this is Cycles bug, but disaple shadows works in update, but enabling does not activate it in render
+			is_recreate_session = true;
+		}
+	}
+	update_context->set_use_backgound_shadow(m_render_parameters.GetValue("background_surface_cast_shadow", eval_time));
 
 	update_context->set_current_render_parameters(m_render_parameters);
 	update_context->set_image_size(image_full_size_width, image_full_size_height);
@@ -657,7 +671,15 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::X3DObject& xsi_object, const Upd
 	}
 	else if (update_type == UpdateType::UpdateType_Mesh)
 	{
-		is_update = update_polymesh(session->scene.get(), update_context, xsi_object);
+		// this called also when we change geometry approximation property
+		// so, for different geometry type call different update method
+		XSI::CString xsi_type = xsi_object.GetType();
+		if (xsi_type == "polymsh") {
+			is_update = update_polymesh(session->scene.get(), update_context, xsi_object);
+		}
+		else if (xsi_type == "surfmsh") {
+			is_update = update_surface(session->scene.get(), update_context, xsi_object);
+		}
 	}
 	else if (update_type == UpdateType::UpdateType_Pointcloud)
 	{
@@ -793,22 +815,26 @@ XSI::CStatus RenderEngineCyc::update_scene(XSI::Material& xsi_material, bool mat
 					if (obj_class == XSI::siClassID::siX3DObjectID)
 					{
 						XSI::X3DObject xsi_obj(obj);
-						XSI::CString xsi_type = xsi_obj.GetType();
-						// use general update_scene function
-						if (xsi_type == "polymsh") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Mesh);
-						}
-						else if (xsi_type == "hair") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Hair);
-						}
-						else if (xsi_type == "pointcloud") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Pointcloud);
-						}
-						else if (xsi_type == "surfmsh") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Surface);
-						}
-						else if (xsi_type == "crvlist") {
-							is_update = update_scene(xsi_obj, UpdateType::UpdateType_Curve);
+						XSI::CStatus is_reset = reset_positions(session->scene.get(), update_context, xsi_obj);
+
+						if (is_reset == XSI::CStatus::Fail) {
+							XSI::CString xsi_type = xsi_obj.GetType();
+							// use general update_scene function
+							if (xsi_type == "polymsh") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Mesh);
+							}
+							else if (xsi_type == "hair") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Hair);
+							}
+							else if (xsi_type == "pointcloud") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Pointcloud);
+							}
+							else if (xsi_type == "surfmsh") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Surface);
+							}
+							else if (xsi_type == "crvlist") {
+								is_update = update_scene(xsi_obj, UpdateType::UpdateType_Curve);
+							}
 						}
 					}
 				}
@@ -970,6 +996,7 @@ XSI::CStatus RenderEngineCyc::post_scene()
 			display_pass_name,
 			m_render_parameters, eval_time);
 
+		sync_scene_attributes(session, eval_time);
 		// at the end sync passes (also set crypto passes for film and aproximate shadow catcher)
 		sync_passes(session->scene.get(), update_context, output_context, series_context, baking_context, visual_buffer);
 		series_context->set_common_path(output_context);
@@ -1086,6 +1113,11 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 
 	//log render time
 	if (render_type != RenderType_Shaderball && make_render && render_time > 0.00001) {
+		XSI::CString error_message = session->progress.get_error_message().c_str();
+		if (error_message.Length() > 0) {
+			log_message(error_message, XSI::siErrorMsg);
+		}
+
 		if (update_context->get_is_log_rendertime()) {
 			log_message("Render time: " + XSI::CString(render_time) + " seconds");
 		}
@@ -1104,9 +1136,6 @@ XSI::CStatus RenderEngineCyc::post_render_engine()
 			log_message(stats.full_report().c_str());
 		}
 	}
-
-	// remove temp directory (if it exists)
-	// remove_temp_path(temp_path);
 
 	// clear output context object
 	output_context->reset();

@@ -37,15 +37,30 @@ void sync_shaderball_hero(ccl::Scene* scene, const XSI::X3DObject &xsi_object, i
 		vertex_coordinates[3] = ccl::make_float3(-1.0, 1.0, 0.0);
 
 		size_t num_triangles = 2;
-		mesh->reserve_mesh(vertex_coordinates.size(), num_triangles);
-		mesh->set_verts(vertex_coordinates);
+		mesh->resize_mesh(vertex_coordinates.size(), num_triangles);
+		ccl::Attribute* attr_position = mesh->attributes.add(ccl::ATTR_STD_POSITION);
+		attr_position->resize(vertex_coordinates.size());
+		ccl::packed_float3* verts = attr_position->data_for_write<ccl::packed_float3>();
+		for (size_t i = 0; i < vertex_coordinates.size(); i++) {
+			verts[i] = vertex_coordinates[i];
+		}
 
-		mesh->add_triangle(0, 1, 2, 0, false);
-		mesh->add_triangle(0, 2, 3, 0, false);
+		// mesh->set_verts(vertex_coordinates);
+
+		int* data_triangles = mesh->get_triangles().data();
+		bool* data_smooth = mesh->get_smooth().data();
+		int* data_shader = mesh->get_shader().data();
+		data_triangles[0] = 0; data_triangles[1] = 1; data_triangles[2] = 2;
+		data_triangles[3] = 0; data_triangles[4] = 2; data_triangles[5] = 3;
+		data_smooth[0] = false; data_smooth[1] = false;
+		data_shader[0] = 0; data_shader[1] = 0;
+
+		// mesh->add_triangle(0, 1, 2, 0, false);
+		// mesh->add_triangle(0, 2, 3, 0, false);
 
 		// add uv coordinates
 		ccl::Attribute* uv_attr = mesh->attributes.add(ccl::ATTR_STD_UV, ccl::ustring("uv"));
-		ccl::float2* uv_data = uv_attr->data_float2();
+		ccl::float2* uv_data = uv_attr->data_for_write<ccl::float2>();
 		uv_data[0] = ccl::make_float2(0.0, 0.0);
 		uv_data[1] = ccl::make_float2(1.0, 0.0);
 		uv_data[2] = ccl::make_float2(1.0, 1.0);
@@ -144,7 +159,7 @@ void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, cc
 	int shader_id = scene->shaders.size() - 1;
 
 	// create the light
-	ccl::Light* light = scene->create_node<ccl::Light>();
+	ccl::AreaLight* light = scene->create_light_node<ccl::AreaLight>();
 	ccl::Object* object = scene->create_node<ccl::Object>();
 	object->set_geometry(light);
 	ccl::array<ccl::Node*> used_shaders;
@@ -154,7 +169,6 @@ void sync_one_light(ccl::Scene* scene, const XSI::MATH::CMatrix4 &xsi_matrix, cc
 
 	light->set_light_type(ccl::LightType::LIGHT_AREA);
 	object->set_tfm(xsi_matrix_to_transform(xsi_matrix));
-	light->set_size(1);
 	light->set_is_portal(false);
 	light->set_spread(M_PI);
 

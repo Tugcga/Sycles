@@ -1,6 +1,7 @@
 #pragma once
 #include "util/array.h"
 #include "util/types.h"
+#include "util/transform.h"
 
 #include <xsi_application.h>
 #include <xsi_string.h>
@@ -42,15 +43,24 @@ XSI::CString to_string(const std::vector<size_t>& array);
 XSI::CString to_string(const XSI::MATH::CMatrix4& matrix);
 XSI::CString to_string(const ccl::array<ccl::float2> &array);
 XSI::CString to_string(const ccl::array<ccl::float3>& array);
+XSI::CString to_string(const ccl::array<ccl::packed_float3>& array);
+XSI::CString to_string(const ccl::vector<ccl::packed_float3>& array);
+XSI::CString to_string(const ccl::array<ccl::packed_normal>& array);
 XSI::CString to_string(const ccl::array<ccl::float4>& array);
 XSI::CString to_string(const ccl::vector<ccl::float3>& array);
+XSI::CString to_string(const std::vector<ccl::float2>& array);
 XSI::CString to_string(const ccl::vector<ccl::float4>& array);
 XSI::CString to_string_float4(const ccl::float4 &value);  // to_string name exists in ccl namespace
 XSI::CString to_string(const ccl::array<int>& array);
 XSI::CString to_string(const ccl::vector<size_t>& array);
 XSI::CString to_string(const ImageRectangle& rect);
 XSI::CString to_string(const std::vector<XSI::CStringArray>& array);
+XSI::CString to_string(const XSI::MATH::CVector3Array& array);
 XSI::CString to_string_int2(const ccl::int2 &value);
 XSI::CString to_string_float3(const ccl::float3& value);
+XSI::CString to_string_float2(const ccl::float2& value);
+XSI::CString to_string(const XSI::MATH::CTransformation& tfm);
+XSI::CString to_string(const std::vector<XSI::MATH::CTransformation>& tfm_array);
+XSI::CString to_string(const ccl::Transform& tfm);
 
 XSI::CString bitmask_to_string(uint64_t mask);

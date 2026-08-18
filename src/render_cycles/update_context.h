@@ -6,6 +6,11 @@
 #include <xsi_light.h>
 
 #include "scene/shader_nodes.h"
+#include "scene/image.h"
+
+#include "MaterialXCore/Node.h"
+#include "MaterialXGenOsl/OslShaderGenerator.h"
+#include "MaterialXGenShader/GenContext.h"
 
 #include <unordered_map>
 #include <map>
@@ -189,6 +194,29 @@ public:
 	void clear_nodes_map();  // clear map from xsi_node to cycles node every time we start export the whole material
 
 	std::map<std::string, XSI::Image>& get_path_to_image();
+	void increase_generation();
+	size_t get_generation();
+	void copy_positions(ULONG xsi_id, const ccl::array<ccl::packed_float3>& positions);
+	bool has_positions(ULONG xsi_id);  // check that this object has stored positions
+	const ccl::array<ccl::packed_float3>* get_positions(ULONG xsi_id) const;
+
+	void set_use_backgound_shadow(bool value);
+	bool get_use_background_shadow();
+
+	XSI::CString materialx_library;  // store absolute path to library folder and folder with elementary nodes
+	XSI::CString materialx_nodes;
+	void clear_mx_nodes();
+	void add_mx_node(ULONG xsi_id, MaterialX::NodePtr mx_node);
+	bool has_mx_node(ULONG xsi_id);
+	MaterialX::NodePtr get_mx_node(ULONG xsi_id);
+	std::tuple<std::string, std::vector<std::tuple<std::string, std::string>>, std::vector<std::tuple<std::string, std::string>>> get_mx_data(const std::string& full_name);
+	MaterialX::ShaderGeneratorPtr get_osl_generator();
+	void try_init_materialx_path();
+	void try_init_osl_generator();
+	MaterialX::DocumentPtr get_std_lib();
+	void set_clear_cache_on_close(bool value);
+	void add_mx_image(const std::string &file_path, ccl::ImageParams params);
+	std::map<std::string, ccl::ImageParams> get_mx_images();
 
 private:
 	XSI::CParameterRefArray current_render_parameters;
@@ -249,6 +277,7 @@ private:
 	size_t background_shader_index;  // index in the Cycles array of shaders
 	ULONG background_xsi_material_id;  // material id from library, used for custom backround light source
 	int background_light_index;  // store here background light index in the Cycles array (we always create background light, from scene on manual), when no light is assigned, then -1
+	bool use_background_shadow;
 
 	// map from Softimage object id for Light (not for x3dobject) to index in the Cycles array of lights
 	// for custm light from x3dobject id to cycles index
@@ -314,4 +343,35 @@ private:
 	// this map should be clear before start export material, it's not used between different render sessions
 
 	std::map<std::string, XSI::Image> path_to_image;  // store map from texture full path to Image object. Create and use when use texture cache is active
+
+	// increase this counter every time we call the render
+	// if we recreate the scene and reset update contex - reset it to zero
+	// in all other cases it will change
+	// make it before all updates
+	// in particular it will allow to catch the change of volume texture
+	size_t update_generation;
+
+	std::unordered_map<ULONG, ccl::array<ccl::packed_float3>> object_to_vertices;  // store here original position of vertices (or points)
+	// key - object id (X3DObject, not primitive), value - positions
+	// use thiese arrays for restore original positions when we update displacement material
+	// store here vertices of objects, which assigned with displacement material (one of them)
+
+	// for each elementary Softimage node store here corresponding mx-node
+	// this map required only when export one mx-material, so, clear it befor the start
+	std::unordered_map<ULONG, MaterialX::NodePtr> id_to_mxnode;
+
+	// store here data for different mx names
+	// fiil it duiring export process, does not clear between sessions
+	// only when destroy the context
+	// the key - is the raw node name (ND_fractal3d_color4)
+	// value - required data
+	std::unordered_map<std::string, std::tuple<std::string, std::vector<std::tuple<std::string, std::string>>, std::vector<std::tuple<std::string, std::string>>>> mx_filename_to_data;
+	MaterialX::ShaderGeneratorPtr osl_context;
+	MaterialX::DocumentPtr std_lib;
+	bool is_osl_context_init;
+	// store here parameters of all images, when we export mx-material for compiling it to osl
+	// it needed proper define image parameters in the osl render service
+	std::map<std::string, ccl::ImageParams> mx_images;
+
+	bool clear_cache_on_close;
 };

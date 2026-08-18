@@ -107,7 +107,7 @@ ccl::Pass* pass_add(ccl::Scene* scene, ccl::PassType type, ccl::ustring name, cc
 
 int get_pass_components(ccl::PassType pass_type, bool is_lightgroup)
 {
-	ccl::PassInfo pass_info = ccl::Pass::get_info(pass_type, false, is_lightgroup);
+	ccl::PassInfo pass_info = ccl::Pass::get_info(pass_type, ccl::PassMode::NOISY, false, is_lightgroup);
 	return pass_info.num_components;
 }
 
@@ -139,6 +139,7 @@ ccl::PassType channel_to_pass_type(const XSI::CString &channel_name)
     else if (channel_name == "Cycles Shadow Catcher") { return ccl::PASS_SHADOW_CATCHER; }
     else if (channel_name == "Cycles Motion") { return ccl::PASS_MOTION; }
     else if (channel_name == "Cycles Mist") { return ccl::PASS_MIST; }
+    else if (channel_name == "Cycles Render Time") { return ccl::PASS_RENDER_TIME; }
     else if (channel_name == "Cycles Volume Direct") { return ccl::PASS_VOLUME_DIRECT; }
     else if (channel_name == "Cycles Volume Indirect") { return ccl::PASS_VOLUME_INDIRECT; }
     else if (channel_name == "Cycles Sample Count") { return ccl::PASS_SAMPLE_COUNT; }
@@ -171,6 +172,8 @@ XSI::CString pass_to_name(ccl::PassType pass_type)
         return "Depth";
     case ccl::PASS_MIST:
         return "Mist";
+    case ccl::PASS_RENDER_TIME:
+        return "Render Time";
     case ccl::PASS_POSITION:
         return "Position";
     case ccl::PASS_NORMAL:

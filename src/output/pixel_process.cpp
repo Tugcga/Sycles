@@ -46,7 +46,7 @@ void convert_with_components(size_t width, size_t height, int input_components, 
 		// 4->1 - copy only the alpha
 		// 4->3 - ignore alpha
 		// 3->1 - get average color
-		// oher situations are impossible (because Cycles return only 1, 3 or 4 channels and otuput images supports 1, 3 or 4 channels)
+		// oher situations are impossible (because Cycles return only 1, 3 or 4 channels and output images supports 1, 3 or 4 channels)
 		for (size_t y = 0; y < height; y++)
 		{
 			size_t row = flip_verticaly ? height - y - 1 : y;
@@ -59,8 +59,8 @@ void convert_with_components(size_t width, size_t height, int input_components, 
 				else if (input_components == 3 && output_components == 1)
 				{
 					output_pixels[row * width + x] = (input_pixels[(y * width + x) * input_components] +
-														 input_pixels[(y * width + x) * input_components] + 
-														 input_pixels[(y * width + x) * input_components]) / 0.3f;
+													  input_pixels[(y * width + x) * input_components + 1] + 
+													  input_pixels[(y * width + x) * input_components + 2]) * 0.3f;
 				}
 				else
 				{

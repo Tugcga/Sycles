@@ -90,6 +90,7 @@ SICALLBACK CyclesRenderer_Init(XSI::CRef &in_ctxt)
 	renderer.AddDefaultChannel("Cycles Shadow Catcher", XSI::siRenderChannelColorType);  // 3
 	renderer.AddDefaultChannel("Cycles Motion", XSI::siRenderChannelColorType);  // 4
 	renderer.AddDefaultChannel("Cycles Mist", XSI::siRenderChannelGrayscaleType);  // 1
+	renderer.AddDefaultChannel("Cycles Render Time", XSI::siRenderChannelGrayscaleType);  // 1
 	renderer.AddDefaultChannel("Cycles Volume Direct", XSI::siRenderChannelColorType);  // 3
 	renderer.AddDefaultChannel("Cycles Volume Indirect", XSI::siRenderChannelColorType);  // 3
 	renderer.AddDefaultChannel("Cycles Sample Count", XSI::siRenderChannelGrayscaleType);  // 1
@@ -115,6 +116,7 @@ SICALLBACK CyclesRenderer_Init(XSI::CRef &in_ctxt)
 
 	// read input config from ini file and store it in the global static variable
 	read_config_ini();
+	render->config_init();
 
 	// and also read ocio config from external file
 	read_ocio_config();

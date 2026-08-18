@@ -61,3 +61,4 @@ XSI::MATH::CColor4f get_color_parameter_value(const XSI::CParameterRefArray& all
 XSI::MATH::CVector3 get_vector_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time);
 XSI::FCurve get_fcurve_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time);
 XSI::ImageClip2 get_clip_parameter_value(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name, const XSI::CTime& eval_time);
+bool is_parameter_connected(const XSI::CParameterRefArray& all_parameters, const XSI::CString& parameter_name);

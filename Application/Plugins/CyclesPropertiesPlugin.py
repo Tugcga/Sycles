@@ -13,10 +13,12 @@ false = 0
 true = 1
 
 subdivTypes = ["None", 0, "Linear", 1, "Catmull-Clark", 2]
+
 subdiv_boundary_smooth_enum = [
     "Preserve Corners", 0,
     "Smooth All", 1
 ]
+
 subdiv_uv_smooth_enum = [
     "None", 0,
     "Preserve Corners", 1,
@@ -25,6 +27,18 @@ subdiv_uv_smooth_enum = [
     "Preserve Boundaries", 4,
     "Smooth All", 5
 ]
+
+subdiv_space_enum = [
+    "Pixel", 0,
+    "Object", 1
+]
+
+surface_trianglulation_enum = [
+    "Parametric", 0,
+    "Geometry Approximation", 1
+]
+
+
 volume_space_types = ["Object", 0, "World", 1]
 
 baking_shaders = ["Position", "Cycles Position",
@@ -63,6 +77,14 @@ baking_sizes = ["32x32", 0,
 
 baking_view_enum = ["Above Surface", 0,
                     "Active Camera", 1]
+
+
+curve_type_enum = [
+    "Use Render Options", 0,
+    "Rounded Ribbons", 1,
+    "3D Curves", 2,
+    "Linear 3D Curves", 3
+]
 
 
 def XSILoadPlugin(in_reg):
@@ -357,6 +379,7 @@ def setup_common_properties(prop):
     prop.AddParameter3("ray_visibility_transmission", c.siBool, 1)
     prop.AddParameter3("ray_visibility_volume_scatter", c.siBool, 1)
     prop.AddParameter3("ray_visibility_shadow", c.siBool, 1)
+    prop.AddParameter3("ray_visibility_raycast", c.siBool, 1)
 
     prop.AddParameter3("simplify_camera_cull", c.siBool, 1)
     prop.AddParameter3("simplify_distance_cull", c.siBool, 1)
@@ -367,11 +390,17 @@ def setup_common_properties(prop):
     prop.AddParameter3("caustics_receive", c.siBool, False)
 
 
+def setup_curve_override_properties(prop):
+    prop.AddParameter3("curve_override", c.siInt2, 0, 0, 3)
+
+
 def CyclesMesh_Define(in_ctxt):
     prop = in_ctxt.Source
     prop.AddParameter3("subdiv_type", c.siInt2, 0)
     prop.AddParameter2("subdiv_max_level", c.siInt2, 1, 0, 64, 0, 8, False, True)
-    prop.AddParameter2("subdiv_dicing_rate", c.siFloat, 1.0, 0.1, 1024.0, 0.5, 16.0, False, True)
+    prop.AddParameter3("subdiv_space", c.siInt2, 0)
+    prop.AddParameter2("subdiv_pixel_size", c.siFloat, 1.0, 0.5, 1024.0, 0.5, 2.0, False, True)
+    prop.AddParameter2("subdiv_edge_length", c.siFloat, 0.01, 0.001, 1024.0, 0.005, 0.05, False, True)
     prop.AddParameter3("subdiv_boundary_smooth", c.siInt2, 0)
     prop.AddParameter3("subdiv_uv_smooth", c.siInt2, 4)
     setup_common_properties(prop)
@@ -381,6 +410,7 @@ def CyclesMesh_Define(in_ctxt):
 
 def CyclesHairs_Define(in_ctxt):
     prop = in_ctxt.Source
+    setup_curve_override_properties(prop)
     setup_common_properties(prop)
     return True
 
@@ -390,6 +420,7 @@ def CyclesCurve_Define(in_ctxt):
     prop.AddParameter2("curve_size", c.siFloat, 0.1, 0.0, 1024.0, 0.0, 1.0, False, True)
     prop.AddParameter2("curve_samples", c.siInt4, 128, 1, 2147483647, 1, 256, False, True)
     prop.AddParameter3("curve_material", c.siString, "")
+    setup_curve_override_properties(prop)
     setup_common_properties(prop)
     return True
 
@@ -398,6 +429,7 @@ def CyclesSurface_Define(in_ctxt):
     prop = in_ctxt.Source
     prop.AddParameter2("surface_u_samples", c.siInt4, 128, 1, 2147483647, 1, 256, False, True)
     prop.AddParameter2("surface_v_samples", c.siInt4, 128, 1, 2147483647, 1, 256, False, True)
+    prop.AddParameter3("surface_triangulation_type", c.siInt2, 0)
     setup_common_properties(prop)
     return True
 
@@ -407,7 +439,7 @@ def CyclesVolume_Define(in_ctxt):
     oProp = in_ctxt.Source
     oProp.AddParameter3("volume_object_space", c.siInt2, 0, 0, 1)
     oProp.AddParameter2("volume_step_size", c.siFloat, 0.0, 0.0, 100.0, 0.0, 1.0, 32768, 1)
-    oProp.AddParameter2("volume_clipping", c.siFloat, 0.001, 0.0, 1.0, 0.0, 0.01)
+    oProp.AddParameter2("volume_velocity_scale", c.siFloat, 1.0, 0.0, 1024.0, 0.25, 2.0, 32768, 1)
     return True
 
 
@@ -415,6 +447,7 @@ def CyclesPointcloud_Define(in_ctxt):
     prop = in_ctxt.Source
     prop.AddParameter3("primitive_pc", c.siBool, False)
     prop.AddParameter3("use_pc_color", c.siBool, True)
+    setup_curve_override_properties(prop)
     setup_common_properties(prop)
 
     return True
@@ -660,12 +693,19 @@ def CyclesBake_baking_shader_OnChanged():
 
 def mesh_ui_update(prop):
     subdiv_type = prop.Parameters("subdiv_type").Value
+    subdiv_space = prop.Parameters("subdiv_space").Value
     if subdiv_type == 0:
         prop.Parameters("subdiv_max_level").ReadOnly = True
-        prop.Parameters("subdiv_dicing_rate").ReadOnly = True
+        # prop.Parameters("subdiv_dicing_rate").ReadOnly = True
+        prop.Parameters("subdiv_pixel_size").ReadOnly = True
+        prop.Parameters("subdiv_edge_length").ReadOnly = True
+        prop.Parameters("subdiv_space").ReadOnly = True
     else:
         prop.Parameters("subdiv_max_level").ReadOnly = False
-        prop.Parameters("subdiv_dicing_rate").ReadOnly = False
+        # prop.Parameters("subdiv_dicing_rate").ReadOnly = False
+        prop.Parameters("subdiv_pixel_size").ReadOnly = True
+        prop.Parameters("subdiv_edge_length").ReadOnly = True
+        prop.Parameters("subdiv_space").ReadOnly = False
 
     if subdiv_type == 2:
         prop.Parameters("subdiv_boundary_smooth").ReadOnly = False
@@ -673,6 +713,14 @@ def mesh_ui_update(prop):
     else:
         prop.Parameters("subdiv_boundary_smooth").ReadOnly = True
         prop.Parameters("subdiv_uv_smooth").ReadOnly = True
+
+    if subdiv_type != 0:
+        if subdiv_space == 0:
+            prop.Parameters("subdiv_pixel_size").ReadOnly = False
+            prop.Parameters("subdiv_edge_length").ReadOnly = True
+        else:
+            prop.Parameters("subdiv_pixel_size").ReadOnly = True
+            prop.Parameters("subdiv_edge_length").ReadOnly = False
 
 
 def build_common_property_ui(layout):
@@ -725,6 +773,13 @@ def build_common_property_ui(layout):
     layout.AddItem("ray_visibility_transmission", "Transmission")
     layout.AddItem("ray_visibility_volume_scatter", "Volume Scatter")
     layout.AddItem("ray_visibility_shadow", "Shadow")
+    layout.AddItem("ray_visibility_raycast", "Raycast")
+    layout.EndGroup()
+
+
+def build_curve_override_ui(layout):
+    layout.AddGroup("Curve")
+    layout.AddEnumControl("curve_override", curve_type_enum, "Curve Shape")
     layout.EndGroup()
 
 
@@ -737,7 +792,10 @@ def mesh_property_build_ui():
     layout.AddGroup("Properties")
     layout.AddEnumControl("subdiv_type", subdivTypes, "Subdivision Type")
     layout.AddItem("subdiv_max_level", "Subdivision Level")
-    layout.AddItem("subdiv_dicing_rate", "Dicing Rate")  # implemented in built-in osd
+    # layout.AddItem("subdiv_dicing_rate", "Dicing Rate")  # implemented in built-in osd
+    layout.AddEnumControl("subdiv_space", subdiv_space_enum, "Subdivision Space")
+    layout.AddItem("subdiv_pixel_size", "Pixel Size")
+    layout.AddItem("subdiv_edge_length", "Edge Length")
     layout.AddEnumControl("subdiv_boundary_smooth", subdiv_boundary_smooth_enum, "Boundary Smooth")
     layout.AddEnumControl("subdiv_uv_smooth", subdiv_uv_smooth_enum, "UV Smooth")
     layout.EndGroup()
@@ -752,14 +810,38 @@ def CyclesMesh_subdiv_type_OnChanged():
     mesh_ui_update(prop)
 
 
+def CyclesMesh_subdiv_space_OnChanged():
+    prop = PPG.Inspected(0)
+    mesh_ui_update(prop)
+
+
+def hairs_ui_update(prop):
+    pass
+
+
 def cycles_hairs_property_build_ui():
+    prop = PPG.Inspected(0)
     layout = PPG.PPGLayout
     layout.Clear()
+    build_curve_override_ui(layout)
     build_common_property_ui(layout)
     PPG.Refresh()
 
+    hairs_ui_update(prop)
+
+
+def CyclesHairs_curve_override_OnChanged():
+    prop = PPG.Inspected(0)
+    hairs_ui_update(prop)
+    return
+
+
+def curve_ui_update(prop):
+    pass
+
 
 def cycles_curve_property_build_ui():
+    prop = PPG.Inspected(0)
     layout = PPG.PPGLayout
     layout.Clear()
 
@@ -787,8 +869,17 @@ def cycles_curve_property_build_ui():
     layout.AddEnumControl("curve_material", materials_enum, "Material")
     layout.EndGroup()
 
+    build_curve_override_ui(layout)
     build_common_property_ui(layout)
     PPG.Refresh()
+
+    curve_ui_update(prop)
+
+
+def CyclesCurve_curve_override_OnChanged():
+    prop = PPG.Inspected(0)
+    curve_ui_update(prop)
+    return
 
 
 def cycles_surface_property_build_ui():
@@ -797,12 +888,23 @@ def cycles_surface_property_build_ui():
 
     layout.AddTab("Geometry")
     layout.AddGroup("Properties")
+    layout.AddEnumControl("surface_triangulation_type", surface_trianglulation_enum, "Triangulation Type")
     layout.AddItem("surface_u_samples", "U Density")
     layout.AddItem("surface_v_samples", "V Density")
     layout.EndGroup()
 
     build_common_property_ui(layout)
     PPG.Refresh()
+
+
+def cycles_surface_property_update(prop):
+    surface_triangulation_type = prop.Parameters("surface_triangulation_type").Value
+    if surface_triangulation_type == 0:
+        prop.Parameters("surface_u_samples").ReadOnly = False
+        prop.Parameters("surface_v_samples").ReadOnly = False
+    elif surface_triangulation_type == 1:
+        prop.Parameters("surface_u_samples").ReadOnly = True
+        prop.Parameters("surface_v_samples").ReadOnly = True
 
 
 def cycles_volume_property_build_ui():
@@ -814,7 +916,7 @@ def cycles_volume_property_build_ui():
     oLayout.AddGroup("Volume Properties")
     oLayout.AddEnumControl("volume_object_space", volume_space_types, "Space")
     oLayout.AddItem("volume_step_size", "Step Size")
-    oLayout.AddItem("volume_clipping", "Clipping")
+    oLayout.AddItem("volume_velocity_scale", "Velocity Scale")
     oLayout.EndGroup()
     PPG.Refresh()
 
@@ -823,8 +925,10 @@ def pointcloud_ui_update(prop):
     primitive_pc = prop.Parameters("primitive_pc").Value
     if primitive_pc:
         prop.Parameters("use_pc_color").ReadOnly = True
+        prop.Parameters("curve_override").ReadOnly = True
     else:
         prop.Parameters("use_pc_color").ReadOnly = False
+        prop.Parameters("curve_override").ReadOnly = False
 
 
 def cycles_pointcloud_property_build_ui():
@@ -836,10 +940,12 @@ def cycles_pointcloud_property_build_ui():
     layout.AddGroup("Particles")
     layout.AddItem("primitive_pc", "Native Cycles Pointcloud")
     layout.EndGroup()
+
     layout.AddGroup("Pointcloud")
     layout.AddItem("use_pc_color", "Override Pointcloud Color")
     layout.EndGroup()
 
+    build_curve_override_ui(layout)
     build_common_property_ui(layout)
     PPG.Refresh()
 
@@ -847,6 +953,12 @@ def cycles_pointcloud_property_build_ui():
 
 
 def CyclesPointcloud_primitive_pc_OnChanged():
+    prop = PPG.Inspected(0)
+    pointcloud_ui_update(prop)
+    return
+
+
+def CyclesPointcloud_curve_override_OnChanged():
     prop = PPG.Inspected(0)
     pointcloud_ui_update(prop)
     return
@@ -900,6 +1012,12 @@ def CyclesCurve_OnInit():
 
 def CyclesSurface_OnInit():
     cycles_surface_property_build_ui()
+    cycles_surface_property_update(PPG.Inspected(0))
+    return True
+
+
+def CyclesSurface_surface_triangulation_type_OnChanged():
+    cycles_surface_property_update(PPG.Inspected(0))
     return True
 
 

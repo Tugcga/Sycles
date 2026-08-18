@@ -4,31 +4,62 @@
 
 #include "scene/scene.h"
 #include "scene/object.h"
+#include "scene/geometry.h"
+#include "scene/mesh.h"
+#include "scene/attribute.h"
+#include "scene/hair.h"
 #include "util/hash.h"
 
 #include "../../../utilities/xsi_properties.h"
 #include "../../../utilities/math.h"
 #include "../../../utilities/logs.h"
+#include "../../update_context.h"
 
-ccl::uint get_ray_visibility(const XSI::CParameterRefArray &property_params, const XSI::CTime &eval_time)
+ccl::PathRayVisibility get_ray_visibility(const XSI::CParameterRefArray &property_params, const XSI::CTime &eval_time)
 {
-	ccl::uint flag = 0;
-	flag |= bool(property_params.GetValue("ray_visibility_camera", eval_time)) ? ccl::PATH_RAY_CAMERA : 0;
-	flag |= bool(property_params.GetValue("ray_visibility_diffuse", eval_time)) ? ccl::PATH_RAY_DIFFUSE : 0;
-	flag |= bool(property_params.GetValue("ray_visibility_glossy", eval_time)) ? ccl::PATH_RAY_GLOSSY : 0;
-	flag |= bool(property_params.GetValue("ray_visibility_transmission", eval_time)) ? ccl::PATH_RAY_TRANSMIT : 0;
-	flag |= bool(property_params.GetValue("ray_visibility_shadow", eval_time)) ? ccl::PATH_RAY_SHADOW : 0;
-	flag |= bool(property_params.GetValue("ray_visibility_volume_scatter", eval_time)) ? ccl::PATH_RAY_VOLUME_SCATTER : 0;
+	ccl::PathRayVisibility visibility = ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_camera", eval_time)) ? ccl::PATH_RAY_VISIBILITY_CAMERA : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_diffuse", eval_time)) ? ccl::PATH_RAY_VISIBILITY_DIFFUSE : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_glossy", eval_time)) ? ccl::PATH_RAY_VISIBILITY_GLOSSY : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_transmission", eval_time)) ? ccl::PATH_RAY_VISIBILITY_TRANSMIT : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_shadow", eval_time)) ? ccl::PATH_RAY_VISIBILITY_SHADOW : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_volume_scatter", eval_time)) ? ccl::PATH_RAY_VISIBILITY_VOLUME_SCATTER : ccl::PATH_RAY_VISIBILITY_NONE;
+	visibility |= bool(property_params.GetValue("ray_visibility_raycast", eval_time)) ? ccl::PATH_RAY_VISIBILITY_RAYCAST : ccl::PATH_RAY_VISIBILITY_NONE;
 
 	XSI::Parameter is_holdout_param = property_params.GetItem("is_holdout");
 	if (is_holdout_param.IsValid())
 	{
 		if (bool(is_holdout_param.GetValue(eval_time)))
 		{
-			flag &= ~(ccl::PATH_RAY_ALL_VISIBILITY - ccl::PATH_RAY_CAMERA);
+			visibility &= ~ccl::PATH_RAY_VISIBILITY_CAMERA;
 		}
 	}
-	return flag;
+	return visibility;
+}
+
+void override_curve_shape(ccl:: Scene* scene, ccl::Hair* hair, const XSI::CString &property_name, XSI::X3DObject& xsi_object, const XSI::CTime &eval_time) {
+	XSI::Property xsi_property = get_xsi_object_property(xsi_object, property_name);
+	if (xsi_property.IsValid()) {
+		XSI::CParameterRefArray xsi_params = xsi_property.GetParameters();
+		int curve_override = xsi_params.GetValue("curve_override", eval_time);
+		int curve_subdivisions = xsi_params.GetValue("curve_subdivisions", eval_time);
+
+		if (curve_override == 1) {
+			hair->curve_shape = ccl::CurveShapeType::CURVE_RIBBON;
+		}
+		else if (curve_override == 2) {
+			hair->curve_shape = ccl::CurveShapeType::CURVE_THICK;
+		}
+		else if (curve_override == 3) {
+			hair->curve_shape = ccl::CurveShapeType::CURVE_THICK_LINEAR;
+		}
+		else {
+			hair->curve_shape = scene->params.hair_shape;
+		}
+	}
+	else {
+		hair->curve_shape = scene->params.hair_shape;
+	}
 }
 
 void sync_geometry_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3DObject &xsi_object, XSI::CString &lightgroup, bool &out_motion_deform, const XSI::CString &property_name, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time, bool full_update)
@@ -174,4 +205,101 @@ void sync_vdb_object_parameters(ccl::Scene* scene, ccl::Object* object, XSI::X3D
 	}
 	
 	object->tag_pass_id_modified();
+}
+
+void store_positions(ccl::Geometry* geometry, UpdateContext* update_context, ULONG xsi_id) {
+	ccl::Attribute* position_attribute = nullptr;
+	if (geometry->geometry_type == ccl::Geometry::Type::MESH) {
+		ccl::Mesh* mesh_geom = static_cast<ccl::Mesh*>(geometry);
+		if (mesh_geom->get_subdivision_type() == ccl::Mesh::SubdivisionType::SUBDIVISION_NONE) {
+			position_attribute = mesh_geom->attributes.find(ccl::ATTR_STD_POSITION);
+		}
+		else {
+			// TODO: this function used to store attribute positions
+			// and use it under update to restore displacement meshes
+			// when we change material with displacement
+			// but for subdivided polymeshes the system does not properly work
+			// we try to restore data, but the render has artifacts
+			// perhaps, no crashes
+			// so, skip subdivided meshes
+			// position_attribute = mesh_geom->subd_attributes.find(ccl::ATTR_STD_POSITION);
+		}
+	}
+	else {
+		position_attribute = geometry->attributes.find(ccl::ATTR_STD_POSITION);
+	}
+	
+	if (position_attribute) {
+		// get the number of motion steps
+		size_t steps = geometry->get_motion_steps();
+		ccl::array<ccl::packed_float3> positions(position_attribute->size * (steps == 0 ? 1 : steps));
+
+		const ccl::packed_float3* data = position_attribute->data_for_write<ccl::packed_float3>();
+		std::copy_n(data, position_attribute->size, positions.begin());
+		if (steps > 0) {
+			for (size_t s = 0; s < steps - 1; s++) {
+				const ccl::packed_float3* motion_data = position_attribute->data_for_write<ccl::packed_float3>(s + 1);
+				std::copy_n(motion_data, position_attribute->size, positions.begin() + (s + 1) * position_attribute->size);
+			}
+		}
+
+		update_context->copy_positions(xsi_id, positions);
+	}
+}
+
+XSI::CStatus reset_on_geometry(ccl::Scene* scene, UpdateContext* update_context, ULONG xsi_id, const ccl::array<ccl::packed_float3>* positions) {
+	if (update_context->is_geometry_exists(xsi_id)) {
+		size_t geometry_index = update_context->get_geometry_index(xsi_id);
+		ccl::Geometry* geometry = scene->geometry[geometry_index];
+		ccl::Attribute* attribute = nullptr;
+
+		bool is_subdivide = false;
+
+		if (geometry->geometry_type == ccl::Geometry::Type::MESH) {
+			// for meshes we should restore either normal attributes or subdivided attributes
+			ccl::Mesh* mesh = static_cast<ccl::Mesh*>(geometry);
+			ccl::Mesh::SubdivisionType subdiv_type = mesh->get_subdivision_type();
+			if (subdiv_type == ccl::Mesh::SubdivisionType::SUBDIVISION_NONE) {
+				attribute = mesh->attributes.find(ccl::ATTR_STD_POSITION);
+			}
+			else {
+				ccl::Mesh* mesh = static_cast<ccl::Mesh*>(geometry);
+				attribute = mesh->subd_attributes.find(ccl::ATTR_STD_POSITION);
+				is_subdivide = true;
+			}
+		}
+		else {
+			// for all other geometries - use always normal attributes
+			attribute = geometry->attributes.find(ccl::ATTR_STD_POSITION);
+		}
+
+		if (attribute) {
+			if (is_subdivide) {
+				// for subdivide attribute we also should reset mesh vertex positions
+				ccl::Mesh* mesh = static_cast<ccl::Mesh*>(geometry);
+				mesh->resize_mesh(attribute->size, 0);
+			}
+			// and define position attribute
+			size_t size = attribute->size;
+			// copy non-motion positions
+			std::copy_n(positions->data(), size, attribute->data_for_write<ccl::packed_float3>());
+			if (positions->size() > size) {
+				// array contains motion positions
+				size_t steps = positions->size() / size;
+				for (size_t s = 0; s < steps - 1; s++) {
+					ccl::packed_float3* data = attribute->data_for_write<ccl::packed_float3>(s + 1);
+					std::copy_n(positions->data() + size * (s + 1), size, data);
+				}
+			}
+
+			geometry->tag_position_modified();
+			return XSI::CStatus::OK;
+		}
+		else {
+			return XSI::CStatus::Fail;
+		}
+	}
+	else {
+		return XSI::CStatus::Fail;
+	}
 }

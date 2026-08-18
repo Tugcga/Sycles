@@ -46,154 +46,13 @@ ccl::Mesh* build_sphere(ccl::Scene* scene)
 	return build_primitive(scene, sphere_vertex_count, sphere_vertices, sphere_faces_count, sphere_face_sizes, sphere_face_indexes);
 }
 
-void sync_demo_scene(ccl::Scene *scene, UpdateContext* update_context)
-{
-	// for test purpose only we create simple scene with one plane and one cube with sky light
-	// from actual xsi scene we get only camera position
-	// for meshes use default surface shader (it has index 0)
-
-	// create shader for shpere
-	ccl::Shader* sphere_shader = scene->create_node<ccl::Shader>();
-	sphere_shader->name = "sphere_shader";
-	std::unique_ptr<ccl::ShaderGraph> sphere_shader_graph = std::make_unique<ccl::ShaderGraph>();
-	ccl::SubsurfaceScatteringNode* sss_node = sphere_shader_graph->create_node<ccl::SubsurfaceScatteringNode>();
-	ccl::ColorNode* color_node = sphere_shader_graph->create_node<ccl::ColorNode>();
-	color_node->set_value(ccl::make_float3(1.0, 0.2, 0.2));
-	ccl::OutputAOVNode* color_aov_node = sphere_shader_graph->create_node<ccl::OutputAOVNode>();
-	color_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name(XSI::CString("sphere_color_aov"), true).GetAsciiString()));
-	// we use changed names for attributes, but output to the passes original name
-	// these names will be changed by the same function
-	ccl::OutputAOVNode* value_aov_node = sphere_shader_graph->create_node<ccl::OutputAOVNode>();
-	value_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name("sphere_value_aov", false).GetAsciiString()));
-	ccl::NoiseTextureNode* noise_node = sphere_shader_graph->create_node<ccl::NoiseTextureNode>();
-	// make connections
-	sphere_shader_graph->connect(color_node->output("Color"), sss_node->input("Color"));
-	sphere_shader_graph->connect(color_node->output("Color"), color_aov_node->input("Color"));
-	sphere_shader_graph->connect(noise_node->output("Color"), value_aov_node->input("Value"));
-	sphere_shader_graph->connect(noise_node->output("Color"), sss_node->input("Scale"));
-
-	ccl::ShaderNode* sphere_out = sphere_shader_graph->output();
-	sphere_shader_graph->connect(sss_node->output("BSSRDF"), sphere_out->input("Surface"));
-	sphere_shader->set_graph(std::move(sphere_shader_graph));
-	sphere_shader->tag_update(scene);
-	int sphere_shader_id = scene->shaders.size() - 1;
-
-	// create shader for plane
-	ccl::Shader* plane_shader = scene->create_node<ccl::Shader>();
-	plane_shader->name = "plane_shader";
-	std::unique_ptr<ccl::ShaderGraph> plane_shader_graph = std::make_unique<ccl::ShaderGraph>();
-	ccl::GlossyBsdfNode* glossy_node = plane_shader_graph->create_node<ccl::GlossyBsdfNode>();
-	glossy_node->set_roughness(0.25f);
-	ccl::OutputAOVNode* plane_value_aov_node = plane_shader_graph->create_node<ccl::OutputAOVNode>();
-	plane_value_aov_node->set_name(ccl::ustring(add_prefix_to_aov_name("plane_value_aov", false).GetAsciiString()));
-	ccl::CheckerTextureNode* checker_node = plane_shader_graph->create_node<ccl::CheckerTextureNode>();
-	checker_node->set_scale(0.3f);
-	checker_node->set_color1(ccl::make_float3(0.2, 0.2, 0.2));
-	checker_node->set_color2(ccl::make_float3(0.8, 0.8, 0.8));
-	// connections
-	plane_shader_graph->connect(checker_node->output("Color"), plane_value_aov_node->input("Value"));
-	plane_shader_graph->connect(checker_node->output("Color"), glossy_node->input("Color"));
-	ccl::ShaderNode* plane_out = plane_shader_graph->output();
-	plane_shader_graph->connect(glossy_node->output("BSDF"), plane_out->input("Surface"));
-	plane_shader->set_graph(std::move(plane_shader_graph));
-	plane_shader->tag_update(scene);
-
-	int plane_shader_id = scene->shaders.size() - 1;
-
-	// add plane
-	ccl::Mesh* plane_mesh = scene->create_node<ccl::Mesh>();
-
-	ccl::array<ccl::Node*> plane_used_shaders;
-	plane_used_shaders.push_back_slow(scene->shaders[plane_shader_id]);
-	plane_mesh->set_used_shaders(plane_used_shaders);
-
-	ccl::Object* plane_object = scene->create_node<ccl::Object>();
-	plane_object->set_geometry(plane_mesh);
-	plane_object->name = "plane";
-	plane_object->set_asset_name(ccl::ustring("plane"));
-	//plane_object->set_is_shadow_catcher(true);
-
-	ccl::Transform plane_tfm = ccl::transform_identity();
-	plane_object->set_tfm(plane_tfm);
-
-	plane_mesh->reserve_mesh(4, 2);  // on plane 4 vertices, 2 triangles
-	float plane_radius = 48.0;  // large plane for shadow catcher
-	ccl::array<ccl::float3> vertices(4);
-	vertices[0] = ccl::make_float3(plane_radius, 0, plane_radius);
-	vertices[1] = ccl::make_float3(-plane_radius, 0, plane_radius);
-	vertices[2] = ccl::make_float3(-plane_radius, 0, -plane_radius);
-	vertices[3] = ccl::make_float3(plane_radius, 0, -plane_radius);
-	plane_mesh->set_verts(vertices);
-
-	// triangles
-	plane_mesh->add_triangle(0, 1, 2, 0, false);
-	plane_mesh->add_triangle(0, 2, 3, 0, false);
-
-	// uvs
-	ccl::Attribute* uv_attr = plane_mesh->attributes.add(ccl::ATTR_STD_UV, ccl::ustring("std_uv"));
-	ccl::float2* default_uv = uv_attr->data_float2();
-	float scale = 0.75f;
-	default_uv[0] = ccl::make_float2(scale, scale);
-	default_uv[1] = ccl::make_float2(0.0, scale);
-	default_uv[2] = ccl::make_float2(0.0, 0.0);
-	default_uv[3] = ccl::make_float2(scale, scale);
-	default_uv[4] = ccl::make_float2(0.0, 0.0);
-	default_uv[5] = ccl::make_float2(scale, 0.0);
-
-	// shaders
-	ccl::array<ccl::Node*> used_shaders;
-	used_shaders.push_back_slow(scene->shaders[0]);
-
-	// add sphere
-	ccl::array<ccl::Node*> sphere_used_shaders;
-	sphere_used_shaders.push_back_slow(scene->shaders[sphere_shader_id]);
-	ccl::Mesh* sphere_mesh = build_sphere(scene);
-	sphere_mesh->set_used_shaders(sphere_used_shaders);
-	ccl::Object* sphere_object = scene->create_node<ccl::Object>();
-	sphere_object->set_geometry(sphere_mesh);
-	sphere_object->name = "sphere";
-	sphere_object->set_asset_name(ccl::ustring("sphere"));
-	ccl::Transform sphere_tfm = ccl::transform_identity();
-	sphere_tfm = sphere_tfm * ccl::transform_translate(ccl::make_float3(0, 6, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
-	sphere_object->set_tfm(sphere_tfm);
-
-	// add cube
-	ccl::Mesh* cube_mesh = build_cube(scene);
-	cube_mesh->set_used_shaders(used_shaders);
-	
-	/*ccl::Object* cube_object = scene->create_node<ccl::Object>();
-	cube_object->set_geometry(cube_mesh);
-	cube_object->name = "cube";
-	cube_object->set_asset_name(ccl::ustring("cube"));
-	ccl::Transform cube_tfm = ccl::transform_identity();
-	cube_tfm = cube_tfm * ccl::transform_translate(ccl::make_float3(0, 2, 0)) * ccl::transform_scale(2.0f, 2.0f, 2.0f);
-	cube_object->set_tfm(cube_tfm);*/
-	ccl::Hair* hair_geom = scene->create_node<ccl::Hair>();
-	hair_geom->set_used_shaders(used_shaders);
-	hair_geom->reserve_curves(0, 0);
-	hair_geom->add_curve_key(ccl::make_float3(0.0, 0.0, 0.0), 1.0);
-	hair_geom->add_curve_key(ccl::make_float3(0.0, 4.0, 0.0), 1.0);
-	hair_geom->add_curve(0, 0);
-
-	ccl::Object* hair_object = scene->create_node<ccl::Object>();
-	hair_object->set_geometry(hair_geom);
-
-	// add one more cube
-	ccl::Object* second_cube_object = scene->create_node<ccl::Object>();
-	second_cube_object->set_geometry(cube_mesh);
-	second_cube_object->name = "second_cube";
-	second_cube_object->set_asset_name(ccl::ustring("second cube"));
-	ccl::Transform second_cube_tfm = ccl::transform_identity();
-	second_cube_tfm = second_cube_tfm * ccl::transform_translate(ccl::make_float3(3.5, 1, 2)) * ccl::transform_scale(1.0f, 1.0f, 1.0f);
-	second_cube_object->set_tfm(second_cube_tfm);
-}
-
 void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& render_parameters, RenderType render_type, const ULONG shaderball_displacement, const XSI::CTime& eval_time)
 {
 	// set common shader parameters for all shaders
 	int emission_sampling = render_type == RenderType_Shaderball ? 1 /*Auto*/ : (int)render_parameters.GetValue("options_shaders_emission_sampling", eval_time);
 	bool transparent_shadows = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_transparent_shadows", eval_time);
 	int disp_method = render_type == RenderType_Shaderball ? shaderball_displacement : (int)render_parameters.GetValue("options_displacement_method", eval_time);
+	bool bump_correction = render_type == RenderType_Shaderball ? true : (bool)render_parameters.GetValue("options_shaders_bump_map_correction", eval_time);
 
 	for (size_t i = 0; i < scene->shaders.size(); i++)
 	{
@@ -204,6 +63,12 @@ void sync_shader_settings(ccl::Scene* scene, const XSI::CParameterRefArray& rend
 			(emission_sampling == 3 ? ccl::EmissionSampling::EMISSION_SAMPLING_BACK : ccl::EmissionSampling::EMISSION_SAMPLING_FRONT_BACK))));
 		shader->set_use_transparent_shadow(transparent_shadows);
 		shader->set_displacement_method(disp_method == 0 ? ccl::DisplacementMethod::DISPLACE_BUMP : (disp_method == 1 ? ccl::DisplacementMethod::DISPLACE_TRUE : ccl::DisplacementMethod::DISPLACE_BOTH));
+		shader->set_use_bump_map_correction(bump_correction);
+		int background_volume_sampling = render_parameters.GetValue("background_volume_sampling", eval_time);
+		shader->set_volume_sampling_method(background_volume_sampling == 2 ? ccl::VolumeSampling::VOLUME_SAMPLING_MULTIPLE_IMPORTANCE : (background_volume_sampling == 1 ? ccl::VolumeSampling::VOLUME_SAMPLING_EQUIANGULAR : ccl::VolumeSampling::VOLUME_SAMPLING_DISTANCE));
+		int background_volume_interpolation = render_parameters.GetValue("background_volume_interpolation", eval_time);
+		shader->set_volume_interpolation_method(background_volume_interpolation == 1 ? ccl::VolumeInterpolation::VOLUME_INTERPOLATION_CUBIC : ccl::VolumeInterpolation::VOLUME_INTERPOLATION_LINEAR);
+		shader->set_volume_step_rate(render_parameters.GetValue("performance_volume_step_rate", eval_time));
 
 		shader->tag_emission_sampling_method_modified();
 		shader->tag_use_transparent_shadow_modified();
@@ -387,6 +252,8 @@ void sync_instance_children(ccl::Scene* scene, UpdateContext* update_context, co
 	for (size_t i = 0; i < children.GetCount(); i++)
 	{
 		XSI::X3DObject xsi_object(children[i]);
+		sync_object_materials(scene, update_context, xsi_object);
+
 		ULONG xsi_id = xsi_object.GetObjectID();
 		XSI::CString xsi_object_type = xsi_object.GetType();
 
@@ -783,6 +650,10 @@ void sync_poitcloud_instances(ccl::Scene* scene, UpdateContext* update_context, 
 				bool is_branch_selected = shape.IsBranchSelected();  // if true, then we should export the whole hierarchy, if false - then only the root object
 				ULONG shape_ref_id = shape.GetReferenceID();
 				XSI::X3DObject master_root = (XSI::X3DObject)XSI::Application().GetObjectFromID(shape_ref_id);
+				if (!master_root.IsValid()) {
+					log_warning("Invalid master object with id " + XSI::CString(shape_ref_id) + " for the instance.");
+					continue;
+				}
 
 				// now we are ready to create instance of the root object
 				XSI::CRefArray children = get_instance_children(master_root, is_branch_selected);
@@ -874,7 +745,12 @@ void sync_xsi_pointcloud_volume(ccl::Scene* scene, UpdateContext* update_context
 
 void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRef &object_ref, const XSI::CParameterRefArray &render_parameters, const XSI::CTime &eval_time)
 {
+	// at first get all required materials and export it
+	// and only then export actual object
+	sync_object_materials(scene, update_context, object_ref);
+
 	XSI::siClassID object_class = object_ref.GetClassID();
+
 	if (object_class == XSI::siLightID)
 	{// built-in light
 		XSI::X3DObject xsi_object(object_ref);
@@ -1062,12 +938,11 @@ void sync_scene(ccl::Scene* scene, UpdateContext* update_context, const XSI::CRe
 	XSI::CTime eval_time = update_context->get_time();
 	XSI::CParameterRefArray render_parameters = update_context->get_current_render_parameters();
 
-	sync_scene_materials(scene, update_context);
+	update_context->clear_aovs();
 
 	sync_camera(scene, update_context);
 
-	if (isolation_list.GetCount() > 0)
-	{// render isolation view
+	if (isolation_list.GetCount() > 0) {
 		// we should use all objects from isolation list and all light objects (build-in and custom) from all objects list
 		size_t isolation_objects_count = isolation_list.GetCount();
 
@@ -1199,4 +1074,60 @@ XSI::CStatus update_transform(ccl::Scene* scene, UpdateContext* update_context, 
 	}
 
 	return XSI::CStatus::OK;
+}
+
+
+
+XSI::CStatus reset_positions(ccl::Scene* scene, UpdateContext* update_context, XSI::X3DObject& xsi_object) {
+	ULONG xsi_id = xsi_object.GetObjectID();
+	XSI::CTime eval_time = update_context->get_time();
+	if (update_context->has_positions(xsi_id) && update_context->is_object_exists(xsi_id)) {
+		const ccl::array<ccl::packed_float3>* positions = update_context->get_positions(xsi_id);
+		if (positions) {
+			// next for different type of object we should extrac Cycles object in different ways
+			XSI::CString xsi_type = xsi_object.GetType();
+			if (xsi_type == "polymsh") {
+				XSI::Primitive xsi_primitive = xsi_object.GetActivePrimitive(eval_time);
+				ULONG xsi_polymesh_id = xsi_primitive.GetObjectID();
+				return reset_on_geometry(scene, update_context, xsi_polymesh_id, positions);
+			}
+			else if (xsi_type == "hair") {
+				XSI::HairPrimitive xsi_hair_prim(xsi_object.GetActivePrimitive(eval_time));
+				ULONG xsi_hair_id = xsi_hair_prim.GetObjectID();
+				return reset_on_geometry(scene, update_context, xsi_hair_id, positions);
+			}
+			else if (xsi_type == "pointcloud") {
+				PointcloudType pointcloud_type = get_pointcloud_type(xsi_object, eval_time);
+				if (pointcloud_type == PointcloudType::PointcloudType_Strands) {
+					XSI::Primitive xsi_strands_prim(xsi_object.GetActivePrimitive(eval_time));
+					ULONG xsi_strands_id = xsi_strands_prim.GetObjectID();
+					return reset_on_geometry(scene, update_context, xsi_strands_id, positions);
+				}
+				else if (pointcloud_type == PointcloudType::PointcloudType_Points) {
+					XSI::Primitive xsi_points_prim(xsi_object.GetActivePrimitive(eval_time));
+					ULONG xsi_points_id = xsi_points_prim.GetObjectID();
+					return reset_on_geometry(scene, update_context, xsi_points_id, positions);
+				}
+			}
+			else if (xsi_type == "surfmsh") {
+				XSI::Primitive xsi_surface_prim(xsi_object.GetActivePrimitive(eval_time));
+				ULONG xsi_surface_id = xsi_surface_prim.GetObjectID();
+				return reset_on_geometry(scene, update_context, xsi_surface_id, positions);
+			}
+			else if (xsi_type == "crvlist") {
+				XSI::Primitive xsi_curve_prim(xsi_object.GetActivePrimitive(eval_time));
+				ULONG xsi_curve_id = xsi_curve_prim.GetObjectID();
+				return reset_on_geometry(scene, update_context, xsi_curve_id, positions);
+			}
+		}
+		else {
+			return XSI::CStatus::Fail;
+		}
+	} 
+	else {
+		// no stored positions, we can not reset it
+		return XSI::CStatus::Fail;
+	}
+
+	return XSI::CStatus::Fail;
 }

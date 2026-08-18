@@ -164,7 +164,7 @@ void ColorTransformContext::apply(size_t width, size_t height, size_t components
 	{
 		if (use_ocio)
 		{
-			OCIO::PackedImageDesc img_desc(pixels, width, height, components);
+			OCIO::PackedImageDesc img_desc(pixels, (long)width, (long)height, (long)components);
 			cpu_processor->apply(img_desc);
 		}
 		else

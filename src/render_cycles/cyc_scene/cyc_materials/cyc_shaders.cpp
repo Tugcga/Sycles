@@ -45,16 +45,6 @@ void common_routine(ccl::Scene* scene,
 
 	XSI::CTime eval_time = update_context->get_time();
 
-	// does not setup these node bump properies
-	// it's not clear how it actually works
-	if (false && xsi_parameters.GetItem("bump").IsValid() && xsi_parameters.GetItem("filter_width").IsValid()) {
-		XSI::CString bump_mode = get_string_parameter_value(xsi_parameters, "bump", eval_time);
-		float filter_width = get_float_parameter_value(xsi_parameters, "filter_width", eval_time);
-
-		node->bump_filter_width = filter_width;
-		node->bump = get_shader_bump(bump_mode);
-	}
-
 	// iterate over all parameters
 	for (ULONG i = 0; i < xsi_parameters.GetCount(); i++)
 	{
@@ -76,8 +66,11 @@ void common_routine(ccl::Scene* scene,
 					{
 						sync_float3_parameter(scene, shader_graph, node, xsi_param, cycles_port_name, update_context);
 					}
-					else
+					else if (parameter_type == ShaderParameterType::ParameterType_Integer || parameter_type == ShaderParameterType::ParameterType_Boolean)
 					{
+						sync_int_parameter(scene, shader_graph, node, xsi_param, cycles_port_name, update_context);
+					}
+					else {
 						sync_float_parameter(scene, shader_graph, node, xsi_param, cycles_port_name, update_context);
 					}
 				}
@@ -94,9 +87,9 @@ std::array<float, 2> get_min_and_max(const XSI::FCurve &c1, const XSI::FCurve &c
 	float min1 = c1.GetKeyAtIndex(0).GetTime();
 	float max1 = c1.GetKeyAtIndex(c1.GetNumKeys() - 1).GetTime();
 	float min2 = c2.GetKeyAtIndex(0).GetTime();
-	float max2 = c1.GetKeyAtIndex(c1.GetNumKeys() - 1).GetTime();
+	float max2 = c2.GetKeyAtIndex(c2.GetNumKeys() - 1).GetTime();
 	float min3 = c3.GetKeyAtIndex(0).GetTime();
-	float max3 = c1.GetKeyAtIndex(c1.GetNumKeys() - 1).GetTime();
+	float max3 = c3.GetKeyAtIndex(c3.GetNumKeys() - 1).GetTime();
 
 	to_return[0] = get_minimum(min1, min2, min3);
 	to_return[1] = get_maximum(max1, max2, max3);
@@ -104,26 +97,28 @@ std::array<float, 2> get_min_and_max(const XSI::FCurve &c1, const XSI::FCurve &c
 	return to_return;
 }
 
-ccl::array<ccl::float3> three_curves_to_array(const XSI::FCurve& c1, const XSI::FCurve& c2, const XSI::FCurve& c3, float min, float max, int size)
+ccl::array<ccl::packed_float3> three_curves_to_array(const XSI::FCurve& c1, const XSI::FCurve& c2, const XSI::FCurve& c3, float min, float max, int size)
 {
-	ccl::array<ccl::float3> data;
+	ccl::array<ccl::packed_float3> data;
 	data.resize(size);
 	const float range = max - min;
 
 	for (int i = 0; i < size; i++)
 	{
 		float t = min + (float)i / (float)(size - 1) * range;
-
-		data[i][0] = c1.Eval(t);
-		data[i][1] = c2.Eval(t);
-		data[i][2] = c3.Eval(t);
+		data[i] = ccl::make_float3(c1.Eval(t), c2.Eval(t), c3.Eval(t));
 	}
 
 	return data;
 }
 
-void form_ramp(std::vector<GradientPoint>& gradient, int size, ccl::array<ccl::float3>& colors, ccl::array<float>& alphas)
+void form_ramp(std::vector<GradientPoint>& gradient, int size, ccl::array<ccl::packed_float3>& colors, ccl::array<float>& alphas)
 {
+	if (gradient.size() == 0) {
+		// nothing to do, output colors and alphas are empty
+		return;
+	}
+
 	ccl::array<int> order_indexes;
 	order_indexes.resize(gradient.size());
 	order_indexes[0] = 0;
@@ -224,16 +219,23 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "distribution", eval_time);
 		XSI::CString fresnel_type = get_string_parameter_value(xsi_parameters, "fresnel_type", eval_time);
-		float ior_x = get_float_parameter_value(xsi_parameters, "ior_x", eval_time);
-		float ior_y = get_float_parameter_value(xsi_parameters, "ior_y", eval_time);
-		float ior_z = get_float_parameter_value(xsi_parameters, "ior_z", eval_time);
-		float extinction_x = get_float_parameter_value(xsi_parameters, "extinction_x", eval_time);
-		float extinction_y = get_float_parameter_value(xsi_parameters, "extinction_y", eval_time);
-		float extinction_z = get_float_parameter_value(xsi_parameters, "extinction_z", eval_time);
 
-		node->set_ior(ccl::make_float3(ior_x, ior_y, ior_z));
-		node->set_k(ccl::make_float3(extinction_x, extinction_y, extinction_z));
+		if (!is_parameter_connected(xsi_parameters, "IOR")) {
+			float ior_x = get_float_parameter_value(xsi_parameters, "ior_x", eval_time);
+			float ior_y = get_float_parameter_value(xsi_parameters, "ior_y", eval_time);
+			float ior_z = get_float_parameter_value(xsi_parameters, "ior_z", eval_time);
 
+			node->set_ior(ccl::make_float3(ior_x, ior_y, ior_z));
+		}
+		
+		if (!is_parameter_connected(xsi_parameters, "Extinction")) {
+			float extinction_x = get_float_parameter_value(xsi_parameters, "extinction_x", eval_time);
+			float extinction_y = get_float_parameter_value(xsi_parameters, "extinction_y", eval_time);
+			float extinction_z = get_float_parameter_value(xsi_parameters, "extinction_z", eval_time);
+
+			node->set_k(ccl::make_float3(extinction_x, extinction_y, extinction_z));
+		}
+		
 		node->set_distribution(get_distribution(distribution, DistributionModes_Glass));
 		node->set_fresnel_type(get_metallic_fresnel(fresnel_type));
 
@@ -246,14 +248,22 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		XSI::CString distribution = get_string_parameter_value(xsi_parameters, "Distribution", eval_time);
 		XSI::CString ssmethod = get_string_parameter_value(xsi_parameters, "subsurface_method", eval_time);
-		float radiusx = get_float_parameter_value(xsi_parameters, "RadiusX", eval_time);
-		float radiusy = get_float_parameter_value(xsi_parameters, "RadiusY", eval_time);
-		float radiusz = get_float_parameter_value(xsi_parameters, "RadiusZ", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "SubsurfaceRadius")) {
+			float radiusx = get_float_parameter_value(xsi_parameters, "RadiusX", eval_time);
+			float radiusy = get_float_parameter_value(xsi_parameters, "RadiusY", eval_time);
+			float radiusz = get_float_parameter_value(xsi_parameters, "RadiusZ", eval_time);
 
+			node->set_subsurface_radius(ccl::make_float3(radiusx, radiusy, radiusz));
+		}
+
+		if (!is_parameter_connected(xsi_parameters, "ThinWall")) {
+			bool this_wall = get_bool_parameter_value(xsi_parameters, "thin_wall_bool", eval_time);
+			node->set_thin_wall(this_wall ? 1 : 0);
+		}
+		
 		node->set_distribution(get_distribution(distribution, DistributionModes_Principle));
 		node->set_subsurface_method(get_subsurface_method(ssmethod));
-		node->set_subsurface_radius(ccl::make_float3(radiusx, radiusy, radiusz));
-
+		
 		return node;
 	}
 	else if (shader_type == "TranslucentBSDF")
@@ -393,14 +403,18 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		XSI::CString parameterization = get_string_parameter_value(xsi_parameters, "Parametrization", eval_time);
 		XSI::CString model = get_string_parameter_value(xsi_parameters, "Model", eval_time);
-		float abs_x = get_float_parameter_value(xsi_parameters, "AbsorptionCoefficientX", eval_time);
-		float abs_y = get_float_parameter_value(xsi_parameters, "AbsorptionCoefficientY", eval_time);
-		float abs_z = get_float_parameter_value(xsi_parameters, "AbsorptionCoefficientZ", eval_time);
 
+		if (!is_parameter_connected(xsi_parameters, "AbsorptionCoefficient")) {
+			float abs_x = get_float_parameter_value(xsi_parameters, "AbsorptionCoefficientX", eval_time);
+			float abs_y = get_float_parameter_value(xsi_parameters, "AbsorptionCoefficientY", eval_time);
+			float abs_z = get_float_parameter_value(xsi_parameters, "AbsorptionCoefficientZ", eval_time);
+
+			node->set_absorption_coefficient(ccl::make_float3(abs_x, abs_y, abs_z));
+		}
+		
 		node->set_parametrization(principled_hair_parametrization(parameterization));
-		node->set_model(principled_hair_model(model));  // TODO: may be the method is named in another way
-		node->set_absorption_coefficient(ccl::make_float3(abs_x, abs_y, abs_z));
-
+		node->set_model(principled_hair_model(model));
+		
 		return node;
 	}
 	else if (shader_type == "SheenBSDF")
@@ -426,9 +440,15 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString falloff = get_string_parameter_value(xsi_parameters, "Falloff", eval_time);
-		float radius_x = get_float_parameter_value(xsi_parameters, "RadiusX", eval_time);
-		float radius_y = get_float_parameter_value(xsi_parameters, "RadiusY", eval_time);
-		float radius_z = get_float_parameter_value(xsi_parameters, "RadiusZ", eval_time);
+
+		if (!is_parameter_connected(xsi_parameters, "SSSRadius")) {
+			float radius_x = get_float_parameter_value(xsi_parameters, "RadiusX", eval_time);
+			float radius_y = get_float_parameter_value(xsi_parameters, "RadiusY", eval_time);
+			float radius_z = get_float_parameter_value(xsi_parameters, "RadiusZ", eval_time);
+
+			node->set_radius(ccl::make_float3(radius_x, radius_y, radius_z));
+		}
+		
 
 		if (falloff == "random_walk") {
 			node->set_method(ccl::CLOSURE_BSSRDF_RANDOM_WALK_ID);
@@ -439,8 +459,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		else {
 			node->set_method(ccl::CLOSURE_BSSRDF_BURLEY_ID);
 		}
-		node->set_radius(ccl::make_float3(radius_x, radius_y, radius_z));
-
+		
 		return node;
 	}
 	else if (shader_type == "ImageTexture")
@@ -455,8 +474,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString projection = get_string_parameter_value(xsi_parameters, "Projection", eval_time);
 		float projection_blend = get_float_parameter_value(xsi_parameters, "ProjectionBlend", eval_time);
 		XSI::CString extension = get_string_parameter_value(xsi_parameters, "Extension", eval_time);
-		bool premultiply_alpha = get_bool_parameter_value(xsi_parameters, "premultiply_alpha", eval_time);
 		XSI::CString image_source = get_string_parameter_value(xsi_parameters, "ImageSource", eval_time);
+		XSI::CString alpha_type = get_string_parameter_value(xsi_parameters, "alpha_type", eval_time);
 		
 		int image_frames = get_int_parameter_value(xsi_parameters, "ImageFrames", eval_time);
 		int start_frame = get_int_parameter_value(xsi_parameters, "ImageStartFrame", eval_time);
@@ -472,76 +491,28 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 				clip = XSI::ImageClip2();
 			}
 
-			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
+			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_scene_linear_srgb : ccl::u_colorspace_data;
+			node->set_colorspace(selected_colorscape);
 
-			// we add each clip separately (without caching in update context)
-			// because one clip in different materials can have different effects (crop, blur and so on)
-			// so, we should use different images
-			// get tiles
 			std::map<int, XSI::CString> tile_to_path_map = sync_image_tiles(file_path);
 			ccl::array<int> tiles = exctract_tiles(tile_to_path_map);
+			if (image_source == "tiled" && tiles.size() > 0) {
+				file_path = change_tile_to_udim(file_path.GetAsciiString()).c_str();
+			}
 
-			// set node parameters before loader, because it use these parameters for define alpha
-			node->set_colorspace(selected_colorscape);
 			node->set_projection(projection == "flat" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT : (projection == "box" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_BOX : (projection == "sphere" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_SPHERE : (projection == "tube" ? ccl::NodeImageProjection::NODE_IMAGE_PROJ_TUBE : ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT))));
 			node->set_projection_blend(projection_blend);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
 			node->set_extension(extension == "Clip" ? ccl::ExtensionType::EXTENSION_CLIP : (extension == "Extend" ? ccl::ExtensionType::EXTENSION_EXTEND : ccl::ExtensionType::EXTENSION_REPEAT));
+			node->set_alpha_type(
+				alpha_type == "auto" ? ccl::ImageAlphaType::IMAGE_ALPHA_AUTO : (
+				alpha_type == "unassociated" ? ccl::ImageAlphaType::IMAGE_ALPHA_UNASSOCIATED : (
+				alpha_type == "associated" ? ccl::IMAGE_ALPHA_ASSOCIATED : (
+				alpha_type == "channel_packed" ? ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED : (
+				alpha_type == "ignore" ? ccl::ImageAlphaType::IMAGE_ALPHA_IGNORE : ccl::ImageAlphaType::IMAGE_ALPHA_AUTO)))));
+			node->set_animated(image_source == "image_sequence");
 
-			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
-			node->set_animated(false);
-
-			if(image_source == "tiled")
-			{
-				// we should create array of loaders
-				ccl::vector<std::unique_ptr<ccl::ImageLoader>> loaders;
-				loaders.reserve(tiles.size());
-				for (size_t i = 0; i < tiles.size(); i++)
-				{
-					int tile_value = tiles[i];
-					XSI::CString tile_path = tile_to_path_map[tile_value];
-					if (tile_path != file_path)
-					{
-						loaders.push_back(std::make_unique<XSIImageLoader>(
-							clip, 
-							selected_colorscape, 
-							tile_value, 
-							tile_path, 
-							update_context->get_use_texture_cache(),
-							update_context->get_path_to_image(),
-							update_context->get_texture_limits(),
-							update_context->get_time()));
-					}
-					else
-					{
-						loaders.push_back(std::make_unique<XSIImageLoader>(
-							clip, 
-							selected_colorscape, 
-							tile_value, 
-							"",
-							update_context->get_use_texture_cache(),
-							update_context->get_path_to_image(),
-							update_context->get_texture_limits(),
-							update_context->get_time()));
-					}
-				}
-
-				node->handle = scene->image_manager->add_image(std::move(loaders), node->image_params());
-			}
-			else
-			{
-				XSIImageLoader* image_loader = new XSIImageLoader(
-					clip, 
-					selected_colorscape, 
-					0, 
-					image_source == "image_sequence" ? file_path : "", 
-					update_context->get_use_texture_cache(),
-					update_context->get_path_to_image(),
-					update_context->get_texture_limits(),
-					update_context->get_time());
-				node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
-			}
-
+			node->set_filename(ccl::ustring(file_path.GetAsciiString()));
 			node->set_tiles(tiles);
 
 			return node;
@@ -564,7 +535,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString color_space = get_string_parameter_value(xsi_parameters, "ColorSpace", eval_time);
 		XSI::CString interpolation = get_string_parameter_value(xsi_parameters, "Interpolation", eval_time);
 		XSI::CString projection = get_string_parameter_value(xsi_parameters, "Projection", eval_time);
-		bool premultiply_alpha = get_bool_parameter_value(xsi_parameters, "premultiply_alpha", eval_time);
+		XSI::CString alpha_type = get_string_parameter_value(xsi_parameters, "alpha_type", eval_time);
 
 		XSI::CString image_source = get_string_parameter_value(xsi_parameters, "ImageSource", eval_time);
 		int image_frames = get_int_parameter_value(xsi_parameters, "ImageFrames", eval_time);
@@ -583,23 +554,20 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 			bool temp_flag = false;
 			std::string filename = build_source_image_path(file_path, image_source, cyclic, start_frame, image_frames, offset, eval_time, false, temp_flag);
-			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_srgb : ccl::u_colorspace_raw;
+			ccl::ustring selected_colorscape = color_space == "color" ? ccl::u_colorspace_scene_linear_srgb : ccl::u_colorspace_data;
 
 			node->set_colorspace(selected_colorscape);
 			node->set_interpolation(interpolation == "Smart" ? ccl::InterpolationType::INTERPOLATION_SMART : (interpolation == "Cubic" ? ccl::InterpolationType::INTERPOLATION_CUBIC : (interpolation == "Closest" ? ccl::InterpolationType::INTERPOLATION_CLOSEST : ccl::InterpolationType::INTERPOLATION_LINEAR)));
 			node->set_projection(projection == "equirectangular" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR : (projection == "mirrorball" ? ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_MIRROR_BALL : ccl::NodeEnvironmentProjection::NODE_ENVIRONMENT_EQUIRECTANGULAR));
-			node->set_alpha_type(premultiply_alpha ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
+			node->set_alpha_type(
+				alpha_type == "auto" ? ccl::ImageAlphaType::IMAGE_ALPHA_AUTO : (
+				alpha_type == "unassociated" ? ccl::ImageAlphaType::IMAGE_ALPHA_UNASSOCIATED : (
+				alpha_type == "associated" ? ccl::IMAGE_ALPHA_ASSOCIATED : (
+				alpha_type == "channel_packed" ? ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED : (
+				alpha_type == "ignore" ? ccl::ImageAlphaType::IMAGE_ALPHA_IGNORE : ccl::ImageAlphaType::IMAGE_ALPHA_AUTO)))));
+			node->set_animated(image_source == "image_sequence");
 
-			XSIImageLoader* image_loader = new XSIImageLoader(
-				clip, 
-				selected_colorscape, 
-				0, 
-				image_source == "image_sequence" ? file_path : "",
-				update_context->get_use_texture_cache(),
-				update_context->get_path_to_image(),
-				update_context->get_texture_limits(),
-				update_context->get_time());
-			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
+			node->set_filename(ccl::ustring(file_path.GetAsciiString()));
 
 			return node;
 		}
@@ -648,9 +616,11 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		float dz = sun_direction_y;
 
 		node->tex_mapping.rotation = ccl::make_float3(-0.5 * XSI::MATH::PI, 0, 0);
-		node->set_sky_type(type == "preetham" ? ccl::NodeSkyType::NODE_SKY_PREETHAM : (type == "hosekwilkil" ? ccl::NodeSkyType::NODE_SKY_HOSEK : ccl::NodeSkyType::NODE_SKY_NISHITA));
-		if (is_subsun)
-		{
+		node->set_sky_type(
+			type == "preetham" ? ccl::NodeSkyType::NODE_SKY_PREETHAM : (
+			type == "hosekwilkil" ? ccl::NodeSkyType::NODE_SKY_HOSEK : (
+			type == "single_scattering" ? ccl::NodeSkyType::NODE_SKY_SINGLE_SCATTERING : ccl::NodeSkyType::NODE_SKY_MULTIPLE_SCATTERING)));
+		if (is_subsun) {
 			node->set_sun_direction(ccl::make_float3(sun_x, -1 * sun_z, sun_y));
 			float a_sin_z = std::asin(sun_z);
 			float xz_length = sqrtf(sun_x * sun_x + sun_z * sun_z);
@@ -658,8 +628,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			sun_rotation = a_sin_z > 0 ? -std::asin(sun_x) + XSI::MATH::PI : asin(sun_x);
 			sun_elevation = std::asin(sun_y);
 		}
-		else
-		{
+		else {
 			node->set_sun_direction(ccl::make_float3(dx, dy, dz));
 		}
 
@@ -673,7 +642,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		node->set_sun_rotation(sun_rotation);
 		node->set_altitude(altitude);
 		node->set_air_density(air);
-		node->set_dust_density(dust);
+		node->set_aerosol_density(dust);  // now it change the name, use the same parameter
 		node->set_ozone_density(ozone);
 
 		return node;
@@ -795,12 +764,15 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString dimensions = get_string_parameter_value(xsi_parameters, "NoiseDimensions", eval_time);
-		float vector_x = get_float_parameter_value(xsi_parameters, "VectorX", eval_time);
-		float vector_y = get_float_parameter_value(xsi_parameters, "VectorY", eval_time);
-		float vector_z = get_float_parameter_value(xsi_parameters, "VectorZ", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "Vector")) {
+			float vector_x = get_float_parameter_value(xsi_parameters, "VectorX", eval_time);
+			float vector_y = get_float_parameter_value(xsi_parameters, "VectorY", eval_time);
+			float vector_z = get_float_parameter_value(xsi_parameters, "VectorZ", eval_time);
 
+			node->set_vector(ccl::make_float3(vector_x, vector_y, vector_z));
+		}
+		
 		node->set_dimensions(get_dimensions_type(dimensions));
-		node->set_vector(ccl::make_float3(vector_x, vector_y, vector_z));
 
 		return node;
 	}
@@ -809,12 +781,15 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		ccl::GaborTextureNode* node = shader_graph->create_node<ccl::GaborTextureNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 		XSI::CString gabor_type = get_string_parameter_value(xsi_parameters, "gabor_type", eval_time);
-		float orientation_3d_x = get_float_parameter_value(xsi_parameters, "orientation_3d_x", eval_time);
-		float orientation_3d_y = get_float_parameter_value(xsi_parameters, "orientation_3d_y", eval_time);
-		float orientation_3d_z = get_float_parameter_value(xsi_parameters, "orientation_3d_z", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "orientation_3d")) {
+			float orientation_3d_x = get_float_parameter_value(xsi_parameters, "orientation_3d_x", eval_time);
+			float orientation_3d_y = get_float_parameter_value(xsi_parameters, "orientation_3d_y", eval_time);
+			float orientation_3d_z = get_float_parameter_value(xsi_parameters, "orientation_3d_z", eval_time);
 
+			node->set_orientation_3d(ccl::make_float3(orientation_3d_x, orientation_3d_y, orientation_3d_z));
+		}
+		
 		node->set_type(get_gabor_type(gabor_type));
-		node->set_orientation_3d(ccl::make_float3(orientation_3d_x, orientation_3d_y, orientation_3d_z));
 
 		return node;
 	}
@@ -826,12 +801,16 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		float direction_x = get_float_parameter_value(xsi_parameters, "DirectionX", eval_time);
 		float direction_y = get_float_parameter_value(xsi_parameters, "DirectionY", eval_time);
 		float direction_z = get_float_parameter_value(xsi_parameters, "DirectionZ", eval_time);
-		float normal_x = get_float_parameter_value(xsi_parameters, "NormalX", eval_time);
-		float normal_y = get_float_parameter_value(xsi_parameters, "NormalY", eval_time);
-		float normal_z = get_float_parameter_value(xsi_parameters, "NormalZ", eval_time);
 
+		if (!is_parameter_connected(xsi_parameters, "Normal")) {
+			float normal_x = get_float_parameter_value(xsi_parameters, "NormalX", eval_time);
+			float normal_y = get_float_parameter_value(xsi_parameters, "NormalY", eval_time);
+			float normal_z = get_float_parameter_value(xsi_parameters, "NormalZ", eval_time);
+
+			node->set_normal(ccl::make_float3(normal_x, normal_y, normal_z));
+		}
+		
 		node->set_direction(ccl::make_float3(direction_x, direction_y, direction_z));
-		node->set_normal(ccl::make_float3(normal_x, normal_y, normal_z));
 
 		return node;
 	}
@@ -853,21 +832,30 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
-		float translation_x = get_float_parameter_value(xsi_parameters, "TranslationX", eval_time);
-		float translation_y = get_float_parameter_value(xsi_parameters, "TranslationY", eval_time);
-		float translation_z = get_float_parameter_value(xsi_parameters, "TranslationZ", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "MapLocation")) {
+			float translation_x = get_float_parameter_value(xsi_parameters, "TranslationX", eval_time);
+			float translation_y = get_float_parameter_value(xsi_parameters, "TranslationY", eval_time);
+			float translation_z = get_float_parameter_value(xsi_parameters, "TranslationZ", eval_time);
 
-		float rotation_x = get_float_parameter_value(xsi_parameters, "RotationX", eval_time);
-		float rotation_y = get_float_parameter_value(xsi_parameters, "RotationY", eval_time);
-		float rotation_z = get_float_parameter_value(xsi_parameters, "RotationZ", eval_time);
+			node->set_location(ccl::make_float3(translation_x, translation_y, translation_z));
+		}
+		
+		if (!is_parameter_connected(xsi_parameters, "MapRotation")) {
+			float rotation_x = get_float_parameter_value(xsi_parameters, "RotationX", eval_time);
+			float rotation_y = get_float_parameter_value(xsi_parameters, "RotationY", eval_time);
+			float rotation_z = get_float_parameter_value(xsi_parameters, "RotationZ", eval_time);
 
-		float scale_x = get_float_parameter_value(xsi_parameters, "ScaleX", eval_time);
-		float scale_y = get_float_parameter_value(xsi_parameters, "ScaleY", eval_time);
-		float scale_z = get_float_parameter_value(xsi_parameters, "ScaleZ", eval_time);
+			node->set_rotation(ccl::make_float3(DEG2RADF(rotation_x), DEG2RADF(rotation_y), DEG2RADF(rotation_z)));
+		}
 
-		node->set_location(ccl::make_float3(translation_x, translation_y, translation_z));
-		node->set_rotation(ccl::make_float3(DEG2RADF(rotation_x), DEG2RADF(rotation_y), DEG2RADF(rotation_z)));
-		node->set_scale(ccl::make_float3(scale_x, scale_y, scale_z));
+		if (!is_parameter_connected(xsi_parameters, "MapScale")) {
+			float scale_x = get_float_parameter_value(xsi_parameters, "ScaleX", eval_time);
+			float scale_y = get_float_parameter_value(xsi_parameters, "ScaleY", eval_time);
+			float scale_z = get_float_parameter_value(xsi_parameters, "ScaleZ", eval_time);
+
+			node->set_scale(ccl::make_float3(scale_x, scale_y, scale_z));
+		}
+
 		node->set_mapping_type(type == "Point" ? ccl::NodeMappingType::NODE_MAPPING_TYPE_POINT :
 			(type == "Texture" ? ccl::NodeMappingType::NODE_MAPPING_TYPE_TEXTURE :
 				(type == "Vector" ? ccl::NodeMappingType::NODE_MAPPING_TYPE_VECTOR : ccl::NodeMappingType::NODE_MAPPING_TYPE_NORMAL)));
@@ -878,11 +866,13 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		ccl::SetNormalNode* node = shader_graph->create_node<ccl::SetNormalNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
-		float direction_x = get_float_parameter_value(xsi_parameters, "direction_x", eval_time);
-		float direction_y = get_float_parameter_value(xsi_parameters, "direction_y", eval_time);
-		float direction_z = get_float_parameter_value(xsi_parameters, "direction_z", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "Direction")) {
+			float direction_x = get_float_parameter_value(xsi_parameters, "direction_x", eval_time);
+			float direction_y = get_float_parameter_value(xsi_parameters, "direction_y", eval_time);
+			float direction_z = get_float_parameter_value(xsi_parameters, "direction_z", eval_time);
 
-		node->set_direction(ccl::make_float3(direction_x, direction_y, direction_z));
+			node->set_direction(ccl::make_float3(direction_x, direction_y, direction_z));
+		}
 
 		return node;
 	}
@@ -893,9 +883,13 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		XSI::CString space = get_string_parameter_value(xsi_parameters, "Space", eval_time);
 		XSI::CString attribute = get_string_parameter_value(xsi_parameters, "Attribute", eval_time);
+		int convention = get_int_parameter_value(xsi_parameters, "convention", eval_time);
+		int base = get_int_parameter_value(xsi_parameters, "base", eval_time);
 
 		node->set_space(get_normal_map_space(space));
 		node->set_attribute(OIIO::ustring(attribute.GetAsciiString()));
+		node->set_convention(convention == 0 ? ccl::NodeNormalMapConvention::NODE_NORMAL_MAP_CONVENTION_OPENGL : ccl::NodeNormalMapConvention::NODE_NORMAL_MAP_CONVENTION_DIRECTX);
+		node->set_base(base == 0 ? ccl::NodeNormalMapBase::NODE_NORMAL_MAP_BASE_ORIGINAL : ccl::NodeNormalMapBase::NODE_NORMAL_MAP_BASE_DISPLACED);
 
 		return node;
 	}
@@ -907,14 +901,17 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		XSI::CString convert_from = get_string_parameter_value(xsi_parameters, "ConvertFrom", eval_time);
 		XSI::CString convert_to = get_string_parameter_value(xsi_parameters, "ConvertTo", eval_time);
-		float vector_x = get_float_parameter_value(xsi_parameters, "VectorX", eval_time);
-		float vector_y = get_float_parameter_value(xsi_parameters, "VectorY", eval_time);
-		float vector_z = get_float_parameter_value(xsi_parameters, "VectorZ", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "Vector")) {
+			float vector_x = get_float_parameter_value(xsi_parameters, "VectorX", eval_time);
+			float vector_y = get_float_parameter_value(xsi_parameters, "VectorY", eval_time);
+			float vector_z = get_float_parameter_value(xsi_parameters, "VectorZ", eval_time);
 
+			node->set_vector(ccl::make_float3(vector_x, vector_y, vector_z));
+		}
+		
 		node->set_transform_type(get_vector_transform_type(type));
 		node->set_convert_from(get_vector_transform_convert_space(convert_from));
 		node->set_convert_to(get_vector_transform_convert_space(convert_to));
-		node->set_vector(ccl::make_float3(vector_x, vector_y, vector_z));
 
 		return node;
 	}
@@ -925,24 +922,34 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		bool invert = get_bool_parameter_value(xsi_parameters, "Invert", eval_time);
-		float center_x = get_float_parameter_value(xsi_parameters, "CenterX", eval_time);
-		float center_y = get_float_parameter_value(xsi_parameters, "CenterY", eval_time);
-		float center_z = get_float_parameter_value(xsi_parameters, "CenterZ", eval_time);
 
-		float axis_x = get_float_parameter_value(xsi_parameters, "AxisX", eval_time);
-		float axis_y = get_float_parameter_value(xsi_parameters, "AxisY", eval_time);
-		float axis_z = get_float_parameter_value(xsi_parameters, "AxisZ", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "Center")) {
+			float center_x = get_float_parameter_value(xsi_parameters, "CenterX", eval_time);
+			float center_y = get_float_parameter_value(xsi_parameters, "CenterY", eval_time);
+			float center_z = get_float_parameter_value(xsi_parameters, "CenterZ", eval_time);
 
-		float rotation_x = get_float_parameter_value(xsi_parameters, "VectorRotationX", eval_time);
-		float rotation_y = get_float_parameter_value(xsi_parameters, "VectorRotationY", eval_time);
-		float rotation_z = get_float_parameter_value(xsi_parameters, "VectorRotationZ", eval_time);
+			node->set_center(ccl::make_float3(center_x, center_y, center_z));
+		}
+		
+		if (!is_parameter_connected(xsi_parameters, "Axis")) {
+			float axis_x = get_float_parameter_value(xsi_parameters, "AxisX", eval_time);
+			float axis_y = get_float_parameter_value(xsi_parameters, "AxisY", eval_time);
+			float axis_z = get_float_parameter_value(xsi_parameters, "AxisZ", eval_time);
 
+			node->set_axis(ccl::make_float3(axis_x, axis_y, axis_z));
+		}
+
+		if (!is_parameter_connected(xsi_parameters, "VectorRotation")) {
+			float rotation_x = get_float_parameter_value(xsi_parameters, "VectorRotationX", eval_time);
+			float rotation_y = get_float_parameter_value(xsi_parameters, "VectorRotationY", eval_time);
+			float rotation_z = get_float_parameter_value(xsi_parameters, "VectorRotationZ", eval_time);
+
+			node->set_rotation(ccl::make_float3(rotation_x, rotation_y, rotation_z));
+		}
+		
 		node->set_rotate_type(get_vector_rotate_type(type));
 		node->set_invert(invert);
-		node->set_center(ccl::make_float3(center_x, center_y, center_z));
-		node->set_axis(ccl::make_float3(axis_x, axis_y, axis_z));
-		node->set_rotation(ccl::make_float3(rotation_x, rotation_y, rotation_z));
-
+		
 		return node;
 	}
 	else if (shader_type == "VectorCurves")
@@ -953,12 +960,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::FCurve x_curve = get_fcurve_parameter_value(xsi_parameters, "xCurve", eval_time);
 		XSI::FCurve y_curve = get_fcurve_parameter_value(xsi_parameters, "yCurve", eval_time);
 		XSI::FCurve z_curve = get_fcurve_parameter_value(xsi_parameters, "zCurve", eval_time);
+		bool extrapolate = get_bool_parameter_value(xsi_parameters, "extrapolate", eval_time);
 
 		std::array<float, 2> min_max = get_min_and_max(x_curve, y_curve, z_curve);
 		node->set_min_x(min_max[0]);
 		node->set_max_x(min_max[1]);
-		ccl::array<ccl::float3> curves_array = three_curves_to_array(x_curve, y_curve, z_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
+		ccl::array<ccl::packed_float3> curves_array = three_curves_to_array(x_curve, y_curve, z_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
 		node->set_curves(curves_array);
+		node->set_extrapolate(extrapolate);
 
 		return node;
 	}
@@ -1024,6 +1033,23 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		return node;
 	}
+	else if (shader_type == "Raycast")
+	{
+		ccl::RaycastNode* node = shader_graph->create_node<ccl::RaycastNode>();
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
+		bool only_local = get_bool_parameter_value(xsi_parameters, "only_local", eval_time);
+
+		node->set_only_local(only_local);
+
+		return node;
+	}
+	else if (shader_type == "SceneTime")
+	{
+		ccl::SceneTimeNode* node = shader_graph->create_node<ccl::SceneTimeNode>();
+		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
+
+		return node;
+		}
 	else if (shader_type == "ParticleInfo")
 	{
 		ccl::ParticleInfoNode* node = shader_graph->create_node<ccl::ParticleInfoNode>();
@@ -1031,6 +1057,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		return node;
 	}
+
 	else if (shader_type == "HairInfo")
 	{
 		ccl::HairInfoNode* node = shader_graph->create_node<ccl::HairInfoNode>();
@@ -1182,13 +1209,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	}
 	else if (shader_type == "MixRGB")
 	{
-		ccl::MixNode* node = shader_graph->create_node<ccl::MixNode>();
+		// Use MixColor node, MixNode is depricated in Blender
+		ccl::MixColorNode* node = shader_graph->create_node<ccl::MixColorNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 		bool use_clamp = get_bool_parameter_value(xsi_parameters, "UseClamp", eval_time);
 
-		node->set_mix_type(get_mix_type(type));
+		node->set_blend_type(get_mix_type(type));
 		node->set_use_clamp(use_clamp);
 
 		return node;
@@ -1264,12 +1292,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		XSI::FCurve r_curve = get_fcurve_parameter_value(xsi_parameters, "rCurve", eval_time);
 		XSI::FCurve g_curve = get_fcurve_parameter_value(xsi_parameters, "gCurve", eval_time);
 		XSI::FCurve b_curve = get_fcurve_parameter_value(xsi_parameters, "bCurve", eval_time);
+		bool extrapolate = get_bool_parameter_value(xsi_parameters, "extrapolate", eval_time);
 
 		std::array<float, 2> min_max = get_min_and_max(r_curve, g_curve, b_curve);
 		node->set_min_x(min_max[0]);
 		node->set_max_x(min_max[1]);
-		ccl::array<ccl::float3> curves = three_curves_to_array(r_curve, g_curve, b_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
+		ccl::array<ccl::packed_float3> curves = three_curves_to_array(r_curve, g_curve, b_curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
 		node->set_curves(curves);
+		node->set_extrapolate(extrapolate);
 
 		return node;
 	}
@@ -1279,12 +1309,14 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::FCurve curve = get_fcurve_parameter_value(xsi_parameters, "Curve", eval_time);
+		bool extrapolate = get_bool_parameter_value(xsi_parameters, "extrapolate", eval_time);
 
 		std::array<float, 2> min_max = get_min_and_max(curve, curve, curve);
 		node->set_min_x(min_max[0]);
 		node->set_max_x(min_max[1]);
-		ccl::array<ccl::float3> curves = three_curves_to_array(curve, curve, curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
+		ccl::array<ccl::packed_float3> curves = three_curves_to_array(curve, curve, curve, min_max[0], min_max[1], RAMP_TABLE_SIZE);
 		node->set_curves(curves);
+		node->set_extrapolate(extrapolate);
 
 		return node;	
 	}
@@ -1328,16 +1360,16 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	}
 	else if (shader_type == "CombineRGB")
 	{
-		ccl::CombineRGBNode* node = shader_graph->create_node<ccl::CombineRGBNode>();
+		ccl::CombineColorNode* node = shader_graph->create_node<ccl::CombineColorNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
-
+		node->set_color_type(ccl::NODE_COMBSEP_COLOR_RGB);
 		return node;
 	}
 	else if (shader_type == "CombineHSV")
 	{
-		ccl::CombineHSVNode* node = shader_graph->create_node<ccl::CombineHSVNode>();
+		ccl::CombineColorNode* node = shader_graph->create_node<ccl::CombineColorNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
-
+		node->set_color_type(ccl::NODE_COMBSEP_COLOR_HSV);
 		return node;
 	}
 	else if (shader_type == "CombineXYZ")
@@ -1359,15 +1391,21 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 	}
 	else if (shader_type == "SeparateRGB")
 	{
-		ccl::SeparateRGBNode* node = shader_graph->create_node<ccl::SeparateRGBNode>();
+		ccl::SeparateColorNode* node = shader_graph->create_node<ccl::SeparateColorNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
+
+		XSI::CString mode = get_string_parameter_value(xsi_parameters, "mode", eval_time);
+		node->set_color_type(ccl::NODE_COMBSEP_COLOR_RGB);
 
 		return node;
 	}
 	else if (shader_type == "SeparateHSV")
 	{
-		ccl::SeparateHSVNode* node = shader_graph->create_node<ccl::SeparateHSVNode>();
+		ccl::SeparateColorNode* node = shader_graph->create_node<ccl::SeparateColorNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
+
+		XSI::CString mode = get_string_parameter_value(xsi_parameters, "mode", eval_time);
+		node->set_color_type(ccl::NODE_COMBSEP_COLOR_HSV);
 
 		return node;
 	}
@@ -1376,11 +1414,13 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		ccl::SeparateXYZNode* node = shader_graph->create_node<ccl::SeparateXYZNode>();
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
-		float vector_x = get_float_parameter_value(xsi_parameters, "VectorX", eval_time);
-		float vector_y = get_float_parameter_value(xsi_parameters, "VectorY", eval_time);
-		float vector_z = get_float_parameter_value(xsi_parameters, "VectorZ", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "Vector")) {
+			float vector_x = get_float_parameter_value(xsi_parameters, "VectorX", eval_time);
+			float vector_y = get_float_parameter_value(xsi_parameters, "VectorY", eval_time);
+			float vector_z = get_float_parameter_value(xsi_parameters, "VectorZ", eval_time);
 
-		node->set_vector(ccl::make_float3(vector_x, vector_y, vector_z));
+			node->set_vector(ccl::make_float3(vector_x, vector_y, vector_z));
+		}
 
 		return node;
 	}
@@ -1404,23 +1444,32 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 	
-		float vector1_x = get_float_parameter_value(xsi_parameters, "Vector1X", eval_time);
-		float vector1_y = get_float_parameter_value(xsi_parameters, "Vector1Y", eval_time);
-		float vector1_z = get_float_parameter_value(xsi_parameters, "Vector1Z", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "Vector1")) {
+			float vector1_x = get_float_parameter_value(xsi_parameters, "Vector1X", eval_time);
+			float vector1_y = get_float_parameter_value(xsi_parameters, "Vector1Y", eval_time);
+			float vector1_z = get_float_parameter_value(xsi_parameters, "Vector1Z", eval_time);
 
-		float vector2_x = get_float_parameter_value(xsi_parameters, "Vector2X", eval_time);
-		float vector2_y = get_float_parameter_value(xsi_parameters, "Vector2Y", eval_time);
-		float vector2_z = get_float_parameter_value(xsi_parameters, "Vector2Z", eval_time);
+			node->set_vector1(ccl::make_float3(vector1_x, vector1_y, vector1_z));
+		}
+		
+		if (!is_parameter_connected(xsi_parameters, "Vector2")) {
+			float vector2_x = get_float_parameter_value(xsi_parameters, "Vector2X", eval_time);
+			float vector2_y = get_float_parameter_value(xsi_parameters, "Vector2Y", eval_time);
+			float vector2_z = get_float_parameter_value(xsi_parameters, "Vector2Z", eval_time);
 
-		float vector3_x = get_float_parameter_value(xsi_parameters, "Vector3X", eval_time);
-		float vector3_y = get_float_parameter_value(xsi_parameters, "Vector3Y", eval_time);
-		float vector3_z = get_float_parameter_value(xsi_parameters, "Vector3Z", eval_time);
+			node->set_vector2(ccl::make_float3(vector2_x, vector2_y, vector2_z));
+		}
 
+		if (!is_parameter_connected(xsi_parameters, "Vector3")) {
+			float vector3_x = get_float_parameter_value(xsi_parameters, "Vector3X", eval_time);
+			float vector3_y = get_float_parameter_value(xsi_parameters, "Vector3Y", eval_time);
+			float vector3_z = get_float_parameter_value(xsi_parameters, "Vector3Z", eval_time);
+
+			node->set_vector3(ccl::make_float3(vector3_x, vector3_y, vector3_z));
+		}
+		
 		node->set_math_type(get_vector_math(type));
-		node->set_vector1(ccl::make_float3(vector1_x, vector1_y, vector1_z));
-		node->set_vector2(ccl::make_float3(vector2_x, vector2_y, vector2_z));
-		node->set_vector3(ccl::make_float3(vector3_x, vector3_y, vector3_z));
-
+		
 		return node;
 	}
 	else if (shader_type == "ColorRamp")
@@ -1454,11 +1503,12 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 				gradient_data.push_back(new_data);
 			}
 		}
-		ccl::array<ccl::float3> ramp;
+		ccl::array<ccl::packed_float3> ramp;
 		ccl::array<float> ramp_alpha;
 		form_ramp(gradient_data, RAMP_TABLE_SIZE, ramp, ramp_alpha);
 		node->set_ramp(ramp);
 		node->set_ramp_alpha(ramp_alpha);
+		node->set_interpolate(true);
 
 		return node;
 	}
@@ -1483,34 +1533,48 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		bool clamp = get_bool_parameter_value(xsi_parameters, "Clamp", eval_time);
 		XSI::CString type = get_string_parameter_value(xsi_parameters, "Type", eval_time);
 
-		float from_min_x = get_float_parameter_value(xsi_parameters, "FromMinX", eval_time);
-		float from_min_y = get_float_parameter_value(xsi_parameters, "FromMinY", eval_time);
-		float from_min_z = get_float_parameter_value(xsi_parameters, "FromMinZ", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "FromMinVector")) {
+			float from_min_x = get_float_parameter_value(xsi_parameters, "FromMinX", eval_time);
+			float from_min_y = get_float_parameter_value(xsi_parameters, "FromMinY", eval_time);
+			float from_min_z = get_float_parameter_value(xsi_parameters, "FromMinZ", eval_time);
 
-		float from_max_x = get_float_parameter_value(xsi_parameters, "FromMaxX", eval_time);
-		float from_max_y = get_float_parameter_value(xsi_parameters, "FromMaxY", eval_time);
-		float from_max_z = get_float_parameter_value(xsi_parameters, "FromMaxZ", eval_time);
+			node->set_from_min(ccl::make_float3(from_min_x, from_min_y, from_min_z));
+		}
+		
+		if (!is_parameter_connected(xsi_parameters, "FromMaxVector")) {
+			float from_max_x = get_float_parameter_value(xsi_parameters, "FromMaxX", eval_time);
+			float from_max_y = get_float_parameter_value(xsi_parameters, "FromMaxY", eval_time);
+			float from_max_z = get_float_parameter_value(xsi_parameters, "FromMaxZ", eval_time);
 
-		float to_min_x = get_float_parameter_value(xsi_parameters, "ToMinX", eval_time);
-		float to_min_y = get_float_parameter_value(xsi_parameters, "ToMinY", eval_time);
-		float to_min_z = get_float_parameter_value(xsi_parameters, "ToMinZ", eval_time);
+			node->set_from_max(ccl::make_float3(from_max_x, from_max_y, from_max_z));
+		}
 
-		float to_max_x = get_float_parameter_value(xsi_parameters, "ToMaxX", eval_time);
-		float to_max_y = get_float_parameter_value(xsi_parameters, "ToMaxY", eval_time);
-		float to_max_z = get_float_parameter_value(xsi_parameters, "ToMaxZ", eval_time);
+		if (!is_parameter_connected(xsi_parameters, "ToMinVector")) {
+			float to_min_x = get_float_parameter_value(xsi_parameters, "ToMinX", eval_time);
+			float to_min_y = get_float_parameter_value(xsi_parameters, "ToMinY", eval_time);
+			float to_min_z = get_float_parameter_value(xsi_parameters, "ToMinZ", eval_time);
 
-		float step_x = get_float_parameter_value(xsi_parameters, "StepsX", eval_time);
-		float step_y = get_float_parameter_value(xsi_parameters, "StepsY", eval_time);
-		float step_z = get_float_parameter_value(xsi_parameters, "StepsZ", eval_time);
+			node->set_to_min(ccl::make_float3(to_min_x, to_min_y, to_min_z));
+		}
+
+		if (!is_parameter_connected(xsi_parameters, "ToMaxVector")) {
+			float to_max_x = get_float_parameter_value(xsi_parameters, "ToMaxX", eval_time);
+			float to_max_y = get_float_parameter_value(xsi_parameters, "ToMaxY", eval_time);
+			float to_max_z = get_float_parameter_value(xsi_parameters, "ToMaxZ", eval_time);
+
+			node->set_to_max(ccl::make_float3(to_max_x, to_max_y, to_max_z));
+		}
+
+		if (!is_parameter_connected(xsi_parameters, "StepsVector")) {
+			float step_x = get_float_parameter_value(xsi_parameters, "StepsX", eval_time);
+			float step_y = get_float_parameter_value(xsi_parameters, "StepsY", eval_time);
+			float step_z = get_float_parameter_value(xsi_parameters, "StepsZ", eval_time);
+
+			node->set_steps(ccl::make_float3(step_x, step_y, step_z));
+		}
 
 		node->set_use_clamp(clamp);
 		node->set_range_type(get_map_range_type(type));
-
-		node->set_from_min(ccl::make_float3(from_min_x, from_min_y, from_min_z));
-		node->set_from_max(ccl::make_float3(from_max_x, from_max_y, from_max_z));
-		node->set_to_min(ccl::make_float3(to_min_x, to_min_y, to_min_z));
-		node->set_to_max(ccl::make_float3(to_max_x, to_max_y, to_max_z));
-		node->set_steps(ccl::make_float3(step_x, step_y, step_z));
 
 		return node;
 	}
@@ -1520,6 +1584,8 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 		common_routine(scene, node, shader_graph, xsi_shader, xsi_parameters, update_context);
 
 		XSI::FCurve curve = get_fcurve_parameter_value(xsi_parameters, "Curve", eval_time);
+		bool extrapolate = get_bool_parameter_value(xsi_parameters, "extrapolate", eval_time);
+
 		float min = curve.GetKeyAtIndex(0).GetTime();
 		float max = curve.GetKeyAtIndex(curve.GetNumKeys() - 1).GetTime();
 		node->set_min_x(min);
@@ -1535,6 +1601,7 @@ ccl::ShaderNode* sync_cycles_shader(ccl::Scene* scene,
 			curve_mapping_curve[i] = curve.Eval(t);
 		}
 		node->set_curve(curve_mapping_curve);
+		node->set_extrapolate(extrapolate);
 
 		return node;
 	}

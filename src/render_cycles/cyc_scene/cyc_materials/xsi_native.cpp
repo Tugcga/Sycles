@@ -24,16 +24,17 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 	if (shader_type == "sib_vector_to_color")
 	{
 		ccl::SeparateXYZNode* separate_node = shader_graph->create_node<ccl::SeparateXYZNode>();
-		ccl::CombineRGBNode* combine_node = shader_graph->create_node<ccl::CombineRGBNode>();
+		ccl::CombineColorNode* combine_node = shader_graph->create_node<ccl::CombineColorNode>();
 
 		// use combine node as output node
 		ULONG xsi_shader_id = xsi_shader.GetObjectID();
 		update_context->add_to_nodes_map(xsi_shader_id, combine_node);
 		combine_node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
+		combine_node->set_color_type(ccl::NODE_COMBSEP_COLOR_RGB);
 
-		shader_graph->connect(separate_node->output("X"), combine_node->input("R"));
-		shader_graph->connect(separate_node->output("Y"), combine_node->input("G"));
-		shader_graph->connect(separate_node->output("Z"), combine_node->input("B"));
+		shader_graph->connect(separate_node->output("X"), combine_node->input("Red"));
+		shader_graph->connect(separate_node->output("Y"), combine_node->input("Green"));
+		shader_graph->connect(separate_node->output("Z"), combine_node->input("Blue"));
 
 		XSI::ShaderParameter input_param(xsi_shader.GetParameter("input"));
 		sync_float3_parameter(scene, shader_graph, separate_node, input_param, "Vector", update_context);
@@ -47,7 +48,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
 		node->set_interpolate(true);
-		ccl::array<ccl::float3> ramp(2);
+		ccl::array<ccl::packed_float3> ramp(2);
 		ramp[0] = ccl::zero_float3();
 		ramp[1] = ccl::one_float3();
 		ccl::array<float> alpha_ramp(2);
@@ -102,6 +103,9 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 
 		return node;
 	}
+	else if (shader_type == "sib_scalar_to_integer") {
+		return NULL;
+	}
 	else if (shader_type == "txt2d-image-explicit")
 	{
 		XSI::CParameterRefArray params = xsi_shader.GetParameters();
@@ -111,7 +115,6 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		XSI::ShaderParameter repeats_param = params.GetItem("repeats");
 		XSI::ShaderParameter uv_param = params.GetItem("tspace_id");
 		bool alpha_output = get_bool_parameter_value(params, "alpha_output", eval_time);
-		// float alpha_factor = get_float_parameter_value(params, "alpha_factor", eval_time);  // does not used
 
 		if (clip.IsValid() && alt_x_param.IsValid() && alt_y_param.IsValid() && repeats_param.IsValid() && uv_param.IsValid())
 		{
@@ -134,25 +137,15 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 			update_context->add_to_nodes_map(xsi_shader_id, node);
 			node->name = ccl::ustring(xsi_shader.GetName().GetAsciiString());
 
-			node->set_colorspace(ccl::u_colorspace_srgb);
+			node->set_colorspace(ccl::u_colorspace_scene_linear_srgb);  // alphays set sRGB
 			node->set_projection(ccl::NodeImageProjection::NODE_IMAGE_PROJ_FLAT);
 			node->set_projection_blend(0.0);
 			node->set_interpolation(ccl::InterpolationType::INTERPOLATION_SMART);
 			node->set_extension(ccl::ExtensionType::EXTENSION_REPEAT);
-			node->set_alpha_type(alpha_output ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_CHANNEL_PACKED);
+			node->set_alpha_type(alpha_output ? ccl::ImageAlphaType::IMAGE_ALPHA_ASSOCIATED : ccl::ImageAlphaType::IMAGE_ALPHA_UNASSOCIATED);
 			node->set_animated(false);
 			
-			XSIImageLoader* image_loader = new XSIImageLoader(
-				clip, 
-				ccl::u_colorspace_srgb, 
-				0, 
-				"",
-				update_context->get_use_texture_cache(),
-				update_context->get_path_to_image(),
-				update_context->get_texture_limits(),
-				update_context->get_time());
-			node->handle = scene->image_manager->add_image(std::unique_ptr<ccl::ImageLoader>(image_loader), node->image_params());
-
+			node->set_filename(ccl::ustring(file_path.GetAsciiString()));
 			// uv node
 			ccl::UVMapNode* uv_node = shader_graph->create_node<ccl::UVMapNode>();
 			uv_node->set_attribute(ccl::ustring(uv_name.GetAsciiString()));
@@ -309,20 +302,20 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		random_clamp->set_max(0.9999f);
 		shader_graph->connect(hair_info->output("Random"), random_clamp->input("Value"));
 
-		ccl::MixNode* finall_mix = shader_graph->create_node<ccl::MixNode>();
-		finall_mix->set_mix_type(ccl::NodeMix::NODE_MIX_BLEND);
+		ccl::MixColorNode* finall_mix = shader_graph->create_node<ccl::MixColorNode>();
+		finall_mix->set_blend_type(ccl::NodeMix::NODE_MIX_BLEND);
 
 		// connect finall mix to hair node
-		shader_graph->connect(finall_mix->output("Color"), hair_node->input("Color"));
+		shader_graph->connect(finall_mix->output("Result"), hair_node->input("Color"));
 
 		// for this finall mix node we should connect input root color, mixed tips colors and coefficient
-		sync_float3_parameter(scene, shader_graph, finall_mix, diffuse_root_parameter, "Color1", update_context);
+		sync_float3_parameter(scene, shader_graph, finall_mix, diffuse_root_parameter, "A", update_context);
 
 		// for tips colors
-		ccl::MixNode* tips_mix = shader_graph->create_node<ccl::MixNode>();
-		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_a_parameter, "Color1", update_context);
-		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_b_parameter, "Color2", update_context);
-		shader_graph->connect(tips_mix->output("Color"), finall_mix->input("Color2"));
+		ccl::MixColorNode* tips_mix = shader_graph->create_node<ccl::MixColorNode>();
+		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_a_parameter, "A", update_context);
+		sync_float3_parameter(scene, shader_graph, tips_mix, diffuse_tip_b_parameter, "B", update_context);
+		shader_graph->connect(tips_mix->output("Result"), finall_mix->input("B"));
 
 		// calculate coefficient for tips mix
 		ccl::ClampNode* balance_clamp = shader_graph->create_node<ccl::ClampNode>();
@@ -352,7 +345,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		shader_graph->connect(balance_power_01->output("Value"), balance_subtract_02->input("Value2"));
 
 		// this is the coefficient for tips mix
-		shader_graph->connect(balance_subtract_02->output("Value"), tips_mix->input("Fac"));
+		shader_graph->connect(balance_subtract_02->output("Value"), tips_mix->input("Factor"));
 
 		// and next we need finall mix coefficient
 		// connect input parameters: center and range
@@ -411,7 +404,7 @@ ccl::ShaderNode* sync_xsi_shader(ccl::Scene* scene, ccl::ShaderGraph* shader_gra
 		shader_graph->connect(less->output("Value"), multiplication->input("Value2"));
 
 		// set finall mix color factor
-		shader_graph->connect(multiplication->output("Value"), finall_mix->input("Fac"));
+		shader_graph->connect(multiplication->output("Value"), finall_mix->input("Factor"));
 
 		return hair_node;
 	}

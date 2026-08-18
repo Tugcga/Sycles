@@ -43,6 +43,7 @@ public:
 	size_t get_pixels_count();
 	size_t get_buffer_size();  // return the size of the pixels array (inf fact pixels_count * channels)
 	size_t get_pixel_index(size_t x, size_t y);
+	bool is_valid_pixel_index(size_t x, size_t y);
 
 	std::vector<float> get_pixels();  // create the copy
 	std::vector<float> convert_channel_pixels(size_t in_channels);  // convert pixels of the image buffer to input component number, for example, convert from 4 channels to 3 (forget alpha)

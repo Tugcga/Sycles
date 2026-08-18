@@ -30,7 +30,6 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 	{
 		// for shaderball rendering use simple parameters
 		session_params.threads = 0;
-		session_params.experimental = true;
 		session_params.pixel_size = 1;
 		session_params.use_auto_tile = false;
 
@@ -89,7 +88,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 #ifdef WITH_OSL
 		// osl can be activated only if either cpu or optix gpu is activated
 		session_params.shadingsystem = use_osl ? 
-			(use_cpu || use_optix_gpu ? ccl::SHADINGSYSTEM_OSL : ccl::SHADINGSYSTEM_SVM) :
+			(use_cpu /* || use_optix_gpu*/ ? ccl::SHADINGSYSTEM_OSL : ccl::SHADINGSYSTEM_SVM) :
 			ccl::SHADINGSYSTEM_SVM;
 #else
 		session_params.shadingsystem = ccl::SHADINGSYSTEM_SVM;
@@ -125,7 +124,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 			}
 		}
 
-		bool use_osl_device = false;  // for now osl can be rendered by cou and optix
+		bool use_osl_device = false;  // for now osl can be rendered by cpu only
 		size_t selected_count = selected_indices.size();
 		if (selected_count <= 1)
 		{
@@ -138,8 +137,8 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 				session_params.device = available_devices[selected_indices[0]];
 			}
 
-			if (session_params.device.type == ccl::DeviceType::DEVICE_CPU ||
-				session_params.device.type == ccl::DeviceType::DEVICE_OPTIX)
+			if (session_params.device.type == ccl::DeviceType::DEVICE_CPU 
+				/* || session_params.device.type == ccl::DeviceType::DEVICE_OPTIX*/)
 			{
 				use_osl_device = true;
 			}
@@ -190,7 +189,7 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 
 			session_params.device = ccl::Device::get_multi_device(used_devices, session_params.threads, session_params.background);
 		}
-		session_params.experimental = true;
+		session_params.denoise_device = session_params.device;
 		set_session_samples(session_params, render_parameters, eval_time);
 
 		session_params.pixel_size = 1;
@@ -214,7 +213,8 @@ ccl::SessionParams get_session_params(RenderType render_type, const XSI::CParame
 
 		if (client_want_osl && !use_osl_device)
 		{
-			log_warning(XSI::CString("OSL shading system supports only single CPU or single OPTIX rendering. Switched to SVM shading system."));
+			// log_warning(XSI::CString("OSL shading system supports only single CPU or single OPTIX rendering. Switched to SVM shading system."));
+			log_warning(XSI::CString("OSL shading system supports only single CPU rendering. Switched to SVM shading system."));
 		}
 
 		session_params.use_profiling = false;
@@ -252,12 +252,29 @@ ccl::SceneParams get_scene_params(RenderType render_type, const ccl::SessionPara
 		scene_params.use_bvh_spatial_split = render_parameters.GetValue("performance_acceleration_use_spatial_split", eval_time);
 		scene_params.use_bvh_compact_structure = render_parameters.GetValue("performance_acceleration_use_compact_bvh", eval_time);
 
-		scene_params.hair_shape = render_parameters.GetValue("performance_curves_type", eval_time) == 1 ? ccl::CurveShapeType::CURVE_THICK : ccl::CurveShapeType::CURVE_RIBBON;
+		int curves_type = render_parameters.GetValue("performance_curves_type", eval_time);
+		scene_params.hair_shape = 
+			curves_type == 0 ? ccl::CurveShapeType::CURVE_RIBBON : (
+			curves_type == 1 ? ccl::CurveShapeType::CURVE_THICK : ccl::CurveShapeType::CURVE_THICK_LINEAR);
 		scene_params.hair_subdivisions = render_parameters.GetValue("performance_curves_subdivs", eval_time);
 	}
 
 	scene_params.shadingsystem = session_params.shadingsystem;
 	scene_params.background = true;
+	bool use_texture_cache = render_parameters.GetValue("performance_texture_cache", eval_time);
+	if (use_texture_cache) {
+		scene_params.use_texture_cache = true;
+		scene_params.auto_texture_cache = true;
+		scene_params.texture_cache_path = create_texture_cache_path().GetAsciiString();
+	}
+	else {
+		scene_params.use_texture_cache = false;
+		scene_params.auto_texture_cache = false;
+		scene_params.texture_cache_path = "";
+	}
+	int texture_limit = render_parameters.GetValue("performance_texture_limits", eval_time);
+	scene_params.texture_limit = (texture_limit > 0) ? (1 << (texture_limit + 6)) : 0;
+	scene_params.texture_resolution = (float)render_parameters.GetValue("performance_texture_resolution", eval_time);
 
 	return scene_params;
 }
@@ -277,6 +294,14 @@ ccl::BufferParams get_buffer_params(int full_width, int full_height, int offset_
 	buffer_params.window_height = buffer_params.height;
 
 	return buffer_params;
+}
+
+void sync_scene_attributes(ccl::Session *session, const XSI::CTime &eval_time) {
+	ccl::SceneAttributes* scene_attribute = session->scene->scene_attribute;
+	float frame = (float)get_frame(eval_time);
+	float time = frame / eval_time.GetFrameRate();
+	scene_attribute->set_frame(frame);
+	scene_attribute->set_time(time);
 }
 
 ccl::Session* create_session(ccl::SessionParams session_params, ccl::SceneParams scene_params)

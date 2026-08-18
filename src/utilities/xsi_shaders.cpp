@@ -193,6 +193,10 @@ XSI::ShaderParameter get_source_parameter(const XSI::ShaderParameter &parameter,
 			{
 				// may be the source node is passthrough node, then go deeper
 				XSI::CStringArray name_parts = source_prog_id.Split(".");
+				if (name_parts.GetCount() <= 1) {
+					return return_output ? source_param : parameter;
+				}
+
 				if (name_parts[0] == "SIUtilityShaders")
 				{
 					if (name_parts[1].ReverseFindString("Passthrough") < UINT_MAX)
@@ -204,6 +208,15 @@ XSI::ShaderParameter get_source_parameter(const XSI::ShaderParameter &parameter,
 					}
 					else
 					{
+						return return_output ? source_param : parameter;
+					}
+				}
+				else if (name_parts[0] == "Softimage") {
+					if (name_parts[1] == "sib_scalar_to_integer" || name_parts[1] == "sib_integerr_to_scalar") {
+						XSI::ShaderParameter p(source_node.GetParameter("input"));
+						return get_source_parameter(p, return_output);
+					}
+					else {
 						return return_output ? source_param : parameter;
 					}
 				}
@@ -302,4 +315,12 @@ XSI::ImageClip2 get_clip_parameter_value(const XSI::CParameterRefArray& all_para
 	}
 
 	return XSI::ImageClip2();
+}
+
+// return true if parameter with the input name in the list has some connections
+bool is_parameter_connected(const XSI::CParameterRefArray& all_parameters, const XSI::CString &parameter_name) {
+	XSI::ShaderParameter param = all_parameters.GetItem(parameter_name);
+	XSI::ShaderParameter param_final = get_source_parameter(param);
+
+	return param.GetFullName() != param_final.GetFullName();
 }

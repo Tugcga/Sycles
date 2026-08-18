@@ -140,24 +140,18 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.AddGroup("Memory");
 	layout.AddItem("performance_memory_use_auto_tile", "Use Tiling");
 	layout.AddItem("performance_memory_tile_size", "Tile Size");
-	XSI::CValueArray texture_limit_combo(30);
-	texture_limit_combo[0] = "Unlimited"; texture_limit_combo[1] = LONG(0);
-	texture_limit_combo[2] = "131 072 (128k) pixels"; texture_limit_combo[3] = LONG(1);
-	texture_limit_combo[4] = "65 536 (64k) pixels"; texture_limit_combo[5] = LONG(2);
-	texture_limit_combo[6] = "32 768 (32k) pixels"; texture_limit_combo[7] = LONG(3);
-	texture_limit_combo[8] = "16 384 (16k) pixels"; texture_limit_combo[9] = LONG(4);
-	texture_limit_combo[10] = "8 192 (8k) pixels"; texture_limit_combo[11] = LONG(5);
-	texture_limit_combo[12] = "4 096 (4k) pixels"; texture_limit_combo[13] = LONG(6);
-	texture_limit_combo[14] = "2 048 (2k) pixels"; texture_limit_combo[15] = LONG(7);
-	texture_limit_combo[16] = "1 024 (1k) pixels"; texture_limit_combo[17] = LONG(8);
-	texture_limit_combo[18] = "512 pixels"; texture_limit_combo[19] = LONG(9);
-	texture_limit_combo[20] = "256 pixels"; texture_limit_combo[21] = LONG(10);
-	texture_limit_combo[22] = "128 pixels"; texture_limit_combo[23] = LONG(11);
-	texture_limit_combo[24] = "64 pixels"; texture_limit_combo[25] = LONG(12);
-	texture_limit_combo[26] = "32 pixels"; texture_limit_combo[27] = LONG(13);
-	texture_limit_combo[28] = "16 pixels"; texture_limit_combo[29] = LONG(14);
+	layout.AddItem("performance_texture_resolution", "Texture Resolution");
+	XSI::CValueArray texture_limit_combo(16);
+	texture_limit_combo[0] = "No Limit"; texture_limit_combo[1] = LONG(0);
+	texture_limit_combo[2] = "128"; texture_limit_combo[3] = LONG(1);
+	texture_limit_combo[4] = "256"; texture_limit_combo[5] = LONG(2);
+	texture_limit_combo[6] = "512"; texture_limit_combo[7] = LONG(3);
+	texture_limit_combo[8] = "1024"; texture_limit_combo[9] = LONG(4);
+	texture_limit_combo[10] = "2048"; texture_limit_combo[11] = LONG(5);
+	texture_limit_combo[12] = "4096"; texture_limit_combo[13] = LONG(6);
+	texture_limit_combo[14] = "8192"; texture_limit_combo[15] = LONG(7);
 	layout.AddEnumControl("performance_texture_limits", texture_limit_combo, "Texture Limit", XSI::siControlCombo);
-	layout.AddItem("performance_texture_cache", "Cache textures on Session");
+	layout.AddItem("performance_texture_cache", "Texture Cache");
 	layout.EndGroup();
 
 	layout.AddGroup("Acceleration Structure");
@@ -166,14 +160,16 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.EndGroup();
 
 	layout.AddGroup("Volumes");
+	layout.AddItem("performance_volume_biased", "Biased");
 	layout.AddItem("performance_volume_step_rate", "Step Rate");
 	layout.AddItem("performance_volume_max_steps", "Max Steps");
 	layout.EndGroup();
 
 	layout.AddGroup("Curves");
-	XSI::CValueArray curves_type_combo(4);
+	XSI::CValueArray curves_type_combo(6);
 	curves_type_combo[0] = "Rounded Ribbons"; curves_type_combo[1] = LONG(0);
 	curves_type_combo[2] = "3D Curves"; curves_type_combo[3] = LONG(1);
+	curves_type_combo[4] = "Linear 3D Curves"; curves_type_combo[5] = LONG(2);
 	layout.AddEnumControl("performance_curves_type", curves_type_combo, "Shape", XSI::siControlCombo);
 	layout.AddItem("performance_curves_subdivs", "Curve Subdivisions");
 	layout.EndGroup();
@@ -192,8 +188,8 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 		layout.AddGroup("Parameters");
 		// displays
-		XSI::CValueArray cm_displays_combo(ocio_config.displays_count * 2);
-		for (size_t display_index = 0; display_index < ocio_config.displays_count; display_index++)
+		XSI::CValueArray cm_displays_combo((LONG)(ocio_config.displays_count * 2));
+		for (LONG display_index = 0; display_index < (LONG)ocio_config.displays_count; display_index++)
 		{
 			cm_displays_combo[display_index * 2] = ocio_config.displays[display_index].name;
 			cm_displays_combo[display_index * 2 + 1] = LONG(display_index);
@@ -203,15 +199,15 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 		int cm_display_index = cm_display_index_parameter.GetValue();
 		if (cm_display_index < 0 || cm_display_index >= ocio_config.displays_count)
 		{
-			cm_display_index = ocio_config.default_display;
+			cm_display_index = (int)ocio_config.default_display;
 		}
 		cm_display_index = std::min(cm_display_index, (int)ocio_config.displays_count - 1);
 		cm_display_index_parameter.PutValue(cm_display_index);
 
 		// views
 		size_t display_views_count = ocio_config.displays[cm_display_index].views_count;
-		XSI::CValueArray cm_views_combo(display_views_count * 2);
-		for (size_t view_index = 0; view_index < display_views_count; view_index++)
+		XSI::CValueArray cm_views_combo((LONG)(display_views_count * 2));
+		for (LONG view_index = 0; view_index < display_views_count; view_index++)
 		{
 			cm_views_combo[view_index * 2] = ocio_config.displays[cm_display_index].views[view_index];
 			cm_views_combo[view_index * 2 + 1] = LONG(view_index);
@@ -226,14 +222,14 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 
 		if (cm_view_index >= display_views_count)
 		{
-			cm_view_index = display_views_count - 1;
+			cm_view_index = (int)display_views_count - 1;
 		}
 		cm_view_index_parameter.PutValue(cm_view_index);
 
 		// looks
-		XSI::CValueArray cm_looks_combo(2 + ocio_config.looks_count * 2);
+		XSI::CValueArray cm_looks_combo(2 + (LONG)(ocio_config.looks_count * 2));
 		cm_looks_combo[0] = "None"; cm_looks_combo[1] = LONG(0);  // set None at start, actual look index will be-1 with this value
-		for (size_t look_index = 0; look_index < ocio_config.looks_count; look_index++)
+		for (LONG look_index = 0; look_index < (LONG)ocio_config.looks_count; look_index++)
 		{
 			cm_looks_combo[2 + 2 * look_index] = ocio_config.looks[look_index];
 			cm_looks_combo[2 + 2 * look_index + 1] = LONG(look_index + 1);
@@ -302,13 +298,15 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.EndGroup();
 
 	layout.AddGroup("Surface");
-	XSI::CValueArray back_sampling_method_combo(4);
-	back_sampling_method_combo[0] = "Auto"; back_sampling_method_combo[1] = 0;
-	back_sampling_method_combo[2] = "Manual"; back_sampling_method_combo[3] = 1;
+	XSI::CValueArray back_sampling_method_combo(6);
+	back_sampling_method_combo[0] = "None"; back_sampling_method_combo[1] = 0;
+	back_sampling_method_combo[2] = "Auto"; back_sampling_method_combo[3] = 1;
+	back_sampling_method_combo[4] = "Manual"; back_sampling_method_combo[5] = 2;
 	layout.AddEnumControl("background_surface_sampling_method", back_sampling_method_combo, "Sampling", XSI::siControlCombo);
 	layout.AddItem("background_surface_resolution", "Map Resolution");
 	layout.AddItem("background_surface_max_bounces", "Max Bounces");
 	layout.AddItem("background_surface_shadow_caustics", "Shadow Caustics");
+	layout.AddItem("background_surface_cast_shadow", "Cast Shadow");
 	layout.EndGroup();
 
 	layout.AddGroup("Volume");
@@ -321,8 +319,6 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	back_interpolation_combo[0] = "Linear"; back_interpolation_combo[1] = 0;
 	back_interpolation_combo[2] = "Cubic"; back_interpolation_combo[3] = 1;
 	layout.AddEnumControl("background_volume_interpolation", back_interpolation_combo, "Interpolation", XSI::siControlCombo);
-	layout.AddItem("background_volume_homogeneous", "Homogeneous");
-	layout.AddItem("background_volume_step_rate", "Step Size");
 	layout.EndGroup();
 
 	layout.AddGroup("Light Group");
@@ -330,6 +326,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	layout.EndGroup();
 
 	layout.AddGroup("Ray Visibility");
+	layout.AddItem("background_ray_visibility_camera", "Camera");
 	layout.AddItem("background_ray_visibility_diffuse", "Diffuse");
 	layout.AddItem("background_ray_visibility_glossy", "Glossy");
 	layout.AddItem("background_ray_visibility_transmission", "Transmission");
@@ -352,7 +349,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 		layout.AddGroup("Denoise");
 		XSI::CValueArray denoise_mode_enum(is_optix ? (is_oidn ? 6 : 4) : (is_oidn ? 4 : 2));
 		denoise_mode_enum[0] = "Disable"; denoise_mode_enum[1] = 0;
-		size_t mode_index = 1;
+		LONG mode_index = 1;
 		if (is_oidn)
 		{
 			denoise_mode_enum[2 * mode_index] = "OpenImageDenoise"; denoise_mode_enum[2 * mode_index + 1] = 1;
@@ -383,6 +380,7 @@ void build_layout(XSI::PPGLayout& layout, const XSI::CParameterRefArray& paramet
 	emission_sampling_combo[8] = "Front and Back"; emission_sampling_combo[9] = 4;
 	layout.AddEnumControl("options_shaders_emission_sampling", emission_sampling_combo, "Emission Sampling", XSI::siControlCombo);
 	layout.AddItem("options_shaders_transparent_shadows", "Transparent Shadows");
+	layout.AddItem("options_shaders_bump_map_correction", "Bump Map Correction");
 #ifdef WITH_OSL
 	XSI::CValueArray shader_system_combo(4);
 	shader_system_combo[0] = "SVM"; shader_system_combo[1] = 0;
@@ -526,7 +524,7 @@ void set_curves(XSI::CustomProperty& prop)
 	int curve_mode = performance_curves_type.GetValue();
 
 	XSI::Parameter performance_curves_subdivs = prop_array.GetItem("performance_curves_subdivs");
-	performance_curves_subdivs.PutCapabilityFlag(block_mode, curve_mode == 1);
+	performance_curves_subdivs.PutCapabilityFlag(block_mode, curve_mode != 0);
 }
 
 void set_film_filter(XSI::CustomProperty& prop)
@@ -620,6 +618,20 @@ void set_culling(XSI::CustomProperty& prop)
 	performance_simplify_cull_distance_margin.PutCapabilityFlag(block_mode, !is_distance);
 }
 
+void set_biased(XSI::CustomProperty& prop)
+{
+	XSI::CParameterRefArray prop_array = prop.GetParameters();
+
+	XSI::Parameter performance_volume_biased = prop_array.GetItem("performance_volume_biased");
+	bool is_biased = performance_volume_biased.GetValue();
+
+	XSI::Parameter performance_volume_step_rate = prop_array.GetItem("performance_volume_step_rate");
+	performance_volume_step_rate.PutCapabilityFlag(block_mode, !is_biased);
+
+	XSI::Parameter performance_volume_max_steps = prop_array.GetItem("performance_volume_max_steps");
+	performance_volume_max_steps.PutCapabilityFlag(block_mode, !is_biased);
+}
+
 void set_multilayer_exr(XSI::CustomProperty& prop)
 {
 	XSI::CParameterRefArray prop_array = prop.GetParameters();
@@ -649,17 +661,6 @@ void set_cryptomatte(XSI::CustomProperty& prop)
 
 	XSI::Parameter output_crypto_levels = prop_array.GetItem("output_crypto_levels");
 	output_crypto_levels.PutCapabilityFlag(block_mode, !is_object && !is_material && !is_asset);
-}
-
-void set_background_volume(XSI::CustomProperty& prop)
-{
-	XSI::CParameterRefArray prop_array = prop.GetParameters();
-
-	XSI::Parameter background_volume_homogeneous = prop_array.GetItem("background_volume_homogeneous");
-	bool is_homogeneous = background_volume_homogeneous.GetValue();
-
-	XSI::Parameter background_volume_step_rate = prop_array.GetItem("background_volume_step_rate");
-	background_volume_step_rate.PutCapabilityFlag(block_mode, is_homogeneous);
 }
 
 void set_background_surface(XSI::CustomProperty& prop)
@@ -714,12 +715,16 @@ void set_colormanagement(XSI::CustomProperty& prop)
 	cm_gamma.PutCapabilityFlag(block_mode, mode == 0 || !cm_apply);
 
 	OCIOConfig ocio_config = get_ocio_config();
-	int display_index = cm_display_index.GetValue();
-	OCIODisplay ocio_display = ocio_config.displays[display_index];
-	int views_count = ocio_display.views_count;
-	if ((int)cm_view_index.GetValue() >= views_count)
-	{
-		cm_view_index.PutValue(views_count - 1);
+	if (ocio_config.is_init) {
+		int display_index = cm_display_index.GetValue();
+		if (display_index < ocio_config.displays.size()) {
+			OCIODisplay ocio_display = ocio_config.displays[display_index];
+			int views_count = (int)ocio_display.views_count;
+			if ((int)cm_view_index.GetValue() >= views_count)
+			{
+				cm_view_index.PutValue(views_count - 1);
+			}
+		}
 	}
 }
 
@@ -755,9 +760,9 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		set_threads(cp_source);
 		set_memory(cp_source);
 		set_culling(cp_source);
+		set_biased(cp_source);
 		set_multilayer_exr(cp_source);
 		set_cryptomatte(cp_source);
-		set_background_volume(cp_source);
 		set_background_surface(cp_source);
 		set_denoising(cp_source);
 		set_colormanagement(cp_source);
@@ -820,6 +825,10 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		{
 			set_culling(prop);
 		}
+		else if (param_name == "performance_volume_biased")
+		{
+			set_biased(prop);
+		}
 		else if (param_name == "output_exr_combine_passes")
 		{
 			set_multilayer_exr(prop);
@@ -827,10 +836,6 @@ XSI::CStatus RenderEngineCyc::render_options_update(XSI::PPGEventContext& event_
 		else if (param_name == "output_crypto_object" || param_name == "output_crypto_material" || param_name == "output_crypto_asset")
 		{
 			set_cryptomatte(prop);
-		}
-		else if (param_name == "background_volume_homogeneous")
-		{
-			set_background_volume(prop);
 		}
 		else if (param_name == "background_surface_sampling_method")
 		{
@@ -961,6 +966,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("performance_memory_tile_size", XSI::CValue::siInt4, caps, "", "", 2048, 8, INT_MAX, 8, 4096, param);
 
 	property.AddParameter("performance_texture_limits", XSI::CValue::siInt4, caps, "", "", 0, param);
+	property.AddParameter("performance_texture_resolution", XSI::CValue::siFloat, caps, "", "", 1.0, 0.0, 1.0, 0.0, 1.0, param);
 	property.AddParameter("performance_texture_cache", XSI::CValue::siBool, caps, "", "", true, param);
 
 	// acceleration structure
@@ -968,6 +974,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("performance_acceleration_use_compact_bvh", XSI::CValue::siBool, caps, "", "", false, param);
 
 	// volumes
+	property.AddParameter("performance_volume_biased", XSI::CValue::siBool, caps, "", "", false, param);
 	property.AddParameter("performance_volume_step_rate", XSI::CValue::siFloat, caps, "", "", 1.0, 0.1, 10.0, 0.1, 10.0, param);
 	property.AddParameter("performance_volume_max_steps", XSI::CValue::siInt4, caps, "", "", 1024, 0, INT_MAX, 0, 2048, param);
 
@@ -983,7 +990,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	property.AddParameter("performance_simplify_cull_distance_margin", XSI::CValue::siFloat, caps, "", "", 50.0, 0.0, FLT_MAX, 0.0, 100.0, param);
 
 	// color management tab
-	OCIOConfig ocio_config = get_ocio_config();
+	// OCIOConfig ocio_config = get_ocio_config();
 	property.AddParameter("cm_apply_to_ldr", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("cm_mode", XSI::CValue::siInt4, caps, "", "", 0, param);
 	property.AddParameter("cm_display_index", XSI::CValue::siInt4, caps, "", "", 0, param);  // <-- default device index
@@ -1036,13 +1043,12 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	// volume
 	property.AddParameter("background_volume_sampling", XSI::CValue::siInt4, caps, "", "", 1, param);
 	property.AddParameter("background_volume_interpolation", XSI::CValue::siInt4, caps, "", "", 0, param);
-	property.AddParameter("background_volume_homogeneous", XSI::CValue::siBool, caps, "", "", false, param);
-	property.AddParameter("background_volume_step_rate", XSI::CValue::siFloat, caps, "", "", 1.0, 0.01, 100.0, 0.1, 10.0, param);
 	// surface
-	property.AddParameter("background_surface_sampling_method", XSI::CValue::siUInt1, caps, "", "", 0, param);
+	property.AddParameter("background_surface_sampling_method", XSI::CValue::siUInt1, caps, "", "", 1, param);
 	property.AddParameter("background_surface_max_bounces", XSI::CValue::siUInt2, caps, "", "", 1024, 0, 1024, 0, 1024, param);
 	property.AddParameter("background_surface_resolution", XSI::CValue::siInt4, caps, "", "", 1024, 4, 8191, 4, 2048, param);
 	property.AddParameter("background_surface_shadow_caustics", XSI::CValue::siBool, caps, "", "", false, param);
+	property.AddParameter("background_surface_cast_shadow", XSI::CValue::siBool, caps, "", "", true, param);
 	// lightgroup
 	property.AddParameter("background_lightgroup", XSI::CValue::siString, caps, "", "", "", param);
 
@@ -1054,6 +1060,7 @@ XSI::CStatus RenderEngineCyc::render_option_define(XSI::CustomProperty& property
 	// shaders
 	property.AddParameter("options_shaders_emission_sampling", XSI::CValue::siInt4, caps, "", "", 1, param);
 	property.AddParameter("options_shaders_transparent_shadows", XSI::CValue::siBool, caps, "", "", true, param);
+	property.AddParameter("options_shaders_bump_map_correction", XSI::CValue::siBool, caps, "", "", true, param);
 	property.AddParameter("options_shaders_system", XSI::CValue::siInt4, caps, "", "", 0, param);
 
 	// logging

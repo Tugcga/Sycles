@@ -1,9 +1,18 @@
+#include <cmath>
+
 #include <xsi_model.h>
 #include <xsi_material.h>
 #include <xsi_shader.h>
 #include <xsi_projectitem.h>
 #include <xsi_texture.h>
 #include <xsi_application.h>
+#include <xsi_plugin.h>
+#include <xsi_utils.h>
+
+#include "MaterialXCore/Document.h"
+#include "MaterialXFormat/XmlIo.h"
+#include "MaterialXFormat/Util.h"
+#include "MaterialXGenShader/DefaultColorManagementSystem.h"
 
 #include "update_context.h"
 #include "../utilities/logs.h"
@@ -15,11 +24,19 @@ UpdateContext::UpdateContext()
 {
 	sync_profiler = new ProfilerContext();
 	reset();
+	mx_filename_to_data.clear();
+	is_osl_context_init = false;
+	clear_cache_on_close = false;
 }
 
 UpdateContext::~UpdateContext()
 {
+	if (clear_cache_on_close) {
+		XSI::CString cache_path = create_texture_cache_path();
+		remove_temp_path(cache_path);
+	}
 	reset();
+	mx_filename_to_data.clear();
 	delete sync_profiler;
 }
 
@@ -54,6 +71,7 @@ void UpdateContext::reset()
 	background_light_index = -1;
 	need_update_background = false;
 	use_background_light = false;
+	use_background_shadow = true;
 
 	use_denoising = false;
 
@@ -81,6 +99,12 @@ void UpdateContext::reset()
 
 	nodes_map.clear();
 	path_to_image.clear();
+
+	update_generation = 0;
+
+	object_to_vertices.clear();
+	id_to_mxnode.clear();
+	mx_images.clear();
 }
 
 void UpdateContext::set_is_update_light_linking(bool value)
@@ -244,7 +268,7 @@ bool UpdateContext::is_changed_render_paramters_integrator(const std::unordered_
 		"film_motion_use", 
 		"paths_max_bounces", "paths_max_diffuse_bounces", "paths_max_glossy_bounces", "paths_max_transmission_bounces", "paths_max_volume_bounces", "paths_max_transparent_bounces",
 		"sampling_advanced_min_light_bounces", "sampling_advanced_min_transparent_bounces",
-		"performance_volume_step_rate", "performance_volume_max_steps",
+		"performance_volume_step_rate", "performance_volume_max_steps", "performance_volume_biased",
 		"paths_caustics_filter_glossy", "paths_caustics_reflective", "paths_caustics_refractive",
 		"sampling_advanced_seed", "sampling_advanced_animate_seed",
 		"paths_clamp_direct", "paths_clamp_indirect",
@@ -286,8 +310,7 @@ bool UpdateContext::is_change_render_parameters_background(const std::unordered_
 	std::vector<std::string> background_parameters = { 
 		"film_transparent", "film_transparent_glass", "film_transparent_roughness",
 		"background_ray_visibility_camera", "background_ray_visibility_diffuse", "background_ray_visibility_glossy", "background_ray_visibility_transmission", "background_ray_visibility_scatter",
-		"background_volume_sampling", "background_volume_interpolation", "background_volume_homogeneous", "background_volume_step_rate",
-		"background_surface_sampling_method", "background_surface_max_bounces", "background_surface_resolution", "background_surface_shadow_caustics",
+		"background_volume_sampling", "background_volume_interpolation", "background_surface_sampling_method", "background_surface_max_bounces", "background_surface_resolution", "background_surface_shadow_caustics", "background_surface_cast_shadow",
 		"background_lightgroup"
 	};
 	return is_set_contains_from_array(parameters, background_parameters);
@@ -296,7 +319,7 @@ bool UpdateContext::is_change_render_parameters_background(const std::unordered_
 bool UpdateContext::is_change_render_parameters_shaders(const std::unordered_set<std::string>& parameters)
 {
 	std::vector<std::string> background_parameters = {
-		"options_shaders_emission_sampling", "options_shaders_transparent_shadows", "options_displacement_method"
+		"options_shaders_emission_sampling", "options_shaders_transparent_shadows", "options_displacement_method", "options_shaders_bump_map_correction"
 	};
 	return is_set_contains_from_array(parameters, background_parameters);
 }
@@ -375,7 +398,7 @@ void UpdateContext::set_motion(const XSI::CParameterRefArray& render_parameters,
 		motion_type = known_type;
 	}
 	
-	int film_motion_steps = render_parameters.GetValue("film_motion_steps", eval_time);
+	int film_motion_steps = std::max(1, (int)render_parameters.GetValue("film_motion_steps", eval_time));
 	int film_motion_position = render_parameters.GetValue("film_motion_position", eval_time);
 	int film_motion_rolling_type = render_parameters.GetValue("film_motion_rolling_type", eval_time);
 
@@ -1091,4 +1114,228 @@ void UpdateContext::clear_nodes_map() {
 
 std::map<std::string, XSI::Image>& UpdateContext::get_path_to_image() {
 	return path_to_image;
+}
+
+void UpdateContext::increase_generation() {
+	update_generation++;
+}
+
+size_t UpdateContext::get_generation() {
+	return update_generation;
+}
+
+void UpdateContext::copy_positions(ULONG xsi_id, const ccl::array<ccl::packed_float3> &positions) {
+	object_to_vertices[xsi_id] = positions;
+}
+
+bool UpdateContext::has_positions(ULONG xsi_id) {
+	return object_to_vertices.contains(xsi_id);
+}
+
+const ccl::array<ccl::packed_float3>* UpdateContext::get_positions(ULONG xsi_id) const {
+	auto it = object_to_vertices.find(xsi_id);
+	return (it != object_to_vertices.end()) ? &it->second : nullptr;
+}
+
+void UpdateContext::set_use_backgound_shadow(bool value) {
+	use_background_shadow = value;
+}
+
+bool UpdateContext::get_use_background_shadow() {
+	return use_background_shadow;
+}
+
+void UpdateContext::clear_mx_nodes() {
+	id_to_mxnode.clear();
+}
+
+void UpdateContext::add_mx_node(ULONG xsi_id, MaterialX::NodePtr mx_node) {
+	id_to_mxnode[xsi_id] = mx_node;
+}
+
+bool UpdateContext::has_mx_node(ULONG xsi_id) {
+	return id_to_mxnode.contains(xsi_id);
+}
+
+MaterialX::NodePtr UpdateContext::get_mx_node(ULONG xsi_id) {
+	return id_to_mxnode[xsi_id];
+}
+
+void UpdateContext::try_init_materialx_path() {
+	if (materialx_library.Length() == 0 || materialx_nodes.Length() == 0) {
+		XSI::CRefArray all_plugins = XSI::Application().GetPlugins();
+		for (size_t i = 0; i < all_plugins.GetCount(); i++) {
+			XSI::Plugin plugin(all_plugins[i]);
+			XSI::CString plugin_path = plugin.GetFilename();
+
+			if (plugin_path.ReverseFindString("MaterialXSIPlugin.dll") < UINT_MAX) {
+				// this is our path
+				ULONG last_slash = plugin_path.ReverseFindString(XSI::CUtils::Slash());
+				materialx_library = plugin_path.GetSubString(0, last_slash);  // without slash
+
+				last_slash = materialx_library.ReverseFindString(XSI::CUtils::Slash());
+				XSI::CString parent_plugin_folder = materialx_library.GetSubString(0, last_slash);
+				materialx_nodes = XSI::CUtils::BuildPath(parent_plugin_folder, "material_x", "libraries");
+				break;
+			}
+		}
+	}
+}
+
+// by this method we should return data for material x node
+// input is the name of the shader node inside Softimage, with all required postfix for different types
+// output - tuple, contains:
+// - node name (simple without any types)
+// - array of inputs
+// - array of outputs
+// for each item in arrays it store the tuple (port name, port type)
+std::tuple<std::string, std::vector<std::tuple<std::string, std::string>>, std::vector<std::tuple<std::string, std::string>>> UpdateContext::get_mx_data(const std::string& full_name) {
+	if (mx_filename_to_data.contains(full_name)) {
+		return mx_filename_to_data[full_name];
+	}
+
+	// try to find the file
+	// at first, find materialx path
+	try_init_materialx_path();
+
+	if (materialx_library.Length() == 0 || materialx_nodes.Length() == 0) {
+		// fail to find the path, return empty output
+		std::vector<std::tuple<std::string, std::string>> a;
+		std::vector<std::tuple<std::string, std::string>> b;
+		return std::make_tuple("", a, b);
+	}
+
+	std::string mx_path = search_file(materialx_nodes.GetAsciiString(), full_name + ".mtlx");
+	if (mx_path.size() > 0) {
+		MaterialX::DocumentPtr doc = MaterialX::createDocument();
+		bool valid_doc = false;
+		try {
+			MaterialX::readFromXmlFile(doc, mx_path);
+			valid_doc = true;
+		}
+		catch (const MaterialX::ExceptionParseError& error) {
+			log_warning(" materialX parse error: " + XSI::CString(error.what()));
+			valid_doc = false;
+		}
+		catch (const MaterialX::ExceptionFileMissing& error) {
+			log_warning("MaterialX file missing error: " + XSI::CString(error.what()));
+			valid_doc = false;
+		}
+		
+		if (!valid_doc) {
+			std::vector<std::tuple<std::string, std::string>> a;
+			std::vector<std::tuple<std::string, std::string>> b;
+			return std::make_tuple("", a, b);
+		}
+
+		MaterialX::NodeDefPtr mx_def = doc->getNodeDef(full_name);
+
+		if (!mx_def) {
+			std::vector<std::tuple<std::string, std::string>> a;
+			std::vector<std::tuple<std::string, std::string>> b;
+			return std::make_tuple("", a, b);
+		}
+
+		std::vector<std::tuple<std::string, std::string>> inputs_data;
+		std::vector<MaterialX::InputPtr> mx_inputs = mx_def->getInputs();
+		for (size_t j = 0; j < mx_inputs.size(); j++) {
+			MaterialX::InputPtr input = mx_inputs[j];
+			std::string input_name = input->getName();
+			std::string input_type = input->getType();
+			inputs_data.push_back({ input_name, input_type });
+		}
+		std::vector<std::tuple<std::string, std::string>> outputs_data;
+		std::vector<MaterialX::OutputPtr> mx_outputs = mx_def->getOutputs();
+		for (size_t j = 0; j < mx_outputs.size(); j++) {
+			MaterialX::OutputPtr output = mx_outputs[j];
+			std::string output_name = output->getName();
+			std::string output_type = output->getType();
+			outputs_data.push_back({ output_name, output_type });
+		}
+		std::string node_name = mx_def->getNodeString();
+
+		mx_filename_to_data[full_name] = {node_name, inputs_data, outputs_data };
+
+		return mx_filename_to_data[full_name];
+	}
+
+	std::vector<std::tuple<std::string, std::string>> a;
+	std::vector<std::tuple<std::string, std::string>> b;
+	return std::make_tuple("", a, b);
+}
+
+void UpdateContext::try_init_osl_generator() {
+	if (!is_osl_context_init) {
+		std_lib = MaterialX::createDocument();
+		osl_context = MaterialX::OslShaderGenerator::create();
+		MaterialX::GenContext gen_context(osl_context);
+
+		std::string target = gen_context.getShaderGenerator().getTarget();
+		MaterialX::FileSearchPath search_path = std::string(materialx_library.GetAsciiString());
+
+		gen_context.registerSourceCodeSearchPath(search_path);
+		gen_context.registerSourceCodeSearchPath(MaterialX::FileSearchPath(std::string(search_path.asString() + "\\libraries")));
+
+		MaterialX::DefaultColorManagementSystemPtr cms = MaterialX::DefaultColorManagementSystem::create(target);
+		MaterialX::FilePathVec library_folders;
+		library_folders.push_back("libraries");
+
+		bool load_std = false;
+		try {
+			MaterialX::StringSet loaded = MaterialX::loadLibraries(library_folders, search_path, std_lib);
+
+			if (loaded.empty()) {
+				log_warning(XSI::CString(("Init OSL MaterialX generator. Could not find standard data libraries on the given search path: " + search_path.asString()).c_str()));
+			}
+			else{
+				load_std = true;
+			}
+		}
+		catch (std::exception& e) {
+			log_warning(XSI::CString(("Failed to load standard data libraries: " + std::string(e.what())).c_str()));
+		}
+
+		cms->loadLibrary(std_lib);
+		gen_context.getShaderGenerator().setColorManagementSystem(cms);
+
+		MaterialX::UnitSystemPtr unit_system = MaterialX::UnitSystem::create(target);
+		unit_system->loadLibrary(std_lib);
+		gen_context.getShaderGenerator().setUnitSystem(unit_system);
+		gen_context.getOptions().targetDistanceUnit = "meter";
+
+		gen_context.getOptions().targetColorSpaceOverride = "lin_rec709";
+		gen_context.getOptions().fileTextureVerticalFlip = true;
+		gen_context.getOptions().hwShadowMap = true;
+		gen_context.getOptions().hwTransparency = true;
+		gen_context.getOptions().hwAmbientOcclusion = true;
+		gen_context.getOptions().hwImplicitBitangents = false;
+		gen_context.getOptions().hwSpecularEnvironmentMethod = MaterialX::SPECULAR_ENVIRONMENT_FIS;
+		gen_context.getOptions().hwTransmissionRenderMethod = MaterialX::TRANSMISSION_REFRACTION;
+		gen_context.getOptions().hwDirectionalAlbedoMethod = MaterialX::HwDirectionalAlbedoMethod::DIRECTIONAL_ALBEDO_ANALYTIC;
+
+		is_osl_context_init = true;
+	}
+}
+
+MaterialX::ShaderGeneratorPtr UpdateContext::get_osl_generator() {
+	try_init_materialx_path();
+	try_init_osl_generator();
+
+	return osl_context;
+}
+
+MaterialX::DocumentPtr UpdateContext::get_std_lib() {
+	return std_lib;
+}
+
+void UpdateContext::set_clear_cache_on_close(bool value) {
+	clear_cache_on_close = value;
+}
+
+void UpdateContext::add_mx_image(const std::string& file_path, ccl::ImageParams params) {
+	mx_images[file_path] = params;
+}
+
+std::map<std::string, ccl::ImageParams> UpdateContext::get_mx_images() {
+	return mx_images;
 }

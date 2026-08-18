@@ -36,6 +36,7 @@ ccl::Transform get_transform(std::vector<float>& array);
 ccl::Transform tweak_camera_matrix(const ccl::Transform& tfm, const ccl::CameraType type, const ccl::PanoramaType panorama_type);
 void xsi_matrix_to_cycles_array(std::vector<float>& array, XSI::MATH::CMatrix4 matrix, bool flip_z);
 ccl::Transform xsi_matrix_to_transform(const XSI::MATH::CMatrix4& xsi_matrix, bool flip_z = false);
+ccl::Transform xsi_tfm_co_cycles_tfm(const XSI::MATH::CTransformation& xsi_tfm);
 double get_random_value(double min, double max);
 
 ccl::float3 color4_to_float3(const XSI::MATH::CColor4f &color);
@@ -56,3 +57,5 @@ ccl::array<int> exctract_tiles(const std::map<int, XSI::CString>& tile_to_path_m
 std::vector<float> flip_pixels(float* input, ULONG width, ULONG height, ULONG channels);
 int powi(int base, unsigned int exp);
 size_t calc_time_motion_step(size_t mi, size_t motion_steps, MotionSettingsPosition motion_position);
+int to_int(const char* str, int default_value);
+float to_float(const char* str, float default_value);

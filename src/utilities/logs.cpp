@@ -1,5 +1,6 @@
 #include "util/array.h"
 #include "util/types.h"
+#include "util/transform.h"
 
 #include <xsi_string.h>
 #include <xsi_application.h>
@@ -19,11 +20,29 @@
 
 void log_message(const XSI::CString &message, XSI::siSeverityType level)
 {
-	XSI::Application().LogMessage("[Cycles Render] " + message, level);
+	XSI::CStringArray message_parts = message.Split("\n");
+	LONG count = message_parts.GetCount();
+	for (size_t i = 0; i < count; i++) {
+		if (i == 0) {
+			XSI::Application().LogMessage("[Cycles Render] " + message_parts[i], level);
+		}
+		else {
+			XSI::Application().LogMessage(message_parts[i], level);
+		}
+	}
 }
 
 void log_warning(const XSI::CString& message) {
-	XSI::Application().LogMessage("[Cycles Warning] " + message, XSI::siSeverityType::siWarningMsg);
+	XSI::CStringArray message_parts = message.Split("\n");
+	LONG count = message_parts.GetCount();
+	for (size_t i = 0; i < count; i++) {
+		if (i == 0) {
+			XSI::Application().LogMessage("[Cycles Warning] " + message_parts[i], XSI::siSeverityType::siWarningMsg);
+		}
+		else {
+			XSI::Application().LogMessage(message_parts[i], XSI::siSeverityType::siWarningMsg);
+		}
+	}
 }
 
 XSI::CString to_string(const XSI::CFloatArray& array)
@@ -305,7 +324,7 @@ XSI::CString to_string(const XSI::MATH::CMatrix4& matrix)
 	{
 		for (ULONG j = 0; j < 4; j++)
 		{
-			to_return += XSI::CString(matrix.GetValue(i, j));
+			to_return += XSI::CString(matrix.GetValue(i, j)) + " ";
 		}
 		to_return += "\n";
 	}
@@ -358,6 +377,59 @@ XSI::CString to_string(const ccl::vector<ccl::float3>& array)
 	for (ULONG i = 0; i < array.size(); i++)
 	{
 		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ", " + XSI::CString(array[i].z) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
+XSI::CString to_string(const std::vector<ccl::float2>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
+XSI::CString to_string(const ccl::array<ccl::packed_float3>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ", " + XSI::CString(array[i].z) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
+XSI::CString to_string(const ccl::vector<ccl::packed_float3>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		to_return += "(" + XSI::CString(array[i].x) + ", " + XSI::CString(array[i].y) + ", " + XSI::CString(array[i].z) + ")" + ((i == array.size() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
+XSI::CString to_string(const ccl::array<ccl::packed_normal>& array)
+{
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.size(); i++)
+	{
+		ccl::float3 vector = array[i].decode();
+		to_return += "(" + XSI::CString(vector.x) + ", " + XSI::CString(vector.y) + ", " + XSI::CString(vector.z) + ")" + ((i == array.size() - 1) ? "" : ", ");
 	}
 
 	to_return += "]";
@@ -429,6 +501,18 @@ XSI::CString to_string(const std::vector<XSI::CStringArray>& array) {
 	return to_return;
 }
 
+XSI::CString to_string(const XSI::MATH::CVector3Array& array) {
+	XSI::CString to_return = "[";
+	for (ULONG i = 0; i < array.GetCount(); i++)
+	{
+		to_return += to_string(array[i]) + ((i == array.GetCount() - 1) ? "" : ", ");
+	}
+
+	to_return += "]";
+
+	return to_return;
+}
+
 XSI::CString to_string_int2(const ccl::int2& value)
 {
 	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";
@@ -436,6 +520,32 @@ XSI::CString to_string_int2(const ccl::int2& value)
 
 XSI::CString to_string_float3(const ccl::float3& value) {
 	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ", " + XSI::CString(value.z) + ")";
+}
+
+XSI::CString to_string_float2(const ccl::float2& value) {
+	return "(" + XSI::CString(value.x) + ", " + XSI::CString(value.y) + ")";
+}
+
+XSI::CString to_string(const XSI::MATH::CTransformation& tfm) {
+	return "[" + XSI::CString(tfm.GetTranslation()) + "; " + XSI::CString(tfm.GetRotationXYZAngles()) + "; " + XSI::CString(tfm.GetScaling()) + "]";
+}
+
+XSI::CString to_string(const std::vector<XSI::MATH::CTransformation>& tfm_array) {
+	XSI::CString to_return = "";
+	for (size_t i = 0; i < tfm_array.size(); i++) {
+		to_return += to_string(tfm_array[i]) + (i == tfm_array.size() - 1 ? "" : ", ");
+	}
+
+	return to_return;
+}
+
+XSI::CString to_string(const ccl::Transform& tfm) {
+	XSI::CString to_return = "";
+	to_return += to_string_float4(tfm.x) + "\n";
+	to_return += to_string_float4(tfm.y) + "\n";
+	to_return += to_string_float4(tfm.z);
+
+	return to_return;
 }
 
 XSI::CString bitmask_to_string(uint64_t mask)

@@ -41,7 +41,8 @@ enum UpdateType
 enum CameraType
 {
 	CameraType_General,
-	CameraType_Panoramic
+	CameraType_Panoramic,
+	CameraType_OSL
 };
 
 enum ShaderballType
@@ -70,6 +71,7 @@ enum ShadernodeType
 	ShadernodeType_OSL,
 	ShadernodeType_NativeXSI,
 	ShadernodeType_GLTF,
+	ShadernodeType_MaterialX,
 	ShadernodeType_Unknown
 };
 
@@ -78,6 +80,12 @@ enum SubdivideMode
 	SubdivideMode_None,
 	SubdivideMode_Linear,
 	SubdivideMode_CatmulClark
+};
+
+enum SubdivideSpace
+{
+	SubdivideMode_Pixel,
+	SubdivideMode_Object
 };
 
 enum PointcloudType

@@ -1,0 +1,18 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.7.0
+# options: -q -O2 -IF:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders -IF:/Repositories/cycles_repo/cycles/lib/legacy/windows_x64/osl/share/OSL/shaders -o F:/Repositories/cycles_repo/cycles/build/src/kernel/osl/shaders/node_scene_time.oso
+shader node_scene_time
+oparam	float	Seconds	0		%read{2147483647,-1} %write{0,0}
+oparam	float	Frame	0		%read{2147483647,-1} %write{1,1}
+temp	int	$tmp1	%read{2147483647,-1} %write{0,0}
+const	string	$const1	"scene:time"		%read{0,0} %write{2147483647,-1}
+temp	int	$tmp2	%read{2147483647,-1} %write{1,1}
+const	string	$const2	"scene:frame"		%read{1,1} %write{2147483647,-1}
+code ___main___
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_scene_time.osl:9
+#   getattribute("scene:time", Seconds);
+	getattribute	$tmp1 $const1 Seconds 	%filename{"F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_scene_time.osl"} %line{9} %argrw{"wrw"}
+# F:/Repositories/cycles_repo/cycles/src/kernel/osl/shaders/node_scene_time.osl:10
+#   getattribute("scene:frame", Frame);
+	getattribute	$tmp2 $const2 Frame 	%line{10} %argrw{"wrw"}
+	end

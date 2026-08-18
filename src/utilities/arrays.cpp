@@ -102,7 +102,7 @@ int get_index_in_array(const std::vector<std::vector<ULONG>>& collection, const 
 	{
 		if (is_arrays_the_same(collection[i], array))
 		{
-			return i;
+			return (int)i;
 		}
 	}
 
@@ -128,7 +128,7 @@ float get_maximum(const std::vector<float>& array)
 // return -1 if there are no such element
 int binary_search(const std::vector<ULONG>& array, ULONG value)
 {
-	int i = 0, j = array.size() - 1;
+	int i = 0, j = (int)array.size() - 1;
 	while (i <= j) {
 		int m = i + (j - i) / 2;
 		if (array[m] < value)

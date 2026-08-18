@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <regex>
 
 #include "util/array.h"
 #include "OpenImageIO/ustring.h"
@@ -222,6 +223,37 @@ bool is_number(const XSI::CString &str)
 	return true;
 }
 
+std::string change_tile_to_udim(const std::string& image_path) {
+	size_t last_slash = image_path.find_last_of("/\\");
+	std::string directory, filename;
+	if (last_slash != std::string::npos) {
+		directory = image_path.substr(0, last_slash + 1);
+		filename = image_path.substr(last_slash + 1);
+	}
+
+	if (directory.size() == 0 || filename.size() == 0) {
+		return image_path;
+	}
+
+	size_t last_dot = filename.find_last_of('.');
+	std::string base, ext;
+	if (last_dot != std::string::npos) {
+		base = filename.substr(0, last_dot);
+		ext = filename.substr(last_dot);
+	}
+
+	if (base.size() < 4 || ext.size() == 0) {
+		return image_path;
+	}
+
+	const std::string suffix = "1001";
+	if (base.length() >= suffix.length() && base.compare(base.length() - suffix.length(), suffix.length(), suffix) == 0) {
+		base.replace(base.length() - suffix.length(), suffix.length(), "<UDIM>");
+	}
+
+	return directory + base + ext;
+}
+
 std::string build_source_image_path(const XSI::CString &path, const XSI::CString &source_type, bool is_cyclic, int sequence_start, int sequence_frames, int sequence_offset, const XSI::CTime &eval_time, bool allow_tile, bool &change_to_udims)
 {
 	sequence_frames = std::max(1, sequence_frames);
@@ -234,20 +266,17 @@ std::string build_source_image_path(const XSI::CString &path, const XSI::CString
 		if (allow_tile)
 		{
 			// find the first appearence of the 1001 from the right side, and change it to <UDIM>
-			size_t i = path.Length() - 4;
-			while (i >= 0)
-			{
-				if (path.GetSubString(i, 4) == XSI::CString("1001"))
-				{
-					change_to_udims = true;
-					return std::string((path.GetSubString(0, i) + "<UDIM>" + path.GetSubString(i + 4)).GetAsciiString());
-				}
-				else
-				{
-					i = i - 1;
-				}
+			std::string path_str = path.GetAsciiString();
+			size_t last_slash = path_str.find_last_of("/\\");
+			size_t filename_start = (last_slash == std::string::npos) ? 0 : last_slash + 1;
+			std::string filename = path_str.substr(filename_start);
+
+			size_t pos = filename.rfind("1001");
+			if (pos != std::string::npos) {
+				path_str.replace(filename_start + pos, 4, "<UDIM>");
 			}
-			return path.GetAsciiString();
+			
+			return path_str;
 		}
 		else
 		{
@@ -432,7 +461,11 @@ inline std::string parse_file_name(const std::string& in_filename, int frame)
 XSI::CString vdbprimitive_inputs_to_path(const XSI::CParameterRefArray& params, const XSI::CTime& eval_time)
 {
 	XSI::CString full_path = XSI::CUtils::ResolveTokenString(XSI::CString(params.GetValue("folder", eval_time)), eval_time, false);
-	if (full_path[full_path.Length() - 1] != '//')
+	if (full_path.Length() == 0) {
+		return full_path;
+	}
+
+	if (full_path[full_path.Length() - 1] != '\\')
 	{
 		full_path += XSI::CUtils::Slash();
 	}
@@ -473,4 +506,58 @@ XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::
 XSI::CString combine_geometry_name(const XSI::X3DObject& xsi_object, const XSI::CString &name)
 {
 	return combine_names(xsi_object.GetFullName(), name);
+}
+
+XSI::CString replace_letter(const XSI::CString& input, char from, char to) {
+	std::string to_return(input.GetAsciiString());
+	for (size_t i = 0; i < to_return.size(); i++) {
+		if (to_return[i] == from) {
+			to_return[i] = to;
+		}
+	}
+
+	return XSI::CString(to_return.c_str());
+}
+
+// Deepseek 2026-08-13
+std::vector<std::string> extract_string_literals(const std::string& shader_code) {
+	std::vector<std::string> result;
+
+	std::regex string_literal(R"("([^"\\]|\\.)*")");
+	std::smatch match;
+	std::string::const_iterator start = shader_code.cbegin();
+
+	while (std::regex_search(start, shader_code.cend(), match, string_literal)) {
+		std::string literal = match[0].str();
+		if (literal.size() >= 2) {
+			result.push_back(literal.substr(1, literal.size() - 2));
+		}
+		start = match[0].second;
+	}
+
+	return result;
+}
+
+std::string sanitize_string(const std::string& input, const std::string& default_str) {
+	if (input.empty()) { 
+		return default_str; 
+	}
+
+	std::string result;
+	result.reserve(input.size());
+
+	for (unsigned char ch : input) {
+		if (std::isalnum(ch)) {
+			result.push_back(static_cast<char>(ch));
+		}
+		else {
+			result.push_back('_');
+		}
+	}
+
+	if (result.empty()) {
+		return default_str;
+	}
+
+	return result;
 }
