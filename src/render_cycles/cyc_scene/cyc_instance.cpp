@@ -20,13 +20,15 @@
 // the result objcet instance transform is B * A^{-1} * C
 XSI::MATH::CTransformation calc_instance_object_tfm(const XSI::MATH::CTransformation &master_root_tfm, const XSI::MATH::CTransformation& master_object_tfm, const XSI::MATH::CTransformation& instance_root_tfm)
 {
-	XSI::MATH::CTransformation master_root_tfm_inverse;
-	master_root_tfm_inverse.Invert(master_root_tfm);
+	// WARNING: Softimage transforms exhibit some unexpected behavior when combining transformations; therefore, use Cycles transforms instead
+	ccl::Transform cyc_master_root_tfm = xsi_tfm_co_cycles_tfm(master_root_tfm);
+	ccl::Transform cyc_master_object_tfm = xsi_tfm_co_cycles_tfm(master_object_tfm);
+	ccl::Transform cyc_instance_root_tfm = xsi_tfm_co_cycles_tfm(instance_root_tfm);
 
-	XSI::MATH::CTransformation to_return;
+	ccl::Transform cyc_master_root_tfm_inverse = ccl::transform_inverse(cyc_master_root_tfm);
+	ccl::Transform cyc_result = cyc_instance_root_tfm * cyc_master_root_tfm_inverse * cyc_master_object_tfm;
 
-	to_return.Mul(master_object_tfm, master_root_tfm_inverse);
-	to_return.MulInPlace(instance_root_tfm);
+	XSI::MATH::CTransformation to_return = cycles_tfm_to_xsi_tfm(cyc_result);
 
 	return to_return;
 }

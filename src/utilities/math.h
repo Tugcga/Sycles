@@ -37,6 +37,7 @@ ccl::Transform tweak_camera_matrix(const ccl::Transform& tfm, const ccl::CameraT
 void xsi_matrix_to_cycles_array(std::vector<float>& array, XSI::MATH::CMatrix4 matrix, bool flip_z);
 ccl::Transform xsi_matrix_to_transform(const XSI::MATH::CMatrix4& xsi_matrix, bool flip_z = false);
 ccl::Transform xsi_tfm_co_cycles_tfm(const XSI::MATH::CTransformation& xsi_tfm);
+XSI::MATH::CTransformation cycles_tfm_to_xsi_tfm(const ccl::Transform& cyc_tfm);
 double get_random_value(double min, double max);
 
 ccl::float3 color4_to_float3(const XSI::MATH::CColor4f &color);

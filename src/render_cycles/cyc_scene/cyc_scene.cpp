@@ -1,4 +1,4 @@
-#include "scene/scene.h"
+﻿#include "scene/scene.h"
 #include "scene/mesh.h"
 #include "scene/object.h"
 #include "scene/shader_graph.h"
@@ -914,8 +914,15 @@ void sync_scene_object(ccl::Scene* scene, UpdateContext* update_context, const X
 			}
 		}
 	}
-	else if (object_class == XSI::siModelID)
-	{
+	else if (object_class == XSI::siModelID) {
+		/* In isolation mode, when the model is isolated but its constituent objects are not, the master is not exported.
+		*  But be careful with Scene_Root; it is also a model and can be in isolation as well.
+		*  If, for each isolated model, we export all its sub‑objects, we may export the same object multiple times.
+		*  There is something wrong with objects in isolation.
+		*  When we add only the model, nothing is added — only a null object appears.
+		*  When we select the model hierarchy with the middle mouse button and add it, it is added to the view, but none of the objects from the hierarchy appear in the list.
+		*  When we manually add the object, it appears
+		*/
 		XSI::Model xsi_model(object_ref);
 		if (xsi_model.IsValid() && is_render_visible(xsi_model, false, eval_time))
 		{

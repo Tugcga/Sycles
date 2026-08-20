@@ -19,6 +19,7 @@
 
 #include "../render_base/type_enums.h"
 #include "../render_cycles/cyc_scene/cyc_motion.h"
+#include "logs.h"
 
 const float epsilon = 0.0001f;
 
@@ -283,6 +284,22 @@ ccl::Transform xsi_tfm_co_cycles_tfm(const XSI::MATH::CTransformation& xsi_tfm) 
 	ccl::Transform combine = translation * rotation * scale;
 
 	return combine;
+}
+
+XSI::MATH::CTransformation cycles_tfm_to_xsi_tfm(const ccl::Transform &cyc_tfm) {
+	ccl::float4 cr0 = cyc_tfm.x;
+	ccl::float4 cr1 = cyc_tfm.y;
+	ccl::float4 cr2 = cyc_tfm.z;
+
+	XSI::MATH::CTransformation to_return;
+	XSI::MATH::CMatrix4 mtf;
+	mtf.SetValue(0, 0, cr0[0]); mtf.SetValue(0, 1, cr1[0]); mtf.SetValue(0, 2, cr2[0]); mtf.SetValue(0, 3, 0.0);
+	mtf.SetValue(1, 0, cr0[1]); mtf.SetValue(1, 1, cr1[1]); mtf.SetValue(1, 2, cr2[1]); mtf.SetValue(1, 3, 0.0);
+	mtf.SetValue(2, 0, cr0[2]); mtf.SetValue(2, 1, cr1[2]); mtf.SetValue(2, 2, cr2[2]); mtf.SetValue(2, 3, 0.0);
+	mtf.SetValue(3, 0, cr0[3]); mtf.SetValue(3, 1, cr1[3]); mtf.SetValue(3, 2, cr2[3]); mtf.SetValue(3, 3, 1.0);
+	to_return.SetMatrix4(mtf);
+
+	return to_return;
 }
 
 float get_minimum(float v1, float v2, float v3)
